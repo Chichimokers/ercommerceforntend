@@ -14,8 +14,8 @@ export default function CategoryEdit() {
   } = useForm({});
 
   return (
-    <div style={{ padding: "16px" }}>
-      <div style={{ display: "flex", justifyContent: "space-between" }}>
+    <div className="p-4">
+      <div className="flex justify-between">
         <h1>Edit</h1>
         <div>
           <button
@@ -28,22 +28,16 @@ export default function CategoryEdit() {
         </div>
       </div>
       <form onSubmit={handleSubmit(onFinish)}>
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: "8px",
-          }}
-        >
+        <div className="flex flex-col gap-2">
           <label>
-            <span style={{ marginRight: "8px" }}>Title</span>
+            <span className="mr-2">Title</span>
             <input
               type="text"
               {...register("title", {
                 required: "This field is required",
               })}
             />
-            <span style={{ color: "red" }}>
+            <span className="text-red-500">
               {(errors as any)?.title?.message as string}
             </span>
           </label>

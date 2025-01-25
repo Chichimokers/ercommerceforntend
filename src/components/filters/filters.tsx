@@ -1,0 +1,282 @@
+import {
+  useEffect,
+  useState,
+  useCallback,
+  useMemo,
+  Dispatch,
+  SetStateAction,
+} from "react";
+import { Slider, Select, SelectItem } from "@heroui/react";
+import CheckboxGroup from "../checkbox/checkbox-group";
+import { useSearchParams } from "next/navigation";
+import { useProductContext } from "@/contexts/product-context";
+import { ratingOptions } from "./relation";
+import FiltersSkeleton from "../skeletons/filters-skeleton";
+import { FilterState } from "@/types/types";
+
+interface FiltersProps {
+  onFilterChange?: (filters: FilterState) => void;
+  setIsInvalidFilters: Dispatch<SetStateAction<boolean>>;
+}
+
+interface FilterStateType {
+  categoryIds: string[];
+  subcategoryIds: string[];
+  categoryNames: string[];
+  subcategoryNames: string[];
+  ratingIndex: number;
+  priceRange: [number, number];
+}
+
+const ALL_CATEGORIES = "Todos";
+const DEFAULT_PRICE_RANGE: [number, number] = [0, 1000];
+
+const Filters = ({ onFilterChange, setIsInvalidFilters }: FiltersProps) => {
+  const { categories, isLoading } = useProductContext();
+  const searchParams = useSearchParams();
+
+  const [filterState, setFilterState] = useState<FilterStateType>({
+    categoryIds: [],
+    subcategoryIds: [],
+    categoryNames: [ALL_CATEGORIES],
+    subcategoryNames: [],
+    ratingIndex: 0,
+    priceRange: DEFAULT_PRICE_RANGE,
+  });
+
+  const categoryOptions = useMemo(
+    () => [ALL_CATEGORIES, ...categories.map((cat) => cat.name)],
+    [categories]
+  );
+
+  const subcategoryOptions = useMemo(() => {
+    if (filterState.categoryNames.includes(ALL_CATEGORIES)) return [];
+
+    return categories
+      .filter((cat) => filterState.categoryNames.includes(cat.name))
+      .flatMap((cat) => cat.subCategories.map((sub) => sub.name));
+  }, [categories, filterState.categoryNames]);
+
+  const applyFilters = useCallback(() => {
+    if (!onFilterChange) return;
+
+    const filtersToApply: FilterState = {
+      categories: filterState.categoryNames.includes(ALL_CATEGORIES)
+        ? []
+        : filterState.categoryIds,
+      subcategories: filterState.subcategoryIds,
+      rating: filterState.ratingIndex,
+      priceRange: filterState.priceRange,
+    };
+
+    onFilterChange(filtersToApply);
+  }, [filterState, onFilterChange]);
+
+  useEffect(() => {
+    const category = searchParams.get("category");
+    const subcategory = searchParams.get("subcategory");
+    const pricerange = searchParams.get("pricerange");
+    const rate = searchParams.get("rate");
+
+    // Si no hay parámetros, mantener valores por defecto
+    if (!category && !subcategory && !pricerange && !rate) {
+      setFilterState((prev) => ({
+        ...prev,
+        categoryIds: [],
+        subcategoryIds: [],
+        categoryNames: [ALL_CATEGORIES],
+        subcategoryNames: [],
+        ratingIndex: 0,
+        priceRange: DEFAULT_PRICE_RANGE,
+      }));
+      return;
+    }
+
+    // Procesar parámetros
+    const categoryIds = category?.split(",") || [];
+    const subcategoryIds = subcategory?.split(",") || [];
+
+    const priceRangeValues = pricerange
+      ? pricerange.split("-").map(Number)
+      : DEFAULT_PRICE_RANGE;
+
+    const validPriceRange: [number, number] =
+      priceRangeValues.length === 2
+        ? [priceRangeValues[0], priceRangeValues[1]]
+        : DEFAULT_PRICE_RANGE;
+
+    const rateValue = rate ? Number(rate) : 0;
+
+    // Obtener nombres de categorías
+    const categoryNames =
+      categoryIds.length > 0
+        ? categories
+            .filter((cat) => categoryIds.includes(cat.id.toString()))
+            .map((cat) => cat.name)
+        : [ALL_CATEGORIES];
+
+    // Obtener nombres de subcategorías
+    const subcategoryNames = categories
+      .flatMap((cat) => cat.subCategories)
+      .filter((sub) => subcategoryIds.includes(sub.id.toString()))
+      .map((sub) => sub.name);
+
+    // Actualizar estado
+    setFilterState({
+      categoryIds,
+      subcategoryIds,
+      categoryNames,
+      subcategoryNames,
+      ratingIndex: rateValue,
+      priceRange: validPriceRange,
+    });
+  }, [searchParams, categories, setFilterState]); // Dependencias actualizadas
+
+  useEffect(() => {
+    if (!isLoading) {
+      applyFilters();
+    }
+  }, [applyFilters, isLoading]);
+
+  //hay que arreglar ++>>
+  const handleCategoryChange = useCallback(
+    (selectedNames: string[]) => {
+      // Si se selecciona 'Todos', desmarcamos todas las categorías y subcategorías
+      if (selectedNames.includes(ALL_CATEGORIES)) {
+        setFilterState((prev) => ({
+          ...prev,
+          categoryNames: [ALL_CATEGORIES], // Solo dejamos 'Todos' seleccionado
+          categoryIds: [], // Desmarcamos todas las categorías
+          subcategoryNames: [], // Limpiamos las subcategorías
+          subcategoryIds: [], // Limpiamos las subcategorías
+        }));
+      } else {
+        // Si 'Todos' no está seleccionado, actualizamos las categorías seleccionadas
+        const filteredNames = selectedNames.filter(
+          (name) => name !== ALL_CATEGORIES
+        );
+
+        // Si se selecciona alguna categoría, eliminamos 'Todos' de la selección
+        const ids = filteredNames
+          .map((name) =>
+            categories.find((cat) => cat.name === name)?.id?.toString()
+          )
+          .filter((id): id is string => Boolean(id));
+
+        // Actualizamos las categorías seleccionadas
+        setFilterState((prev) => ({
+          ...prev,
+          categoryNames: filteredNames, // Actualizamos las categorías seleccionadas
+          categoryIds: ids, // Actualizamos los IDs correspondientes
+          subcategoryNames: [], // Limpiamos las subcategorías cuando cambiamos de categoría
+          subcategoryIds: [], // Limpiamos las subcategorías
+        }));
+      }
+      setIsInvalidFilters(selectedNames.length === 0);
+    },
+    [categories]
+  );
+
+  const handleSubcategoryChange = useCallback(
+    (selectedNames: string[]) => {
+      const ids = selectedNames
+        .map((name) =>
+          categories
+            .flatMap((cat) => cat.subCategories)
+            .find((sub) => sub.name === name)
+            ?.id?.toString()
+        )
+        .filter((id): id is string => Boolean(id));
+
+      setFilterState((prev) => ({
+        ...prev,
+        subcategoryNames: selectedNames,
+        subcategoryIds: ids,
+      }));
+    },
+    [categories]
+  );
+
+  const handlePriceRangeChange = useCallback((value: number | number[]) => {
+    const newRange: [number, number] = Array.isArray(value)
+      ? [value[0], value[1]]
+      : [0, value];
+
+    setFilterState((prev) => ({
+      ...prev,
+      priceRange: newRange,
+    }));
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="h-max">
+        <FiltersSkeleton />
+      </div>
+    );
+  }
+
+  return (
+    <div className="h-max mb-4">
+      <CheckboxGroup
+        label="Categorías"
+        options={categoryOptions}
+        selected={filterState.categoryNames}
+        onChange={handleCategoryChange}
+        className="mb-2"
+        required
+        errorCondition={(selected) => selected.length === 0}
+      />
+
+      {filterState.categoryNames.length > 0 &&
+        !filterState.categoryNames.includes(ALL_CATEGORIES) &&
+        subcategoryOptions.length > 0 && (
+          <CheckboxGroup
+            label="Subcategorías"
+            options={subcategoryOptions}
+            selected={filterState.subcategoryNames}
+            onChange={handleSubcategoryChange}
+            className="mb-4"
+          />
+        )}
+
+      <div className="mb-4">
+        <Slider
+          label={"Precio:"}
+          formatOptions={{
+            style: "currency",
+            currencyDisplay: "narrowSymbol",
+            currency: "USD",
+          }}
+          className="max-w-md"
+          value={filterState.priceRange}
+          maxValue={1000}
+          minValue={0}
+          step={20}
+          onChange={handlePriceRangeChange}
+        />
+      </div>
+
+      <Select
+        label="Clasificación"
+        selectedKeys={[filterState.ratingIndex.toString()]}
+        defaultSelectedKeys={[filterState.ratingIndex.toString()]}
+        onSelectionChange={(keys) => {
+          const selectedKey = Array.from(keys)[0];
+          setFilterState((prev) => ({
+            ...prev,
+            ratingIndex: Number(selectedKey),
+          }));
+        }}
+      >
+        {ratingOptions.map((option, index) => (
+          <SelectItem key={index.toString()} value={index.toString()}>
+            {option}
+          </SelectItem>
+        ))}
+      </Select>
+    </div>
+  );
+};
+
+export default Filters;

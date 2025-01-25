@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -6,99 +8,127 @@
 * These styles were added to improve the appearance of the example pages.
 * It is safe to delete them, and they are not intended to be used by Refine components.
 */
-@layer base {
-  input {
-    @apply border border-gray-300 rounded-sm;
-  }
+/* Ocultar scrollbar pero mantener funcionalidad */
+.scrollbar-hide {
+  -ms-overflow-style: none; /* Para Internet Explorer y Edge */
+  scrollbar-width: none; /* Para Firefox */
+}
 
-  input[type="submit"] {
-    @apply bg-[#EFEFEF];
-  }
+.scrollbar-hide::-webkit-scrollbar {
+  display: none; /* Para Chrome, Safari y Opera */
+}
 
-  button {
-    @apply border border-gray-300 px-2 rounded-sm bg-[#EFEFEF];
-  }
+:root {
+  --color-hover-bg-light: rgba(0, 119, 255, 0.06);
+  --color-hover-bg-dark: rgba(0, 119, 255, 0.3);
+}
 
-  h1 {
-    @apply text-2xl font-bold my-6;
-  }
+:root[data-theme="light"] {
+  --text-color: #000000;
+  --color-hover-bg: var(--color-hover-bg-light);
+}
 
-  ul {
-    @apply list-disc my-4;
-  }
+:root[data-theme="dark"] {
+  --text-color: #080202;
+  --color-hover-bg: var(--color-hover-bg-dark);
+}
 
-  a {
-    @apply text-blue-700 underline;
-  }
+.checkbox-wrapper-4 .cbx:hover {
+  background: var(--color-hover-bg);
+}
 
-  label {
-    @apply text-sm font-medium;
-  }
+body {
+  background-color: var(--background-color);
+  color: var(--text-color);
+}
 
-  body {
-    @apply m-0 bg-white;
+@keyframes slideIn {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+    filter: blur(100%);
   }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+    filter: blur(0%);
+  }
+}
 
-  table {
-    @apply border border-black border-collapse;
+@keyframes slideLeft {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+    filter: blur(100%);
   }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+    filter: blur(0%);
+  }
+}
 
-  table th,
-  table td {
-    @apply m-0 p-2 border-b border-r border-black;
+@keyframes slideRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+    filter: blur(100%);
   }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+    filter: blur(0%);
+  }
+}
 
-  table tr:last-child td {
-    @apply border-b-0;
+@keyframes slideOutLeft {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+    filter: blur(0%);
   }
+  to {
+    transform: translateX(-100%);
+    opacity: 0;
+    filter: blur(100%);
+  }
+}
 
-  table th:last-child,
-  table td:last-child {
-    @apply border-r-0;
+@keyframes slideOutRight {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+    filter: blur(0%);
   }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+    filter: blur(100%);
+  }
+}
 
-  .layout {
-    @apply flex gap-4;
-  }
+.slide-in {
+  animation: slideIn 0.75s ease-in-out;
+}
 
-  @media (max-width: 751px) {
-    .layout {
-      @apply block;
-    }
-  }
+.slide-left {
+  animation: slideLeft 0.75s ease-out;
+}
 
-  .layout .content {
-    @apply flex flex-col flex-grow;
-  }
+.slide-right {
+  animation: slideRight 0.75s ease-out;
+}
 
-  .breadcrumb {
-    @apply flex gap-6 p-2 px-4 border-b border-gray-300;
-    list-style-type: "/ ";
-  }
+.slide-out-left {
+  animation: slideOutLeft 0.5s ease-in;
+}
 
-  .breadcrumb a {
-    @apply text-blue-700 no-underline;
-  }
+.slide-out-right {
+  animation: slideOutRight 0.5s ease-in;
+}
 
-  .menu {
-    @apply flex-shrink-0 p-2 pr-4 border-r border-gray-300;
-  }
-
-  .menu a {
-    @apply text-black;
-  }
-
-  .menu .active {
-    @apply font-bold;
-  }
-
-  @media (max-width: 751px) {
-    .menu {
-      @apply border-r-0 border-b border-gray-300;
-    }
-  }
-
-  .menu ul {
-    @apply pl-4;
-  }
+.filter-panel {
+  position: sticky;
+  top: 64px; /* Empieza justo debajo del navbar */
+  transition: top 0.3s ease-in-out; /* Mueve suavemente el panel */
 }
