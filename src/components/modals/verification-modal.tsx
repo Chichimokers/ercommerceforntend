@@ -150,7 +150,12 @@ export default function VerificationModal({
     try {
       const userDataWithCode = { ...userData, code: state.verificationCode };
 
-      await sendVerification(userDataWithCode);
+      const verificationResponse = await sendVerification(userDataWithCode);
+
+      if (!verificationResponse.ok) {
+        const errorData = await verificationResponse;
+        throw new Error(errorData.error || "Error en verificación");
+      }
 
       const signInResponse = await signIn("credentials", {
         email: userData.email,
@@ -158,24 +163,25 @@ export default function VerificationModal({
         redirect: false,
       });
 
-      if (!signInResponse?.ok)
+      if (!signInResponse?.ok) {
+        const errorMessage = signInResponse?.error || "Error de autenticación";
         throw new Error(
-          signInResponse?.error === "CredentialsSignin"
-            ? "Intenta luego :)"
-            : "No eres tú soy yo..."
+          errorMessage.includes("CredentialsSignin")
+            ? "Credenciales inválidas o usuario no verificado"
+            : errorMessage
         );
+      }
 
       setIsAuthorizationInProgress(true);
       onVerifyCode();
     } catch (error) {
+      console.error("Error en verificación:", error);
       setState((prev) => ({
         ...prev,
         errorMessage:
           error instanceof Error
-            ? error.message === "Code expired or not found"
-              ? "El código ha expirado o no existe"
-              : "Código inválido"
-            : "Ocurrió un error al verificar el código.",
+            ? error.message
+            : "Error en el proceso de verificación",
         isLoading: false,
       }));
     }

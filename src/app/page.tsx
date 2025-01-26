@@ -5,6 +5,7 @@ import { banners } from "@/test-data/test-banners";
 import { useProductContext } from "@/contexts/product-context";
 import { PromisesPanel } from "@/components/panels/promises-panel";
 import CategoryPanel from "@/components/panels/category-panel";
+import EmptyState from "@components/empty-state";
 
 const PublicityBannerSlider = dynamic(
   () => import("@/components/sliders/publicity-banner-slider")
@@ -44,7 +45,7 @@ export default function IndexPage() {
         </div>
         <PromisesPanel />
       </div>
-      <div className="slide-right mb-4 mx-2">
+      <div className="mb-4 mx-2 slide-right">
         <h2 className="text-2xl font-bold mb-4 text-center">
           Productos Destacados
         </h2>
@@ -52,6 +53,17 @@ export default function IndexPage() {
           {rating_products.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
+          {rating_products.length === 0 && (
+            <EmptyState
+              message="No hay productos destacados"
+              className="col-span-full"
+              iconSize={64}
+            >
+              <button className="mt-4 px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">
+                Recargar
+              </button>
+            </EmptyState>
+          )}
         </div>
       </div>
       <div className="mb-4 mx-2">
