@@ -35,7 +35,7 @@ const App = (props: React.PropsWithChildren<AppProps>) => {
 
   const authProvider: AuthProvider = {
     login: async () => {
-      signIn("google", {
+      signIn("credentials", {
         callbackUrl: to ? to.toString() : "/",
         redirect: true,
       });

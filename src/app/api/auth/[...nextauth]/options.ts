@@ -22,7 +22,6 @@ export const authOptions: NextAuthOptions = {
         password: { label: "password", type: "password" },
       },
       async authorize(credentials) {
-        console.log("Credenciales recibidas:", credentials);
         try {
           const res = await fetch(
             `${process.env.NEXT_PUBLIC_API_URL}auth/login`,
@@ -33,26 +32,23 @@ export const authOptions: NextAuthOptions = {
             }
           );
 
-          const user = await res.json();
-          console.log("Respuesta del servidor:", res);
-          console.log("Usuario:", user);
-          console.log("Credenciales:", credentials);
-
-          if (res.ok && user) {
-            const payload = await decodeJWT(user.access_token);
-            console.log("Payload decodificado:", payload);
-
-            return {
-              id: payload.sub,
-              name: payload.username,
-              email: credentials?.email,
-              access_token: user.access_token,
-            };
+          if (!res.ok) {
+            const errorData = await res.json();
+            throw new Error(errorData.message || 'Authentication failed');
           }
 
-          return null;
+          const { access_token } = await res.json();
+          const payload = await decodeJWT(access_token);
+
+          return {
+            id: payload.sub,
+            name: payload.username,
+            email: credentials?.email,
+            access_token: access_token,
+          };
+          
         } catch (error) {
-          console.error("Error durante la autorización:", error);
+          console.error("Error de autenticación:", error);
           return null;
         }
       },
@@ -111,10 +107,6 @@ export const authOptions: NextAuthOptions = {
           throw new Error(`Failed to log in with ${account.provider}`);
         }
         console.log("Credenciales para inicio de sesión:", credentials);
-        console.log({
-          email: credentials.password.value,
-          password: credentials.email.value,
-        });
         try {
           const response = await fetch(
             `${process.env.NEXT_PUBLIC_API_URL}auth/login`,
@@ -124,11 +116,18 @@ export const authOptions: NextAuthOptions = {
                 "Content-Type": "application/json",
               },
               body: JSON.stringify({
-                email: credentials.password.value,
-                password: credentials.email.value,
+                email: credentials.email,
+                password: credentials.password,
               }),
             }
           );
+
+          console.log(
+            `email: ${credentials.user}\n
+            password: ${credentials.password} 
+            `
+            
+          )
 
           if (!response.ok) {
             throw new Error("Failed to log in with credentials");
