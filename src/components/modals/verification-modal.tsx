@@ -27,6 +27,9 @@ export default function VerificationModal({
   onVerifyCode,
   userData,
 }: VerificationModalProps) {
+  const INITIAL_TIME = 120;
+  const TIME_PENALTY = 30;
+
   const initState = {
     verificationCode: "",
     errorMessage: "",
@@ -36,7 +39,7 @@ export default function VerificationModal({
     openSuccessModal: false,
     isLoadingResend: false,
     accessToResendButton: false,
-    timeRemaining: 120,
+    timeRemaining: INITIAL_TIME,
   };
 
   const [state, setState] = useState(initState);
@@ -85,7 +88,7 @@ export default function VerificationModal({
               timeRemaining: 0,
               timerActive: false,
               accessToResendButton: true,
-              errorMessage: "Tiempo de verificación agotado",
+              errorMessage: "¡Código expirado! Por favor solicita uno nuevo",
             };
           }
           return { ...prev, timeRemaining: prev.timeRemaining - 1 };
@@ -112,7 +115,7 @@ export default function VerificationModal({
         ...prev,
         messageForSuccesModal: "Se ha reenviado el código a su correo.",
         openSuccessModal: true,
-        timeRemaining: initState.timeRemaining, // Reinicia el temporizador
+        timeRemaining: INITIAL_TIME,
       }));
     } catch (error) {
       setState((prev) => ({
@@ -122,7 +125,7 @@ export default function VerificationModal({
             ? error.message
             : "Error al reenviar el código. Verifique su correo.",
         isLoadingResend: false,
-        timeRemaining: prev.timeRemaining + 30, // Aumenta el tiempo en caso de fallo
+        timeRemaining: prev.timeRemaining + TIME_PENALTY,
       }));
     }
   };
@@ -233,7 +236,7 @@ export default function VerificationModal({
             />
             {state.timeRemaining > 0 && (
               <small className="text-default-500 italic">
-                Tiempo para que expire: {formatTime(state.timeRemaining)}
+                Tiempo restante: {formatTime(state.timeRemaining)}
               </small>
             )}
             {state.accessToResendButton && (

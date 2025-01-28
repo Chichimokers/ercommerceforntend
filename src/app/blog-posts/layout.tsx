@@ -1,4 +1,4 @@
-import authOptions from "@app/api/auth/[...nextauth]/options";
+import { authOptions } from "@app/api/auth/[...nextauth]";
 import { Layout as BaseLayout } from "@components/layout";
 import { getServerSession } from "next-auth/next";
 import { redirect } from "next/navigation";

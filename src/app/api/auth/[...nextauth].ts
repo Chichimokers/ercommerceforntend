@@ -28,22 +28,10 @@ export const authOptions: NextAuthOptions = {
             `${process.env.NEXT_PUBLIC_API_URL}auth/login`,
             {
               method: "POST",
-              body: JSON.stringify({
-                email: credentials?.email,
-                password: credentials?.password,
-              }),
-              headers: {
-                "Content-Type": "application/json",
-                Accept: "application/json",
-              },
+              body: JSON.stringify(credentials),
+              headers: { "Content-Type": "application/json" },
             }
           );
-
-          if (!res.ok) {
-            const errorText = await res.text();
-            console.error("Error del servidor:", errorText);
-            throw new Error(errorText);
-          }
 
           const user = await res.json();
           console.log("Respuesta del servidor:", res);
@@ -64,7 +52,7 @@ export const authOptions: NextAuthOptions = {
 
           return null;
         } catch (error) {
-          console.error("Error en authorize:", error);
+          console.error("Error durante la autorización:", error);
           return null;
         }
       },
@@ -89,7 +77,7 @@ export const authOptions: NextAuthOptions = {
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id;
-        session.accessToken = token.accessToken as string;
+        session.accessToken = token.accessToken;
       }
       return session;
     },
@@ -120,37 +108,42 @@ export const authOptions: NextAuthOptions = {
         }
       } else if (account?.provider === "credentials") {
         if (!credentials) {
-          throw new Error(`Error de credenciales: ${account.provider}`);
+          throw new Error(`Failed to log in with ${account.provider}`);
         }
         console.log("Credenciales para inicio de sesión:", credentials);
-
+        console.log({
+          email: credentials.password.value,
+          password: credentials.email.value,
+        });
         try {
           const response = await fetch(
             `${process.env.NEXT_PUBLIC_API_URL}auth/login`,
             {
               method: "POST",
-              headers: { "Content-Type": "application/json" },
+              headers: {
+                "Content-Type": "application/json",
+              },
               body: JSON.stringify({
-                email: credentials.email.value,
-                password: credentials.password.value,
+                email: credentials.password.value,
+                password: credentials.email.value,
               }),
             }
           );
 
           if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || "Error en credenciales");
+            throw new Error("Failed to log in with credentials");
           }
 
           return true;
         } catch (error) {
           console.error(
-            "Error en inicio de sesión:",
-            error instanceof Error ? error.message : "Error desconocido"
+            "Error durante el inicio de sesión con credenciales:",
+            error
           );
           return false;
         }
       }
+
       return true;
     },
   },
