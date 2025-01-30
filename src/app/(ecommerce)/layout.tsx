@@ -9,12 +9,12 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <>
       {/* Header fijo con altura definida */}
-      < Header className="fixed top-0 left-0 right-0 z-50 shadow-sm h-16" />
+      < Header className="fixed top-0 left-0 right-0 z-50 shadow-sm h-16 border-b border-default-50" />
 
       {/* Contenedor principal con padding para el header */}
       < main
         className="flex-grow container mx-auto max-w-[1920px] min-h-[70vh]"
-        style={{ paddingTop: "1rem" }
+        style={{ paddingTop: "4rem" }
         } // 80px = h-16 (4rem) + 1rem
       >
         {children}

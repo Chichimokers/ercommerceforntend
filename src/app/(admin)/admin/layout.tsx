@@ -12,9 +12,7 @@ import { theme } from "antd";
 import { useTheme } from "next-themes";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
-  const { token } = theme.useToken();
   const { resolvedTheme } = useTheme();
-  console.log(token.colorBgContainer)
 
   return (
     <AntdRegistry>

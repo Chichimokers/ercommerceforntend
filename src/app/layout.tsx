@@ -22,19 +22,20 @@ export default function RootLayout({
     <html lang="es" suppressHydrationWarning>
       <Head />
       <body className="min-h-screen flex flex-col">
-        <RefineContext>
-          <SessionProvider>
-            <CurrencyAndExchangeRateProvider>
-              <ModalProvider>
-                <ProductProvider>
-                  <CartProvider>
-                    <AuthLayout>
-                      <ThemeProvider
-                        disableTransitionOnChange
-                        enableSystem
-                        attribute="class"
-                        defaultTheme="system"
-                      >
+        <ThemeProvider
+          disableTransitionOnChange
+          enableSystem
+          attribute="class"
+          defaultTheme="system"
+        >
+          <RefineContext>
+            <SessionProvider>
+              <CurrencyAndExchangeRateProvider>
+                <ModalProvider>
+                  <ProductProvider>
+                    <CartProvider>
+                      <AuthLayout>
+
                         <ConfigProvider
                           theme={{
                             algorithm: theme.defaultAlgorithm,
@@ -45,14 +46,15 @@ export default function RootLayout({
                             {children}
                           </HeroUIProvider>
                         </ConfigProvider>
-                      </ThemeProvider>
-                    </AuthLayout>
-                  </CartProvider>
-                </ProductProvider>
-              </ModalProvider>
-            </CurrencyAndExchangeRateProvider>
-          </SessionProvider>
-        </RefineContext>
+
+                      </AuthLayout>
+                    </CartProvider>
+                  </ProductProvider>
+                </ModalProvider>
+              </CurrencyAndExchangeRateProvider>
+            </SessionProvider>
+          </RefineContext>
+        </ThemeProvider>
       </body>
     </html>
   )
