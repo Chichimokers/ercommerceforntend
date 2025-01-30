@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState, useEffect, useCallback } from "react";
 import {
   Modal,
@@ -27,6 +29,9 @@ export default function VerificationModal({
   onVerifyCode,
   userData,
 }: VerificationModalProps) {
+  const INITIAL_TIME = 120;
+  const TIME_PENALTY = 30;
+
   const initState = {
     verificationCode: "",
     errorMessage: "",
@@ -36,7 +41,7 @@ export default function VerificationModal({
     openSuccessModal: false,
     isLoadingResend: false,
     accessToResendButton: false,
-    timeRemaining: 120,
+    timeRemaining: INITIAL_TIME,
   };
 
   const [state, setState] = useState(initState);
@@ -85,7 +90,7 @@ export default function VerificationModal({
               timeRemaining: 0,
               timerActive: false,
               accessToResendButton: true,
-              errorMessage: "Tiempo de verificación agotado",
+              errorMessage: "¡Código expirado! Por favor solicita uno nuevo",
             };
           }
           return { ...prev, timeRemaining: prev.timeRemaining - 1 };
@@ -112,7 +117,7 @@ export default function VerificationModal({
         ...prev,
         messageForSuccesModal: "Se ha reenviado el código a su correo.",
         openSuccessModal: true,
-        timeRemaining: initState.timeRemaining, // Reinicia el temporizador
+        timeRemaining: INITIAL_TIME,
       }));
     } catch (error) {
       setState((prev) => ({
@@ -122,7 +127,7 @@ export default function VerificationModal({
             ? error.message
             : "Error al reenviar el código. Verifique su correo.",
         isLoadingResend: false,
-        timeRemaining: prev.timeRemaining + 30, // Aumenta el tiempo en caso de fallo
+        timeRemaining: prev.timeRemaining + TIME_PENALTY,
       }));
     }
   };
@@ -150,7 +155,12 @@ export default function VerificationModal({
     try {
       const userDataWithCode = { ...userData, code: state.verificationCode };
 
-      await sendVerification(userDataWithCode);
+      const verificationResponse = await sendVerification(userDataWithCode);
+
+      if (!verificationResponse.ok) {
+        const errorData = await verificationResponse;
+        throw new Error(errorData.error || "Error en verificación");
+      }
 
       const signInResponse = await signIn("credentials", {
         email: userData.email,
@@ -158,24 +168,25 @@ export default function VerificationModal({
         redirect: false,
       });
 
-      if (!signInResponse?.ok)
+      if (!signInResponse?.ok) {
+        const errorMessage = signInResponse?.error || "Error de autenticación";
         throw new Error(
-          signInResponse?.error === "CredentialsSignin"
-            ? "Intenta luego :)"
-            : "No eres tú soy yo..."
+          errorMessage.includes("CredentialsSignin")
+            ? "Credenciales inválidas o usuario no verificado"
+            : errorMessage
         );
+      }
 
       setIsAuthorizationInProgress(true);
       onVerifyCode();
     } catch (error) {
+      console.error("Error en verificación:", error);
       setState((prev) => ({
         ...prev,
         errorMessage:
           error instanceof Error
-            ? error.message === "Code expired or not found"
-              ? "El código ha expirado o no existe"
-              : "Código inválido"
-            : "Ocurrió un error al verificar el código.",
+            ? error.message
+            : "Error en el proceso de verificación",
         isLoading: false,
       }));
     }
@@ -227,7 +238,7 @@ export default function VerificationModal({
             />
             {state.timeRemaining > 0 && (
               <small className="text-default-500 italic">
-                Tiempo para que expire: {formatTime(state.timeRemaining)}
+                Tiempo restante: {formatTime(state.timeRemaining)}
               </small>
             )}
             {state.accessToResendButton && (

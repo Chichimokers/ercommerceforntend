@@ -1,4 +1,4 @@
-import { Accordion, AccordionItem } from "@heroui-org/react";
+import { Accordion, AccordionItem } from "@heroui/react";
 import OrderComponent from "./order/order";
 import { Order } from "@/types/types";
 

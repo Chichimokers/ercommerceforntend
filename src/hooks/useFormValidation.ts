@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 
 import { ValidationRules } from "@/types/validation-rules";
