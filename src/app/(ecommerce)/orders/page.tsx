@@ -1,11 +1,16 @@
+'use client';
+
 import dynamic from "next/dynamic";
 import useSWR from "swr";
 import { Spinner } from "@heroui/react";
 import { Order } from "@/types/types";
 
-const OrderList = dynamic(() => import("@/components/order-list"));
+const OrderList = dynamic(() => import("@/components/order-list"), {
+  ssr: false,
+  loading: () => <Spinner color="primary" />
+});
 
-export default function OrdersPage() {
+const OrdersPage = () => {
   const API_URL = "/api/orders";
 
   function mapOrder(orders: any[]): Order[] {
@@ -47,6 +52,10 @@ export default function OrdersPage() {
       },
     });
 
+    if (response.status === 404) {
+      throw new Error('No orders found');
+    }
+
     if (!response.ok) {
       throw new Error("Error fetching data");
     }
@@ -60,13 +69,18 @@ export default function OrdersPage() {
     isLoading,
   } = useSWR(API_URL, fetcher, {
     fallbackData: null,
+    errorRetryCount: 0, // Desactiva reintentos automáticos
   });
 
   if (error) {
     console.error(error);
     return (
-      <section className="flex items-center justify-center py-8 px-2">
-        <p className="text-red-500">Error al cargar las órdenes.</p>
+      <section className="flex flex-col items-center justify-center py-8 px-2">
+        {error.message === 'No orders found' ? (
+          <p className="text-center text-gray-500">No tienes pedidos aún.</p>
+        ) : (
+          <p className="text-red-500">Error al cargar las órdenes.</p>
+        )}
       </section>
     );
   }
@@ -84,3 +98,7 @@ export default function OrdersPage() {
     </div>
   );
 }
+
+export default dynamic(() => Promise.resolve(OrdersPage), {
+  ssr: false
+})

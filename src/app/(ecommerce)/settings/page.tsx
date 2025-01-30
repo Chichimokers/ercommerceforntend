@@ -1,8 +1,8 @@
 import React from "react";
-import ProfileImageSection from "../../components/sections/settings-porfile-imagen-section";
+import ProfileImageSection from "../../../components/sections/settings-porfile-imagen-section";
 import { Form, Input, Switch, cn } from "@heroui/react";
 import { monedas } from "@/types/monedas";
-import CurrencySelector from "../../components/selects/currency-selector";
+import CurrencySelector from "../../../components/selects/currency-selector";
 import { CustomButton } from "@/components/buttons/custom-button";
 
 export default function SettingsPage() {
