@@ -115,6 +115,7 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({
       productsError,
       filters,
       currentPage,
+      mutateCartProducts
     ]
   );
 
