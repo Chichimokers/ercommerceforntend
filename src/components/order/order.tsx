@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { Order, Item } from "@/types/types";
-import { Chip } from "@heroui-org/react";
+import { Chip } from "@heroui/react";
 import CustomQRCode from "../qr-code";
 import { CustomButton } from "../buttons/custom-button";
 

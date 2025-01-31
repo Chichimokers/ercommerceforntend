@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useEffect } from "react";
 import { Modal, Alert, ModalContent } from "@heroui/react";
 import { FaXmark } from "react-icons/fa6";

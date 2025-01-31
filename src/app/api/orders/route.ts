@@ -1,10 +1,8 @@
 import { getToken } from "next-auth/jwt";
-import type { NextApiRequest, NextApiResponse } from "next";
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse,
-) {
+export async function GET(req: NextRequest) {
   const secret = process.env.NEXTAUTH_SECRET;
   const token = await getToken({ req, secret });
 
@@ -23,13 +21,13 @@ export default async function handler(
     if (!response.ok) {
       const errorData = await response.json();
       console.error("Error en la respuesta de la API:", errorData);
-      return res.status(response.status).json(errorData);
+      return NextResponse.json(errorData, { status: response.status });
     }
 
     const data = await response.json();
-    return res.status(200).json(data);
+    return NextResponse.json(data, { status: 200 });
   } catch (error) {
     console.error("Error al realizar la solicitud:", error);
-    return res.status(500).json({ message: "Internal server error" });
+    return NextResponse.json({ message: "Internal server error" }, { status: 500 });
   }
-}
+} 
