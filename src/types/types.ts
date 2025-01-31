@@ -9,6 +9,7 @@ export type ProductBase = {
   image?: string;
   quantity: number;
   averageRating?: number;
+  deleted_at?: Date;
   discount?: {
     min: number;
     reduction: number;

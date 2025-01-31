@@ -6,15 +6,13 @@ import { AntdRegistry } from "@ant-design/nextjs-registry";
 import NextRouterProvider from "@refinedev/nextjs-router/app";
 import dataProvider from "@refinedev/simple-rest";
 import { authProvider } from "@/providers/auth-provider";
-import { GoogleOutlined, ShoppingOutlined, UserOutlined } from "@ant-design/icons";
+import { GoogleOutlined, ProductOutlined, ShoppingOutlined, UserOutlined } from "@ant-design/icons";
 import { ConfigProvider, App } from "antd";
 import { theme } from "antd";
 import { useTheme } from "next-themes";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
-  const { token } = theme.useToken();
   const { resolvedTheme } = useTheme();
-  console.log(token.colorBgContainer)
 
   return (
     <AntdRegistry>
@@ -45,7 +43,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               create: "/admin/products/create",
               edit: "/admin/products/edit/:id",
               show: "/admin/products/show/:id",
-              meta: { label: "Productos", icon: <ShoppingOutlined /> },
+              meta: { label: "Productos", icon: <ProductOutlined /> },
             },
             {
               name: "orders",

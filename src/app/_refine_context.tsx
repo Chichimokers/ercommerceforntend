@@ -1,15 +1,17 @@
 "use client";
 
-import { GitHubBanner, Refine, type AuthProvider } from "@refinedev/core";
+import { Refine, type AuthProvider } from "@refinedev/core";
 import { RefineKbar, RefineKbarProvider } from "@refinedev/kbar";
 import { SessionProvider, signIn, signOut, useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import React from "react";
+import Image from "next/image";
 
 import routerProvider from "@refinedev/nextjs-router";
 
 import { dataProvider } from "@providers/data-provider";
 import "@styles/global.css";
+import { Spinner } from "@heroui/react";
 
 type RefineContextProps = {};
 
@@ -30,7 +32,12 @@ const App = (props: React.PropsWithChildren<AppProps>) => {
   const to = usePathname();
 
   if (status === "loading") {
-    return <span>loading...</span>;
+    return (
+      <div className="h-screen flex flex-col justify-center items-center dark:bg-black gap-4">
+        <Image src={"/logonav.png"} width={300} height={100} alt="EsAki" />
+        <Spinner />
+      </div>
+    );
   }
 
   const authProvider: AuthProvider = {
@@ -95,7 +102,6 @@ const App = (props: React.PropsWithChildren<AppProps>) => {
 
   return (
     <>
-      <GitHubBanner />
       <RefineKbarProvider>
         <Refine
           routerProvider={routerProvider}
