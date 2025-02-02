@@ -12,7 +12,6 @@ jobs:
   deploy-frontend:
     runs-on: self-hosted
     environment: production
-    tags: [frontend-runner]  # Etiqueta específica para el runner del front
     steps:
       - name: Clonar repositorio frontend
         uses: actions/checkout@v3
