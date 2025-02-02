@@ -36,7 +36,7 @@ jobs:
           npm install
 
       - name: Desplegar frontend
-         working-directory: ./frontend
+        working-directory: ./frontend
         run: |
           pm2 delete frontend || true
           pm2 start npm --name "frontend" -- run pre -- -p 3001
