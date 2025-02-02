@@ -3,6 +3,10 @@ name: CI/CD Separado
 on:
   push:
     branches: [master]
+  pull_request:
+    branches: [master]
+  commit:
+    branches: [master]
 
 jobs:
   deploy-frontend:
