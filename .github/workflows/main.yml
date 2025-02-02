@@ -1,10 +1,10 @@
-name: CI/CD Separado
 
 on:
   push:
     branches: [master]
   pull_request:
     branches: [master]
+
 
 jobs:
   deploy-frontend:
@@ -13,7 +13,7 @@ jobs:
       - name: Clonar repositorio frontend
         uses: actions/checkout@v3
         with:
-          path: frontend 
+            path: frontend 
 
       - name: Configurar Node.js
         uses: actions/setup-node@v3
@@ -21,19 +21,20 @@ jobs:
           node-version: 22.2.0
           cache: 'npm'
 
+      # Instalar herramientas globales
       - name: Instalar dependencias globales
+        working-directory: ./frontend
         run: |
-          npm install -g dotenv-cli
-          npm install -g pm2
-
+              npm install -g dotenv-cli
+              npm install -g pm2
+              
       - name: Instalar y buildear
         working-directory: ./frontend
         run: |
           npm install
-          npm run build  # Asegúrate de que este script exista en tu package.json
 
       - name: Desplegar frontend
         working-directory: ./frontend
         run: |
           pm2 delete frontend || true
-          pm2 start npm --name "frontend" -- run start -- -p 3001  # Asumiendo que el script es "start"
+          pm2 start npm --name "frontend" -- run pre -- -p 3001
