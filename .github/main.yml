@@ -30,7 +30,6 @@ jobs:
         working-directory: ./frontend
         run: |
           npm install
-          npm run build
 
       - name: Desplegar frontend
         run: |
