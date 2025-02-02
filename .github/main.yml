@@ -12,7 +12,8 @@ jobs:
     steps:
       - name: Clonar repositorio frontend
         uses: actions/checkout@v3
-  
+        with:
+                path: frontend 
 
       - name: Configurar Node.js
         uses: actions/setup-node@v3
@@ -22,6 +23,7 @@ jobs:
 
       # Instalar herramientas globales
       - name: Instalar dependencias globales
+        working-directory: ./frontend
         run: |
               npm install -g dotenv-cli
               npm install -g pm2
@@ -32,6 +34,7 @@ jobs:
           npm install
 
       - name: Desplegar frontend
+         working-directory: ./frontend
         run: |
           pm2 delete frontend || true
           pm2 start npm --name "frontend" -- run pre -- -p 3001
