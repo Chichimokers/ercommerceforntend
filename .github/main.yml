@@ -11,12 +11,11 @@ on:
 jobs:
   deploy-frontend:
     runs-on: self-hosted
-    environment: production
     steps:
       - name: Clonar repositorio frontend
         uses: actions/checkout@v3
         with:
-                path: frontend 
+            path: frontend 
 
       - name: Configurar Node.js
         uses: actions/setup-node@v3
