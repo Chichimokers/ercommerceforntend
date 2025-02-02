@@ -9,6 +9,7 @@
     "dev": "next dev --turbo",
     "build": "next build",
     "start": "next start",
+    "pre": " npx dotenv -e environments/preprod.env -- next start --turbo",
     "lint": "eslint . --ext .ts,.tsx -c .eslintrc.json --fix",
     "test": "next test",
     "refine-dev": "cross-env NODE_OPTIONS=--max_old_space_size=4096 refine dev",
