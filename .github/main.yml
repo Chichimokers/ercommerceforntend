@@ -1,0 +1,32 @@
+name: CI/CD Separado
+
+on:
+  push:
+    branches: [master]
+
+jobs:
+  deploy-frontend:
+    runs-on: self-hosted
+    environment: production
+    tags: [frontend-runner]  # Etiqueta específica para el runner del front
+    steps:
+      - name: Clonar repositorio frontend
+        uses: actions/checkout@v3
+  
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22.2.0
+          cache: 'npm'
+
+      - name: Instalar y buildear
+        working-directory: ./frontend
+        run: |
+          npm install
+          npm run build
+
+      - name: Desplegar frontend
+        run: |
+          pm2 delete frontend || true
+          pm2 start npm --name "frontend" -- start -- -p 3001
