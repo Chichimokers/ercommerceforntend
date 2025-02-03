@@ -1,6 +1,6 @@
 import { categoryIcons } from "../filters/categories";
 import { useProductContext } from "@/contexts/product-context";
-import { FaTh } from "react-icons/fa";
+import { FaTh, FaQuestion } from "react-icons/fa";
 import dynamic from "next/dynamic";
 
 // Carga dinámica de componentes
@@ -8,6 +8,12 @@ const CategoryCard = dynamic(() => import("@/components/cards/category-cards"));
 
 const CategoryPanel = () => {
   const { categories } = useProductContext();
+
+  const getCategoryIcon = (categoryName: string) => {
+    const Icon = categoryIcons[categoryName as keyof typeof categoryIcons];
+    return Icon || FaQuestion; // Icono por defecto para categorías desconocidas
+  };
+
   return (
     <div className="relative w-full">
       <div className="absolute inset-0 pointer-events-none" />
@@ -24,8 +30,7 @@ const CategoryPanel = () => {
           />
         </div>
         {categories.map((category) => {
-          const Icon =
-            categoryIcons[category.name as keyof typeof categoryIcons];
+          const Icon = getCategoryIcon(category.name);
           const url = `/products?page=1&limit=30&category=${category.id}`;
 
           return (
