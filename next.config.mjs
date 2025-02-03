@@ -42,7 +42,23 @@ const nextConfig = {
       {
         protocol: "https",
         hostname: "placehold.co", // Nuevo dominio de placeholder
-      }
+      },
+      {
+        protocol: "https",
+        hostname: "placekitten.com",
+      },
+      {
+        protocol: "https",
+        hostname: "dummyimage.com",
+      },
+      {
+        protocol: "https",
+        hostname: "picsum.photos",
+      },
+      {
+        protocol: "https",
+        hostname: "via.placeholder.com",
+      },
     ],
     formats: ["image/avif", "image/webp"], // Formatos modernos
     minimumCacheTTL: 86400, // 1 día de caché

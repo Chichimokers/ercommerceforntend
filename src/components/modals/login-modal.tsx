@@ -78,7 +78,7 @@ export default function Login({
 
       setSubmitSuccessModal(true);
       closeModals();
-      
+
     } catch (error) {
       setSubmitError(error instanceof Error ? error.message : "Error desconocido");
       setSubmitErrorModal(true);
@@ -90,9 +90,9 @@ export default function Login({
   const handleSocialLogin = async (provider: "google" | "facebook") => {
     try {
       setIsLoading(true);
-      await signIn(provider, { 
+      await signIn(provider, {
         redirect: false,
-        callbackUrl: "/" 
+        callbackUrl: "/"
       });
     } catch (error) {
       console.error(`${provider} login failed:`, error);
@@ -253,7 +253,7 @@ export default function Login({
         isOpen={SubmitSuccessModal}
         onClose={() => {
           setSubmitSuccessModal(false);
-          setTimeout(() => {}, 1000);
+          setTimeout(() => { }, 1000);
           setIsAuthorizationInProgress(false);
           closeModals();
         }}
