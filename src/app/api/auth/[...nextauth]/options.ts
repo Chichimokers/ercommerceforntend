@@ -5,6 +5,8 @@ import FacebookProvider from "next-auth/providers/facebook";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { decodeJWT } from "@/helpers/jwt-decode";
 
+console.log(process.env.NEXTAUTH_SECRET)
+
 export const authOptions: NextAuthOptions = {
   providers: [
     GoogleProvider({
@@ -30,7 +32,14 @@ export const authOptions: NextAuthOptions = {
               body: JSON.stringify(credentials),
               headers: { "Content-Type": "application/json" },
             }
-          );
+          )
+
+          console.log('Credenciales recibidas:', credentials);
+          console.log('Respuesta del servidor:', {
+            status: res.status,
+            headers: res.headers,
+            body: await res.text().catch(() => 'No se pudo leer el cuerpo')
+          });
 
           if (!res.ok) {
             const errorData = await res.json();
@@ -46,7 +55,7 @@ export const authOptions: NextAuthOptions = {
             email: credentials?.email,
             access_token: access_token,
           };
-          
+
         } catch (error) {
           console.error("Error de autenticación:", error);
           return null;
@@ -126,7 +135,7 @@ export const authOptions: NextAuthOptions = {
             `email: ${credentials.user}\n
             password: ${credentials.password} 
             `
-            
+
           )
 
           if (!response.ok) {
@@ -151,6 +160,17 @@ export const authOptions: NextAuthOptions = {
   },
   session: {
     strategy: "jwt",
+  },
+  cookies: {
+    sessionToken: {
+      name: `__Secure-next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+      },
+    },
   },
   secret: process.env.NEXTAUTH_SECRET,
 };

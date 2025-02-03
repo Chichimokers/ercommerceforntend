@@ -101,7 +101,7 @@ export default function VerificationModal({
     return () => {
       if (intervalId) clearInterval(intervalId);
     };
-  }, [isOpen]);
+  }, [isOpen, state.timeRemaining]);
 
   const handleResendCode = async () => {
     if (!userData) {
@@ -272,11 +272,10 @@ export default function VerificationModal({
                 ? "bordered"
                 : "solid"
             }
-            className={`transition-all duration-300 ease-in-out ${
-              state.accessToResendButton || state.verificationCode.length !== 6
-                ? "opacity-50 cursor-not-allowed"
-                : "hover:scale-105 hover:shadow-md"
-            }`}
+            className={`transition-all duration-300 ease-in-out ${state.accessToResendButton || state.verificationCode.length !== 6
+              ? "opacity-50 cursor-not-allowed"
+              : "hover:scale-105 hover:shadow-md"
+              }`}
           >
             Verificar Código
           </Button>
