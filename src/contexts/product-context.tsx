@@ -59,7 +59,7 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({
     setFilters(newFilters);
     setCurrentPage(newPage);
     setIsInitialLoad(false);
-  }, [pathname, searchParams]);
+  }, [pathname, searchParams, getQueryParams]);
 
   // Actualizar URL cuando cambian los filtros
   useEffect(() => {
@@ -71,7 +71,7 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({
     if (window.location.href !== newUrl) {
       router.replace(newUrl);
     }
-  }, [filters, currentPage, pathname]);
+  }, [filters, currentPage, pathname, isInitialLoad, router]);
 
   // Fetch de productos
   const {
