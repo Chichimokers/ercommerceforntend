@@ -7,6 +7,7 @@ import { Pagination } from "@heroui/react";
 import dynamic from "next/dynamic";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
+import Image from "next/image";
 
 const ProductCard = dynamic(() => import("@/components/cards/product-card"));
 const FilterDrawer = dynamic(
@@ -31,7 +32,7 @@ export default function ProductPage() {
     if (page !== currentPage) {
       setCurrentPage(page);
     }
-  }, [searchParams]);
+  }, [currentPage, searchParams]);
 
   const handlePageChange = useCallback(
     (page: number) => {
@@ -49,7 +50,7 @@ export default function ProductPage() {
 
   return (
     <div>
-      {isLoading && <LoadingModal isOpen={true} />}
+
 
       <div className="flex flex-col md:flex-row w-full min-h-screen">
         <FilterPanel />
@@ -59,10 +60,12 @@ export default function ProductPage() {
         <section className="flex-1 flex flex-col gap-2 p-2 overflow-y-auto relative">
           {errorStatus ? (
             <div className="w-full h-full flex items-center justify-center">
-              <div className="flex flex-col items-center justify-center gap-4">
-                <img
-                  src="Empty.svg"
+              <div className="flex flex-col items-center justify-center gap-4 relative h-full">
+                <Image
+                  src="/Empty.svg"
                   alt={errorMessage}
+                  width={400}
+                  height={300}
                   className="w-full xs:w-3/4 sm:w-2/3 md:w-1/2 h-[30vh] xs:h-[35vh] md:h-[40vh] object-contain transition-all duration-300"
                 />
                 <h2 className="text-lg xs:text-xl md:text-2xl text-default-500 font-medium text-center">

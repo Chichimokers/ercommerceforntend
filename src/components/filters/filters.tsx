@@ -17,6 +17,7 @@ import { FilterState } from "@/types/types";
 interface FiltersProps {
   onFilterChange?: (filters: FilterState) => void;
   setIsInvalidFilters: Dispatch<SetStateAction<boolean>>;
+  className?: string;
 }
 
 interface FilterStateType {
@@ -31,7 +32,7 @@ interface FilterStateType {
 const ALL_CATEGORIES = "Todos";
 const DEFAULT_PRICE_RANGE: [number, number] = [0, 1000];
 
-const Filters = ({ onFilterChange, setIsInvalidFilters }: FiltersProps) => {
+const Filters = ({ onFilterChange, setIsInvalidFilters, className }: FiltersProps) => {
   const { categories, isLoading } = useProductContext();
   const searchParams = useSearchParams();
 
@@ -208,7 +209,7 @@ const Filters = ({ onFilterChange, setIsInvalidFilters }: FiltersProps) => {
   }
 
   return (
-    <div className="h-max mb-4">
+    <div className={`${className} opacity-0 animate-fade-in h-max mb-4`}>
       <CheckboxGroup
         label="Categorías"
         options={categoryOptions}
