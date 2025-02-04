@@ -65,6 +65,7 @@ export default function Login({
     if (!validateForm()) return;
 
     try {
+      console.log(process.env.NEXTAUTH_SECRET)
       setIsLoading(true);
       const result = await signIn("credentials", {
         email: formData.email,
