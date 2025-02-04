@@ -2,7 +2,26 @@ import dynamic from "next/dynamic";
 import { CustomButton } from "../buttons/custom-button";
 import { useFilters } from "@/hooks/useFilters";
 import { useState } from "react";
-const Filters = dynamic(() => import("../filters/filters"), { ssr: false });
+import { Skeleton } from "@heroui/react";
+
+const Filters = dynamic(() => import("../filters/filters"), {
+  loading: () => (
+    <div className="transition-opacity duration-300 ease-in-out opacity-100">
+      <LoadingSkeleton />
+    </div>
+  ),
+});
+
+const LoadingSkeleton = () => (
+  <div className="space-y-4">
+    <Skeleton className="h-10 w-full rounded-xl" />
+    <Skeleton className="h-8 w-3/4 rounded-xl" />
+    <Skeleton className="h-8 w-3/4 rounded-xl" />
+    <Skeleton className="h-8 w-3/4 rounded-xl" />
+    <Skeleton className="h-8 w-3/4 rounded-xl" />
+    <Skeleton className="h-8 w-1/2 rounded-xl" />
+  </div>
+);
 
 export const FilterPanel = () => {
   const { setFilters, applyFilters } = useFilters();
@@ -13,10 +32,13 @@ export const FilterPanel = () => {
         <h2 className="text-xl font-bold my-4">Filtros</h2>
       </div>
       <div className="mt-[64px] mb-2 py-2">
-        <Filters
-          onFilterChange={setFilters}
-          setIsInvalidFilters={setIsInvalidFilters}
-        />
+        <div className="relative min-h-[300px]">
+          <Filters
+            onFilterChange={setFilters}
+            setIsInvalidFilters={setIsInvalidFilters}
+            className="transition-opacity duration-300 ease-in-out"
+          />
+        </div>
       </div>
       <div className="sticky inset-x-0 bottom-0 bg-white py-4 dark:bg-black z-50">
         <CustomButton

@@ -63,7 +63,7 @@ const AccountButton = React.memo(({ className }: { className?: string }) => {
           {session && (
             <DropdownItem
               key="logout"
-              onPress={() => signOut({ callbackUrl: "/" })}
+              onPress={() => signOut({ callbackUrl: "/", redirect: false })}
               color="danger"
             >
               Finalizar sesión

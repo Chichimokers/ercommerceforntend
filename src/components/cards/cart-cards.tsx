@@ -31,7 +31,7 @@ const CartCard = React.memo(
     const { cartProducts } = useProductContext();
     const product = useMemo(
       () => cartProducts.find((p) => p.id === productCart.id),
-      [productCart.id]
+      [cartProducts, productCart.id]
     );
     const [imageError, setImageError] = useState(false);
     const [imageLoaded, setImageLoaded] = useState(false);

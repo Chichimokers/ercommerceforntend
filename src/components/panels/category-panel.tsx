@@ -1,13 +1,14 @@
-import { categoryIcons } from "../filters/categories";
 import { useProductContext } from "@/contexts/product-context";
 import { FaTh } from "react-icons/fa";
 import dynamic from "next/dynamic";
+import { getCategoryIcon, getCategoryColor } from "../filters/categories";
 
 // Carga dinámica de componentes
 const CategoryCard = dynamic(() => import("@/components/cards/category-cards"));
 
 const CategoryPanel = () => {
   const { categories } = useProductContext();
+
   return (
     <div className="relative w-full">
       <div className="absolute inset-0 pointer-events-none" />
@@ -24,8 +25,7 @@ const CategoryPanel = () => {
           />
         </div>
         {categories.map((category) => {
-          const Icon =
-            categoryIcons[category.name as keyof typeof categoryIcons];
+          const Icon = getCategoryIcon(category.name);
           const url = `/products?page=1&limit=30&category=${category.id}`;
 
           return (
@@ -33,7 +33,9 @@ const CategoryPanel = () => {
               <CategoryCard
                 className="text-xs w-32 md:w-36 h-32 md:h-36 transition-all transition-border group border-2 border-default-400 dark:bg-opacity-0 hover:border-blue-600 hover:text-blue-600 dark:hover:border-blue-400 dark:hover:text-blue-400"
                 icon={
-                  <Icon className="transition-colors group-hover:text-blue-600 dark:group-hover:text-blue-400" />
+                  <span className={`transition-colors group-hover:text-blue-600 dark:group-hover:text-blue-400`}>
+                    <Icon />
+                  </span>
                 }
                 size="lg"
                 text={category.name}

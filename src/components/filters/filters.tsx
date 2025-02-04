@@ -17,6 +17,7 @@ import { FilterState } from "@/types/types";
 interface FiltersProps {
   onFilterChange?: (filters: FilterState) => void;
   setIsInvalidFilters: Dispatch<SetStateAction<boolean>>;
+  className?: string;
 }
 
 interface FilterStateType {
@@ -31,7 +32,7 @@ interface FilterStateType {
 const ALL_CATEGORIES = "Todos";
 const DEFAULT_PRICE_RANGE: [number, number] = [0, 1000];
 
-const Filters = ({ onFilterChange, setIsInvalidFilters }: FiltersProps) => {
+const Filters = ({ onFilterChange, setIsInvalidFilters, className }: FiltersProps) => {
   const { categories, isLoading } = useProductContext();
   const searchParams = useSearchParams();
 
@@ -108,18 +109,21 @@ const Filters = ({ onFilterChange, setIsInvalidFilters }: FiltersProps) => {
     const rateValue = rate ? Number(rate) : 0;
 
     // Obtener nombres de categorías
-    const categoryNames =
-      categoryIds.length > 0
-        ? categories
-            .filter((cat) => categoryIds.includes(cat.id.toString()))
-            .map((cat) => cat.name)
-        : [ALL_CATEGORIES];
+    const categoryNames = categoryIds
+      .map(id => {
+        const found = categories.find(cat => cat.id.toString() === id);
+        return found ? found.name : id; // Mantener ID si no se encuentra
+      })
+      .filter(name => name); // Filtrar nombres vacíos
 
-    // Obtener nombres de subcategorías
+    // Actualización optimizada de subcategorías
     const subcategoryNames = categories
-      .flatMap((cat) => cat.subCategories)
-      .filter((sub) => subcategoryIds.includes(sub.id.toString()))
-      .map((sub) => sub.name);
+      .flatMap(cat =>
+        cat.subCategories.filter(sub =>
+          subcategoryIds.includes(sub.id.toString())
+        )
+      )
+      .map(sub => sub.name);
 
     // Actualizar estado
     setFilterState({
@@ -138,43 +142,31 @@ const Filters = ({ onFilterChange, setIsInvalidFilters }: FiltersProps) => {
     }
   }, [applyFilters, isLoading]);
 
-  //hay que arreglar ++>>
   const handleCategoryChange = useCallback(
     (selectedNames: string[]) => {
-      // Si se selecciona 'Todos', desmarcamos todas las categorías y subcategorías
-      if (selectedNames.includes(ALL_CATEGORIES)) {
-        setFilterState((prev) => ({
-          ...prev,
-          categoryNames: [ALL_CATEGORIES], // Solo dejamos 'Todos' seleccionado
-          categoryIds: [], // Desmarcamos todas las categorías
-          subcategoryNames: [], // Limpiamos las subcategorías
-          subcategoryIds: [], // Limpiamos las subcategorías
-        }));
-      } else {
-        // Si 'Todos' no está seleccionado, actualizamos las categorías seleccionadas
-        const filteredNames = selectedNames.filter(
-          (name) => name !== ALL_CATEGORIES
-        );
+      // Manejo simplificado de selección de categorías
+      const isSelectingAll = selectedNames.includes(ALL_CATEGORIES);
 
-        // Si se selecciona alguna categoría, eliminamos 'Todos' de la selección
-        const ids = filteredNames
-          .map((name) =>
-            categories.find((cat) => cat.name === name)?.id?.toString()
-          )
-          .filter((id): id is string => Boolean(id));
+      const newState = {
+        categoryNames: isSelectingAll ? [ALL_CATEGORIES] : selectedNames,
+        categoryIds: isSelectingAll ? [] : selectedNames.map(name =>
+          categories.find(cat => cat.name === name)?.id?.toString() ||
+          `temp-${crypto.randomUUID()}` // ID temporal para categorías nuevas
+        ),
+        subcategoryNames: [],
+        subcategoryIds: []
+      };
 
-        // Actualizamos las categorías seleccionadas
-        setFilterState((prev) => ({
-          ...prev,
-          categoryNames: filteredNames, // Actualizamos las categorías seleccionadas
-          categoryIds: ids, // Actualizamos los IDs correspondientes
-          subcategoryNames: [], // Limpiamos las subcategorías cuando cambiamos de categoría
-          subcategoryIds: [], // Limpiamos las subcategorías
-        }));
-      }
-      setIsInvalidFilters(selectedNames.length === 0);
+      setFilterState(prev => ({
+        ...prev,
+        ...newState,
+        // Mantener nombres aunque no existan en el contexto
+        categoryNames: isSelectingAll ? [ALL_CATEGORIES] : selectedNames
+      }));
+
+      setIsInvalidFilters(isSelectingAll || selectedNames.length === 0);
     },
-    [categories]
+    [categories, setIsInvalidFilters]
   );
 
   const handleSubcategoryChange = useCallback(
@@ -217,7 +209,7 @@ const Filters = ({ onFilterChange, setIsInvalidFilters }: FiltersProps) => {
   }
 
   return (
-    <div className="h-max mb-4">
+    <div className={`${className} opacity-0 animate-fade-in h-max mb-4`}>
       <CheckboxGroup
         label="Categorías"
         options={categoryOptions}
