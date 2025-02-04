@@ -98,7 +98,7 @@ export const ProductGrid = React.memo(
                 cart?.find((item) => item.id === product.id)
               }
               productId={product.id}
-              maxLimit={product.quantity}
+              maxLimit={product.quantity || 100}
             />
           </div>
           <div className="py-4 flex flex-col justify-center items-center">

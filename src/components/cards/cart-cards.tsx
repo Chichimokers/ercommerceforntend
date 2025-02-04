@@ -63,7 +63,7 @@ const CartCard = React.memo(
           </div>
 
           <div className="flex flex-row gap-4">
-            <div className="relative w-16 h-16 aspect-square overflow-hidden rounded-md border border-neutral-300 bg-neutral-300 dark:border-neutral-700 dark:bg-neutral-900 dark:hover:bg-neutral-800 mr-4">
+            <div className="relative w-16 h-16 aspect-square overflow-hidden rounded-md border border-neutral-300 bg-neutral-300 dark:border-neutral-700 dark:bg-neutral-900 dark:hover:bg-neutral-800">
               {!imageLoaded && (
                 <div className="absolute inset-0 bg-default-200 animate-pulse" />
               )}
@@ -89,7 +89,7 @@ const CartCard = React.memo(
                 className="w-[120px] h-5 rounded-lg"
                 isLoaded={!!product.name}
               >
-                <span className="leading-tight truncate block w-[120px] md:w-max">
+                <span className="leading-tight truncate block w-[120px] md:w-48">
                   {product.name}
                 </span>
               </Skeleton>
