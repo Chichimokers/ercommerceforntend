@@ -1,7 +1,7 @@
 import { useProductContext } from "@/contexts/product-context";
 import { FaTh } from "react-icons/fa";
 import dynamic from "next/dynamic";
-import { getCategoryIcon, getCategoryColor } from "../filters/categories";
+import { getCategoryIcon } from "../filters/categories";
 
 // Carga dinámica de componentes
 const CategoryCard = dynamic(() => import("@/components/cards/category-cards"));
