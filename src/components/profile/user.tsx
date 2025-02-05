@@ -1,4 +1,4 @@
-import { User, Link } from "@heroui-org/react";
+import { User, Link } from "@heroui/react";
 
 const UserComponent = ({
   name,

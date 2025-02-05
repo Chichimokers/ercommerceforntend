@@ -37,10 +37,8 @@ export default function ProductPage() {
       const params = new URLSearchParams(searchParams.toString());
       params.set("page", page.toString());
 
-      // Usar replace para evitar historial de navegación infinito
       router.replace(`${pathname}?${params.toString()}`, { scroll: false });
 
-      // Actualización optimista del estado
       setCurrentPage(page);
     },
     [pathname, router, searchParams]
@@ -89,7 +87,7 @@ export default function ProductPage() {
                     showControls
                     size="md"
                     showShadow
-                    key={`pagination-${currentPage}`} // Key única para resetear el componente
+                    key={`pagination-${currentPage}`}
                   />
                 </div>
               )}
