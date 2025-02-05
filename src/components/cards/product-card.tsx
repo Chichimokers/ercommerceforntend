@@ -132,9 +132,19 @@ const CartControls = React.memo(({ product, cartActions }:
     </div>
     <Skeleton isLoaded={!!product} className="w-full max-w-16">
       {!cartActions.isInCart && !cartActions.findInCartLocalStorage() ? (
-        <AddToCartButton onClick={cartActions.handleAddToCart} />
+        <AddToCartButton onClick={(e) => {
+          e.preventDefault()
+          cartActions.handleAddToCart()
+        }
+
+        } />
       ) : (
-        <RemoveFromCartButton onClick={cartActions.handleRemoveFromCart} />
+        <RemoveFromCartButton onClick={(e) => {
+          e.preventDefault()
+          cartActions.handleRemoveFromCart()
+        }
+        }
+        />
       )}
     </Skeleton>
   </div>
