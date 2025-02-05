@@ -22,72 +22,46 @@ export const useFormValidation = <T extends object>(
 
   const validateField = (name: keyof T, value: any): string => {
     const rules = validationRules[name as string];
-
     if (!rules) return "";
 
-    if (rules.required && !value) {
-      return `${String(name)} es requerido`;
-    }
+    const stringValue = String(value);
+    const fieldName = String(name);
 
-    if (rules.minLength && String(value).length < rules.minLength) {
-      return `${String(name)} mínimo ${rules.minLength} caracteres`;
-    }
-
-    if (rules.maxLength && String(value).length > rules.maxLength) {
-      return `${String(name)} máximo ${rules.maxLength} caracteres`;
-    }
-
-    if (rules.pattern && !rules.pattern.test(String(value))) {
-      return `Formato de ${String(name)} inválido`;
-    }
-
-    if (rules.matches && value !== formData[rules.matches as keyof T]) {
-      return `${String(name)} no coincide`;
-    }
+    if (rules.required && !value) return `${fieldName} es requerido`;
+    if (rules.minLength && stringValue.length < rules.minLength) return `${fieldName} mínimo ${rules.minLength} caracteres`;
+    if (rules.maxLength && stringValue.length > rules.maxLength) return `${fieldName} máximo ${rules.maxLength} caracteres`;
+    if (rules.pattern && !rules.pattern.test(stringValue)) return `Formato de ${fieldName} inválido`;
+    if (rules.matches && value !== formData[rules.matches as keyof T]) return `${fieldName} no coincide`;
 
     if (rules.custom) {
       const customResult = rules.custom(value);
 
       if (typeof customResult === "string") return customResult;
-      if (!customResult) return `${String(name)} es inválido`;
+      if (!customResult) return `${fieldName} es inválido`;
     }
 
     return "";
   };
 
   const handleChange = (name: keyof T, value: any) => {
-    setFormData((prev) => ({
+    setFormData(prev => ({
       ...prev,
-      [name]: value,
+      [name]: value
     }));
 
-    if (errors[name as string]) {
-      setErrors((prev) => ({
-        ...prev,
-        [name]: "",
-      }));
-    }
+    setErrors(prev => (prev[name as string]
+      ? { ...prev, [name]: "" }
+      : prev));
   };
 
   const validateForm = (): boolean => {
-    const newErrors: ValidationErrors = {};
-    let isValid = true;
-
-    Object.keys(validationRules).forEach((fieldName) => {
-      const error = validateField(
-        fieldName as keyof T,
-        formData[fieldName as keyof T]
-      );
-
-      if (error) {
-        newErrors[fieldName] = error;
-        isValid = false;
-      }
-    });
+    const newErrors = Object.entries(validationRules).reduce((acc, [fieldName]) => {
+      const error = validateField(fieldName as keyof T, formData[fieldName as keyof T]);
+      return error ? { ...acc, [fieldName]: error } : acc;
+    }, {} as ValidationErrors);
 
     setErrors(newErrors);
-
-    return isValid;
+    return Object.keys(newErrors).length === 0;
   };
 
   return {
