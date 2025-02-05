@@ -7,6 +7,7 @@ import dynamic from "next/dynamic";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
+import LoadingModal from "@components/modals/loading-modal";
 
 const ProductCard = dynamic(() => import("@/components/cards/product-card"));
 const FilterDrawer = dynamic(
@@ -47,14 +48,13 @@ export default function ProductPage() {
 
   return (
     <div>
-
-
       <div className="flex flex-col md:flex-row w-full min-h-screen">
         <FilterPanel />
         <div className="block md:hidden">
           <FilterDrawer className="h-full" />
         </div>
         <section className="flex-1 flex flex-col gap-2 p-2 overflow-y-auto relative">
+          {isLoading && <LoadingModal isOpen />}
           {errorStatus ? (
             <div className="w-full h-full flex items-center justify-center">
               <div className="flex flex-col items-center justify-center gap-4 relative h-full">
