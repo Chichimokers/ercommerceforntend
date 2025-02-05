@@ -1,12 +1,11 @@
 "use client";
 
 import { useContext, useEffect, useState } from "react";
-import { Card, CardBody, CardFooter, Spacer, Skeleton } from "@heroui/react";
+import { Card, CardBody, CardFooter, Skeleton } from "@heroui/react";
 import React from "react";
 import { FaShoppingCart } from "react-icons/fa";
 import Link from "next/link";
 import { FaBucket } from "react-icons/fa6";
-
 import { ProductBase } from "@/types/types";
 import StarRating from "../star-rating";
 import QuantityAdjuster from "../buttons/quantity-selector";
@@ -14,6 +13,7 @@ import useCartActions from "../actions";
 import Image from "next/image";
 import { CurrencyAndExchangeRateContext } from "@/contexts/exchange-rate-currency-context";
 import { CustomButton } from "../buttons/custom-button";
+import { CardSkeleton } from "@components/skeletons/card-skeleton";
 
 interface MediaState {
   loaded: boolean;
@@ -30,7 +30,7 @@ const ProductCard = React.memo(({ product }: { product: ProductBase }) => {
     setIsMounted(true);
   }, []);
 
-  if (!isMounted) return <SkeletonCard />;
+  if (!isMounted) return <CardSkeleton />;
 
   return (
     <Card
@@ -151,29 +151,6 @@ const CartControls = React.memo(({ product, cartActions }:
 ));
 
 CartControls.displayName = 'CartControls'
-
-const SkeletonCard = React.memo(() => (
-  <Card className="w-full max-w-[220px] bg-default-50 border border-white border-opacity-10" as="div">
-    <CardBody className="overflow-visible p-0 aspect-square">
-      <Skeleton className="h-full w-full rounded-lg" />
-    </CardBody>
-    <CardFooter className="text-small p-2 sm:p-3">
-      <div className="flex flex-col w-full gap-2">
-        <div className="flex justify-between items-start gap-2">
-          <Skeleton className="w-3/4 h-4 rounded-lg" />
-          <Skeleton className="w-1/4 h-4 rounded-lg" />
-        </div>
-        <Spacer y={2} />
-        <div className="flex justify-between items-center gap-2">
-          <Skeleton className="w-24 h-8 rounded-full" />
-          <Skeleton className="w-8 h-8 rounded-lg" />
-        </div>
-      </div>
-    </CardFooter>
-  </Card>
-));
-
-SkeletonCard.displayName = 'SkeletonCard'
 
 const AddToCartButton = React.memo(
   ({
