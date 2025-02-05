@@ -1,6 +1,5 @@
 "use client";
 
-import { theme } from "antd"
 import { HeroUIProvider } from "@heroui/react"
 import { CurrencyAndExchangeRateProvider } from "@contexts/exchange-rate-currency-context"
 import { ModalProvider } from "@contexts/modal-context"
@@ -35,14 +34,8 @@ export default function RootLayout({
                   <ProductProvider>
                     <CartProvider>
                       <AuthLayout>
-
-                        <ConfigProvider
-                          theme={{
-                            algorithm: theme.defaultAlgorithm,
-                          }}
-                        >
+                        <ConfigProvider>
                           <HeroUIProvider>
-                            {/* Elementos globales como analytics, theme providers */}
                             {children}
                           </HeroUIProvider>
                         </ConfigProvider>

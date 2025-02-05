@@ -17,25 +17,6 @@ export default function IndexPage() {
   const { products } = useProductContext();
   const rating_products = products.slice(0, 4);
 
-  /*const [categories, setCategories] = useState<string[]>([]);
-  const [products, setProducts] = useState<ProductBase[]>([]);
-
-  useEffect(() => {
-    fetch("http://localhost:3000/products")
-      .then((response) => response.json())
-      .then((data) => setProducts(data))
-      // eslint-disable-next-line no-console
-      .catch((error) => console.error("Error fetching products:", error));
-  }, []);
-
-  useEffect(() => {
-    fetch("http://localhost:3000/categories")
-      .then((response) => response.json())
-      .then((data) => setCategories(data))
-      // eslint-disable-next-line no-console
-      .catch((error) => console.error("Error fetching categories:", error));
-  }, []);*/
-
   return (
     <div>
       <div className="slide-in flex-1">

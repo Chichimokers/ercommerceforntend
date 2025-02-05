@@ -14,7 +14,6 @@ import { FaTrash } from "react-icons/fa6";
 import { useProductContext } from "@/contexts/product-context";
 import { ProductBase } from "@/types/types";
 
-// Carga dinámica de componentes
 const RelationedProductSecction = dynamic(
   () => import("@/components/sections/relationed-products")
 );
@@ -22,7 +21,6 @@ const QuantityAdjuster = dynamic(
   () => import("@/components/buttons/quantity-selector")
 );
 
-// Producto por defecto mientras carga
 const defaultProduct: ProductBase = {
   id: "",
   name: "Cargando...",
@@ -146,9 +144,8 @@ const ProductDetailPage = () => {
           {/* Imagen del producto */}
           <Image
             alt={displayProduct.name}
-            className={`rounded-lg w-full md:w-96 object-cover ${
-              imageLoaded ? "opacity-100" : "opacity-0"
-            }`}
+            className={`rounded-lg w-full md:w-96 object-cover ${imageLoaded ? "opacity-100" : "opacity-0"
+              }`}
             height={320}
             loading="lazy"
             priority={false}

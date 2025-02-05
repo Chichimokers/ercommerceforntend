@@ -25,9 +25,9 @@ export default function ShoppingCartPage() {
     () =>
       cart
         ? cart.reduce((total, item) => {
-            const product = productMap.get(item.id);
-            return total + item.cantidad * (product?.price ?? 0);
-          }, 0)
+          const product = productMap.get(item.id);
+          return total + item.cantidad * (product?.price ?? 0);
+        }, 0)
         : 0,
     [cart, productMap]
   );
@@ -40,9 +40,9 @@ export default function ShoppingCartPage() {
         const product = productMap.get(item.id);
         return product
           ? {
-              ...product,
-              quantity: item.cantidad,
-            }
+            ...product,
+            quantity: item.cantidad,
+          }
           : null;
       })
       .filter(
@@ -103,9 +103,8 @@ export default function ShoppingCartPage() {
             <div className="relative w-full xs:w-3/4 sm:w-2/3 md:w-1/2 h-[30vh] xs:h-[35vh] md:h-[40vh]">
               <Image
                 alt="Carrito Vacío"
-                className={`object-contain transition-all duration-300 ${
-                  imageLoaded ? "opacity-100" : "opacity-0"
-                }`}
+                className={`object-contain transition-all duration-300 ${imageLoaded ? "opacity-100" : "opacity-0"
+                  }`}
                 src="/Empty_Cart.svg"
                 onLoad={() => setImageLoaded(true)}
                 fill

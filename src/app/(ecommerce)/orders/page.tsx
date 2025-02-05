@@ -17,12 +17,12 @@ const OrdersPage = () => {
     const data: Order[] = [];
     orders.map((order) => {
       data.push({
-        id: String(order.id), // Convertir el ID a string si viene como número
+        id: String(order.id),
         CI: order.CI,
         address: order.address,
         status: order.status,
-        subtotal: parseFloat(order.subtotal), // Convertir subtotal a número
-        total: order.total ? parseFloat(order.total) : undefined, // Convertir total a número si existe
+        subtotal: parseFloat(order.subtotal),
+        total: order.total ? parseFloat(order.total) : undefined,
         phone: order.phone,
         province: order.province,
         receiver_name: order.receiver_name,
@@ -69,7 +69,7 @@ const OrdersPage = () => {
     isLoading,
   } = useSWR(API_URL, fetcher, {
     fallbackData: null,
-    errorRetryCount: 0, // Desactiva reintentos automáticos
+    errorRetryCount: 0,
   });
 
   if (error) {

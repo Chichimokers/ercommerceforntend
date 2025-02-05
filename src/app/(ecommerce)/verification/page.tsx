@@ -13,12 +13,11 @@ export default function VerificationPage() {
     const orderCreation = localStorage.getItem("orderCreation");
 
     if (orderCreation) {
-      // Procesar y eliminar la clave
       localStorage.removeItem("orderCreation");
       setIsVerified(true);
-      setIsProcessing(false); // Indica que se ha terminado de procesar
+      setIsProcessing(false);
     } else if (isProcessing) {
-      // Redirigir solo si aún no hemos procesado la verificación
+
       router.replace("/shopping-cart");
     }
   }, [router, isProcessing]);

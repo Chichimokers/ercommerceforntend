@@ -1,6 +1,5 @@
 "use client";
 
-import LoadingModal from "@/components/modals/loading-modal";
 import { FilterPanel } from "@/components/panels/filter-panel";
 import { useProductContext } from "@/contexts/product-context";
 import { Pagination } from "@heroui/react";
@@ -21,12 +20,10 @@ export default function ProductPage() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  // Estado local sincronizado con la URL
   const [currentPage, setCurrentPage] = useState(() => {
     return Number(searchParams.get("page")) || 1;
   });
 
-  // Sincronización con cambios en la URL
   useEffect(() => {
     const page = Number(searchParams.get("page")) || 1;
     if (page !== currentPage) {

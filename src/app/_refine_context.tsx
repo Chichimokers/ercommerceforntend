@@ -6,9 +6,7 @@ import { SessionProvider, signIn, signOut, useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import React from "react";
 import Image from "next/image";
-
 import routerProvider from "@refinedev/nextjs-router";
-
 import { dataProvider } from "@providers/data-provider";
 import "@styles/global.css";
 import { Spinner } from "@heroui/react";

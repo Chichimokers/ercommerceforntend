@@ -26,7 +26,6 @@ export default function Buy() {
   const [errors, setErrors] = useState<any>({});
   const phoneUtil = PhoneNumberUtil.getInstance();
 
-  // Values
   const [firstName, setFirstName] = useState<string>("");
   const [lastName, setLastName] = useState<string>("");
   const [province, setProvince] = useState<string>("");
@@ -41,16 +40,16 @@ export default function Buy() {
 
   const productMap = useMemo(
     () => new Map(products.map((p) => [p.id, p])),
-    [products]
+    []
   );
 
   const calculateSubtotal = useCallback(() => {
     return cart
       ? cart.reduce(
-          (total, item) =>
-            total + item.cantidad * (productMap.get(item.id)?.price ?? 0),
-          0
-        )
+        (total, item) =>
+          total + item.cantidad * (productMap.get(item.id)?.price ?? 0),
+        0
+      )
       : 0;
   }, [cart, productMap]);
 
@@ -66,7 +65,6 @@ export default function Buy() {
     e.preventDefault();
     let validationErrors: any = {};
 
-    // Validar campos requeridos
     const formElements = e.target as HTMLFormElement;
     const formData = new FormData(formElements);
 
@@ -76,11 +74,10 @@ export default function Buy() {
       }
     });
 
-    // Validación de teléfono
     const phoneInput = formData.get("phone") as string;
     if (phoneInput) {
       try {
-        const phoneNumber = phoneUtil.parse(phoneInput, "ES"); // 'ES' es para España, ajusta si es otro país
+        const phoneNumber = phoneUtil.parse(phoneInput, "ES");
         if (!phoneUtil.isValidNumber(phoneNumber)) {
           validationErrors.phone = "Número de teléfono no válido";
         }
@@ -89,8 +86,6 @@ export default function Buy() {
       }
     }
 
-    // Aquí agregarías otras validaciones como el carnet de identidad si es necesario
-    // Ejemplo: Validación del carnet de identidad
     const idCardInput = formData.get("idCard") as string;
     if (idCardInput && idCardInput.length < 10) {
       validationErrors.idCard = "Carnet de identidad no válido";
@@ -102,7 +97,6 @@ export default function Buy() {
       return; // No continuar con el submit
     }
 
-    // Si no hay errores, puedes enviar el formulario o continuar con el proceso
     console.log("Formulario enviado correctamente");
   };
 
@@ -124,7 +118,6 @@ export default function Buy() {
               onSubmit={handleSubmit}
               className="p-4 rounded-xl dark:bg-zinc-900 shadow-lg border border-default-200"
             >
-              {/* Datos personales */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                 <Input
                   className="mt-1 block w-full rounded-2xl dark:bg-black"
@@ -187,7 +180,6 @@ export default function Buy() {
                 )}
               </div>
 
-              {/* Ciudad, CP y Provincia */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mt-2">
                 <Input
                   className="mt-1 block w-full rounded-2xl dark:bg-black"
@@ -233,7 +225,6 @@ export default function Buy() {
                 )}
               </div>
 
-              {/* Teléfono */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
                 <Input
                   className="mt-1 block w-full rounded-2xl dark:bg-black"
@@ -265,7 +256,6 @@ export default function Buy() {
                 )}
               </div>
 
-              {/* Botón de envío */}
               <div className="mt-4 w-full">
                 <CustomButton className="w-full" type="submit">
                   Confirmar Pedido
