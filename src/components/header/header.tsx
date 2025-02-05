@@ -99,6 +99,7 @@ export const Header = ({ className }: { className?: string }) => {
             <IconButton />
           </div>
         )}
+        {session ? <AccountButton /> : <LoginButton />}
       </NavbarContent>
     </HerouiNavbar>
   );

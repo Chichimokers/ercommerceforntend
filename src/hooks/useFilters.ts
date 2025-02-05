@@ -14,14 +14,22 @@ export const useFilters = () => {
   const applyFilters = () => {
     const params = new URLSearchParams();
     params.set("page", "1");
-    if (filters.categories.length)
-      params.set("category", filters.categories.join(","));
-    if (filters.subcategories.length)
-      params.set("subcategory", filters.subcategories.join(","));
-    if (filters.rating) params.set("rate", filters.rating.toString());
-    if (filters.priceRange[0] !== 0 || filters.priceRange[1] !== 1000) {
-      params.set("pricerange", filters.priceRange.join("-"));
-    }
+
+    // Configuración optimizada de parámetros
+    const queryParams = {
+      category: filters.categories.join(",") || undefined,
+      subcategory: filters.subcategories.join(",") || undefined,
+      rate: filters.rating > 0 ? filters.rating.toString() : undefined,
+      pricerange: (filters.priceRange[0] !== 0 || filters.priceRange[1] !== 1000)
+        ? filters.priceRange.join("-")
+        : undefined
+    };
+
+    // Añadir parámetros no vacíos
+    Object.entries(queryParams).forEach(([key, value]) => {
+      if (value) params.set(key, value);
+    });
+
     router.push(`/products?${params.toString()}`);
   };
 

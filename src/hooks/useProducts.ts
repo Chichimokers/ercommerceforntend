@@ -3,7 +3,7 @@ import useSWR from "swr";
 import { buildQueryParams } from "./buildQueryParams";
 import { Filters } from "@/types/types";
 
-export const useProducts = (baseUrl:string,filters: Filters, page: number) => {
+export const useProducts = (baseUrl: string, filters: Filters, page: number) => {
   const queryParams = useMemo(() => buildQueryParams(filters, page, 30), [filters, page]);
   const fetchUrl = `${baseUrl}/public/products?${queryParams}`;
 
@@ -24,14 +24,22 @@ export const useProducts = (baseUrl:string,filters: Filters, page: number) => {
 
 
 export const useCartProducts = (baseUrl: string, availableProducts?: any[]) => {
-  const getCartIds = () => {
+  const getCartIds = (): string[] => {
     try {
-      const cartData = localStorage.getItem("cart");
-      if (!cartData) return [];
-      const cart = JSON.parse(cartData);
+      const cart = JSON.parse(localStorage.getItem("cart") || "[]");
       return Array.isArray(cart) ? cart.map(item => item.id) : [];
     } catch {
       return [];
+    }
+  };
+
+  const fetchProductDetails = async (id: string) => {
+    try {
+      const response = await fetch(`${baseUrl}/public/product-details?id=${id}`);
+      return response.ok ? response.json() : null;
+    } catch (error) {
+      console.error(`Error fetching product ${id}:`, error);
+      return null;
     }
   };
 
@@ -39,36 +47,28 @@ export const useCartProducts = (baseUrl: string, availableProducts?: any[]) => {
     const ids = getCartIds();
     if (!ids.length) return [];
 
-    const finalProducts: any[] = [];
-    const idsToFetch: string[] = [];
+    const [existingProducts, idsToFetch] = ids.reduce((acc, id) => {
+      const product = availableProducts?.find(p => p.id === id);
+      product ? acc[0].push(product) : acc[1].push(id);
+      return acc;
+    }, [[], []] as [any[], string[]]);
 
-    ids.forEach(id => {
-      const foundProduct = availableProducts?.find(product => product.id === id);
-      if (foundProduct) {
-        finalProducts.push(foundProduct);
-      } else {
-        idsToFetch.push(id);
-      }
-    });
+    if (!idsToFetch.length) return existingProducts;
 
-    if (!idsToFetch.length) {
-      return finalProducts;
-    }
-
-    const promises = idsToFetch.map(id =>
-      fetch(`${baseUrl}/public/product-details?id=${id}`)
-        .then(res => res.ok ? res.json() : null)
-        .catch(() => null)
+    const fetchedProducts = await Promise.allSettled(
+      idsToFetch.map(fetchProductDetails)
     );
 
-    const fetchedProducts = await Promise.all(promises);
-    const validFetchedProducts = fetchedProducts.filter(Boolean);
+    const validProducts = fetchedProducts
+      .filter(result => result.status === 'fulfilled' && result.value)
+      .map(result => (result as PromiseFulfilledResult<any>).value);
 
-    return [...finalProducts, ...validFetchedProducts];
+    return [...existingProducts, ...validProducts];
   };
 
-  return useSWR('cart-products', fetcher, {
+  return useSWR(['cart-products', getCartIds()], fetcher, {
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
+    shouldRetryOnError: false,
   });
 };

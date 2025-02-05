@@ -10,6 +10,16 @@ import { signOut, useSession } from "next-auth/react";
 import { useModal } from "@/contexts/modal-context";
 import { FaUser } from "react-icons/fa6";
 
+// Función para generar color basado en el nombre
+const generateColorFromName = (name: string) => {
+  const colors = [
+    'bg-red-500', 'bg-blue-500', 'bg-green-500',
+    'bg-purple-500', 'bg-pink-500', 'bg-orange-500'
+  ];
+  const charCode = name.charCodeAt(0) || 0;
+  return colors[charCode % colors.length];
+};
+
 const AccountButton = React.memo(({ className }: { className?: string }) => {
   const { data: session } = useSession();
   const { openLogin } = useModal();
@@ -19,21 +29,17 @@ const AccountButton = React.memo(({ className }: { className?: string }) => {
       <Dropdown placement="bottom-end" className="">
         <DropdownTrigger
           className={cn(
-            "cursor-pointer h-10 border-2 border-default-200 hover:border-default-400 bg-opacity-50 dark:bg-opacity-50 bg-white dark:bg-black rounded-full group",
+            "cursor-pointer h-10 w-10 border-2 border-default-200 hover:border-default-400 bg-opacity-50 dark:bg-opacity-50 bg-white dark:bg-black rounded-full group",
             className
           )}
         >
           <div className="flex flex-row items-center">
-            <div className="w-10 h-10 rounded-full bg-white dark:bg-black flex flex-col justify-center z-10 border-y-2 border-r-2 border-default-200 border-collapse hover:border-default-400 bg-opacity-50 group-hover:border-default-400">
-              <FaUser size={20} opacity={0.6} className="mx-auto" />
+            <div
+              className={`w-full h-full rounded-full flex items-center justify-center text-white text-xl font-bold 
+                ${session?.user?.name ? generateColorFromName(session.user.name) : 'bg-default-200'}`}
+            >
+              {session?.user?.name ? session.user.name[0].toUpperCase() : <FaUser size={20} opacity={0.6} />}
             </div>
-
-            <span className="mx-2 my-auto text-default-500 group-hover:text-default-600 hidden md:block">
-              {session?.user.name}
-            </span>
-            <span className="mx-2 my-auto text-default-500 group-hover:text-default-600 flex md:hidden">
-              {session?.user.name?.split(" ")[0]}
-            </span>
           </div>
         </DropdownTrigger>
         <DropdownMenu aria-label="Profile Actions" variant="shadow">
