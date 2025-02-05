@@ -43,7 +43,6 @@ export const getCategoryIcon = (categoryName: string) => {
     return matchedKey ? keywordIconMap[matchedKey] : keywordIconMap.default;
 };
 
-// Función para obtener color basado en hash del nombre
 export const getCategoryColor = (categoryName: string) => {
     const colors = [
         'text-red-600', 'text-blue-600', 'text-green-600',

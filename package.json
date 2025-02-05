@@ -1,5 +1,5 @@
 {
-  "name": "Esaki-Front-Refined-Integration",
+  "name": "esaki-front-refined-integration",
   "version": "0.1.0",
   "private": true,
   "engines": {
@@ -9,6 +9,7 @@
     "dev": "next dev --turbo",
     "build": "next build",
     "start": "next start",
+    "pre": " npx dotenv -e environments/preprod.env -- next dev --turbo",
     "lint": "eslint . --ext .ts,.tsx -c .eslintrc.json --fix",
     "test": "next test",
     "refine-dev": "cross-env NODE_OPTIONS=--max_old_space_size=4096 refine dev",
