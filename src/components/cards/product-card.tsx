@@ -1,6 +1,6 @@
 "use client";
 
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState, useCallback } from "react";
 import { Card, CardBody, CardFooter, Skeleton } from "@heroui/react";
 import React from "react";
 import { FaShoppingCart } from "react-icons/fa";
@@ -14,21 +14,34 @@ import Image from "next/image";
 import { CurrencyAndExchangeRateContext } from "@/contexts/exchange-rate-currency-context";
 import { CustomButton } from "../buttons/custom-button";
 import { CardSkeleton } from "@components/skeletons/card-skeleton";
+import { useRouter } from "next/navigation";
 
 interface MediaState {
   loaded: boolean;
   error: boolean;
 }
 
-const ProductCard = React.memo(({ product }: { product: ProductBase }) => {
+interface ProductCardProps {
+  product: ProductBase;
+  prefetch?: "hover" | "click" | "none";
+}
+
+const ProductCard = React.memo(({ product, prefetch = "none" }: ProductCardProps) => {
   const [mediaState, setMediaState] = useState<MediaState>({ loaded: false, error: false });
   const { rateExchange } = useContext(CurrencyAndExchangeRateContext) || {};
   const cartActions = useCartActions(product);
   const [isMounted, setIsMounted] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  const handlePrefetch = useCallback(() => {
+    if (prefetch === "hover") {
+      router.prefetch(`/product/${product.id}`);
+    }
+  }, [prefetch, product.id, router]);
 
   if (!isMounted) return <CardSkeleton />;
 
@@ -38,6 +51,8 @@ const ProductCard = React.memo(({ product }: { product: ProductBase }) => {
       shadow="none"
       as={Link}
       href={`/products/${product.id}`}
+      onMouseEnter={prefetch === "hover" ? handlePrefetch : undefined}
+      onPress={prefetch === "click" ? handlePrefetch : undefined}
     >
       <CardBody className="overflow-hidden p-0">
         <div className="relative aspect-square w-full bg-default-100">
