@@ -19,7 +19,7 @@ const FilterDrawer = dynamic(
 
 const LoadingComponent = () => {
   return (
-    <div className="h-full flex flex-col justify-center items-center">
+    <div className="h-screen flex flex-col justify-center items-center">
       <Spinner />
     </div>
   );
@@ -72,7 +72,7 @@ export default function ProductPage() {
             </div>
           ) : (
             <>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-2 w-full">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-2 w-full justify-items-center">
                 {products.map((product) => (
                   <ProductCard
                     key={product.id}

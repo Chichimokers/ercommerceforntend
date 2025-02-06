@@ -35,20 +35,25 @@ export default function ProductsSlider({
         navigation={
           isXLScreen
             ? {
-                nextEl: ".swiper-button-next",
-                prevEl: ".swiper-button-prev",
-              }
+              nextEl: ".swiper-button-next",
+              prevEl: ".swiper-button-prev",
+            }
             : false
         }
-        slidesPerView={2}
+        slidesPerView={1}
         spaceBetween={5}
         pagination={{
           clickable: true,
         }}
         breakpoints={{
           320: {
+            slidesPerView: 1,
+            spaceBetween: 5,
+          },
+          440: {
             slidesPerView: 2,
             spaceBetween: 5,
+            centeredSlides: false
           },
           640: {
             slidesPerView: 3,
@@ -66,7 +71,7 @@ export default function ProductsSlider({
         modules={[Navigation, Pagination]}
       >
         {products.map((product) => (
-          <SwiperSlide key={product.id} className="mt-2 mb-12">
+          <SwiperSlide key={product.id} className="mt-2 mb-12 justify-items-center">
             <ProductCard product={product} />
           </SwiperSlide>
         ))}

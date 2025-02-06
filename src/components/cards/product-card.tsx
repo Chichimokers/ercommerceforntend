@@ -24,9 +24,10 @@ interface MediaState {
 interface ProductCardProps {
   product: ProductBase;
   prefetch?: "hover" | "click" | "none";
+  className?: string;
 }
 
-const ProductCard = React.memo(({ product, prefetch = "none" }: ProductCardProps) => {
+const ProductCard = React.memo(({ product, prefetch = "none", className }: ProductCardProps) => {
   const [mediaState, setMediaState] = useState<MediaState>({ loaded: false, error: false });
   const { rateExchange } = useContext(CurrencyAndExchangeRateContext) || {};
   const cartActions = useCartActions(product);
@@ -47,7 +48,7 @@ const ProductCard = React.memo(({ product, prefetch = "none" }: ProductCardProps
 
   return (
     <Card
-      className="w-full max-w-[220px] bg-default-50 rounded-2xl transition-all border border-default-100 hover:border-default-300"
+      className={`${className} w-full max-w-[220px] bg-default-50 rounded-2xl transition-all border border-default-100 hover:border-default-300`}
       shadow="none"
       as={Link}
       href={`/products/${product.id}`}

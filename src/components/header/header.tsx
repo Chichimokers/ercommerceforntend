@@ -12,10 +12,14 @@ import { Spacer } from "@heroui/react";
 import Image from "next/image";
 import { ThemeSwitch } from "@/components/theme-switch";
 import { SearchIcon } from "@/components/icons";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { LoginButton } from "../buttons/login-button";
 import dynamic from "next/dynamic";
+import { useState } from "react";
+import { useDebouncedCallback } from "use-debounce";
+import { SearchSuggestions } from "@/components/search-suggestions";
+import { ProductBase } from "../../types/types";
 
 const IconButton = dynamic(() => import("@/components/buttons/cart-button"));
 const AccountButton = dynamic(
@@ -23,23 +27,86 @@ const AccountButton = dynamic(
 );
 const DrawerCart = dynamic(() => import("@/components/drawers/drawer-cart"));
 
-const SearchInput = () => (
-  <Input
-    aria-label="Search"
-    variant="faded"
-    classNames={{
-      inputWrapper:
-        "bg-white dark:bg-black bg-opacity-50 dark:bg-opacity-50 rounded-full border-2 border-default-200 hover:border-default-400 transition-all min-w-32",
-      input: "text-sm",
-    }}
-    labelPlacement="outside"
-    placeholder="Buscar..."
-    startContent={
-      <SearchIcon className="text-base text-default-400 pointer-events-none flex-shrink-0" />
+const SearchInput = () => {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [suggestions, setSuggestions] = useState<ProductBase[]>([]);
+  const [isFocused, setIsFocused] = useState(false);
+  const router = useRouter();
+
+  // Debounce para sugerencias
+  const fetchSuggestions = useDebouncedCallback(async (value: string) => {
+    if (value.length > 2) {
+      try {
+        const url = `http://localhost:8080/public/search`;
+
+        const response = await fetch(url, {
+          method: 'POST', // Cambiado a POST
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: value }), // Corregido (elimina el objeto anidado)
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`HTTP ${response.status}: ${errorText}`);
+        }
+
+        const data = await response.json();
+        console.log('Resultados obtenidos:', data);
+        setSuggestions(data);
+      } catch (error) {
+        console.error('Error completo:', error);
+        setSuggestions([]);
+      }
     }
-    type="search"
-  />
-);
+  }, 300);
+
+  const handleSearch = () => {
+    if (searchTerm.trim()) {
+      router.push(`/search?q=${encodeURIComponent(searchTerm.trim())}`);
+      setSuggestions([]);
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  };
+
+  return (
+    <div className="relative w-full">
+      <Input
+        aria-label="Search"
+        variant="faded"
+        value={searchTerm}
+        onChange={(e) => {
+          setSearchTerm(e.target.value);
+          fetchSuggestions(e.target.value);
+        }}
+        onKeyDown={handleKeyPress}
+        onFocus={() => setIsFocused(true)}
+        onBlur={() => setTimeout(() => setIsFocused(false), 200)}
+        classNames={{
+          inputWrapper: "bg-white dark:bg-black bg-opacity-50 dark:bg-opacity-50 rounded-full border-2 border-default-200 hover:border-default-400 transition-all min-w-32 w-[400]",
+          input: "text-sm",
+        }}
+        labelPlacement="outside"
+        placeholder="Buscar..."
+        startContent={
+          <SearchIcon className="text-base text-default-400 pointer-events-none flex-shrink-0" />
+        }
+        type="search"
+      />
+
+      {isFocused && suggestions.length > 0 && (
+        <SearchSuggestions
+          suggestions={suggestions}
+          onSelect={handleSearch}
+        />
+      )}
+    </div>
+  );
+};
 
 export const Header = ({ className }: { className?: string }) => {
   const pathname = usePathname();
@@ -51,7 +118,7 @@ export const Header = ({ className }: { className?: string }) => {
       maxWidth="full"
       className={`${className} z-50 top-0 left-0 right-0 h-16`}
     >
-      <NavbarContent className="sm:basis-full" justify="start">
+      <NavbarContent className="sm:basis-full max-w-fit" justify="start">
         <NavbarBrand className="gap-1 max-w-fit">
           <Link
             className="flex justify-start items-center gap-1"
@@ -75,7 +142,7 @@ export const Header = ({ className }: { className?: string }) => {
         className="hidden xm:flex sm:basis-full w-full gap-2"
         justify="end"
       >
-        <NavbarItem className="hidden xm:flex">
+        <NavbarItem className="hidden md:flex">
           <SearchInput />
         </NavbarItem>
         <NavbarItem className="hidden xm:flex">

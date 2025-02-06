@@ -8,6 +8,9 @@ import { PromisesPanel } from "@/components/panels/promises-panel";
 import CategoryPanel from "@/components/panels/category-panel";
 import EmptyState from "@components/empty-state";
 import { ProductBase } from "../../types/types";
+import React from "react";
+import { useRouter } from "next/navigation";
+import { ArrowRight } from "lucide-react";
 
 const ProductCard = dynamic(() => import("@/components/cards/product-card"));
 const PublicityBannerSlider = dynamic(
@@ -26,17 +29,16 @@ export default function IndexPage() {
 
   return (
     <div>
-      <div className="flex-1">
+      <div className="flex-1 space-y-6 mx-auto mb-8">
         <PublicityBannerSlider banners={banners} />
-        <div className="my-4">
-          <CategoryPanel />
-        </div>
+        <CategoryPanel />
         <PromisesPanel />
-      </div>
-      <LazyFeaturedProducts products={rating_products} />
-      <div className="mb-4 mx-2">
+        <div className="mx-4">
+          <LazyFeaturedProducts products={rating_products} />
+        </div>
+
         <SecondaryBannerSlider
-          className="rounded-lg"
+          className="rounded-xl border-4 border-white shadow-lg"
           banners={banners}
         />
       </div>
@@ -44,29 +46,68 @@ export default function IndexPage() {
   );
 }
 
-const FeaturedProducts = ({ products }: { products: ProductBase[] }) => (
-  <div className="mb-4 mx-2">
-    <h2 className="text-2xl font-bold mb-4 text-center">Productos Destacados</h2>
-    <div className="grid grid-cols-2 gap-2 justify-items-center xm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8">
-      {products.map((product) => (
-        <ProductCard key={product.id} product={product} />
-      ))}
-      {products.length === 0 && (
-        <EmptyState
-          message="No hay productos destacados"
-          className="col-span-full"
-          iconSize={64}
+const FeaturedProducts = ({ products }: { products: ProductBase[] }) => {
+  const router = useRouter()
+
+  return (
+    <div className="mb-8">
+      <div className="mb-6">
+        <h2 className="text-3xl font-bold text-default-900 mb-2 pb-2 border-b-4 border-blue-100 w-max">
+          Productos Destacados
+        </h2>
+      </div>
+      <div className="grid grid-cols-3 gap-4 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7">
+        {products.map((product) => (
+          <ProductCard
+            key={product.id}
+            product={product}
+            className="hover:scale-105 transition-transform duration-300"
+          />
+        ))}
+        {products.length === 0 && (
+          <EmptyState
+            message="Descubre nuestros productos destacados"
+            className="col-span-full py-12"
+            iconSize={80}
+          >
+            <div className="flex gap-4 mt-6">
+              <button className="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-all transform hover:-translate-y-1">
+                Explorar categorías
+              </button>
+              <button className="px-8 py-3 bg-gray-900 hover:bg-gray-800 text-white rounded-xl transition-all transform hover:-translate-y-1">
+                Ver ofertas
+              </button>
+            </div>
+          </EmptyState>
+        )}
+      </div>
+      <div className="mt-8 text-center justify-items-center w-full">
+        <button
+          className="px-6 py-2 bg-white text-blue-600 border-2 border-blue-600 rounded-full hover:bg-blue-50 transition-colors flex flex-row"
+          onClick={() => {
+            router.push('/products')
+          }}
         >
-          <button className="mt-4 px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">
-            Recargar
-          </button>
-        </EmptyState>
-      )}
+          Ver más productos <ArrowRight />
+        </button>
+      </div>
     </div>
-  </div>
-);
+  )
+
+};
 
 const LazyFeaturedProducts = dynamic(
   () => Promise.resolve(FeaturedProducts),
-  { loading: () => <div className="h-96 animate-pulse bg-gray-50" /> }
+  {
+    loading: () => (
+      <div className="h-96 animate-pulse bg-white rounded-xl shadow-sm">
+        <div className="h-8 bg-gray-100 rounded w-64 mb-4"></div>
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
+          {[...Array(6)].map((_, i) => (
+            <div key={i} className="h-64 bg-gray-50 rounded-xl animate-pulse"></div>
+          ))}
+        </div>
+      </div>
+    )
+  }
 );

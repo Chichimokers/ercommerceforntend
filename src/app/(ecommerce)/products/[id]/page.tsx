@@ -153,77 +153,99 @@ const ProductDetailPage = () => {
   }
 
   return (
-    <div className="w-full mx-auto py-10 rounded-lg">
-      <div className="p-5 flex flex-col md:flex-row mx-4">
-        <div className="flex-shrink-0">
-          <Link
-            className="text-blue-600 hover:underline flex items-center mb-5"
-            href="/products/"
-          >
-            <FaArrowLeft className="w-4 h-4 mr-2" />
-            Volver a todos los productos
-          </Link>
+    <div className="w-full max-w-7xl mx-auto py-8 md:py-12 px-4 sm:px-6 lg:px-8">
+      <div className="bg-white dark:bg-gray-800 shadow-xl rounded-2xl p-6 md:p-8 lg:p-10">
+        <div className="flex flex-col md:flex-row gap-8 lg:gap-12">
+          <div className="flex-shrink-0 md:w-1/2 lg:w-2/5">
+            <Link
+              className="text-blue-600 hover:text-blue-700 dark:text-blue-400 flex items-center mb-6 transition-colors duration-200"
+              href="/products/"
+            >
+              <FaArrowLeft className="w-5 h-5 mr-2" />
+              Volver a productos
+            </Link>
 
-          {/* Mostrar el esqueleto mientras se carga la imagen */}
-          {!imageState.loaded && (
-            <Skeleton className="rounded-lg w-full md:w-96 h-[300px]" />
-          )}
+            {/* Contenedor de imagen mejorado */}
+            <div className="relative group rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-700">
+              {!imageState.loaded && (
+                <Skeleton className="rounded-lg w-full h-96" />
+              )}
+              <Image
+                alt={displayProduct.name}
+                className={`w-full h-96 object-contain transition-opacity duration-300 ${imageState.loaded ? "opacity-100" : "opacity-0"
+                  }`}
+                height={320}
+                loading="lazy"
+                priority={false}
+                onError={() => setImageState(prev => ({ ...prev, error: true }))}
+                src={
+                  imageState.error
+                    ? "/nophoto.jpeg"
+                    : displayProduct.image || "/nophoto.jpeg"
+                }
+                onLoad={() => setImageState(prev => ({ ...prev, loaded: true }))}
+                width={320}
+              />
+            </div>
 
-          {/* Imagen del producto */}
-          <Image
-            alt={displayProduct.name}
-            className={`rounded-lg w-full md:w-96 object-cover ${imageState.loaded ? "opacity-100" : "opacity-0"
-              }`}
-            height={320}
-            loading="lazy"
-            priority={false}
-            onError={() => setImageState(prev => ({ ...prev, error: true }))}
-            src={
-              imageState.error
-                ? "/nophoto.jpeg"
-                : displayProduct.image || "/nophoto.jpeg"
-            }
-            onLoad={() => setImageState(prev => ({ ...prev, loaded: true }))}
-            width={320}
-          />
-
-          <div className="flex flex-row gap-2 mt-4 justify-between">
-            <p className="text-xl font-semibold text-blue-600">
-              ${displayProduct.price}
-            </p>
-
-            {!productState.loading && (
-              <div className="flex h-8 flex-row items-center rounded-full border border-default-200">
-                <QuantityAdjuster
-                  quantity={cartActions.quantity}
-                  isInCart={cartActions.isInCart}
-                  handleQuantityInc={cartActions.handleQuantityInc}
-                  handleQuantityDec={cartActions.handleQuantityDec}
-                  findInCartLocalStorage={cartActions.findInCartLocalStorage}
-                  getLocalStorageData={cartActions.getLocalStorageData}
-                  productId={displayProduct.id}
-                  maxLimit={displayProduct.quantity}
-                />
+            {/* Sección de precio y acciones mejorada */}
+            <div className="mt-6 space-y-4">
+              <div className="flex items-center justify-between bg-gray-50 dark:bg-gray-900 p-4 rounded-xl">
+                <p className="text-3xl font-bold text-green-600 dark:text-green-400">
+                  ${displayProduct.price}
+                </p>
+                {!productState.loading && (
+                  <div className="flex items-center space-x-3">
+                    <QuantityAdjuster
+                      quantity={cartActions.quantity}
+                      isInCart={cartActions.isInCart}
+                      handleQuantityInc={cartActions.handleQuantityInc}
+                      handleQuantityDec={cartActions.handleQuantityDec}
+                      findInCartLocalStorage={cartActions.findInCartLocalStorage}
+                      getLocalStorageData={cartActions.getLocalStorageData}
+                      productId={displayProduct.id}
+                      maxLimit={displayProduct.quantity}
+                      className="bg-white dark:bg-gray-800 shadow-sm hover:shadow-md transition-shadow"
+                    />
+                  </div>
+                )}
               </div>
-            )}
+
+              {CartActions}
+            </div>
           </div>
 
-          {CartActions}
+          {/* Sección de detalles mejorada */}
+          <div className="flex-1 mt-6 md:mt-0">
+            <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+              {displayProduct.name}
+            </h1>
+            <div className="prose dark:prose-invert max-w-none text-lg leading-relaxed">
+              <div className="space-y-4 border-l-4 border-blue-500 pl-4">
+                {displayProduct.description ? (
+                  displayProduct.description.split('\n').map((line, i) => (
+                    <p key={i} className="text-gray-700 dark:text-gray-300">
+                      {line}
+                    </p>
+                  ))
+                ) : (
+                  <p className="text-gray-700 dark:text-gray-300">No hay descripción disponible</p>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div className="mt-5 md:mt-0 md:ml-10 flex flex-col">
-          <h1 className="text-2xl font-bold">{displayProduct.name}</h1>
-          <p className="mt-3 prose dark:prose-invert">
-            {displayProduct.description}
-          </p>
-        </div>
+        {/* Sección de productos relacionados mejorada */}
+        {!productState.loading && !productState.error && (
+          <section className="mt-16">
+            <h3 className="text-2xl font-bold mb-6 text-gray-800 dark:text-white">
+              Productos relacionados
+            </h3>
+            <RelationedProductSecction id={displayProduct.id} />
+          </section>
+        )}
       </div>
-
-      {!productState.loading && !productState.error && (
-        <section>
-          <RelationedProductSecction id={displayProduct.id} />
-        </section>
-      )}
     </div>
   );
 };
