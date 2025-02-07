@@ -56,7 +56,7 @@ const FeaturedProducts = ({ products }: { products: ProductBase[] }) => {
           Productos Destacados
         </h2>
       </div>
-      <div className="grid grid-cols-3 gap-4 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7">
+      <div className="grid grid-cols-2 gap-2 xm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7">
         {products.map((product) => (
           <ProductCard
             key={product.id}
@@ -83,7 +83,7 @@ const FeaturedProducts = ({ products }: { products: ProductBase[] }) => {
       </div>
       <div className="mt-8 text-center justify-items-center w-full">
         <button
-          className="px-6 py-2 bg-white text-blue-600 border-2 border-blue-600 rounded-full hover:bg-blue-50 transition-colors flex flex-row"
+          className="px-6 py-2 bg-transparent text-blue-600 border-2 border-blue-600 rounded-full hover:bg-blue-50 dark:hover:bg-blue-950 transition-colors flex flex-row"
           onClick={() => {
             router.push('/products')
           }}

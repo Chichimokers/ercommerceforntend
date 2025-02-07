@@ -15,13 +15,15 @@ export const SearchSuggestions = ({
         {suggestions.map((product) => (
           <Link
             key={product.id}
-            href={`/product/${product.id}`}
+            href={`/products/${product.id}`}
             className="flex items-center p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
             onClick={onSelect}
           >
             <Image
               src={product.image || '/placeholder-product.jpg'}
               alt={product.name}
+              loading="eager"
+              priority
               className="w-10 h-10 object-cover rounded-md mr-3"
               width={40}
               height={40}

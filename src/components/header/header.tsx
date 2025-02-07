@@ -74,7 +74,7 @@ const SearchInput = () => {
   };
 
   return (
-    <div className="relative w-full">
+    <div className="relative w-full max-w-xl">
       <Input
         aria-label="Search"
         variant="faded"
@@ -87,8 +87,8 @@ const SearchInput = () => {
         onFocus={() => setIsFocused(true)}
         onBlur={() => setTimeout(() => setIsFocused(false), 200)}
         classNames={{
-          inputWrapper: "bg-white dark:bg-black bg-opacity-50 dark:bg-opacity-50 rounded-full border-2 border-default-200 hover:border-default-400 transition-all min-w-32 w-[400]",
-          input: "text-sm",
+          inputWrapper: "bg-white dark:bg-black bg-opacity-50 dark:bg-opacity-50 rounded-full border-2 border-default-200 hover:border-default-400 transition-all duration-300 shadow-sm hover:shadow-md px-6",
+          input: "text-md placeholder:text-gray-400 dark:placeholder:text-gray-500",
         }}
         labelPlacement="outside"
         placeholder="Buscar..."
@@ -116,12 +116,12 @@ export const Header = ({ className }: { className?: string }) => {
   return (
     <HerouiNavbar
       maxWidth="full"
-      className={`${className} z-50 top-0 left-0 right-0 h-16`}
+      className={`${className} z-50 top-0 left-0 right-0 h-16 backdrop-blur-sm bg-white/80 dark:bg-black/80`}
     >
       <NavbarContent className="sm:basis-full max-w-fit" justify="start">
-        <NavbarBrand className="gap-1 max-w-fit">
+        <NavbarBrand className="gap-3 max-w-none">
           <Link
-            className="flex justify-start items-center gap-1"
+            className="flex items-center gap-2 transition-transform hover:scale-105"
             color="foreground"
             href="/"
           >
@@ -132,26 +132,24 @@ export const Header = ({ className }: { className?: string }) => {
               loading="eager"
               src="/logonav.png"
               width={140}
-              className="h-15 w-36 object-contain"
+              className="h-12 w-auto object-contain flex-shrink-0"
             />
           </Link>
         </NavbarBrand>
       </NavbarContent>
 
       <NavbarContent
-        className="hidden xm:flex sm:basis-full w-full gap-2"
+        className="hidden xm:flex sm:basis-full w-full gap-4"
         justify="end"
       >
-        <NavbarItem className="hidden md:flex">
+        <NavbarItem className="hidden md:flex flex-1 justify-center">
           <SearchInput />
         </NavbarItem>
-        <NavbarItem className="hidden xm:flex">
+        <NavbarItem className="hidden xm:flex gap-4 items-center">
           <ThemeSwitch />
-          <Spacer x={2} y={0} />
           {!isCartPage && (
             <>
               <DrawerCart />
-              <Spacer x={2} y={0} />
             </>
           )}
 

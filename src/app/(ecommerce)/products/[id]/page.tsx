@@ -157,38 +157,27 @@ const ProductDetailPage = () => {
       <div className="bg-white dark:bg-gray-800 shadow-xl rounded-2xl p-6 md:p-8 lg:p-10">
         <div className="flex flex-col md:flex-row gap-8 lg:gap-12">
           <div className="flex-shrink-0 md:w-1/2 lg:w-2/5">
-            <Link
-              className="text-blue-600 hover:text-blue-700 dark:text-blue-400 flex items-center mb-6 transition-colors duration-200"
-              href="/products/"
-            >
-              <FaArrowLeft className="w-5 h-5 mr-2" />
-              Volver a productos
-            </Link>
-
-            {/* Contenedor de imagen mejorado */}
             <div className="relative group rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-700">
-              {!imageState.loaded && (
-                <Skeleton className="rounded-lg w-full h-96" />
-              )}
+              {!imageState.loaded && <Skeleton className="rounded-lg w-full h-96" />}
+
               <Image
+                key={displayProduct.image}
                 alt={displayProduct.name}
-                className={`w-full h-96 object-contain transition-opacity duration-300 ${imageState.loaded ? "opacity-100" : "opacity-0"
-                  }`}
+                className={`w-full h-96 object-contain ${imageState.loaded ? 'block' : 'hidden'}`}
                 height={320}
-                loading="lazy"
-                priority={false}
-                onError={() => setImageState(prev => ({ ...prev, error: true }))}
-                src={
-                  imageState.error
-                    ? "/nophoto.jpeg"
-                    : displayProduct.image || "/nophoto.jpeg"
-                }
-                onLoad={() => setImageState(prev => ({ ...prev, loaded: true }))}
                 width={320}
+                loading="eager"
+                priority
+                onLoadingComplete={() => setImageState({ loaded: true, error: false })}
+                onError={() => setImageState({ loaded: true, error: true })}
+                src={
+                  imageState.error || !displayProduct.image
+                    ? "/nophoto.jpeg"
+                    : `${displayProduct.image}?v=${Date.now()}`
+                }
               />
             </div>
 
-            {/* Sección de precio y acciones mejorada */}
             <div className="mt-6 space-y-4">
               <div className="flex items-center justify-between bg-gray-50 dark:bg-gray-900 p-4 rounded-xl">
                 <p className="text-3xl font-bold text-green-600 dark:text-green-400">
@@ -215,7 +204,6 @@ const ProductDetailPage = () => {
             </div>
           </div>
 
-          {/* Sección de detalles mejorada */}
           <div className="flex-1 mt-6 md:mt-0">
             <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-4">
               {displayProduct.name}
@@ -236,7 +224,6 @@ const ProductDetailPage = () => {
           </div>
         </div>
 
-        {/* Sección de productos relacionados mejorada */}
         {!productState.loading && !productState.error && (
           <section className="mt-16">
             <h3 className="text-2xl font-bold mb-6 text-gray-800 dark:text-white">

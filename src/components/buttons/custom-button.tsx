@@ -12,6 +12,8 @@ interface CustomButtonProps {
   type?: "button" | "submit" | "reset";
   onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
   isDisabled?: boolean;
+  startContent?: React.ReactNode;
+  isLoading?: boolean;
 }
 
 export const CustomButton: React.FC<CustomButtonProps> = ({
@@ -25,6 +27,8 @@ export const CustomButton: React.FC<CustomButtonProps> = ({
   type = "button",
   onClick,
   isDisabled = false,
+  startContent,
+  isLoading = false,
 }) => {
   const baseClasses = `relative overflow-hidden rounded-xl focus:outline-none transition duration-200 ${!isDisabled && "active:brightness-75"} flex flex-row gap-2 items-center justify-center`;
   const colorClasses = {
@@ -54,7 +58,7 @@ export const CustomButton: React.FC<CustomButtonProps> = ({
     colorClasses[color],
     sizeClasses[size],
     variantClasses[variant],
-    isDisabled && disabledClasses, // Aplicar estilos si está deshabilitado
+    (isDisabled || isLoading) && disabledClasses, // Aplica estilos si está deshabilitado o cargando
     className,
   );
 
@@ -64,12 +68,20 @@ export const CustomButton: React.FC<CustomButtonProps> = ({
       aria-label={aria_label}
       onClick={onClick}
       type={type}
-      className={`${buttonClasses} ${
-        variant === "ghost" && "text-default-800"
-      }`}
-      disabled={isDisabled}
+      className={`${buttonClasses} ${variant === "ghost" && "text-default-800"
+        }`}
+      disabled={isDisabled || isLoading}
     >
-      {children}
+      {isLoading ? (
+        <div className="flex items-center justify-center">
+          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-current"></div>
+        </div>
+      ) : (
+        <>
+          {startContent && <span className="mr-2">{startContent}</span>}
+          {children}
+        </>
+      )}
     </button>
   );
 };
