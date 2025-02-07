@@ -16,17 +16,10 @@ export const useProducts = (baseUrl: string, filters: Filters, page: number) => 
     return response.json();
   };
 
-  const { data, error, isValidating } = useSWR(fetchUrl, fetcher, {
+  return useSWR(fetchUrl, fetcher, {
     revalidateOnFocus: true,
     revalidateOnReconnect: true,
   });
-
-  return {
-    products: data?.data || [],
-    totalPages: data?.totalPages || 1,
-    isLoading: isValidating,
-    error: error?.message || null
-  };
 };
 
 
@@ -54,10 +47,8 @@ export const useCartProducts = (baseUrl: string, availableProducts?: any[]) => {
     const ids = getCartIds();
     if (!ids.length) return [];
 
-    const initialAvailable = availableProducts || [];
-
     const [existingProducts, idsToFetch] = ids.reduce((acc, id) => {
-      const product = initialAvailable.find(p => p.id === id);
+      const product = availableProducts?.find(p => p.id === id);
       product ? acc[0].push(product) : acc[1].push(id);
       return acc;
     }, [[], []] as [any[], string[]]);
@@ -75,7 +66,7 @@ export const useCartProducts = (baseUrl: string, availableProducts?: any[]) => {
     return [...existingProducts, ...validProducts];
   };
 
-  return useSWR(['cart-products', getCartIds(), availableProducts], fetcher, {
+  return useSWR(['cart-products', getCartIds()], fetcher, {
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
     shouldRetryOnError: false,

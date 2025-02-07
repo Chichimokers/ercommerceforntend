@@ -27,6 +27,7 @@ const LoadingComponent = () => {
 
 export default function ProductPage() {
   const { products, totalPages, error, isLoading } = useProductContext();
+  console.log(products)
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
