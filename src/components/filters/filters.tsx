@@ -200,14 +200,6 @@ const Filters = ({ onFilterChange, setIsInvalidFilters, className }: FiltersProp
     }));
   }, []);
 
-  if (isLoading) {
-    return (
-      <div className="h-max">
-        <FiltersSkeleton />
-      </div>
-    );
-  }
-
   return (
     <div className={`${className} opacity-0 animate-fade-in h-max mb-4`}>
       <CheckboxGroup

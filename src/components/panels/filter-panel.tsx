@@ -2,26 +2,13 @@ import dynamic from "next/dynamic";
 import { CustomButton } from "../buttons/custom-button";
 import { useFilters } from "@/hooks/useFilters";
 import { useState } from "react";
-import { Skeleton } from "@heroui/react";
+import FiltersSkeleton from "@components/skeletons/filters-skeleton";
 
 const Filters = dynamic(() => import("../filters/filters"), {
   loading: () => (
-    <div className="transition-opacity duration-300 ease-in-out opacity-100">
-      <LoadingSkeleton />
-    </div>
+    <FiltersSkeleton />
   ),
 });
-
-const LoadingSkeleton = () => (
-  <div className="space-y-4">
-    <Skeleton className="h-10 w-full rounded-xl" />
-    <Skeleton className="h-8 w-3/4 rounded-xl" />
-    <Skeleton className="h-8 w-3/4 rounded-xl" />
-    <Skeleton className="h-8 w-3/4 rounded-xl" />
-    <Skeleton className="h-8 w-3/4 rounded-xl" />
-    <Skeleton className="h-8 w-1/2 rounded-xl" />
-  </div>
-);
 
 export const FilterPanel = () => {
   const { setFilters, applyFilters } = useFilters();

@@ -1,4 +1,4 @@
-import { Avatar } from "@heroui-org/react";
+import { Avatar } from "@heroui/react";
 import { DEFAULT_AVATAR } from "@/types/default-avatar";
 const UserAvatar = ({ image }: { image?: string }) => {
   return (

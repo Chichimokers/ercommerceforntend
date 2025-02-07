@@ -1,5 +1,4 @@
 import { Card, CardBody } from "@heroui/react";
-import { ProductBase } from "@/types/types";
 import { useMemo } from "react";
 import ProductsSlider from "../sliders/products-slider";
 import { useRelatedProducts } from "@/hooks/useRelatedProducts";
