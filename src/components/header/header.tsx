@@ -8,7 +8,6 @@ import {
   NavbarContent,
   NavbarItem,
 } from "@heroui/react";
-import { Spacer } from "@heroui/react";
 import Image from "next/image";
 import { ThemeSwitch } from "@/components/theme-switch";
 import { SearchIcon } from "@/components/icons";
@@ -37,7 +36,7 @@ const SearchInput = () => {
   const fetchSuggestions = useDebouncedCallback(async (value: string) => {
     if (value.length > 2) {
       try {
-        const url = `http://localhost:8080/public/search`;
+        const url = `${process.env.NEXT_PUBLIC_API_URL}public/search`;
 
         const response = await fetch(url, {
           method: 'POST', // Cambiado a POST

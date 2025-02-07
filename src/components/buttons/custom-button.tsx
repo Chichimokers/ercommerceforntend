@@ -30,52 +30,54 @@ export const CustomButton: React.FC<CustomButtonProps> = ({
   startContent,
   isLoading = false,
 }) => {
-  const baseClasses = `relative overflow-hidden rounded-xl focus:outline-none transition duration-200 ${!isDisabled && "active:brightness-75"} flex flex-row gap-2 items-center justify-center`;
-  const colorClasses = {
-    primary: `bg-blue-500 text-white ${!isDisabled && "hover:bg-blue-600"}`,
-    secondary: `bg-gray-500 text-white ${!isDisabled && "hover:bg-gray-600"}`,
-    success: `bg-green-500 text-white ${!isDisabled && "hover:bg-green-600"}`,
-    danger: `bg-red-500 text-white ${!isDisabled && "hover:bg-red-600"}`,
-    default: `bg-white dark:bg-black text-default-800`,
-  };
+  const baseClasses = clsx(
+    "relative overflow-hidden rounded-xl focus:outline-none transition duration-200",
+    "flex flex-row gap-2 items-center justify-center",
+    !isDisabled && !isLoading && "active:brightness-75"
+  );
+
+  const colorClasses = clsx({
+    'bg-blue-500 hover:bg-blue-600': color === 'primary' && !isDisabled,
+    'bg-gray-500 hover:bg-gray-600': color === 'secondary' && !isDisabled,
+    'bg-green-500 hover:bg-green-600': color === 'success' && !isDisabled,
+    'bg-red-500 hover:bg-red-600': color === 'danger' && !isDisabled,
+    'bg-white dark:bg-black': color === 'default',
+    'text-white': ['primary', 'secondary', 'success', 'danger'].includes(color),
+    'text-default-800': color === 'default' || variant === 'ghost'
+  });
+
   const sizeClasses = {
     small: "text-sm py-2 px-4",
     medium: "text-base py-2 px-6",
     large: "text-lg py-3 px-8",
-  };
-  const variantClasses = {
-    filled: ``,
-    outlined: `border-2 border-current bg-transparent text-current`,
-    ghost: `bg-transparent text-current ${!isDisabled && "hover:bg-gray-100"}`,
-    bordered: `!text-default-800 border-2 border-default-200 ${!isDisabled && "hover:border-default-400"}`,
-  };
+  }[size];
 
-  // Estilos específicos para botones desactivados
-  const disabledClasses = "opacity-50 cursor-not-allowed active:brightness-100";
+  const variantClasses = clsx({
+    'border-2 border-current bg-transparent': variant === 'outlined',
+    'bg-transparent hover:bg-gray-100': variant === 'ghost' && !isDisabled,
+    'border-2 border-default-200 hover:border-default-400': variant === 'bordered' && !isDisabled,
+  });
 
   const buttonClasses = clsx(
     baseClasses,
-    colorClasses[color],
-    sizeClasses[size],
-    variantClasses[variant],
-    (isDisabled || isLoading) && disabledClasses, // Aplica estilos si está deshabilitado o cargando
-    className,
+    colorClasses,
+    sizeClasses,
+    variantClasses,
+    (isDisabled || isLoading) && "opacity-50 cursor-not-allowed",
+    className
   );
 
   return (
     <button
-      style={{ ...style }}
-      aria-label={aria_label}
+      {...(style && { style })}
+      aria-label={isLoading ? "Cargando..." : aria_label}
       onClick={onClick}
       type={type}
-      className={`${buttonClasses} ${variant === "ghost" && "text-default-800"
-        }`}
+      className={buttonClasses}
       disabled={isDisabled || isLoading}
     >
       {isLoading ? (
-        <div className="flex items-center justify-center">
-          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-current"></div>
-        </div>
+        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-current" />
       ) : (
         <>
           {startContent && <span className="mr-2">{startContent}</span>}

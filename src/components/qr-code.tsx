@@ -9,7 +9,7 @@ const CustomQRCode = ({ value }: { value: string }) => {
 
   return (
     <div
-      className="relative flex justify-center items-center p-2 rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-[1.02] group"
+      className="relative flex justify-center items-center p-2 rounded-2xl transition-all duration-300 hover:scale-[1.02] group"
       style={{
         background: isDark
           ? "linear-gradient(135deg, #1a1a1a, #2d2d2d)"

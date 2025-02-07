@@ -52,16 +52,18 @@ const FeaturedProducts = ({ products }: { products: ProductBase[] }) => {
   return (
     <div className="mb-8">
       <div className="mb-6">
-        <h2 className="text-3xl font-bold text-default-900 mb-2 pb-2 border-b-4 border-blue-100 w-max">
-          Productos Destacados
+        <h2 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 mb-2 pb-2 border-b-4 border-blue-100 w-max">
+          Tesoros de Es Aki
+          <span className="block text-sm font-normal text-gray-600 mt-1">Selección exclusiva de nuestros expertos</span>
         </h2>
       </div>
-      <div className="grid grid-cols-2 gap-2 xm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7">
+      <div className="grid grid-cols-2 gap-4 xm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7">
         {products.map((product) => (
           <ProductCard
             key={product.id}
             product={product}
-            className="hover:scale-105 transition-transform duration-300"
+            className="hover:scale-105 transition-transform duration-300 shadow-lg hover:shadow-xl group relative overflow-hidden"
+            imgClassName="group-hover:brightness-110 transition-all duration-300"
           />
         ))}
         {products.length === 0 && (
@@ -83,17 +85,15 @@ const FeaturedProducts = ({ products }: { products: ProductBase[] }) => {
       </div>
       <div className="mt-8 text-center justify-items-center w-full">
         <button
-          className="px-6 py-2 bg-transparent text-blue-600 border-2 border-blue-600 rounded-full hover:bg-blue-50 dark:hover:bg-blue-950 transition-colors flex flex-row"
-          onClick={() => {
-            router.push('/products')
-          }}
+          className="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full hover:from-blue-700 hover:to-purple-700 transition-all transform hover:scale-105 flex items-center gap-2 mx-auto shadow-lg hover:shadow-blue-200/40"
+          onClick={() => router.push('/products')}
         >
-          Ver más productos <ArrowRight />
+          Explora el Universo Es Aki
+          <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
         </button>
       </div>
     </div>
   )
-
 };
 
 const LazyFeaturedProducts = dynamic(

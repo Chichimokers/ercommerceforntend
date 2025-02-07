@@ -75,7 +75,7 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({
 
   // Fetch de productos
   const {
-    data: productsData,
+    products: productsData,
     error: productsError,
     isLoading: isLoadingProducts,
   } = useProducts(baseUrl, filters, currentPage);

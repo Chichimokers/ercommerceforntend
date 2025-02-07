@@ -26,8 +26,7 @@ const LoadingComponent = () => {
 }
 
 export default function ProductPage() {
-  const { products, totalPages = 1, errorStatus, errorMessage, isLoading } =
-    useProductContext();
+  const { products, totalPages, error, isLoading } = useProductContext();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -56,18 +55,29 @@ export default function ProductPage() {
         </div>
         <section className="flex-1 flex flex-col gap-2 p-2 overflow-y-auto relative">
           {isLoading ? (
-            <LoadingComponent />
-          ) : errorStatus ? (
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-2 w-full">
+              {[...Array(12)].map((_, i) => (
+                <div key={i} className="animate-pulse bg-gray-100 rounded-xl h-80">
+                  <div className="h-48 bg-gray-200 rounded-t-xl"></div>
+                  <div className="p-3 space-y-2">
+                    <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                    <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                    <div className="h-4 bg-gray-200 rounded w-1/3"></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : error ? (
             <div className="w-full h-full flex items-center justify-center">
               <Image
                 src="/Empty.svg"
-                alt={errorMessage}
+                alt={error}
                 width={400}
                 height={300}
                 className="w-3/4 md:w-1/2 h-[40vh] object-contain"
               />
               <h2 className="text-lg md:text-xl text-default-500 text-center">
-                {errorMessage}
+                {error}
               </h2>
             </div>
           ) : (

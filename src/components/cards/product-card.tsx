@@ -25,9 +25,10 @@ interface ProductCardProps {
   product: ProductBase;
   prefetch?: "hover" | "click" | "none";
   className?: string;
+  imgClassName?: string;
 }
 
-const ProductCard = React.memo(({ product, prefetch = "none", className }: ProductCardProps) => {
+const ProductCard = React.memo(({ product, prefetch = "none", className, imgClassName }: ProductCardProps) => {
   const [mediaState, setMediaState] = useState<MediaState>({ loaded: false, error: false });
   const { rateExchange } = useContext(CurrencyAndExchangeRateContext) || {};
   const cartActions = useCartActions(product);
@@ -61,6 +62,7 @@ const ProductCard = React.memo(({ product, prefetch = "none", className }: Produ
             <div className="absolute inset-0 bg-default-200 animate-pulse" />
           )}
           <OptimizedImage
+            imgClassName={imgClassName}
             product={product}
             mediaState={mediaState}
             setMediaState={setMediaState}
@@ -86,11 +88,11 @@ const ProductCard = React.memo(({ product, prefetch = "none", className }: Produ
   );
 });
 
-const OptimizedImage = React.memo(({ product, mediaState, setMediaState }:
-  { product: ProductBase, mediaState: MediaState, setMediaState: React.Dispatch<React.SetStateAction<MediaState>> }) => (
+const OptimizedImage = React.memo(({ product, mediaState, setMediaState, imgClassName }:
+  { product: ProductBase, mediaState: MediaState, setMediaState: React.Dispatch<React.SetStateAction<MediaState>>, imgClassName?: string }) => (
   <Image
     alt={product.name}
-    className={`absolute inset-0 object-cover transition-all duration-300 ${mediaState.loaded ? "opacity-100" : "opacity-0"}`}
+    className={`${imgClassName} absolute inset-0 object-cover transition-all duration-300 ${mediaState.loaded ? "opacity-100" : "opacity-0"}`}
     src={mediaState.error ? "/nophoto.jpeg" : product.image || "/nophoto.jpeg"}
     onLoad={() => setMediaState(prev => ({ ...prev, loaded: true }))}
     onError={() => setMediaState(prev => ({ ...prev, error: true }))}

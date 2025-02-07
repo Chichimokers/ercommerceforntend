@@ -197,8 +197,8 @@ export default function Buy() {
                     <FormField label="Teléfono" error={methods.formState.errors.phone?.message}>
                       <Input
                         {...methods.register("phone")}
-                        startContent={<span className="text-default-400">+34</span>}
-                        placeholder="600 000 000"
+                        startContent={<span className="text-default-400">+53</span>}
+                        placeholder="59009301"
                         className="rounded-xl dark:bg-zinc-800 bg-zinc-50"
                       />
                     </FormField>
