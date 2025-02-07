@@ -65,7 +65,7 @@ export default function ShoppingCartPage() {
           <div className="h-1 w-24 bg-primary-500 rounded-full" />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-4">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-4">
           <div className="col-span-2 space-y-6">
             {hasCartProducts && (
               <>
@@ -84,7 +84,7 @@ export default function ShoppingCartPage() {
                         className="hidden md:grid hover:shadow-lg transition-shadow"
                       />
                       <CartCard
-                        className="md:hidden shadow-md hover:shadow-lg transition-all"
+                        className="md:hidden"
                         productCart={product}
                       />
                     </React.Fragment>
@@ -95,7 +95,7 @@ export default function ShoppingCartPage() {
           </div>
 
           {hasCartProducts && (
-            <div className="col-span-1 snap-center xs:col-span-2 md:col-span-1">
+            <div className="col-span-1 snap-center xs:col-span-2 md:col-span-1 w-fit">
               <Summary
                 className="sticky top-24 rounded-xl shadow-lg bg-background"
                 shipping={1}

@@ -53,7 +53,7 @@ const CartCard = React.memo(
 
     return (
       <li
-        className={`flex w-full flex-col border-b border-neutral-300 dark:border-neutral-700 ${className}`}
+        className={`flex w-full flex-col border-b border-neutral-300 dark:border-neutral-700 ${className} px-2`}
       >
         <div className="relative flex w-full flex-row justify-between px-1 py-4 z-0">
           <div className="absolute z-40 -ml-1 -mt-2">

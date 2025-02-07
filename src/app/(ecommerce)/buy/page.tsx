@@ -133,7 +133,7 @@ export default function Buy() {
   );
 
   return (
-    <section className="flex flex-col items-center justify-center gap-8 py-12 md:py-16 px-4 xs:px-8 xl:px-0">
+    <section className="flex flex-col items-center justify-center gap-8 py-12 md:py-16 px-4 xl:px-0">
       <Toaster
         toastOptions={{
           className: 'dark:bg-zinc-800 dark:text-white',
