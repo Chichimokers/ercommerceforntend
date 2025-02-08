@@ -39,7 +39,8 @@ const useCartActions = (product: { id: string; price: number }) => {
   const handleQuantityChange = useCallback((operation: 'inc' | 'dec') => {
     const handler = isInCart
       ? (amount: number) => (operation === 'inc' ? increaseQuantity : decreaseQuantity)?.(product, amount)
-      : (amount: number) => setQuantity(prev => Math.max(1, prev + amount));
+      : operation === 'inc' ? (amount: number) => setQuantity(prev => Math.max(1, prev + amount))
+        : (amount: number) => setQuantity(prev => Math.max(1, prev - amount));
 
     handler(1);
   }, [isInCart, product, increaseQuantity, decreaseQuantity]);
@@ -55,24 +56,8 @@ const useCartActions = (product: { id: string; price: number }) => {
     [cart]
   );
 
-  const handleQuantityInc = useCallback(() => {
-    if (isInCart) {
-      increaseQuantity?.(product, 1);
-
-    } else {
-      setQuantity((prevQuantity) => Math.max(1, prevQuantity + 1));
-    }
-  }, [isInCart, product, increaseQuantity]);
-
-
-  const handleQuantityDec = useCallback(() => {
-    if (isInCart) {
-      decreaseQuantity?.(product, 1);
-
-    } else {
-      setQuantity((prevQuantity) => Math.max(1, prevQuantity - 1));
-    }
-  }, [isInCart, product, decreaseQuantity]);
+  const handleQuantityInc = useCallback(() => handleQuantityChange('inc'), [handleQuantityChange]);
+  const handleQuantityDec = useCallback(() => handleQuantityChange('dec'), [handleQuantityChange]);
 
 
   return {
