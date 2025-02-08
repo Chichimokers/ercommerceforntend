@@ -120,7 +120,7 @@ export const Header = ({ className }: { className?: string }) => {
       <NavbarContent className="sm:basis-full max-w-fit" justify="start">
         <NavbarBrand className="gap-3 max-w-none">
           <Link
-            className="flex items-center gap-2 transition-transform hover:scale-105"
+            className="flex items-center gap-2"
             color="foreground"
             href="/"
           >

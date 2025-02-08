@@ -18,13 +18,33 @@ const OrderSummary = ({
   tax: number;
 }) => {
   const router = useRouter();
-  const ctx = useContext(CurrencyAndExchangeRateContext);
-  const { rateExchange } = ctx || {};
-  const { currency, exchangeRate, symbol } = rateExchange || {};
-  const handleCreateOrder = () => {
-    // Guardar un indicador en el almacenamiento local
-    localStorage.setItem("orderCreation", "true");
+  const { rateExchange } = useContext(CurrencyAndExchangeRateContext) || {};
+  const { currency, exchangeRate = 1 } = rateExchange || {};
 
+  // Función helper para cálculos de conversión
+  const convertAmount = (amount: number) => (amount * exchangeRate).toFixed(2);
+
+  // Componente reutilizable para ítems del resumen
+  const SummaryItem = ({ label, amount, hasTooltip }: {
+    label: string;
+    amount: number;
+    hasTooltip?: boolean
+  }) => (
+    <div className="flex justify-between items-center text-xs xs:text-sm">
+      <span className="text-foreground flex items-center gap-1">
+        {label}
+        {hasTooltip && <FaQuestionCircle className="text-default-400 text-[10px] xs:text-xs" />}
+      </span>
+      <Price
+        amount={convertAmount(amount)}
+        currencyCode={currency || "USD"}
+        className="font-medium"
+      />
+    </div>
+  );
+
+  const handleCreateOrder = () => {
+    localStorage.setItem("orderCreation", "true");
     router.push("/verification");
   };
 
@@ -42,38 +62,9 @@ const OrderSummary = ({
             </h2>
 
             <div className="space-y-2">
-              <div className="flex justify-between items-center text-xs xs:text-sm">
-                <span className="text-foreground">Subtotal</span>
-                <Price
-                  amount={(subtotal * (exchangeRate || 1)).toFixed(2)}
-                  currencyCode={currency || "USD"}
-                  className="font-medium"
-                />
-              </div>
-
-              <div className="flex justify-between items-center text-xs xs:text-sm">
-                <span className="text-foreground flex items-center gap-1">
-                  Envío
-                  <FaQuestionCircle className="text-default-400 text-[10px] xs:text-xs" />
-                </span>
-                <Price
-                  amount={(shipping * (exchangeRate || 1)).toFixed(2)}
-                  currencyCode={currency || "USD"}
-                  className="font-medium"
-                />
-              </div>
-
-              <div className="flex justify-between items-center text-xs xs:text-sm">
-                <span className="text-foreground flex items-center gap-1">
-                  Impuestos
-                  <FaQuestionCircle className="text-default-400 text-[10px] xs:text-xs" />
-                </span>
-                <Price
-                  amount={(tax * (exchangeRate || 1)).toFixed(2)}
-                  currencyCode={currency || "USD"}
-                  className="font-medium"
-                />
-              </div>
+              <SummaryItem label="Subtotal" amount={subtotal} />
+              <SummaryItem label="Envío" amount={shipping} hasTooltip />
+              <SummaryItem label="Impuestos" amount={tax} hasTooltip />
             </div>
 
             <div className="pt-3 mt-2 border-t border-default-200">
@@ -82,10 +73,7 @@ const OrderSummary = ({
                   Total
                 </span>
                 <Price
-                  amount={(
-                    (subtotal + shipping + tax) *
-                    (exchangeRate || 1)
-                  ).toFixed(2)}
+                  amount={convertAmount(subtotal + shipping + tax)}
                   currencyCode={currency || "USD"}
                   className="text-sm xs:text-base font-bold"
                 />

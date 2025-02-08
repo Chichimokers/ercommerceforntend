@@ -37,7 +37,7 @@ export default function SearchPage() {
 
       {loading ? (
         <div className="grid grid-cols-2 gap-4 xm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
-          {[...Array(4)].map((_, i) => (
+          {[...Array(12)].map((_, i) => (
             <div key={i} className="group">
               <div className="h-72 bg-gray-100 dark:bg-gray-700 animate-pulse rounded-xl" />
               <div className="mt-4 space-y-2">
@@ -48,12 +48,11 @@ export default function SearchPage() {
           ))}
         </div>
       ) : results.length > 0 ? (
-        <div className="grid grid-cols-2 gap-4 xm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+        <div className="grid grid-cols-2 gap-2 xm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
           {results.map(product => (
             <ProductCard
               key={product.id}
               product={product}
-              className="transition-transform hover:scale-105"
             />
           ))}
         </div>

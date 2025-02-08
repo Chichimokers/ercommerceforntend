@@ -16,10 +16,12 @@ export const useProducts = (baseUrl: string, filters: Filters, page: number) => 
     return response.json();
   };
 
-  return useSWR(fetchUrl, fetcher, {
+  useSWR(fetchUrl, fetcher, {
     revalidateOnFocus: true,
     revalidateOnReconnect: true,
   });
+
+  return useSWR(fetchUrl, fetcher);
 };
 
 

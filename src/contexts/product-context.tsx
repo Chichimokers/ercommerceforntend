@@ -54,7 +54,7 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({
   const searchParams = useSearchParams();
 
   const [filters, setFilters] = useState<Filters>({});
-  const [currentPage, setCurrentPage] = useState(1);
+  const [page, setPage] = useState(1);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
 
   // Obtener parámetros de la URL
@@ -71,7 +71,7 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({
       parseQueryToFilters(queryParams);
 
     setFilters(newFilters);
-    setCurrentPage(newPage);
+    setPage(newPage);
     setIsInitialLoad(false);
   }, [pathname, searchParams, getQueryParams]);
 
@@ -79,20 +79,20 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     if (isInitialLoad || pathname !== "/products") return;
 
-    const queryParams = buildQueryParams(filters, currentPage, 30);
+    const queryParams = buildQueryParams(filters, page, 30);
     const newUrl = `${pathname}?${queryParams}`;
 
     if (window.location.href !== newUrl) {
       router.replace(newUrl);
     }
-  }, [filters, currentPage, pathname, isInitialLoad, router]);
+  }, [filters, page, pathname, isInitialLoad, router]);
 
   // Fetch de productos
   const {
     data: productsData,
     error: productsError,
     isLoading: isLoadingProducts,
-  } = useProducts(baseUrl, filters, currentPage);
+  } = useProducts(baseUrl, filters, page);
 
   // Carrito y categorías
   const {
@@ -113,7 +113,7 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({
     mutateCartProducts,
     categories,
     filters,
-    currentPage,
+    currentPage: page,
     errorStatus: !!productsError,
     errorMessage:
       productsError?.message === "Not found products!"
@@ -128,7 +128,7 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({
     mutateCartProducts,
     categories,
     filters,
-    currentPage,
+    page,
   ]);
 
   return (

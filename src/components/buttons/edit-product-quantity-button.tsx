@@ -5,9 +5,11 @@ export const EditProductQuantityButton = React.memo(
   ({
     type,
     onClick,
+    className,
   }: {
     type: string;
     onClick: MouseEventHandler<HTMLButtonElement>;
+    className?: string;
   }) => {
     const isPlus = type === "plus";
 
@@ -16,6 +18,7 @@ export const EditProductQuantityButton = React.memo(
         aria-label={isPlus ? "Increase item quantity" : "Reduce item quantity"}
         onClick={onClick}
         className={`
+          ${className}
           flex items-center justify-center 
           w-8 xxs:w-10 h-full 
           max-w-[50px] 

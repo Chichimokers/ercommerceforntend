@@ -25,11 +25,10 @@ const Checkbox: React.FC<CheckboxProps> = ({
     >
       <div
         className={`relative w-6 h-6 border-2 rounded-md transition-all 
-        ${
-          checked
+        ${checked
             ? "bg-blue-500 border-blue-500"
             : "bg-default-50 border-default-300 group-hover:bg-default-200"
-        }`}
+          }`}
       >
         <input
           id={label || "checkbox"}
