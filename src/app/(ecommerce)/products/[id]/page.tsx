@@ -179,7 +179,7 @@ const ProductDetailPage = () => {
             </div>
 
             <div className="mt-6 space-y-4">
-              <div className="flex items-center justify-between bg-gray-50 dark:bg-gray-900 p-4 rounded-xl">
+              <div className="flex items-center justify-between bg-gray-100 dark:bg-gray-700 p-4 rounded-xl">
                 <p className="text-3xl font-bold text-green-600 dark:text-green-400">
                   ${displayProduct.price}
                 </p>
