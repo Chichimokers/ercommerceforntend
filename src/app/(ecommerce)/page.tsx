@@ -54,7 +54,6 @@ const FeaturedProducts = ({ products }: { products: ProductBase[] }) => {
       <div className="mb-6">
         <h2 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 mb-2 pb-2 border-b-4 border-blue-100 w-max">
           Tesoros de Es Aki
-          <span className="block text-sm font-normal text-gray-600 mt-1">Selección exclusiva de nuestros expertos</span>
         </h2>
       </div>
       <div className="grid grid-cols-2 gap-4 xm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7">

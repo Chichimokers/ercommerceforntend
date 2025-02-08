@@ -53,80 +53,81 @@ const CartCard = React.memo(
 
     return (
       <li
-        className={`flex w-full flex-col border-b border-neutral-300 dark:border-neutral-700 ${className} px-2`}
+        className={`flex w-full flex-row border-b border-neutral-300 dark:border-neutral-700 ${className} px-2`}
       >
-        <div className="relative flex w-full flex-row justify-between px-1 py-4 z-0">
+        <div className="relative flex w-full flex-row gap-2 px-1 py-4 z-0">
           <div className="absolute z-40 -ml-1 -mt-2">
             <Skeleton className="w-8 h-8 rounded-full" isLoaded={!!product}>
               <DeleteItemButton onPress={handleRemoveFromCart} />
             </Skeleton>
           </div>
 
-          <div className="flex flex-row gap-4">
-            <div className="relative w-16 h-16 aspect-square overflow-hidden rounded-md border border-neutral-300 bg-neutral-300 dark:border-neutral-700 dark:bg-neutral-900 dark:hover:bg-neutral-800">
-              {!imageLoaded && (
-                <div className="absolute inset-0 bg-default-200 animate-pulse" />
-              )}
-              <Image
-                alt={product.name}
-                quality={Number(process.env.IMAGE_QUALITY)}
-                loading="lazy"
-                priority={false}
-                className="absolute inset-0 w-full h-full object-cover rounded-md"
-                fill
-                onLoad={() => setImageLoaded(true)}
-                onError={() => setImageError(true)}
-                src={
-                  imageError
-                    ? "/nophoto.jpeg"
-                    : product.image || "/nophoto.jpeg"
-                }
-              />
-            </div>
+          <div className="relative w-16 h-16 aspect-square overflow-hidden rounded-md border border-neutral-300 bg-neutral-300 dark:border-neutral-700 dark:bg-neutral-900 dark:hover:bg-neutral-800">
+            {!imageLoaded && (
+              <div className="absolute inset-0 bg-default-200 animate-pulse w-16 h-16" />
+            )}
+            <Image
+              alt={product.name}
+              quality={Number(process.env.IMAGE_QUALITY)}
+              loading="lazy"
+              priority={false}
+              className="absolute inset-0 w-full h-full object-cover rounded-md"
+              width={64}
+              height={64}
+              onLoad={() => setImageLoaded(true)}
+              onError={() => setImageError(true)}
+              src={
+                imageError
+                  ? "/nophoto.jpeg"
+                  : product.image || "/nophoto.jpeg"
+              }
+            />
+          </div>
 
+          <div className="flex flex-col gap-2 w-full">
             <div className="flex flex-1 flex-col text-base">
               <Skeleton
-                className="w-[120px] h-5 rounded-lg"
+                className="h-5 rounded-lg"
                 isLoaded={!!product.name}
               >
-                <span className="leading-tight truncate block w-[120px] md:w-48">
+                <span className="leading-tight truncate block">
                   {product.name}
                 </span>
               </Skeleton>
             </div>
-          </div>
 
-          {/* Precio y controles */}
-          <div className="flex h-16 flex-col justify-between">
-            <Skeleton
-              className="w-20 h-5 rounded-lg"
-              isLoaded={!!product.price}
-            >
-              <Price
-                amount={
-                  rateExchange
-                    ? (product.price * rateExchange.exchangeRate).toString()
-                    : product.price.toString()
-                }
-                className="flex space-y-2 text-sm"
-                currencyCode={rateExchange?.currency || "USD"}
-              />
-            </Skeleton>
+            {/* Precio y controles */}
+            <div className="flex flex-row justify-between w-full">
+              <Skeleton
+                className="w-20 h-5 rounded-lg"
+                isLoaded={!!product.price}
+              >
+                <Price
+                  amount={
+                    rateExchange
+                      ? (product.price * rateExchange.exchangeRate).toString()
+                      : product.price.toString()
+                  }
+                  className="flex space-y-2 text-sm"
+                  currencyCode={rateExchange?.currency || "USD"}
+                />
+              </Skeleton>
 
-            <Skeleton className="rounded-full" isLoaded={!!product}>
-              <QuantityAdjuster
-                quantity={cartQuantity || quantity}
-                isInCart={isInCart}
-                handleQuantityInc={handleQuantityInc}
-                handleQuantityDec={handleQuantityDec}
-                findInCartLocalStorage={() => !!cartQuantity}
-                getLocalStorageData={() =>
-                  cart?.find((item) => item.id === product.id)
-                }
-                productId={product.id}
-                maxLimit={product.quantity || 100}
-              />
-            </Skeleton>
+              <Skeleton className="rounded-full" isLoaded={!!product}>
+                <QuantityAdjuster
+                  quantity={cartQuantity || quantity}
+                  isInCart={isInCart}
+                  handleQuantityInc={handleQuantityInc}
+                  handleQuantityDec={handleQuantityDec}
+                  findInCartLocalStorage={() => !!cartQuantity}
+                  getLocalStorageData={() =>
+                    cart?.find((item) => item.id === product.id)
+                  }
+                  productId={product.id}
+                  maxLimit={product.quantity || 100}
+                />
+              </Skeleton>
+            </div>
           </div>
         </div>
       </li>

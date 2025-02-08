@@ -5,7 +5,6 @@ const QuantityAdjuster = ({
   quantity,
   handleQuantityInc,
   handleQuantityDec,
-  productId,
   maxLimit,
   className,
 }: {
