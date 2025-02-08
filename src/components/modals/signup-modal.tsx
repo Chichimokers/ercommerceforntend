@@ -176,7 +176,7 @@ export default function SignUp({
         color="danger"
         onClick={() => handleSocialSignUp("google")}
       >
-        <FaGoogle />
+        <FaGoogle className="fill-gray-700 dark:fill-gray-100" />
       </CustomButton>
       <CustomButton
         variant="bordered"
@@ -184,7 +184,7 @@ export default function SignUp({
         color="primary"
         onClick={() => handleSocialSignUp("facebook")}
       >
-        <FaFacebook />
+        <FaFacebook className="fill-gray-700 dark:fill-gray-100" />
       </CustomButton>
     </div>
   );
@@ -234,9 +234,8 @@ export default function SignUp({
                     size={windowWidth <= 380 ? "sm" : "md"}
                     startContent={
                       <FaUser
-                        className={`text-default-400 pointer-events-none flex-shrink-0 ${
-                          windowWidth <= 380 ? "text-sm" : "text-xl"
-                        }`}
+                        className={`text-default-400 pointer-events-none flex-shrink-0 ${windowWidth <= 380 ? "text-sm" : "text-xl"
+                          }`}
                       />
                     }
                     value={formData.fullName}
@@ -260,9 +259,8 @@ export default function SignUp({
                     size={windowWidth <= 380 ? "sm" : "md"}
                     startContent={
                       <FaMailBulk
-                        className={`text-default-400 pointer-events-none flex-shrink-0 ${
-                          windowWidth <= 380 ? "text-sm" : "text-xl"
-                        }`}
+                        className={`text-default-400 pointer-events-none flex-shrink-0 ${windowWidth <= 380 ? "text-sm" : "text-xl"
+                          }`}
                       />
                     }
                     type="email"
@@ -285,9 +283,8 @@ export default function SignUp({
                     size={windowWidth <= 380 ? "sm" : "md"}
                     startContent={
                       <FaLock
-                        className={`text-default-400 pointer-events-none flex-shrink-0 ${
-                          windowWidth <= 380 ? "text-sm" : "text-xl"
-                        }`}
+                        className={`text-default-400 pointer-events-none flex-shrink-0 ${windowWidth <= 380 ? "text-sm" : "text-xl"
+                          }`}
                       />
                     }
                     type={isVisibleP ? "text" : "password"}
@@ -332,9 +329,8 @@ export default function SignUp({
                     size={windowWidth <= 380 ? "sm" : "md"}
                     startContent={
                       <FaLock
-                        className={`text-default-400 pointer-events-none flex-shrink-0 ${
-                          windowWidth <= 380 ? "text-sm" : "text-xl"
-                        }`}
+                        className={`text-default-400 pointer-events-none flex-shrink-0 ${windowWidth <= 380 ? "text-sm" : "text-xl"
+                          }`}
                       />
                     }
                     type={isVisibleCP ? "text" : "password"}
@@ -360,9 +356,8 @@ export default function SignUp({
                   />
                 </section>
                 <Checkbox
-                  className={`w-max text-xs sm:text-sm ${
-                    errors.acceptTerms ? "text-danger" : ""
-                  }`}
+                  className={`w-max text-xs sm:text-sm ${errors.acceptTerms ? "text-danger" : ""
+                    }`}
                   checked={formData.acceptTerms}
                   onChange={(value) => handleInputChange("acceptTerms", value)}
                   label="Acepto los términos y condiciones"
