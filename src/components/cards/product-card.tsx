@@ -49,7 +49,7 @@ const ProductCard = React.memo(({ product, prefetch = "none", className, imgClas
 
   return (
     <Card
-      className={`${className} w-full max-w-[220px] bg-default-50/50 rounded-2xl transition-all border border-default-100 hover:border-default-300`}
+      className={`${className} w-full max-w-[240px] bg-default-50/80 rounded-3xl transition-all border border-default-100 hover:border-default-300 hover:shadow-lg`}
       shadow="none"
       as={Link}
       href={`/products/${product.id}`}
@@ -57,12 +57,12 @@ const ProductCard = React.memo(({ product, prefetch = "none", className, imgClas
       onPress={prefetch === "click" ? handlePrefetch : undefined}
     >
       <CardBody className="overflow-hidden p-0">
-        <div className="relative aspect-square w-full bg-default-100">
+        <div className="relative aspect-square w-full bg-default-100 group">
           {!mediaState.loaded && (
-            <div className="absolute inset-0 bg-default-200 animate-pulse" />
+            <div className="absolute inset-0 bg-gradient-to-br from-default-200 to-default-300 animate-pulse" />
           )}
           <OptimizedImage
-            imgClassName={imgClassName}
+            imgClassName={`${imgClassName} group-hover:scale-105 transition-transform duration-300`}
             product={product}
             mediaState={mediaState}
             setMediaState={setMediaState}
@@ -70,7 +70,7 @@ const ProductCard = React.memo(({ product, prefetch = "none", className, imgClas
         </div>
       </CardBody>
 
-      <CardFooter className="text-small p-2 sm:p-3 max-h-[160px] md:min-h-[130px] xs:min-h-[120px]">
+      <CardFooter className="text-small p-3 sm:p-4 max-h-[180px] md:min-h-[140px] xs:min-h-[130px]">
         <div className="flex flex-col w-full gap-2 h-full justify-between">
           <ProductHeader name={product.name} />
           <PriceDisplay
@@ -105,7 +105,7 @@ const OptimizedImage = React.memo(({ product, mediaState, setMediaState, imgClas
 OptimizedImage.displayName = 'OptimizedImage'
 
 const ProductHeader = React.memo(({ name }: { name: string }) => (
-  <b className="text-xs xs:text-lg md:text-base line-clamp-1 text-start">
+  <b className="text-sm xs:text-md md:text-lg line-clamp-1 text-start font-semibold text-default-700 leading-tight">
     {name}
   </b>
 ));
@@ -114,7 +114,7 @@ ProductHeader.displayName = 'ProductHeader'
 
 const PriceDisplay = React.memo(({ price, rateExchange }:
   { price: number, rateExchange?: { symbol: string; exchangeRate: number; currency: string } }) => (
-  <p className="text-default-500 whitespace-nowrap text-xs xs:text-sm sm:text-lg text-start">
+  <p className="text-default-600 whitespace-nowrap text-sm xs:text-md sm:text-lg text-start font-medium">
     {rateExchange
       ? `${rateExchange.symbol}${(price * rateExchange.exchangeRate).toFixed(2)} ${rateExchange.currency}`
       : `$${price} USD`}
@@ -137,6 +137,7 @@ const CartControls = React.memo(({ product, cartActions }:
     <div className="flex items-center">
       <Skeleton isLoaded={!!product}>
         <QuantityAdjuster
+          className="h-16"
           quantity={cartActions.quantity}
           isInCart={cartActions.isInCart}
           handleQuantityInc={cartActions.handleQuantityInc}
@@ -177,11 +178,12 @@ const AddToCartButton = React.memo(
     onClick: (e: React.MouseEvent<HTMLButtonElement>) => void;
   }) => (
     <CustomButton
-      className="h-8 w-8 !p-0 xs:w-full shrink-0"
+      className="h-9 w-10 !p-0 xs:w-full shrink-0 hover:opacity-90 
+                active:scale-95 hover:scale-105 transition-all duration-200"
       color="primary"
       onClick={onClick}
     >
-      <FaShoppingCart className="h-3 w-3 sm:h-4 sm:w-4" />
+      <FaShoppingCart className="h-4 w-4 sm:h-5 sm:w-5 animate-[bounce_300ms]" />
     </CustomButton>
   )
 );
@@ -193,11 +195,12 @@ const RemoveFromCartButton = React.memo(
     onClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
   }) => (
     <CustomButton
-      className="h-8 w-8 !p-0 xs:w-full shrink-0"
+      className="h-9 w-10 !p-0 xs:w-full shrink-0 hover:opacity-90  
+                active:scale-95 hover:scale-105 transition-all duration-200"
       color="danger"
       onClick={onClick}
     >
-      <FaBucket className="h-3 w-3 sm:h-4 sm:w-4" />
+      <FaBucket className="h-4 w-4 sm:h-5 sm:w-5 animate-[shake_400ms]" />
     </CustomButton>
   )
 );

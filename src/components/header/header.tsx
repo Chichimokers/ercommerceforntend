@@ -20,7 +20,12 @@ import { useDebouncedCallback } from "use-debounce";
 import { SearchSuggestions } from "@/components/search-suggestions";
 import { ProductBase } from "../../types/types";
 
-const IconButton = dynamic(() => import("@/components/buttons/cart-button"));
+const IconButton = dynamic(() => import("@/components/buttons/cart-button"), {
+  loading: () => (
+    <div className="w-8 h-8 bg-default-200 rounded-full animate-pulse" />
+  )
+});
+
 const AccountButton = dynamic(
   () => import("@/components/buttons/account-button")
 );
@@ -148,7 +153,10 @@ export const Header = ({ className }: { className?: string }) => {
           <ThemeSwitch />
           {!isCartPage && (
             <>
-              <DrawerCart />
+              <DrawerCart
+                className="hover:animate-pulse"
+                aria-label="Abrir carrito"
+              />
             </>
           )}
 
@@ -160,7 +168,7 @@ export const Header = ({ className }: { className?: string }) => {
         <ThemeSwitch />
         {!isCartPage && (
           <div className="hidden xm:flex">
-            <IconButton />
+            <IconButton className="hover:animate-bounce" />
           </div>
         )}
         {session ? <AccountButton /> : <LoginButton />}

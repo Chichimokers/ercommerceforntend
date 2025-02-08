@@ -23,7 +23,7 @@ export const EditProductQuantityButton = React.memo(
           w-8 xxs:w-10 h-full 
           max-w-[50px] 
           active:bg-default-300
-          ${isPlus ? "rounded-r-full" : "rounded-l-full"}
+          ${isPlus ? "rounded-r-xl" : "rounded-l-xl"}
           bg-transparent text-current hover:bg-default-100
           transition-all duration-300
         `}

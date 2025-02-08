@@ -7,33 +7,38 @@ import { CartContext } from "@/contexts/cart-context";
 import Image from "next/image";
 import { CurrencyAndExchangeRateContext } from "@/contexts/exchange-rate-currency-context";
 import dynamic from "next/dynamic";
+import { useProductContext } from "@contexts/product-context";
 
 const QuantityAdjuster = dynamic(() => import("../buttons/quantity-selector"));
 
 export const ProductGrid = React.memo(
-  ({ product, className }: { product: ProductBase; className?: string }) => {
-    const { cart, DelCartItem } = useContext(CartContext) || {};
+  ({ productCart, className }: { productCart: ProductBase; className?: string }) => {
+    const { cart } = useContext(CartContext) || {};
     const {
-      handleRemoveFromCart,
-      handleQuantityDec,
-      handleQuantityInc,
-      quantity,
       isInCart,
-    } = useCartActions(product);
-    const ctx = useContext(CurrencyAndExchangeRateContext);
-    const { rateExchange } = ctx || {};
-    const [imageError, setImageError] = useState(false);
-    const [imageLoaded, setImageLoaded] = useState(false);
+      quantity,
+      handleRemoveFromCart,
+      handleQuantityInc,
+      handleQuantityDec,
+    } = useCartActions(productCart);
+    const { cartProducts } = useProductContext();
+    const product = useMemo(
+      () => cartProducts.find((p) => p.id === productCart.id),
+      [cartProducts, productCart.id]
+    );
+    const [imageStatus, setImageStatus] = useState<'loading' | 'error' | 'loaded'>('loading');
 
     const cartQuantity = useMemo(() => {
       return cart?.find((item: { id: string }) => item.id === product?.id)
         ?.cantidad;
     }, [cart, product]);
+    const ctx = useContext(CurrencyAndExchangeRateContext);
+    const { rateExchange } = ctx || {};
 
     if (!product) {
       return (
         <div className="flex flex-col items-center justify-center">
-          Your cart is empty
+          Tu carrito está vacío
         </div>
       );
     }
@@ -47,23 +52,17 @@ export const ProductGrid = React.memo(
           <div className="py-6 flex items-center col-span-2 lg:col-span-3">
             <div className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-xl border-2 border-default-100 dark:border-default-800 mr-4 
               shadow-lg hover:shadow-md transition-all group">
-              {!imageLoaded && (
-                <div className="absolute inset-0 bg-default-100 animate-pulse rounded-xl" />
+              {imageStatus !== 'loaded' && (
+                <div className="absolute inset-0 animate-pulse bg-neutral-200 dark:bg-neutral-800" />
               )}
               <Image
-                src={
-                  imageError
-                    ? "/nophoto.jpeg"
-                    : product.image || "/nophoto.jpeg"
-                }
                 alt={product.name}
-                className="rounded-xl object-cover h-full w-full transform group-hover:scale-105 transition-transform duration-300"
                 fill
-                quality={Number(process.env.IMAGE_QUALITY)}
-                onLoad={() => setImageLoaded(true)}
-                onError={() => setImageError(true)}
                 loading="lazy"
-                priority={false}
+                className="object-cover"
+                onLoad={() => setImageStatus('loaded')}
+                onError={() => setImageStatus('error')}
+                src={imageStatus === 'error' ? '/nophoto.jpeg' : product.image || '/nophoto.jpeg'}
               />
             </div>
             <div className="flex-1 space-y-1.5">

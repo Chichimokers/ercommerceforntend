@@ -37,6 +37,7 @@ const useCartActions = (product: { id: string; price: number }) => {
   }, [DelCartItem, product.id, handleMutation]);
 
   const handleQuantityChange = useCallback((operation: 'inc' | 'dec') => {
+    console.log(operation)
     const handler = isInCart
       ? (amount: number) => (operation === 'inc' ? increaseQuantity : decreaseQuantity)?.(product, amount)
       : operation === 'inc' ? (amount: number) => setQuantity(prev => Math.max(1, prev + amount))

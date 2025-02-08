@@ -79,7 +79,7 @@ export default function ShoppingCartPage() {
                   {cartProductsWithQuantity.map((product) => (
                     <React.Fragment key={product.id}>
                       <ProductGrid
-                        product={product}
+                        productCart={product}
                         className="hidden md:grid hover:shadow-lg transition-shadow"
                       />
                       <CartCard

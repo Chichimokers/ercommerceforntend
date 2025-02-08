@@ -38,7 +38,7 @@ export default function IndexPage() {
         </div>
 
         <SecondaryBannerSlider
-          className="rounded-xl border-4 border-white shadow-lg"
+          className="rounded-xl border-4 border-default-50/50 shadow-lg"
           banners={banners}
         />
       </div>
@@ -84,11 +84,11 @@ const FeaturedProducts = ({ products }: { products: ProductBase[] }) => {
       </div>
       <div className="mt-8 text-center justify-items-center w-full">
         <button
-          className="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full hover:from-blue-700 hover:to-purple-700 transition-all transform hover:scale-105 flex items-center gap-2 mx-auto shadow-lg hover:shadow-blue-200/40"
+          className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-full transition-colors duration-300 flex items-center gap-2 mx-auto group"
           onClick={() => router.push('/products')}
         >
           Explora el Universo Es Aki
-          <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+          <ArrowRight className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" />
         </button>
       </div>
     </div>
