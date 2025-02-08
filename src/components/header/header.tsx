@@ -8,7 +8,6 @@ import {
   NavbarContent,
   NavbarItem,
 } from "@heroui/react";
-import { Spacer } from "@heroui/react";
 import Image from "next/image";
 import { ThemeSwitch } from "@/components/theme-switch";
 import { SearchIcon } from "@/components/icons";
@@ -21,7 +20,12 @@ import { useDebouncedCallback } from "use-debounce";
 import { SearchSuggestions } from "@/components/search-suggestions";
 import { ProductBase } from "../../types/types";
 
-const IconButton = dynamic(() => import("@/components/buttons/cart-button"));
+const IconButton = dynamic(() => import("@/components/buttons/cart-button"), {
+  loading: () => (
+    <div className="w-8 h-8 bg-default-200 rounded-full animate-pulse" />
+  )
+});
+
 const AccountButton = dynamic(
   () => import("@/components/buttons/account-button")
 );
@@ -37,7 +41,7 @@ const SearchInput = () => {
   const fetchSuggestions = useDebouncedCallback(async (value: string) => {
     if (value.length > 2) {
       try {
-        const url = `http://localhost:8080/public/search`;
+        const url = `${process.env.NEXT_PUBLIC_API_URL}public/search`;
 
         const response = await fetch(url, {
           method: 'POST', // Cambiado a POST
@@ -121,7 +125,7 @@ export const Header = ({ className }: { className?: string }) => {
       <NavbarContent className="sm:basis-full max-w-fit" justify="start">
         <NavbarBrand className="gap-3 max-w-none">
           <Link
-            className="flex items-center gap-2 transition-transform hover:scale-105"
+            className="flex items-center gap-2"
             color="foreground"
             href="/"
           >
@@ -149,7 +153,10 @@ export const Header = ({ className }: { className?: string }) => {
           <ThemeSwitch />
           {!isCartPage && (
             <>
-              <DrawerCart />
+              <DrawerCart
+                className="hover:animate-pulse"
+                aria-label="Abrir carrito"
+              />
             </>
           )}
 
@@ -161,7 +168,7 @@ export const Header = ({ className }: { className?: string }) => {
         <ThemeSwitch />
         {!isCartPage && (
           <div className="hidden xm:flex">
-            <IconButton />
+            <IconButton className="hover:animate-bounce" />
           </div>
         )}
         {session ? <AccountButton /> : <LoginButton />}

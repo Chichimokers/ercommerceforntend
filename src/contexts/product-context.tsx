@@ -16,11 +16,12 @@ import { useCategories } from "@/hooks/useCategories";
 import { useProducts, useCartProducts } from "@/hooks/useProducts";
 
 interface ProductContextType {
-  products: ProductBase[];
+  products: any[];
   cartProducts: ProductBase[];
   isLoading: boolean;
   categories: Category[];
-  totalPages?: number;
+  totalPages: number;
+  error: any;
   errorStatus: boolean;
   errorMessage: string;
   isLoadingCart: boolean;
@@ -29,7 +30,20 @@ interface ProductContextType {
   currentPage: number;
 }
 
-const ProductContext = createContext<ProductContextType | undefined>(undefined);
+const ProductContext = createContext<ProductContextType>({
+  products: [],
+  totalPages: 1,
+  isLoading: false,
+  error: null,
+  cartProducts: [],
+  isLoadingCart: false,
+  mutateCartProducts: () => { },
+  filters: {},
+  currentPage: 1,
+  categories: [],
+  errorStatus: false,
+  errorMessage: "",
+});
 const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") || "";
 
 export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({
@@ -40,7 +54,7 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({
   const searchParams = useSearchParams();
 
   const [filters, setFilters] = useState<Filters>({});
-  const [currentPage, setCurrentPage] = useState(1);
+  const [page, setPage] = useState(1);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
 
   // Obtener parámetros de la URL
@@ -57,7 +71,7 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({
       parseQueryToFilters(queryParams);
 
     setFilters(newFilters);
-    setCurrentPage(newPage);
+    setPage(newPage);
     setIsInitialLoad(false);
   }, [pathname, searchParams, getQueryParams]);
 
@@ -65,20 +79,20 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     if (isInitialLoad || pathname !== "/products") return;
 
-    const queryParams = buildQueryParams(filters, currentPage, 30);
+    const queryParams = buildQueryParams(filters, page, 30);
     const newUrl = `${pathname}?${queryParams}`;
 
     if (window.location.href !== newUrl) {
       router.replace(newUrl);
     }
-  }, [filters, currentPage, pathname, isInitialLoad, router]);
+  }, [filters, page, pathname, isInitialLoad, router]);
 
   // Fetch de productos
   const {
     data: productsData,
     error: productsError,
     isLoading: isLoadingProducts,
-  } = useProducts(baseUrl, filters, currentPage);
+  } = useProducts(baseUrl, filters, page);
 
   // Carrito y categorías
   const {
@@ -89,35 +103,33 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({
   const { data: categories = [] } = useCategories(baseUrl);
 
   // Memoizar el contexto
-  const contextValue = useMemo(
-    () => ({
-      products: productsData?.products || [],
-      cartProducts,
-      isLoading: isLoadingProducts || isLoadingCart,
-      categories,
-      totalPages: productsData?.totalPages,
-      errorStatus: !!productsError,
-      errorMessage:
-        productsError?.message === "Not found products!"
-          ? "No se han encontrado productos relacionados con los parámetros del filtrado"
-          : productsError?.message || "",
-      isLoadingCart,
-      mutateCartProducts,
-      filters,
-      currentPage,
-    }),
-    [
-      productsData,
-      cartProducts,
-      isLoadingProducts,
-      isLoadingCart,
-      categories,
-      productsError,
-      filters,
-      currentPage,
-      mutateCartProducts
-    ]
-  );
+  const contextValue = useMemo(() => ({
+    products: productsData?.products || [],
+    totalPages: productsData?.totalPages || 1,
+    isLoading: isLoadingProducts,
+    error: productsError,
+    cartProducts,
+    isLoadingCart,
+    mutateCartProducts,
+    categories,
+    filters,
+    currentPage: page,
+    errorStatus: !!productsError,
+    errorMessage:
+      productsError?.message === "Not found products!"
+        ? "No se han encontrado productos relacionados con los parámetros del filtrado"
+        : productsError?.message || "",
+  }), [
+    productsData,
+    isLoadingProducts,
+    productsError,
+    cartProducts,
+    isLoadingCart,
+    mutateCartProducts,
+    categories,
+    filters,
+    page,
+  ]);
 
   return (
     <ProductContext.Provider value={contextValue}>

@@ -67,7 +67,7 @@ export default function RelatedProductSection({
   };
 
   return (
-    <Card className="border-y border-default-200 shadow-none rounded-none bg-default-50 h-max w-full overflow-hidden min-h-[300px] flex flex-col py-4">
+    <Card className="border-y border-default-200 shadow-none rounded-xl h-max w-full overflow-hidden min-h-[300px] flex flex-col py-4 bg-gray-100 dark:bg-gray-700">
       <h2 className="text-2xl font-extrabold text-gradient bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent text-center">
         Productos Relacionados
       </h2>

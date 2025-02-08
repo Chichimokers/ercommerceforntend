@@ -56,16 +56,15 @@ export default function ShoppingCartPage() {
   }
 
   return (
-    <section className="flex flex-col items-center justify-center gap-4 py-8 md:py-12 xs:px-8 xl:px-0">
+    <section className="flex flex-col items-center justify-center gap-4 py-8 md:py-12 xl:px-0">
       <div className="inline-block max-w-6xl w-full px-4">
         <div className="mb-8 space-y-2">
-          <h1 className="text-4xl font-bold text-default-800 tracking-tight">
+          <h1 className="text-4xl font-bold text-default-800 tracking-tight border-b-4 border-blue-100 w-fit">
             Tu Carrito de Compras
           </h1>
-          <div className="h-1 w-24 bg-primary-500 rounded-full" />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-4">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-4">
           <div className="col-span-2 space-y-6">
             {hasCartProducts && (
               <>
@@ -80,11 +79,11 @@ export default function ShoppingCartPage() {
                   {cartProductsWithQuantity.map((product) => (
                     <React.Fragment key={product.id}>
                       <ProductGrid
-                        product={product}
+                        productCart={product}
                         className="hidden md:grid hover:shadow-lg transition-shadow"
                       />
                       <CartCard
-                        className="md:hidden shadow-md hover:shadow-lg transition-all"
+                        className="md:hidden"
                         productCart={product}
                       />
                     </React.Fragment>

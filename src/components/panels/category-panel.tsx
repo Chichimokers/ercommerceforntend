@@ -15,7 +15,7 @@ const CategoryPanel = () => {
       <div className="flex flex-row overflow-x-auto gap-4 snap-x snap-mandatory scrollbar-hide px-4 py-8">
         <div key="all" className="flex-shrink-0 snap-center">
           <CategoryCard
-            className="text-sm w-36 md:w-40 h-36 md:h-40 transition-all duration-300 ease-out group-hover:brightness-100 border-2 border-default-200 hover:border-blue-500/80 dark:border-default-600 dark:hover:border-blue-300 bg-white/90 dark:bg-default-100 backdrop-blur-sm hover:shadow-lg"
+            className="text-sm w-36 md:w-40 h-36 md:h-40 transition-all duration-300 ease-out group-hover:brightness-100 border-2 border-default-200 hover:border-blue-500/80 dark:hover:border-blue-300 bg-white/90 dark:bg-default-100 backdrop-blur-sm hover:shadow-lg"
             icon={
               <span className="relative text-blue-600/90 dark:text-blue-300/90 transition-transform group-hover:scale-110">
                 <FaTh />
@@ -34,7 +34,7 @@ const CategoryPanel = () => {
           return (
             <div key={category.id} className="flex-shrink-0 snap-center">
               <CategoryCard
-                className="text-sm w-36 md:w-40 h-36 md:h-40 transition-all duration-300 ease-out group-hover:brightness-100 border-2 border-default-200 hover:border-blue-500/80 dark:border-default-600 dark:hover:border-blue-300 bg-white/90 dark:bg-default-100 backdrop-blur-sm hover:shadow-lg"
+                className="text-sm w-36 md:w-40 h-36 md:h-40 transition-all duration-300 ease-out group-hover:brightness-100 border-2 border-default-200 hover:border-blue-500/80 dark:hover:border-blue-300 bg-white/90 dark:bg-default-100 backdrop-blur-sm hover:shadow-lg"
                 icon={
                   <span className="relative text-blue-600/90 dark:text-blue-300/90 transition-transform group-hover:scale-110">
                     <Icon />

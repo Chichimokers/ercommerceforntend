@@ -133,7 +133,7 @@ export default function Buy() {
   );
 
   return (
-    <section className="flex flex-col items-center justify-center gap-8 py-12 md:py-16 px-4 xs:px-8 xl:px-0">
+    <section className="flex flex-col items-center justify-center gap-8 py-12 md:py-16 px-4 xl:px-0">
       <Toaster
         toastOptions={{
           className: 'dark:bg-zinc-800 dark:text-white',
@@ -197,8 +197,8 @@ export default function Buy() {
                     <FormField label="Teléfono" error={methods.formState.errors.phone?.message}>
                       <Input
                         {...methods.register("phone")}
-                        startContent={<span className="text-default-400">+34</span>}
-                        placeholder="600 000 000"
+                        startContent={<span className="text-default-400">+53</span>}
+                        placeholder="59009301"
                         className="rounded-xl dark:bg-zinc-800 bg-zinc-50"
                       />
                     </FormField>

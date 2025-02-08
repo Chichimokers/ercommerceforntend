@@ -16,30 +16,24 @@ export const useProducts = (baseUrl: string, filters: Filters, page: number) => 
     return response.json();
   };
 
-  return useSWR(fetchUrl, fetcher, {
+  useSWR(fetchUrl, fetcher, {
     revalidateOnFocus: true,
     revalidateOnReconnect: true,
   });
+
+  return useSWR(fetchUrl, fetcher);
 };
 
 
 export const useCartProducts = (baseUrl: string, availableProducts?: any[]) => {
-  const getCartIds = (): string[] => {
+  const getCartIds = () => {
     try {
-      const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+      const cartData = localStorage.getItem("cart");
+      if (!cartData) return [];
+      const cart = JSON.parse(cartData);
       return Array.isArray(cart) ? cart.map(item => item.id) : [];
     } catch {
       return [];
-    }
-  };
-
-  const fetchProductDetails = async (id: string) => {
-    try {
-      const response = await fetch(`${baseUrl}/public/product-details?id=${id}`);
-      return response.ok ? response.json() : null;
-    } catch (error) {
-      console.error(`Error fetching product ${id}:`, error);
-      return null;
     }
   };
 
@@ -47,28 +41,36 @@ export const useCartProducts = (baseUrl: string, availableProducts?: any[]) => {
     const ids = getCartIds();
     if (!ids.length) return [];
 
-    const [existingProducts, idsToFetch] = ids.reduce((acc, id) => {
-      const product = availableProducts?.find(p => p.id === id);
-      product ? acc[0].push(product) : acc[1].push(id);
-      return acc;
-    }, [[], []] as [any[], string[]]);
+    const finalProducts: any[] = [];
+    const idsToFetch: string[] = [];
 
-    if (!idsToFetch.length) return existingProducts;
+    ids.forEach(id => {
+      const foundProduct = availableProducts?.find(product => product.id === id);
+      if (foundProduct) {
+        finalProducts.push(foundProduct);
+      } else {
+        idsToFetch.push(id);
+      }
+    });
 
-    const fetchedProducts = await Promise.allSettled(
-      idsToFetch.map(fetchProductDetails)
+    if (!idsToFetch.length) {
+      return finalProducts;
+    }
+
+    const promises = idsToFetch.map(id =>
+      fetch(`${baseUrl}/public/product-details?id=${id}`)
+        .then(res => res.ok ? res.json() : null)
+        .catch(() => null)
     );
 
-    const validProducts = fetchedProducts
-      .filter(result => result.status === 'fulfilled' && result.value)
-      .map(result => (result as PromiseFulfilledResult<any>).value);
+    const fetchedProducts = await Promise.all(promises);
+    const validFetchedProducts = fetchedProducts.filter(Boolean);
 
-    return [...existingProducts, ...validProducts];
+    return [...finalProducts, ...validFetchedProducts];
   };
 
-  return useSWR(['cart-products', getCartIds()], fetcher, {
+  return useSWR('cart-products', fetcher, {
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
-    shouldRetryOnError: false,
   });
 };
