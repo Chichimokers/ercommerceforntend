@@ -32,7 +32,16 @@ const App = (props: React.PropsWithChildren<AppProps>) => {
   if (status === "loading") {
     return (
       <div className="h-screen flex flex-col justify-center items-center dark:bg-black gap-4">
-        <Image src={"/logonav.png"} width={300} height={100} alt="EsAki" />
+        <div className="w-[300px] h-[100px] relative aspect-[3/1]">
+          <Image
+            src={"/logonav.png"}
+            fill
+            alt="EsAki"
+            className="object-contain"
+            sizes="300px"
+            priority
+          />
+        </div>
         <Spinner />
       </div>
     );
@@ -44,20 +53,14 @@ const App = (props: React.PropsWithChildren<AppProps>) => {
         callbackUrl: to ? to.toString() : "/",
         redirect: true,
       });
-
-      return {
-        success: true,
-      };
+      return { success: true };
     },
     logout: async () => {
       signOut({
         redirect: true,
-        callbackUrl: "/login",
+        callbackUrl: "/api/auth/signout",
       });
-
-      return {
-        success: true,
-      };
+      return { success: true };
     },
     onError: async (error) => {
       if (error.response?.status === 401) {
@@ -71,16 +74,12 @@ const App = (props: React.PropsWithChildren<AppProps>) => {
       };
     },
     check: async () => {
-      if (status === "unauthenticated") {
-        return {
+      return status === "authenticated"
+        ? { authenticated: true }
+        : {
           authenticated: false,
-          redirectTo: "/login",
+          redirectTo: "/api/auth/signin?callbackUrl=" + encodeURIComponent(window.location.href)
         };
-      }
-
-      return {
-        authenticated: true,
-      };
     },
     getPermissions: async () => {
       return null;

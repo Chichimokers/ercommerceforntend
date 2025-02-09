@@ -27,26 +27,25 @@ export default function RootLayout({
           attribute="class"
           defaultTheme="system"
         >
-          <RefineContext>
-            <SessionProvider>
+          <SessionProvider>
+            <RefineContext>
               <CurrencyAndExchangeRateProvider>
-                <ModalProvider>
-                  <ProductProvider>
-                    <CartProvider>
-                      <AuthLayout>
-                        <ConfigProvider>
-                          <HeroUIProvider>
+                <ProductProvider>
+                  <CartProvider>
+                    <ModalProvider>
+                      <ConfigProvider>
+                        <HeroUIProvider>
+                          <AuthLayout>
                             {children}
-                          </HeroUIProvider>
-                        </ConfigProvider>
-
-                      </AuthLayout>
-                    </CartProvider>
-                  </ProductProvider>
-                </ModalProvider>
+                          </AuthLayout>
+                        </HeroUIProvider>
+                      </ConfigProvider>
+                    </ModalProvider>
+                  </CartProvider>
+                </ProductProvider>
               </CurrencyAndExchangeRateProvider>
-            </SessionProvider>
-          </RefineContext>
+            </RefineContext>
+          </SessionProvider>
         </ThemeProvider>
       </body>
     </html>
