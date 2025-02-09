@@ -20,7 +20,7 @@ const CartCard = React.memo(
     productCart: ProductBase;
     className?: string;
   }) => {
-    const { cart, DelCartItem } = useContext(CartContext) || {};
+    const { cart } = useContext(CartContext) || {};
     const {
       isInCart,
       quantity,
@@ -33,8 +33,7 @@ const CartCard = React.memo(
       () => cartProducts.find((p) => p.id === productCart.id),
       [cartProducts, productCart.id]
     );
-    const [imageError, setImageError] = useState(false);
-    const [imageLoaded, setImageLoaded] = useState(false);
+    const [imageStatus, setImageStatus] = useState<'loading' | 'error' | 'loaded'>('loading');
 
     const cartQuantity = useMemo(() => {
       return cart?.find((item: { id: string }) => item.id === product?.id)
@@ -45,75 +44,44 @@ const CartCard = React.memo(
 
     if (!product) {
       return (
-        <div className="flex flex-col items-center justify-center">
-          Your cart is empty
+        <div className="flex justify-center items-center p-4 text-neutral-500">
+          Tu carrito está vacío
         </div>
       );
     }
 
     return (
-      <li
-        className={`flex w-full flex-col border-b border-neutral-300 dark:border-neutral-700 ${className}`}
-      >
-        <div className="relative flex w-full flex-row justify-between px-1 py-4 z-0">
-          <div className="absolute z-40 -ml-1 -mt-2">
-            <Skeleton className="w-8 h-8 rounded-full" isLoaded={!!product}>
-              <DeleteItemButton onPress={handleRemoveFromCart} />
-            </Skeleton>
+      <li className={`flex w-full border-b border-neutral-300 dark:border-neutral-700 ${className} px-2 py-4`}>
+        <div className="relative flex w-full gap-4">
+          <div className="absolute top-0 left-0 z-10">
+            <DeleteItemButton onPress={handleRemoveFromCart} />
           </div>
 
-          <div className="flex flex-row gap-4">
-            <div className="relative w-16 h-16 aspect-square overflow-hidden rounded-md border border-neutral-300 bg-neutral-300 dark:border-neutral-700 dark:bg-neutral-900 dark:hover:bg-neutral-800">
-              {!imageLoaded && (
-                <div className="absolute inset-0 bg-default-200 animate-pulse" />
-              )}
-              <Image
-                alt={product.name}
-                quality={Number(process.env.IMAGE_QUALITY)}
-                loading="lazy"
-                priority={false}
-                className="absolute inset-0 w-full h-full object-cover rounded-md"
-                fill
-                onLoad={() => setImageLoaded(true)}
-                onError={() => setImageError(true)}
-                src={
-                  imageError
-                    ? "/nophoto.jpeg"
-                    : product.image || "/nophoto.jpeg"
-                }
-              />
-            </div>
-
-            <div className="flex flex-1 flex-col text-base">
-              <Skeleton
-                className="w-[120px] h-5 rounded-lg"
-                isLoaded={!!product.name}
-              >
-                <span className="leading-tight truncate block w-[120px] md:w-48">
-                  {product.name}
-                </span>
-              </Skeleton>
-            </div>
+          <div className="relative w-20 h-20 shrink-0 overflow-hidden rounded-xl bg-neutral-100 dark:bg-neutral-900">
+            {imageStatus !== 'loaded' && (
+              <div className="absolute inset-0 animate-pulse bg-neutral-200 dark:bg-neutral-800" />
+            )}
+            <Image
+              alt={productCart.name}
+              fill
+              loading="lazy"
+              className="object-cover"
+              onLoad={() => setImageStatus('loaded')}
+              onError={() => setImageStatus('error')}
+              src={imageStatus === 'error' ? '/nophoto.jpeg' : productCart.image || '/nophoto.jpeg'}
+            />
           </div>
 
-          {/* Precio y controles */}
-          <div className="flex h-16 flex-col justify-between">
-            <Skeleton
-              className="w-20 h-5 rounded-lg"
-              isLoaded={!!product.price}
-            >
+          <div className="flex flex-col flex-1 gap-2">
+            <h3 className="font-medium line-clamp-2">{productCart.name}</h3>
+
+            <div className="flex items-center justify-between">
               <Price
-                amount={
-                  rateExchange
-                    ? (product.price * rateExchange.exchangeRate).toString()
-                    : product.price.toString()
-                }
-                className="flex space-y-2 text-sm"
+                amount={(productCart.price * (rateExchange?.exchangeRate || 1)).toFixed(2)}
                 currencyCode={rateExchange?.currency || "USD"}
+                className="text-sm font-semibold"
               />
-            </Skeleton>
 
-            <Skeleton className="rounded-full" isLoaded={!!product}>
               <QuantityAdjuster
                 quantity={cartQuantity || quantity}
                 isInCart={isInCart}
@@ -126,7 +94,7 @@ const CartCard = React.memo(
                 productId={product.id}
                 maxLimit={product.quantity || 100}
               />
-            </Skeleton>
+            </div>
           </div>
         </div>
       </li>

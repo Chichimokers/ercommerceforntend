@@ -37,9 +37,11 @@ const useCartActions = (product: { id: string; price: number }) => {
   }, [DelCartItem, product.id, handleMutation]);
 
   const handleQuantityChange = useCallback((operation: 'inc' | 'dec') => {
+    console.log(operation)
     const handler = isInCart
       ? (amount: number) => (operation === 'inc' ? increaseQuantity : decreaseQuantity)?.(product, amount)
-      : (amount: number) => setQuantity(prev => Math.max(1, prev + amount));
+      : operation === 'inc' ? (amount: number) => setQuantity(prev => Math.max(1, prev + amount))
+        : (amount: number) => setQuantity(prev => Math.max(1, prev - amount));
 
     handler(1);
   }, [isInCart, product, increaseQuantity, decreaseQuantity]);
@@ -57,6 +59,7 @@ const useCartActions = (product: { id: string; price: number }) => {
 
   const handleQuantityInc = useCallback(() => handleQuantityChange('inc'), [handleQuantityChange]);
   const handleQuantityDec = useCallback(() => handleQuantityChange('dec'), [handleQuantityChange]);
+
 
   return {
     isInCart,

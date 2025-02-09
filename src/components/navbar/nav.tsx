@@ -11,7 +11,7 @@ export const Navbar = ({ className }: { className?: string }) => {
 
   const navItems = [
     { key: "/", href: "/", icon: FaHome, label: "Home" },
-    { key: "/products", href: "/products?page=1&limit=30", icon: FaStore, label: "Store" },
+    { key: "/products", href: "/products", icon: FaStore, label: "Store" },
     { key: "/shopping-cart", href: "/shopping-cart", icon: FaShoppingCart, label: "Cart" },
     { key: "/orders", href: "/orders", icon: FaList, label: "Orders" }
   ];
@@ -44,6 +44,16 @@ export const Navbar = ({ className }: { className?: string }) => {
             href={href}
             as={Link}
             className="w-full"
+            onMouseEnter={() => {
+              if (href === "/products") {
+                // Precarga los datos de productos
+                const queryParams = new URLSearchParams({
+                  page: "1",
+                  // Parámetros iniciales
+                }).toString();
+                fetch(`${process.env.NEXT_PUBLIC_API_URL}public/products?${queryParams}`);
+              }
+            }}
             title={
               <div className="flex flex-col items-center w-15 xxs:w-20">
                 <Icon />

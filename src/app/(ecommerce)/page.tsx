@@ -15,7 +15,7 @@ import { ArrowRight } from "lucide-react";
 const ProductCard = dynamic(() => import("@/components/cards/product-card"));
 const PublicityBannerSlider = dynamic(
   () => import("@/components/sliders/publicity-banner-slider"),
-  { loading: () => <div className="h-40 bg-gray-100 animate-pulse rounded-lg" /> }
+  { loading: () => <div className="h-[300] bg-gray-100 dark:bg-gray-700 animate-pulse rounded-lg" /> }
 );
 
 const SecondaryBannerSlider = dynamic(
@@ -38,7 +38,7 @@ export default function IndexPage() {
         </div>
 
         <SecondaryBannerSlider
-          className="rounded-xl border-4 border-white shadow-lg"
+          className="rounded-xl border-4 border-default-50/50 shadow-lg"
           banners={banners}
         />
       </div>
@@ -52,8 +52,8 @@ const FeaturedProducts = ({ products }: { products: ProductBase[] }) => {
   return (
     <div className="mb-8">
       <div className="mb-6">
-        <h2 className="text-3xl font-bold text-default-900 mb-2 pb-2 border-b-4 border-blue-100 w-max">
-          Productos Destacados
+        <h2 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-blue-600 mb-2 pb-2 border-b-4 border-blue-100 w-max">
+          Tesoros de Es Aki
         </h2>
       </div>
       <div className="grid grid-cols-2 gap-2 xm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7">
@@ -61,7 +61,7 @@ const FeaturedProducts = ({ products }: { products: ProductBase[] }) => {
           <ProductCard
             key={product.id}
             product={product}
-            className="hover:scale-105 transition-transform duration-300"
+            imgClassName="group-hover:brightness-110 transition-all duration-300"
           />
         ))}
         {products.length === 0 && (
@@ -83,31 +83,29 @@ const FeaturedProducts = ({ products }: { products: ProductBase[] }) => {
       </div>
       <div className="mt-8 text-center justify-items-center w-full">
         <button
-          className="px-6 py-2 bg-transparent text-blue-600 border-2 border-blue-600 rounded-full hover:bg-blue-50 dark:hover:bg-blue-950 transition-colors flex flex-row"
-          onClick={() => {
-            router.push('/products')
-          }}
+          className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-full transition-colors duration-300 flex items-center gap-2 mx-auto group"
+          onClick={() => router.push('/products')}
         >
-          Ver más productos <ArrowRight />
+          Explora el Universo Es Aki
+          <ArrowRight className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-2" />
         </button>
       </div>
     </div>
   )
-
 };
 
 const LazyFeaturedProducts = dynamic(
   () => Promise.resolve(FeaturedProducts),
   {
     loading: () => (
-      <div className="h-96 animate-pulse bg-white rounded-xl shadow-sm">
-        <div className="h-8 bg-gray-100 rounded w-64 mb-4"></div>
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
+      <>
+        <div className="h-8 bg-gray-200 dark:bg-gray-600 rounded w-64 mb-4 mx-4"></div>
+        <div className="grid grid-cols-2 gap-2 px-4 xm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7">
           {[...Array(6)].map((_, i) => (
-            <div key={i} className="h-64 bg-gray-50 rounded-xl animate-pulse"></div>
+            <div key={i} className="h-64 bg-gray-50 dark:bg-gray-800 rounded-xl animate-pulse"></div>
           ))}
         </div>
-      </div>
+      </>
     )
   }
 );

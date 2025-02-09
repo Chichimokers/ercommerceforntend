@@ -59,17 +59,17 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           ]}
           options={{ syncWithLocation: true, warnWhenUnsavedChanges: true }}
         >
-          {/*<Authenticated
-              key="admin-auth"
-              redirectOnFail="/api/auth/signin?callbackUrl=/admin"
-              loading={<div>Verificando acceso...</div>}
-            >*/}
-          <App>
-            <ThemedLayoutV2>
-              {children}
-            </ThemedLayoutV2>
-          </App>
-          {/*</Authenticated>*/}
+          <Authenticated
+            key="admin-auth"
+            redirectOnFail="/api/auth/signin?callbackUrl=/admin"
+            loading={<div>Cargando...</div>}
+          >
+            <App>
+              <ThemedLayoutV2>
+                {children}
+              </ThemedLayoutV2>
+            </App>
+          </Authenticated>
         </Refine>
       </ConfigProvider>
     </AntdRegistry>

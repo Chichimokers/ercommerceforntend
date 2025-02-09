@@ -5,7 +5,6 @@ const QuantityAdjuster = ({
   quantity,
   handleQuantityInc,
   handleQuantityDec,
-  productId,
   maxLimit,
   className,
 }: {
@@ -20,7 +19,7 @@ const QuantityAdjuster = ({
   className?: string;
 }) => {
   return (
-    <div className={`${className} flex h-8 w-max md:w-[90] lg:w-[100] xl:max-w-[110] items-center rounded-full border border-neutral-200 dark:border-neutral-700`}>
+    <div className={`${className} flex h-9 w-max md:w-[90] lg:w-[100] xl:max-w-[110] items-center rounded-xl border border-neutral-200 dark:border-neutral-700`}>
       <EditProductQuantityButton
         type="minus"
         onClick={(e) => {

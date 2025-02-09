@@ -108,7 +108,7 @@ export default function Login({
         color="danger"
         onClick={() => handleSocialLogin("google")}
       >
-        <FaGoogle />
+        <FaGoogle className="fill-gray-700 dark:fill-gray-100" />
       </CustomButton>
       <CustomButton
         variant="bordered"
@@ -116,7 +116,7 @@ export default function Login({
         color="primary"
         onClick={() => handleSocialLogin("facebook")}
       >
-        <FaFacebook />
+        <FaFacebook className="fill-gray-700 dark:fill-gray-100" />
       </CustomButton>
     </div>
   );
