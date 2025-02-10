@@ -15,6 +15,7 @@ import { CurrencyAndExchangeRateContext } from "@/contexts/exchange-rate-currenc
 import { CustomButton } from "../buttons/custom-button";
 import { CardSkeleton } from "@components/skeletons/card-skeleton";
 import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 
 interface MediaState {
   loaded: boolean;
@@ -49,7 +50,7 @@ const ProductCard = React.memo(({ product, prefetch = "none", className, imgClas
 
   return (
     <Card
-      className={`${className} w-full max-w-[240px] bg-default-50/80 rounded-3xl transition-all border border-default-100 hover:border-default-300 hover:shadow-lg`}
+      className={`${className} h-full w-full bg-default-50/80 rounded-3xl transition-all border border-default-100 hover:border-default-300 hover:shadow-lg`}
       shadow="none"
       as={Link}
       href={`/products/${product.id}`}
@@ -58,9 +59,6 @@ const ProductCard = React.memo(({ product, prefetch = "none", className, imgClas
     >
       <CardBody className="overflow-hidden p-0">
         <div className="relative aspect-square w-full bg-default-100 group">
-          {!mediaState.loaded && (
-            <div className="absolute inset-0 bg-gradient-to-br from-default-200 to-default-300 animate-pulse" />
-          )}
           <OptimizedImage
             imgClassName={`${imgClassName} group-hover:scale-105 transition-transform duration-300`}
             product={product}
@@ -90,16 +88,30 @@ const ProductCard = React.memo(({ product, prefetch = "none", className, imgClas
 
 const OptimizedImage = React.memo(({ product, mediaState, setMediaState, imgClassName }:
   { product: ProductBase, mediaState: MediaState, setMediaState: React.Dispatch<React.SetStateAction<MediaState>>, imgClassName?: string }) => (
-  <Image
-    alt={product.name}
-    className={`${imgClassName} absolute inset-0 object-cover transition-all duration-300 ${mediaState.loaded ? "opacity-100" : "opacity-0"}`}
-    src={mediaState.error ? "/nophoto.jpeg" : product.image || "/nophoto.jpeg"}
-    onLoad={() => setMediaState(prev => ({ ...prev, loaded: true }))}
-    onError={() => setMediaState(prev => ({ ...prev, error: true }))}
-    fill
-    quality={Number(process.env.IMAGE_QUALITY)}
-    loading="lazy"
-  />
+  <>
+    {!mediaState.loaded && (
+      <motion.div
+        layoutId={`skeleton-${product.id}`}
+        className="absolute inset-0 bg-gradient-to-br from-default-200 to-default-300"
+        initial={{ opacity: 1 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.3 }}
+      />
+    )}
+
+    <Image
+      alt={product.name}
+      className={`${imgClassName} absolute inset-0 object-cover transition-all duration-300 ${mediaState.loaded ? "opacity-100" : "opacity-0"
+        }`}
+      src={mediaState.error ? "/nophoto.jpeg" : product.image || "/nophoto.jpeg"}
+      onLoad={() => setMediaState(prev => ({ ...prev, loaded: true }))}
+      onError={() => setMediaState(prev => ({ ...prev, error: true }))}
+      fill
+      quality={Number(process.env.IMAGE_QUALITY)}
+      loading="lazy"
+    />
+  </>
 ));
 
 OptimizedImage.displayName = 'OptimizedImage'

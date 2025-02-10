@@ -9,6 +9,7 @@ import {
 import { signOut, useSession } from "next-auth/react";
 import { useModal } from "@/contexts/modal-context";
 import { FaUser } from "react-icons/fa6";
+import Link from "next/link";
 
 // Función para generar color basado en el nombre
 const generateColorFromName = (name: string) => {
@@ -60,7 +61,7 @@ const AccountButton = React.memo(({ className }: { className?: string }) => {
               </DropdownItem>
             </>
           ) : null}
-          <DropdownItem key="orders" href="/orders">
+          <DropdownItem as={Link} key="orders" href="/orders">
             Ordenes
           </DropdownItem>
           <DropdownItem key="help_and_feedback">

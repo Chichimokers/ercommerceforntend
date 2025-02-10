@@ -115,7 +115,10 @@ const SearchInput = () => {
 export const Header = ({ className }: { className?: string }) => {
   const pathname = usePathname();
   const isCartPage = pathname === "/shopping-cart";
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
+
+  // Evitar renderizado hasta tener el estado de sesión definido
+  if (status === "loading") return null;
 
   return (
     <HerouiNavbar
@@ -159,7 +162,6 @@ export const Header = ({ className }: { className?: string }) => {
               />
             </>
           )}
-
           {session ? <AccountButton /> : <LoginButton />}
         </NavbarItem>
       </NavbarContent>
