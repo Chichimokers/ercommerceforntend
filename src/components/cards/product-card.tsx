@@ -50,17 +50,17 @@ const ProductCard = React.memo(({ product, prefetch = "none", className, imgClas
 
   return (
     <Card
-      className={`${className} h-full w-full bg-default-50/80 rounded-3xl transition-all border border-default-100 hover:border-default-300 hover:shadow-lg`}
+      className={`${className} group h-full min-w-[180] max-w-[220] flex flex-col bg-default-50/80 rounded-3xl border border-default-100 hover:border-default-300 hover:shadow-lg overflow-hidden`}
       shadow="none"
       as={Link}
       href={`/products/${product.id}`}
       onMouseEnter={prefetch === "hover" ? handlePrefetch : undefined}
       onPress={prefetch === "click" ? handlePrefetch : undefined}
     >
-      <CardBody className="overflow-hidden p-0">
-        <div className="relative aspect-square w-full bg-default-100 group">
+      <CardBody className="overflow-hidden p-0 flex-none">
+        <div className="relative aspect-square w-full bg-default-100">
           <OptimizedImage
-            imgClassName={`${imgClassName} group-hover:scale-105 transition-transform duration-300`}
+            imgClassName={`${imgClassName} object-cover transition-transform duration-300 group-hover:scale-105`}
             product={product}
             mediaState={mediaState}
             setMediaState={setMediaState}
@@ -68,14 +68,18 @@ const ProductCard = React.memo(({ product, prefetch = "none", className, imgClas
         </div>
       </CardBody>
 
-      <CardFooter className="text-small p-3 sm:p-4 max-h-[180px] md:min-h-[140px] xs:min-h-[130px]">
-        <div className="flex flex-col w-full gap-2 h-full justify-between">
+      <CardFooter className="text-small p-3 sm:p-4 flex flex-col h-[180px]">
+        <div className="flex flex-col h-full justify-between gap-1.5 w-full">
           <ProductHeader name={product.name} />
-          <PriceDisplay
-            price={product.price}
-            rateExchange={rateExchange || undefined}
-          />
-          <RatingContainer rating={product.averageRating} />
+
+          <div className="flex flex-col gap-1">
+            <PriceDisplay
+              price={product.price}
+              rateExchange={rateExchange || undefined}
+            />
+            <RatingContainer rating={product.averageRating} />
+          </div>
+
           <CartControls
             product={product}
             cartActions={cartActions}
@@ -117,7 +121,7 @@ const OptimizedImage = React.memo(({ product, mediaState, setMediaState, imgClas
 OptimizedImage.displayName = 'OptimizedImage'
 
 const ProductHeader = React.memo(({ name }: { name: string }) => (
-  <b className="text-sm xs:text-md md:text-lg line-clamp-1 text-start font-semibold text-default-700 leading-tight">
+  <b className="text-sm xs:text-md md:text-lg line-clamp-1 truncate leading-tight font-semibold text-default-700 w-full">
     {name}
   </b>
 ));
@@ -145,7 +149,7 @@ RatingContainer.displayName = 'RatingContainer'
 
 const CartControls = React.memo(({ product, cartActions }:
   { product: ProductBase, cartActions: ReturnType<typeof useCartActions> }) => (
-  <div className="flex justify-between items-center gap-2 w-full">
+  <div className="flex justify-between items-center gap-2 w-full min-w-0 mt-1">
     <div className="flex items-center">
       <Skeleton isLoaded={!!product}>
         <QuantityAdjuster
