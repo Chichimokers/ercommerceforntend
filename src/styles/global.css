@@ -150,3 +150,20 @@ body {
   top: 64px; /* Empieza justo debajo del navbar */
   transition: top 0.3s ease-in-out; /* Mueve suavemente el panel */
 }
+
+.order-card-container {
+  @apply border rounded-xl overflow-hidden mb-4 border-default-200 bg-background shadow-lg transition-all;
+}
+
+.order-card-content {
+  @apply h-[450px] max-h-[450px] flex flex-col overflow-hidden;
+}
+
+/* Mejorar scroll para productos */
+.order-card-content ::-webkit-scrollbar {
+  @apply w-1.5;
+}
+
+.order-card-content ::-webkit-scrollbar-thumb {
+  @apply bg-default-300 rounded-full;
+}

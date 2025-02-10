@@ -9,6 +9,8 @@ export default {
     "./src/**/*.{js,ts,jsx,tsx,mdx}",
     "./node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}",
     "./layouts/**/*.{js,ts,jsx,tsx,mdx}",
+    './src/app/(ecommerce)/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/app/(admin)/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
     extend: {

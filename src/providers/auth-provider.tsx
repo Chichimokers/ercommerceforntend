@@ -12,23 +12,30 @@ export const authProvider: AuthProvider = {
   },
   check: async () => {
     const session = await getSession();
-    return session?.accessToken
-      ? { success: true, authenticated: true }
-      : { success: false, authenticated: false, redirectTo: "/login" };
+    if (!session?.accessToken) {
+      return {
+        success: false,
+        redirectTo: "/login",
+        authenticated: false
+      };
+    }
+    return { success: true, authenticated: true };
   },
-  logout: async () => {
-    // Redirigir al endpoint de logout de NextAuth
-    return {
-      success: true,
-      redirectTo: "/api/auth/signout"
-    };
-  },
+  logout: async () => ({
+    success: true,
+    redirectTo: "/api/auth/signout"
+  }),
   onError: async (error) => {
     console.error("Error de autenticación:", error);
     return { error };
   },
   getIdentity: async () => {
-    const session = await getSession();
-    return session?.user || null;
+    try {
+      const session = await getSession();
+      return session?.user ?? null;
+    } catch (error) {
+      console.error("Error obteniendo identidad:", error);
+      return null;
+    }
   }
 };

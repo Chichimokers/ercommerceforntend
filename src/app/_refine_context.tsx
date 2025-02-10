@@ -8,7 +8,6 @@ import React from "react";
 import Image from "next/image";
 import routerProvider from "@refinedev/nextjs-router";
 import { dataProvider } from "@providers/data-provider";
-import "@styles/global.css";
 import { Spinner } from "@heroui/react";
 
 type RefineContextProps = {};

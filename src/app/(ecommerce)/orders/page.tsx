@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import useSWR, { mutate } from "swr";
-import { Spinner } from "@heroui/react";
+import { Accordion, AccordionItem, Divider, Skeleton, Spinner } from "@heroui/react";
 import { Order } from "@/types/types";
 import { FaExclamationTriangle, FaShoppingCart } from "react-icons/fa";
 import { CustomButton } from "@components/buttons/custom-button";
@@ -10,7 +10,78 @@ import Link from "next/link";
 
 const OrderList = dynamic(() => import("@/components/order-list"), {
   ssr: false,
-  loading: () => <Spinner color="primary" />
+  loading: () => (
+    <>
+      {/* Versión móvil */}
+      <div className="flex md:hidden">
+        <Accordion variant="splitted" className="w-full">
+          {[...Array(3)].map((_, i) => (
+            <AccordionItem
+              key={i}
+              startContent={
+                <div className="flex flex-col gap-1 w-full">
+                  <Skeleton className="h-5 w-32 rounded-md" />
+                  <Skeleton className="h-4 w-24 rounded-md" />
+                </div>
+              }
+            >
+              <div className="space-y-4 p-2">
+                <Skeleton className="h-4 w-full rounded-md" />
+                <Skeleton className="h-4 w-3/4 rounded-md" />
+                <Skeleton className="h-10 w-full rounded-lg" />
+              </div>
+            </AccordionItem>
+          ))}
+        </Accordion>
+      </div>
+
+      {/* Versión escritorio */}
+      <div className="hidden md:grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+        {[...Array(5)].map((_, i) => (
+          <div key={i} className="order-card-container animate-pulse">
+            <div className="order-card-content">
+              {/* Encabezado */}
+              <div className="px-4 pt-4 space-y-3">
+                <div className="flex justify-between items-start gap-4 min-w-[260px]">
+                  <div className="space-y-2">
+                    <Skeleton className="h-6 w-24 rounded-md" />
+                    <Skeleton className="h-4 w-32 rounded-md" />
+                    <Skeleton className="h-8 w-28 rounded-full" />
+                  </div>
+                  <Skeleton className="h-28 w-28 rounded-md" />
+                </div>
+
+
+                <Divider />
+              </div>
+
+              {/* Lista de productos */}
+              <div className="px-4 space-y-2">
+                {[...Array(2)].map((_, j) => (
+                  <div key={j} className="flex gap-4 p-4">
+                    <Skeleton className="h-16 w-16 rounded-md" />
+                    <div className="flex-1 space-y-2">
+                      <Skeleton className="h-4 w-3/4 rounded-md" />
+                      <Skeleton className="h-3 w-1/2 rounded-md" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Pie */}
+              <div className="p-4 space-y-3">
+                <div className="flex justify-between">
+                  <Skeleton className="h-4 w-12 rounded-md" />
+                  <Skeleton className="h-6 w-20 rounded-md" />
+                </div>
+                <Skeleton className="h-10 w-full rounded-lg" />
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </>
+  )
 });
 
 const OrdersPage = () => {

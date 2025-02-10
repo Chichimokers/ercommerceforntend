@@ -50,21 +50,16 @@ export default function ProductsSlider({
             slidesPerView: 1,
             spaceBetween: 5,
           },
-          440: {
+          540: {
             slidesPerView: 2,
-            spaceBetween: 5,
-            centeredSlides: false
-          },
-          640: {
-            slidesPerView: 3,
             spaceBetween: 5,
           },
           768: {
-            slidesPerView: 4,
+            slidesPerView: 3,
             spaceBetween: 5,
           },
           1024: {
-            slidesPerView: 5,
+            slidesPerView: 4,
             spaceBetween: 5,
           },
         }}
