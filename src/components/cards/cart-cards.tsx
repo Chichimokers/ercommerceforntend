@@ -57,7 +57,7 @@ const CartCard = React.memo(
             <DeleteItemButton onPress={handleRemoveFromCart} />
           </div>
 
-          <div className="relative w-20 h-20 shrink-0 overflow-hidden rounded-md bg-neutral-100 dark:bg-neutral-900">
+          <div className="relative w-20 h-20 shrink-0 overflow-hidden rounded-xl bg-neutral-100 dark:bg-neutral-900">
             {imageStatus !== 'loaded' && (
               <div className="absolute inset-0 animate-pulse bg-neutral-200 dark:bg-neutral-800" />
             )}

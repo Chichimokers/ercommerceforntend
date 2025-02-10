@@ -57,21 +57,23 @@ export default function ProductPage() {
         >
           {isLoading ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-2 w-full">
-              {[...Array(6)].map((_, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0.5 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ repeat: Infinity, duration: 1.5 }}
-                  className="bg-default-100 rounded-xl h-80"
-                >
-                  <div className="h-48 bg-gradient-to-r from-default-200 to-default-100 animate-shimmer rounded-t-xl" />
-                  <div className="p-3 space-y-2">
-                    <div className="h-4 bg-default-200 rounded w-3/4 animate-pulse" />
-                    <div className="h-4 bg-default-200 rounded w-1/2 animate-pulse" />
-                    <div className="h-4 bg-default-200 rounded w-1/3 animate-pulse" />
+              {[...Array(12)].map((_, i) => (
+                <div key={i} className="flex-1 max-w-[240px]">
+                  <div className="animate-pulse bg-default-50/80 rounded-3xl border border-default-100">
+                    <div className="relative aspect-square w-full bg-default-100 rounded-t-3xl">
+                      <div className="absolute inset-0 bg-gradient-to-br from-default-200 to-default-300 animate-pulse rounded-t-3xl" />
+                    </div>
+                    <div className="p-3 sm:p-4 space-y-4 h-[180]">
+                      <div className="h-6 bg-default-200 rounded-full w-3/4" />
+                      <div className="h-5 bg-default-200 rounded-full w-1/2" />
+                      <div className="h-5 bg-default-200 rounded-full w-1/2" />
+                      <div className="flex justify-between items-center gap-2 mt-2">
+                        <div className="h-9 bg-default-200 rounded-lg w-3/5" />
+                        <div className="h-9 w-16 bg-default-200 rounded-lg" />
+                      </div>
+                    </div>
                   </div>
-                </motion.div>
+                </div>
               ))}
             </div>
           ) : error ? (

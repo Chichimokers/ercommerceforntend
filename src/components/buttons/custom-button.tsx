@@ -37,13 +37,13 @@ export const CustomButton: React.FC<CustomButtonProps> = ({
   );
 
   const colorClasses = clsx({
-    'bg-blue-500 hover:bg-blue-600': color === 'primary' && !isDisabled,
-    'bg-gray-500 hover:bg-gray-600': color === 'secondary' && !isDisabled,
-    'bg-green-500 hover:bg-green-600': color === 'success' && !isDisabled,
-    'bg-red-500 hover:bg-red-600': color === 'danger' && !isDisabled,
+    'bg-blue-500 hover:bg-blue-600': color === 'primary',
+    'bg-gray-500 hover:bg-gray-600': color === 'secondary',
+    'bg-green-500 hover:bg-green-600': color === 'success',
+    'bg-red-500 hover:bg-red-600': color === 'danger',
     'bg-white dark:bg-black': color === 'default',
     'text-white': ['primary', 'secondary', 'success', 'danger'].includes(color),
-    'text-default-800': color === 'default' || variant === 'ghost'
+    'text-default-800': color === 'default' || variant === 'ghost',
   });
 
   const sizeClasses = {
@@ -54,8 +54,8 @@ export const CustomButton: React.FC<CustomButtonProps> = ({
 
   const variantClasses = clsx({
     'border-2 border-current bg-transparent': variant === 'outlined',
-    'bg-transparent hover:bg-gray-100': variant === 'ghost' && !isDisabled,
-    'border-2 border-default-200 hover:border-default-400': variant === 'bordered' && !isDisabled,
+    'bg-transparent hover:bg-gray-100': variant === 'ghost',
+    'border-2 border-default-200 hover:border-default-400': variant === 'bordered',
   });
 
   const buttonClasses = clsx(

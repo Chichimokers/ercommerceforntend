@@ -3,9 +3,8 @@
 import { HeroUIProvider } from "@heroui/react"
 import { CurrencyAndExchangeRateProvider } from "@contexts/exchange-rate-currency-context"
 import { ModalProvider } from "@contexts/modal-context"
-import { ConfigProvider } from "antd";
+import "@styles/global.css";
 import { Head } from "./head";
-import { RefineContext } from "./_refine_context"
 import { SessionProvider } from "next-auth/react"
 import AuthLayout from "@components/layout/auth-layout"
 import { ProductProvider } from "@contexts/product-context"
@@ -27,26 +26,21 @@ export default function RootLayout({
           attribute="class"
           defaultTheme="system"
         >
-          <RefineContext>
-            <SessionProvider>
-              <CurrencyAndExchangeRateProvider>
-                <ModalProvider>
-                  <ProductProvider>
-                    <CartProvider>
+          <SessionProvider>
+            <CurrencyAndExchangeRateProvider>
+              <ProductProvider>
+                <CartProvider>
+                  <ModalProvider>
+                    <HeroUIProvider>
                       <AuthLayout>
-                        <ConfigProvider>
-                          <HeroUIProvider>
-                            {children}
-                          </HeroUIProvider>
-                        </ConfigProvider>
-
+                        {children}
                       </AuthLayout>
-                    </CartProvider>
-                  </ProductProvider>
-                </ModalProvider>
-              </CurrencyAndExchangeRateProvider>
-            </SessionProvider>
-          </RefineContext>
+                    </HeroUIProvider>
+                  </ModalProvider>
+                </CartProvider>
+              </ProductProvider>
+            </CurrencyAndExchangeRateProvider>
+          </SessionProvider>
         </ThemeProvider>
       </body>
     </html>

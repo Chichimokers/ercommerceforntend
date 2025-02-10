@@ -94,6 +94,7 @@ export default function ShoppingCartPage() {
           </div>
 
           {hasCartProducts && (
+
             <div className="col-span-1 snap-center xs:col-span-2 md:col-span-1">
               <Summary
                 className="sticky top-24 rounded-xl shadow-lg bg-background"

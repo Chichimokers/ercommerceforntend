@@ -14,8 +14,31 @@ import { FaTrash } from "react-icons/fa6";
 import { useProductContext } from "@/contexts/product-context";
 import { ProductBase } from "@/types/types";
 
-const RelationedProductSecction = dynamic(
-  () => import("@/components/sections/relationed-products")
+const RelationedProductSection = dynamic(
+  () => import("@/components/sections/relationed-products"),
+  {
+    loading: () => (
+      <div className="flex gap-4 overflow-hidden px-4 py-2 rounded-3xl">
+        {[...Array(4)].map((_, i) => (
+          <div key={i} className="flex-1 min-w-[240px] max-w-[240px]">
+            <div className="animate-pulse bg-default-50/80 rounded-3xl border border-default-100">
+              <div className="relative aspect-square w-full bg-default-100 rounded-t-3xl">
+                <div className="absolute inset-0 bg-gradient-to-br from-default-200 to-default-300 animate-pulse rounded-t-3xl" />
+              </div>
+              <div className="p-3 sm:p-4 space-y-3">
+                <div className="h-5 bg-default-200 rounded-full w-3/4" />
+                <div className="h-4 bg-default-200 rounded-full w-1/2" />
+                <div className="flex justify-between items-center gap-2">
+                  <div className="h-8 bg-default-200 rounded-full w-3/4" />
+                  <div className="h-9 w-10 bg-default-200 rounded-full" />
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    )
+  }
 );
 const QuantityAdjuster = dynamic(
   () => import("@/components/buttons/quantity-selector")
@@ -229,7 +252,7 @@ const ProductDetailPage = () => {
             <h3 className="text-2xl font-bold mb-6 text-gray-800 dark:text-white">
               Productos relacionados
             </h3>
-            <RelationedProductSecction id={displayProduct.id} />
+            <RelationedProductSection id={displayProduct.id} />
           </section>
         )}
       </div>
