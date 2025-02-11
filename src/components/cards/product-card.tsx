@@ -1,64 +1,64 @@
-"use client";
+"use client"
 
-import { useContext, useEffect, useState, useCallback } from "react";
-import { Card, CardBody, CardFooter, Skeleton } from "@heroui/react";
-import React from "react";
-import { FaShoppingCart } from "react-icons/fa";
-import Link from "next/link";
-import { FaBucket } from "react-icons/fa6";
-import { ProductBase } from "@/types/types";
-import StarRating from "../star-rating";
-import QuantityAdjuster from "../buttons/quantity-selector";
-import useCartActions from "../actions";
-import Image from "next/image";
-import { CurrencyAndExchangeRateContext } from "@/contexts/exchange-rate-currency-context";
-import { CustomButton } from "../buttons/custom-button";
-import { CardSkeleton } from "@components/skeletons/card-skeleton";
-import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
+import { useContext, useEffect, useState, useCallback } from "react"
+import { Card, CardBody, CardFooter, Skeleton } from "@heroui/react"
+import React from "react"
+import { FaShoppingCart } from "react-icons/fa"
+import Link from "next/link"
+import { FaBucket } from "react-icons/fa6"
+import type { ProductBase } from "@/types/types"
+import StarRating from "../star-rating"
+import QuantityAdjuster from "../buttons/quantity-selector"
+import useCartActions from "../actions"
+import Image from "next/image"
+import { CurrencyAndExchangeRateContext } from "@/contexts/exchange-rate-currency-context"
+import { CustomButton } from "../buttons/custom-button"
+import { CardSkeleton } from "@components/skeletons/card-skeleton"
+import { useRouter } from "next/navigation"
+import { motion } from "framer-motion"
 
 interface MediaState {
-  loaded: boolean;
-  error: boolean;
+  loaded: boolean
+  error: boolean
 }
 
 interface ProductCardProps {
-  product: ProductBase;
-  prefetch?: "hover" | "click" | "none";
-  className?: string;
-  imgClassName?: string;
+  product: ProductBase
+  prefetch?: "hover" | "click" | "none"
+  className?: string
+  imgClassName?: string
 }
 
 const ProductCard = React.memo(({ product, prefetch = "none", className, imgClassName }: ProductCardProps) => {
-  const [mediaState, setMediaState] = useState<MediaState>({ loaded: false, error: false });
-  const { rateExchange } = useContext(CurrencyAndExchangeRateContext) || {};
-  const cartActions = useCartActions(product);
-  const [isMounted, setIsMounted] = useState(false);
-  const router = useRouter();
+  const [mediaState, setMediaState] = useState<MediaState>({ loaded: false, error: false })
+  const { rateExchange } = useContext(CurrencyAndExchangeRateContext) || {}
+  const cartActions = useCartActions(product)
+  const [isMounted, setIsMounted] = useState(false)
+  const router = useRouter()
 
   useEffect(() => {
-    setIsMounted(true);
-  }, []);
+    setIsMounted(true)
+  }, [])
 
   const handlePrefetch = useCallback(() => {
     if (prefetch === "hover") {
-      router.prefetch(`/product/${product.id}`);
+      router.prefetch(`/product/${product.id}`)
     }
-  }, [prefetch, product.id, router]);
+  }, [prefetch, product.id, router])
 
-  if (!isMounted) return <CardSkeleton />;
+  if (!isMounted) return <CardSkeleton />
 
   return (
     <Card
-      className={`${className} group h-full min-w-[180] max-w-[220] flex flex-col bg-default-50/80 rounded-3xl border border-default-100 hover:border-default-300 hover:shadow-lg overflow-hidden`}
+      className={`${className} group w-full h-[430px] flex flex-col bg-default-50/80 rounded-3xl border border-default-100 hover:border-default-300 hover:shadow-lg overflow-hidden`}
       shadow="none"
       as={Link}
       href={`/products/${product.id}`}
       onMouseEnter={prefetch === "hover" ? handlePrefetch : undefined}
       onPress={prefetch === "click" ? handlePrefetch : undefined}
     >
-      <CardBody className="overflow-hidden p-0 flex-none">
-        <div className="relative aspect-square w-full bg-default-100">
+      <CardBody className="overflow-hidden p-0 flex-none h-[250px]">
+        <div className="relative w-full h-full bg-default-100">
           <OptimizedImage
             imgClassName={`${imgClassName} object-cover transition-transform duration-300 group-hover:scale-105`}
             product={product}
@@ -68,130 +68,139 @@ const ProductCard = React.memo(({ product, prefetch = "none", className, imgClas
         </div>
       </CardBody>
 
-      <CardFooter className="text-small p-3 sm:p-4 flex flex-col h-[180px]">
-        <div className="flex flex-col h-full justify-between gap-1.5 w-full">
+      <CardFooter className="text-small p-3 sm:p-4 flex flex-col w-full">
+        <div className="flex flex-col h-full justify-between gap-4 w-[180]">
           <ProductHeader name={product.name} />
 
-          <div className="flex flex-col gap-1">
-            <PriceDisplay
-              price={product.price}
-              rateExchange={rateExchange || undefined}
-            />
+          <div className="h-12 flex flex-col justify-between">
+            <PriceDisplay price={product.price} rateExchange={rateExchange || undefined} />
             <RatingContainer rating={product.averageRating} />
           </div>
 
-          <CartControls
-            product={product}
-            cartActions={cartActions}
-          />
+          <CartControls product={product} cartActions={cartActions} />
         </div>
       </CardFooter>
     </Card>
-  );
-});
+  )
+})
 
-const OptimizedImage = React.memo(({ product, mediaState, setMediaState, imgClassName }:
-  { product: ProductBase, mediaState: MediaState, setMediaState: React.Dispatch<React.SetStateAction<MediaState>>, imgClassName?: string }) => (
-  <>
-    {!mediaState.loaded && (
-      <motion.div
-        layoutId={`skeleton-${product.id}`}
-        className="absolute inset-0 bg-gradient-to-br from-default-200 to-default-300"
-        initial={{ opacity: 1 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 0.3 }}
+const OptimizedImage = React.memo(
+  ({
+    product,
+    mediaState,
+    setMediaState,
+    imgClassName,
+  }: {
+    product: ProductBase
+    mediaState: MediaState
+    setMediaState: React.Dispatch<React.SetStateAction<MediaState>>
+    imgClassName?: string
+  }) => (
+    <>
+      {!mediaState.loaded && (
+        <motion.div
+          layoutId={`skeleton-${product.id}`}
+          className="absolute inset-0 bg-gradient-to-br from-default-200 to-default-300"
+          initial={{ opacity: 1 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.3 }}
+        />
+      )}
+
+      <Image
+        alt={product.name}
+        className={`${imgClassName} absolute inset-0 object-cover transition-all duration-300 ${mediaState.loaded ? "opacity-100" : "opacity-0"
+          }`}
+        src={mediaState.error ? "/nophoto.jpeg" : product.image || "/nophoto.jpeg"}
+        onLoad={() => setMediaState((prev) => ({ ...prev, loaded: true }))}
+        onError={() => setMediaState((prev) => ({ ...prev, error: true }))}
+        fill
+        quality={Number(process.env.IMAGE_QUALITY)}
+        loading="lazy"
       />
-    )}
+    </>
+  ),
+)
 
-    <Image
-      alt={product.name}
-      className={`${imgClassName} absolute inset-0 object-cover transition-all duration-300 ${mediaState.loaded ? "opacity-100" : "opacity-0"
-        }`}
-      src={mediaState.error ? "/nophoto.jpeg" : product.image || "/nophoto.jpeg"}
-      onLoad={() => setMediaState(prev => ({ ...prev, loaded: true }))}
-      onError={() => setMediaState(prev => ({ ...prev, error: true }))}
-      fill
-      quality={Number(process.env.IMAGE_QUALITY)}
-      loading="lazy"
-    />
-  </>
-));
-
-OptimizedImage.displayName = 'OptimizedImage'
+OptimizedImage.displayName = "OptimizedImage"
 
 const ProductHeader = React.memo(({ name }: { name: string }) => (
-  <b className="text-sm xs:text-md md:text-lg line-clamp-1 truncate leading-tight font-semibold text-default-700 w-full">
+  <b className="text-sm xs:text-md md:text-lg truncate h-6 leading-6 font-semibold text-default-700" title={name}>
     {name}
   </b>
-));
+))
 
-ProductHeader.displayName = 'ProductHeader'
+ProductHeader.displayName = "ProductHeader"
 
-const PriceDisplay = React.memo(({ price, rateExchange }:
-  { price: number, rateExchange?: { symbol: string; exchangeRate: number; currency: string } }) => (
-  <p className="text-default-600 whitespace-nowrap text-sm xs:text-md sm:text-lg text-start font-medium">
-    {rateExchange
-      ? `${rateExchange.symbol}${(price * rateExchange.exchangeRate).toFixed(2)} ${rateExchange.currency}`
-      : `$${price} USD`}
-  </p>
-));
+const PriceDisplay = React.memo(
+  ({
+    price,
+    rateExchange,
+  }: { price: number; rateExchange?: { symbol: string; exchangeRate: number; currency: string } }) => (
+    <p className="text-default-600 whitespace-nowrap text-sm xs:text-md sm:text-lg text-start font-medium">
+      {rateExchange
+        ? `${rateExchange.symbol}${(price * rateExchange.exchangeRate).toFixed(2)} ${rateExchange.currency}`
+        : `$${price} USD`}
+    </p>
+  ),
+)
 
-PriceDisplay.displayName = 'PriceDisplay'
+PriceDisplay.displayName = "PriceDisplay"
 
 const RatingContainer = React.memo(({ rating }: { rating?: number }) => (
   <div>
     <StarRating rating={rating} className="mb-2" />
   </div>
-));
+))
 
-RatingContainer.displayName = 'RatingContainer'
+RatingContainer.displayName = "RatingContainer"
 
-const CartControls = React.memo(({ product, cartActions }:
-  { product: ProductBase, cartActions: ReturnType<typeof useCartActions> }) => (
-  <div className="flex justify-between items-center gap-2 w-full min-w-0 mt-1">
-    <div className="flex items-center">
-      <Skeleton isLoaded={!!product}>
-        <QuantityAdjuster
-          className="h-16"
-          quantity={cartActions.quantity}
-          isInCart={cartActions.isInCart}
-          handleQuantityInc={cartActions.handleQuantityInc}
-          handleQuantityDec={cartActions.handleQuantityDec}
-          findInCartLocalStorage={cartActions.findInCartLocalStorage}
-          getLocalStorageData={cartActions.getLocalStorageData}
-          productId={product.id}
-          maxLimit={product.quantity || 100}
-        />
+const CartControls = React.memo(
+  ({ product, cartActions }: { product: ProductBase; cartActions: ReturnType<typeof useCartActions> }) => (
+    <div className="flex justify-between items-center gap-2 w-full min-w-0 mt-1">
+      <div className="flex items-center">
+        <Skeleton isLoaded={!!product}>
+          <QuantityAdjuster
+            quantity={cartActions.quantity}
+            isInCart={cartActions.isInCart}
+            handleQuantityInc={cartActions.handleQuantityInc}
+            handleQuantityDec={cartActions.handleQuantityDec}
+            findInCartLocalStorage={cartActions.findInCartLocalStorage}
+            getLocalStorageData={cartActions.getLocalStorageData}
+            productId={product.id}
+            maxLimit={product.quantity || 100}
+          />
+        </Skeleton>
+      </div>
+      <Skeleton isLoaded={!!product} className="w-full max-w-16">
+        {!cartActions.isInCart && !cartActions.findInCartLocalStorage() ? (
+          <AddToCartButton
+            onClick={(e) => {
+              e.preventDefault()
+              cartActions.handleAddToCart()
+            }}
+          />
+        ) : (
+          <RemoveFromCartButton
+            onClick={(e) => {
+              e.preventDefault()
+              cartActions.handleRemoveFromCart()
+            }}
+          />
+        )}
       </Skeleton>
     </div>
-    <Skeleton isLoaded={!!product} className="w-full max-w-16">
-      {!cartActions.isInCart && !cartActions.findInCartLocalStorage() ? (
-        <AddToCartButton onClick={(e) => {
-          e.preventDefault()
-          cartActions.handleAddToCart()
-        }
+  ),
+)
 
-        } />
-      ) : (
-        <RemoveFromCartButton onClick={(e) => {
-          e.preventDefault()
-          cartActions.handleRemoveFromCart()
-        }
-        }
-        />
-      )}
-    </Skeleton>
-  </div>
-));
-
-CartControls.displayName = 'CartControls'
+CartControls.displayName = "CartControls"
 
 const AddToCartButton = React.memo(
   ({
     onClick,
   }: {
-    onClick: (e: React.MouseEvent<HTMLButtonElement>) => void;
+    onClick: (e: React.MouseEvent<HTMLButtonElement>) => void
   }) => (
     <CustomButton
       className="h-9 w-10 !p-0 xs:w-full shrink-0 hover:opacity-90 
@@ -201,14 +210,14 @@ const AddToCartButton = React.memo(
     >
       <FaShoppingCart className="h-4 w-4 sm:h-5 sm:w-5 animate-[bounce_300ms]" />
     </CustomButton>
-  )
-);
+  ),
+)
 
 const RemoveFromCartButton = React.memo(
   ({
     onClick,
   }: {
-    onClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
+    onClick: (event: React.MouseEvent<HTMLButtonElement>) => void
   }) => (
     <CustomButton
       className="h-9 w-10 !p-0 xs:w-full shrink-0 hover:opacity-90  
@@ -218,11 +227,12 @@ const RemoveFromCartButton = React.memo(
     >
       <FaBucket className="h-4 w-4 sm:h-5 sm:w-5 animate-[shake_400ms]" />
     </CustomButton>
-  )
-);
+  ),
+)
 
-ProductCard.displayName = "ProductCard";
-AddToCartButton.displayName = "AddToCartButton";
-RemoveFromCartButton.displayName = "RemoveFromCartButton";
+ProductCard.displayName = "ProductCard"
+AddToCartButton.displayName = "AddToCartButton"
+RemoveFromCartButton.displayName = "RemoveFromCartButton"
 
-export default ProductCard;
+export default ProductCard
+

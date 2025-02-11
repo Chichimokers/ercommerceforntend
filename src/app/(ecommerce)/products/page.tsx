@@ -106,7 +106,7 @@ export default function ProductPage() {
                     <ProductCard
                       product={product}
                       prefetch="hover"
-                      className="relative overflow-hidden"
+                      className="overflow-hidden"
                     />
                   </div>
                 ))}
