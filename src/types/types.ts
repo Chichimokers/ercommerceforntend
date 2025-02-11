@@ -18,8 +18,8 @@ export type ProductBase = {
 
 
 export interface Filters {
-  category?: number[];
-  subcategory?: number[];
+  category?:string[];
+  subcategory?: string[];
   pricerange?: [number, number];
   rate?: number;
 }
