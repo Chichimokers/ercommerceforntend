@@ -50,29 +50,35 @@ const ProductCard = React.memo(({ product, prefetch = "none", className, imgClas
 
   return (
     <Card
-      className={`${className} group w-full h-[430px] flex flex-col bg-default-50/80 rounded-3xl border border-default-100 hover:border-default-300 hover:shadow-lg overflow-hidden`}
+      className={`${className} group w-full flex-1 min-h-[330px] flex flex-col rounded-3xl border border-default-200 hover:border-deafult-300 transition-all hover:shadow-lg overflow-hidden bg-default-50/50`}
       shadow="none"
       as={Link}
       href={`/products/${product.id}`}
       onMouseEnter={prefetch === "hover" ? handlePrefetch : undefined}
       onPress={prefetch === "click" ? handlePrefetch : undefined}
+      role="article"
+      aria-labelledby={`product-title-${product.id}`}
     >
-      <CardBody className="overflow-hidden p-0 flex-none h-[250px]">
-        <div className="relative w-full h-full bg-default-100">
+      <CardBody className="overflow-hidden p-0 flex-none aspect-square w-full">
+        <div className="relative w-full h-full bg-default-100 aspect-square">
           <OptimizedImage
-            imgClassName={`${imgClassName} object-cover transition-transform duration-300 group-hover:scale-105`}
+            imgClassName={`${imgClassName} object-cover w-full h-full transition-transform duration-300 group-hover:scale-105`}
             product={product}
             mediaState={mediaState}
             setMediaState={setMediaState}
+            aria-label={`Imagen de ${product.name}`}
           />
         </div>
       </CardBody>
 
-      <CardFooter className="text-small p-3 sm:p-4 flex flex-col w-full">
-        <div className="flex flex-col h-full justify-between gap-4 w-[180]">
-          <ProductHeader name={product.name} />
+      <CardFooter className="text-small px-2 sm:px-3 flex flex-col w-full py-3">
+        <div className="flex flex-col h-full justify-between gap-2 w-full">
+          <ProductHeader
+            name={product.name}
+            id={product.id}
+          />
 
-          <div className="h-12 flex flex-col justify-between">
+          <div className="flex flex-col justify-between gap-2">
             <PriceDisplay price={product.price} rateExchange={rateExchange || undefined} />
             <RatingContainer rating={product.averageRating} />
           </div>
@@ -110,7 +116,7 @@ const OptimizedImage = React.memo(
 
       <Image
         alt={product.name}
-        className={`${imgClassName} absolute inset-0 object-cover transition-all duration-300 ${mediaState.loaded ? "opacity-100" : "opacity-0"
+        className={`${imgClassName} absolute inset-0 w-full h-full object-cover transition-all duration-300 ${mediaState.loaded ? "opacity-100" : "opacity-0"
           }`}
         src={mediaState.error ? "/nophoto.jpeg" : product.image || "/nophoto.jpeg"}
         onLoad={() => setMediaState((prev) => ({ ...prev, loaded: true }))}
@@ -125,8 +131,12 @@ const OptimizedImage = React.memo(
 
 OptimizedImage.displayName = "OptimizedImage"
 
-const ProductHeader = React.memo(({ name }: { name: string }) => (
-  <b className="text-sm xs:text-md md:text-lg truncate h-6 leading-6 font-semibold text-default-700" title={name}>
+const ProductHeader = React.memo(({ name, id }: { name: string; id: string }) => (
+  <b
+    id={`product-title-${id}`}
+    className="text-sm xs:text-md line-clamp-2 h-[2.6em] leading-tight font-semibold text-default-700"
+    aria-label={name}
+  >
     {name}
   </b>
 ))
@@ -138,7 +148,10 @@ const PriceDisplay = React.memo(
     price,
     rateExchange,
   }: { price: number; rateExchange?: { symbol: string; exchangeRate: number; currency: string } }) => (
-    <p className="text-default-600 whitespace-nowrap text-sm xs:text-md sm:text-lg text-start font-medium">
+    <p
+      className="text-default-600 whitespace-nowrap text-sm xs:text-md text-start font-bold"
+      aria-label={`Precio: ${price} USD`}
+    >
       {rateExchange
         ? `${rateExchange.symbol}${(price * rateExchange.exchangeRate).toFixed(2)} ${rateExchange.currency}`
         : `$${price} USD`}
@@ -149,8 +162,8 @@ const PriceDisplay = React.memo(
 PriceDisplay.displayName = "PriceDisplay"
 
 const RatingContainer = React.memo(({ rating }: { rating?: number }) => (
-  <div>
-    <StarRating rating={rating} className="mb-2" />
+  <div className="flex items-center gap-1">
+    <StarRating rating={rating} />
   </div>
 ))
 
@@ -180,6 +193,7 @@ const CartControls = React.memo(
               e.preventDefault()
               cartActions.handleAddToCart()
             }}
+            product={product}
           />
         ) : (
           <RemoveFromCartButton
@@ -187,6 +201,7 @@ const CartControls = React.memo(
               e.preventDefault()
               cartActions.handleRemoveFromCart()
             }}
+            product={product}
           />
         )}
       </Skeleton>
@@ -199,16 +214,20 @@ CartControls.displayName = "CartControls"
 const AddToCartButton = React.memo(
   ({
     onClick,
+    product,
   }: {
-    onClick: (e: React.MouseEvent<HTMLButtonElement>) => void
+    onClick: (e: React.MouseEvent<HTMLButtonElement>) => void;
+    product: ProductBase;
   }) => (
     <CustomButton
-      className="h-9 w-10 !p-0 xs:w-full shrink-0 hover:opacity-90 
-                active:scale-95 hover:scale-105 transition-all duration-200"
+      className="h-9 w-10 !p-0 xs:w-full shrink-0 hover:shadow-lg 
+                active:scale-95 transition-all duration-200"
       color="primary"
       onClick={onClick}
+      aria-label={`Añadir ${product.name} al carrito`}
     >
       <FaShoppingCart className="h-4 w-4 sm:h-5 sm:w-5 animate-[bounce_300ms]" />
+      <span className="sr-only">Añadir al carrito</span>
     </CustomButton>
   ),
 )
@@ -216,16 +235,20 @@ const AddToCartButton = React.memo(
 const RemoveFromCartButton = React.memo(
   ({
     onClick,
+    product,
   }: {
-    onClick: (event: React.MouseEvent<HTMLButtonElement>) => void
+    onClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
+    product: ProductBase;
   }) => (
     <CustomButton
-      className="h-9 w-10 !p-0 xs:w-full shrink-0 hover:opacity-90  
-                active:scale-95 hover:scale-105 transition-all duration-200"
+      className="h-9 w-10 !p-0 xs:w-full shrink-0 hover:shadow-lg 
+                active:scale-95 transition-all duration-200"
       color="danger"
       onClick={onClick}
+      aria-label={`Eliminar ${product.name} del carrito`}
     >
       <FaBucket className="h-4 w-4 sm:h-5 sm:w-5 animate-[shake_400ms]" />
+      <span className="sr-only">Eliminar del carrito</span>
     </CustomButton>
   ),
 )

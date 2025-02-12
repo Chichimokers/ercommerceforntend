@@ -56,24 +56,44 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async jwt({ token, user, account }) {
-      if (user) {
-        console.log("Token y usuario:", { token, user, account });
+      // Calcular tiempo de expiración
+      const now = Math.floor(Date.now() / 1000);
+      const tokenExpires = token.exp || now + 3600;
 
-        if (account?.provider === "credentials" && user.access_token) {
-          token.accessToken = user.access_token;
-          token.id = user.id;
-        } else if (account) {
-          token.accessToken = account.access_token;
-          token.id = user.id;
-        }
+      if (typeof tokenExpires === 'number' && tokenExpires > now + 60) {
+        return token;
       }
 
-      return token;
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}auth/refresh-token`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ refreshToken: token.refreshToken })
+        });
+
+        if (!response.ok) throw new Error('Token refresh failed');
+
+        const { access_token, refresh_token, exp } = await response.json(); // Cambiar a snake_case
+
+        // Actualizar token con nueva información
+        return {
+          ...token,
+          accessToken: access_token,
+          refreshToken: refresh_token,
+          exp: exp,
+          id: user?.id || token.id
+        };
+
+      } catch (error) {
+        console.error('Error refreshing token:', error);
+        return { ...token, error: 'RefreshAccessTokenError' };
+      }
     },
     async session({ session, token }) {
       if (session.user) {
-        session.user.id = token.id;
-        session.accessToken = token.accessToken;
+        session.user.id = token.id as string;
+        session.accessToken = token.accessToken as string;
+        session.error = token.error as string | undefined;
       }
       return session;
     },

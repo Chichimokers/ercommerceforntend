@@ -23,12 +23,13 @@ export const EditProductQuantityButton = React.memo(
           w-8 xxs:w-10 h-full 
           max-w-[50px] 
           active:bg-default-300
+          text-default-600
           ${isPlus ? "rounded-r-xl" : "rounded-l-xl"}
-          bg-transparent text-current hover:bg-default-100
+          bg-transparent text-current hover:bg-default-200
           transition-all duration-300
         `}
       >
-        {isPlus ? <FaPlus size={16} /> : <FaMinus size={12} />}
+        {isPlus ? <FaPlus size={12} /> : <FaMinus size={12} />}
       </button>
     );
   }
