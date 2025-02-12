@@ -73,14 +73,17 @@ export const authOptions: NextAuthOptions = {
 
         if (!response.ok) throw new Error('Token refresh failed');
 
-        const { access_token, refresh_token, exp } = await response.json(); // Cambiar a snake_case
+        // Ajustar a la respuesta real del backend (accessToken en camelCase)
+        const { accessToken } = await response.json();
 
-        // Actualizar token con nueva información
+        // Calcular nuevo tiempo de expiración (1 hora)
+        const newExp = Math.floor(Date.now() / 1000) + 3600;
+
         return {
           ...token,
-          accessToken: access_token,
-          refreshToken: refresh_token,
-          exp: exp,
+          accessToken: accessToken,  // Mantenemos camelCase
+          exp: newExp,  // Calculamos localmente
+          refreshToken: token.refreshToken,  // Mantenemos el mismo refresh token
           id: user?.id || token.id
         };
 
