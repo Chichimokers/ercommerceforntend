@@ -12,5 +12,11 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
         return null;
     }
 
+    // Verificar expiración del token
+    if (session?.accessTokenExpires && Date.now() >= session.accessTokenExpires) {
+        router.push("/?modal=login");
+        return null;
+    }
+
     return children;
 } 
