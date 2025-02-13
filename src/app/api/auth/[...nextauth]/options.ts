@@ -5,6 +5,28 @@ import FacebookProvider from "next-auth/providers/facebook";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { decodeJWT } from "@/helpers/jwt-decode";
 
+// Añade esta declaración de tipo en la parte superior del archivo
+declare module "next-auth" {
+  interface Session {
+    user: {
+      id?: string
+      name?: string
+      email?: string
+    }
+  }
+}
+
+// Añade esta interfaz para el JWT
+declare module "next-auth/jwt" {
+  interface JWT {
+    user: {
+      id?: string
+      name?: string
+      email?: string
+    }
+  }
+}
+
 // Función de renovación mejorada
 async function refreshAccessToken(token: any) {
   try {
@@ -26,14 +48,18 @@ async function refreshAccessToken(token: any) {
     if (!response.ok) throw data;
 
     const payload = await decodeJWT(data.accessToken);
-    console.log('Token renovado exitosamente. Nuevo exp:', new Date(payload.exp * 1000).toISOString());
+    console.log('Token renovado exitosamente. Nuevo exp:', new Date(payload.exp * 1000).toLocaleString());
 
     return {
       ...token,
       accessToken: data.accessToken,
       accessTokenExpires: payload.exp * 1000,
       refreshToken: data.refreshToken || token.refreshToken,
-      error: undefined
+      user: {
+        ...token.user,
+        ...payload
+      },
+      error: undefined,
     };
   } catch (error) {
     console.error("Error en renovación de token:", error);
@@ -108,7 +134,7 @@ export const authOptions: NextAuthOptions = {
         console.log('Nueva autenticación detectada', {
           provider: account.provider,
           userId: user.id,
-          tokenExp: new Date((account.expires_at || 0) * 1000).toISOString()
+          tokenExp: new Date((account.expires_at || 0) * 1000).toLocaleString()
         });
         const finalToken = account.provider === "credentials"
           ? user.access_token
@@ -122,19 +148,21 @@ export const authOptions: NextAuthOptions = {
           refreshToken: user.refresh_token || account.refresh_token,
           user: {
             id: payload.sub,
-            name: user.name,
-            email: user.email
+            name: payload.name || user.name,
+            email: payload.email || user.email,
+            ...payload
           }
         };
       }
 
       // Modificar la lógica de verificación de expiración
       if (token.accessTokenExpires) {
+        console.log('Entre por aqui e hice mierda todo')
         const remainingTime = Math.round(((token.accessTokenExpires as number) - Date.now()) / 1000);
         console.log(`Tiempo restante del token: ${remainingTime}s`);
 
         // Reducir el margen de renovación anticipada a 45 segundos
-        if (remainingTime > 45) {
+        if (remainingTime > 30) {
           console.log('Token aún válido, no se requiere renovación');
           return token;
         }
@@ -156,15 +184,16 @@ export const authOptions: NextAuthOptions = {
       return token;
     },
     async session({ session, token }) {
-      console.log('Actualizando sesión', { user: session.user.email, expires: session.expires });
-      session.user = token.user as {
-        id?: string;
-        name?: string;
-        email?: string;
+      console.log('Actualizando sesión', { user: token.user?.email });
+      session.user = {
+        id: token.user?.id ?? '',
+        name: token.user?.name ?? '',
+        email: token.user?.email ?? '',
+        ...token.user
       };
       session.accessToken = token.accessToken as string | undefined;
       session.error = token.error as string | undefined;
-      session.expires = new Date(token.accessTokenExpires as number).toISOString();
+      session.expires = new Date(token.accessTokenExpires as number).toLocaleString();
 
       return session;
     },

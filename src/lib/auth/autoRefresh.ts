@@ -1,4 +1,4 @@
-import { signIn, SessionProvider, getSession } from "next-auth/react";
+/*import { signIn, SessionProvider, getSession } from "next-auth/react";
 
 // Verificar cada 30 segundos (ajustable)
 const CHECK_INTERVAL = 59 * 1000;
@@ -51,4 +51,4 @@ export const startTokenAutoRefresh = () => {
 
   startChecking();
   return stopChecking;
-}; 
+}; */

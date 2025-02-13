@@ -11,7 +11,7 @@ import { ProductProvider } from "@contexts/product-context"
 import { CartProvider } from "@contexts/cart-context"
 import { ThemeProvider } from "next-themes"
 import { useEffect } from "react"
-import { startTokenAutoRefresh } from "@/lib/auth/autoRefresh"
+//import { startTokenAutoRefresh } from "@/lib/auth/autoRefresh"
 import { getSession } from "next-auth/react"
 
 export default function RootLayout({
@@ -19,10 +19,10 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-  useEffect(() => {
+  /*useEffect(() => {
     const cleanup = startTokenAutoRefresh()
     return () => cleanup()
-  }, [])
+  }, [])*/
 
   useEffect(() => {
     const checkSession = async () => {
