@@ -5,6 +5,46 @@ import FacebookProvider from "next-auth/providers/facebook";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { decodeJWT } from "@/helpers/jwt-decode";
 
+// Función de renovación mejorada
+async function refreshAccessToken(token: any) {
+  try {
+    console.log('Intentando renovar token de acceso. Refresh token:', token.refreshToken?.slice(0, 5) + '...');
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}auth/refresh-token`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Refresh-Token": token.refreshToken
+      },
+      body: JSON.stringify({
+        refreshToken: token.refreshToken,
+      }),
+    });
+
+    const data = await response.json();
+    console.log('Respuesta de renovación:', { status: response.status, data: { ...data, accessToken: data.accessToken?.slice(0, 15) + '...' } });
+
+    if (!response.ok) throw data;
+
+    const payload = await decodeJWT(data.accessToken);
+    console.log('Token renovado exitosamente. Nuevo exp:', new Date(payload.exp * 1000).toISOString());
+
+    return {
+      ...token,
+      accessToken: data.accessToken,
+      accessTokenExpires: payload.exp * 1000,
+      refreshToken: data.refreshToken || token.refreshToken,
+      error: undefined
+    };
+  } catch (error) {
+    console.error("Error en renovación de token:", error);
+    return {
+      ...token,
+      error: "RefreshAccessTokenError",
+      accessTokenExpires: Date.now() - 1000
+    };
+  }
+}
+
 export const authOptions: NextAuthOptions = {
   providers: [
     GoogleProvider({
@@ -62,118 +102,81 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async jwt({ token, user, account }) {
-      // Añadir logs de diagnóstico
-      console.log('[JWT] Ejecutando callback JWT. Tiempo actual:', new Date().toLocaleString());
+      console.log('Ejecutando callback JWT', { user: user?.email, accountProvider: account?.provider });
 
-      if (token.accessToken && !token.accessTokenExpires) {
-        const payload = await decodeJWT(token.accessToken);
-        token.accessTokenExpires = payload.exp * 1000; // Asegurar milisegundos
-        console.log('[JWT] Token inicial. Expira:', new Date(Number(token.accessTokenExpires)).toISOString());
-        console.log('Payload decodificado:', payload);
-      }
-
-      const MARGEN_RENOVACION = 30 * 1000; // 2 minutos antes de expirar
-      const TIEMPO_MINIMO_RENOVACION = 10 * 1000; // 10 segundos entre renovaciones
-
-      if (Date.now() < Number(token.accessTokenExpires) - MARGEN_RENOVACION
-        || (token.lastRenewAttempt && Date.now() - Number(token.lastRenewAttempt) < TIEMPO_MINIMO_RENOVACION)) {
-        return token;
-      }
-
-      // Rotación de tokens
-      if (token.refreshToken) {
-        console.log('[JWT] Token expirado. Intentando renovar con refresh token...');
-        try {
-          token.isRefreshing = true; // Bloquear nuevas renovaciones
-
-          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}auth/refresh-token`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "X-Refresh-Token": token.refreshToken as string
-            },
-            body: JSON.stringify({
-              refreshToken: token.refreshToken,
-              currentAccessToken: token.accessToken // Validar en backend
-            }),
-          });
-
-          // Agregar logging de diagnóstico
-          console.log(`[JWT] Estado de respuesta: ${response.status}`);
-          if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`HTTP ${response.status}: ${errorText}`);
-          }
-
-          const { accessToken, refreshToken } = await response.json();
-          const payload = await decodeJWT(accessToken);
-
-          console.log('Nuevo accessToken expira en:',
-            new Date(Date.now() + (payload.exp * 1000)).toISOString());
-          return {
-            ...token,
-            accessToken: accessToken,
-            refreshToken: refreshToken,
-            accessTokenExpires: payload.exp * 1000,
-            id: payload.sub
-          };
-
-        } catch (error) {
-          console.error("[JWT] Error renovando token:", error);
-          delete token.isRefreshing; // Liberar bloqueo
-          return { ...token, error: "RefreshAccessTokenError" };
-        } finally {
-          delete token.isRefreshing; // Asegurar liberación del bloqueo
-        }
-      }
-
-      // Manejo inicial del token
-      if (user) {
-        const finalToken = account?.provider === "credentials"
+      if (account && user) {
+        console.log('Nueva autenticación detectada', {
+          provider: account.provider,
+          userId: user.id,
+          tokenExp: new Date((account.expires_at || 0) * 1000).toISOString()
+        });
+        const finalToken = account.provider === "credentials"
           ? user.access_token
-          : account?.access_token;
+          : account.access_token;
 
-        if (!finalToken) {
-          throw new Error('Token de acceso no encontrado');
-        }
-        const payload = await decodeJWT(finalToken);
-
-        console.log('[JWT] Nuevo token generado para usuario:', user.email, 'Expiración:', new Date(payload.exp * 1000).toLocaleTimeString());
+        const payload = await decodeJWT(finalToken!);
 
         return {
           accessToken: finalToken,
-          refreshToken: user?.refresh_token,
           accessTokenExpires: payload.exp * 1000,
-          id: payload.sub,
-          name: user.name,
-          email: user.email
+          refreshToken: user.refresh_token || account.refresh_token,
+          user: {
+            id: payload.sub,
+            name: user.name,
+            email: user.email
+          }
         };
       }
 
-      // Añadir verificación de expiración global
-      if (token.error === "RefreshAccessTokenError") {
-        await fetch('/api/auth/signout', { method: 'POST' }); // Forzar logout en el backend
-        return { ...token, expired: true };
+      // Modificar la lógica de verificación de expiración
+      if (token.accessTokenExpires) {
+        const remainingTime = Math.round(((token.accessTokenExpires as number) - Date.now()) / 1000);
+        console.log(`Tiempo restante del token: ${remainingTime}s`);
+
+        // Reducir el margen de renovación anticipada a 45 segundos
+        if (remainingTime > 45) {
+          console.log('Token aún válido, no se requiere renovación');
+          return token;
+        }
       }
 
-      // Si el token está expirado y no se puede renovar
-      if (token.accessTokenExpires && Date.now() > Number(token.accessTokenExpires)) {
-        return { ...token, error: "TokenExpired" };
+      // Mejorar el control de concurrencia
+      if (!token.isRefreshing) {
+        console.log('Iniciando proceso de renovación de token...');
+        token.isRefreshing = true;
+        const newToken = await refreshAccessToken(token);
+        console.log('Renovación completada', { newToken: newToken.accessToken?.slice(0, 15) + '...' });
+        return {
+          ...newToken,
+          isRefreshing: false
+        };
       }
 
+      console.log('Renovación ya en progreso, omitiendo solicitud concurrente');
       return token;
     },
     async session({ session, token }) {
-      // Propagación del estado de expiración
-      if (token.error || token.expired) {
-        session.error = token.error ? String(token.error) : "SessionExpired";
-        session.expired = Boolean(token.expired);
-      }
+      console.log('Actualizando sesión', { user: session.user.email, expires: session.expires });
+      session.user = token.user as {
+        id?: string;
+        name?: string;
+        email?: string;
+      };
+      session.accessToken = token.accessToken as string | undefined;
+      session.error = token.error as string | undefined;
+      session.expires = new Date(token.accessTokenExpires as number).toISOString();
+
       return session;
     },
     async signIn({ user, account, credentials }) {
+      console.log('Iniciando proceso de signIn', { provider: account?.provider, user: user.email });
+
       if (account?.provider === "google" || account?.provider === "facebook") {
         try {
+          console.log(`Registrando usuario social en backend: ${account.provider}`, {
+            email: user.email,
+            providerId: account.providerAccountId
+          });
           const res = await fetch(
             `${process.env.NEXT_PUBLIC_API_URL}auth/${account.provider}`,
             {
@@ -190,13 +193,14 @@ export const authOptions: NextAuthOptions = {
           if (!res.ok) {
             throw new Error(`Failed to log in with ${account.provider}`);
           }
-
+          console.log(`Autenticación social exitosa con ${account.provider}`);
           return true;
         } catch (error) {
-          console.error("Error durante el inicio de sesión social:", error);
+          console.error(`Error en autenticación social (${account.provider}):`, error);
           return false;
         }
       } else if (account?.provider === "credentials") {
+        console.log('Procesando autenticación con credenciales', { email: credentials?.email });
         if (!credentials) {
           throw new Error(`Failed to log in with ${account.provider}`);
         }
@@ -226,13 +230,10 @@ export const authOptions: NextAuthOptions = {
           if (!response.ok) {
             throw new Error("Failed to log in with credentials");
           }
-
+          console.log('Autenticación con credenciales exitosa', { email: credentials?.email });
           return true;
         } catch (error) {
-          console.error(
-            "Error durante el inicio de sesión con credenciales:",
-            error
-          );
+          console.error('Error en autenticación con credenciales:', { error, email: credentials?.email });
           return false;
         }
       }
