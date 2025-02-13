@@ -48,7 +48,10 @@ async function refreshAccessToken(token: any) {
     if (!response.ok) throw data;
 
     const payload = await decodeJWT(data.accessToken);
-    console.log('Token renovado exitosamente. Nuevo exp:', new Date(payload.exp * 1000).toLocaleString());
+    console.log('Payload decodificado:', {
+      nuevo_exp: payload.exp,
+      exp_anterior: token.accessTokenExpires ? token.accessTokenExpires / 1000 : null
+    });
 
     return {
       ...token,
@@ -142,15 +145,18 @@ export const authOptions: NextAuthOptions = {
 
         const payload = await decodeJWT(finalToken!);
 
+        const newToken = await refreshAccessToken(token);
+        console.log('Token renovado:', {
+          nuevo_exp: new Date(newToken.accessTokenExpires).toISOString()
+        });
+
         return {
-          accessToken: finalToken,
-          accessTokenExpires: payload.exp * 1000,
-          refreshToken: user.refresh_token || account.refresh_token,
+          ...newToken,
+          ...token,
+          accessTokenExpires: newToken.accessTokenExpires,
           user: {
-            id: payload.sub,
-            name: payload.name || user.name,
-            email: payload.email || user.email,
-            ...payload
+            ...token.user,
+            ...newToken.user
           }
         };
       }
