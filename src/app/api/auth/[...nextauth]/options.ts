@@ -24,7 +24,7 @@ export const authOptions: NextAuthOptions = {
       async authorize(credentials) {
         try {
           const res = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL}auth/login`,
+            `${process.env.NEXT_PUBLIC_API_URL}/auth/login`,
             {
               method: "POST",
               body: JSON.stringify(credentials),
@@ -81,7 +81,7 @@ export const authOptions: NextAuthOptions = {
       if (account?.provider === "google" || account?.provider === "facebook") {
         try {
           const res = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL}auth/${account.provider}`,
+            `${process.env.NEXT_PUBLIC_API_URL}/auth/${account.provider}`,
             {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -109,7 +109,7 @@ export const authOptions: NextAuthOptions = {
         console.log("Credenciales para inicio de sesión:", credentials);
         try {
           const response = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL}auth/login`,
+            `${process.env.NEXT_PUBLIC_API_URL}/auth/login`,
             {
               method: "POST",
               headers: {
