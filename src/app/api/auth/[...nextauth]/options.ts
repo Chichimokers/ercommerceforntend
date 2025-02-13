@@ -62,13 +62,24 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async jwt({ token, user, account }) {
-      // Añadir logs de diagnóstico
-      console.log('[JWT] Ejecutando callback JWT. Tiempo actual:', new Date().toLocaleString());
+      const logPrefix = `[JWT][${user?.email || 'sin-usuario'}]`;
+      console.log(`${logPrefix} Inicio callback. Token actual:`, {
+        exp: token.accessTokenExpires ? new Date(Number(token.accessTokenExpires)).toISOString() : 'n/a',
+        refresh: String(token.refreshToken)?.slice(-10) || 'n/a',
+        isRefreshing: token.isRefreshing
+      });
+
+      if (user && account) {
+        console.log(`${logPrefix} Nuevo login detectado (${account.provider})`, {
+          user_id: user.id,
+          token_exp: new Date(Number(token.accessTokenExpires) || Date.now()).toISOString()
+        });
+      }
 
       if (token.accessToken && !token.accessTokenExpires) {
         const payload = await decodeJWT(token.accessToken);
         token.accessTokenExpires = payload.exp * 1000; // Asegurar milisegundos
-        console.log('[JWT] Token inicial. Expira:', new Date(Number(token.accessTokenExpires)).toISOString());
+        console.log(`${logPrefix} Token inicial. Expira:`, new Date(Number(token.accessTokenExpires)).toISOString());
         console.log('Payload decodificado:', payload);
       }
 
@@ -82,7 +93,7 @@ export const authOptions: NextAuthOptions = {
 
       // Rotación de tokens
       if (token.refreshToken) {
-        console.log('[JWT] Token expirado. Intentando renovar con refresh token...');
+        console.log(`${logPrefix} Token expirado. Intentando renovar con refresh token...`);
         try {
           token.isRefreshing = true; // Bloquear nuevas renovaciones
 
@@ -99,7 +110,7 @@ export const authOptions: NextAuthOptions = {
           });
 
           // Agregar logging de diagnóstico
-          console.log(`[JWT] Estado de respuesta: ${response.status}`);
+          console.log(`${logPrefix} Estado de respuesta: ${response.status}`);
           if (!response.ok) {
             const errorText = await response.text();
             throw new Error(`HTTP ${response.status}: ${errorText}`);
@@ -108,7 +119,7 @@ export const authOptions: NextAuthOptions = {
           const { accessToken, refreshToken } = await response.json();
           const payload = await decodeJWT(accessToken);
 
-          console.log('Nuevo accessToken expira en:',
+          console.log(`${logPrefix} Nuevo accessToken expira en:`,
             new Date(Date.now() + (payload.exp * 1000)).toISOString());
           return {
             ...token,
@@ -119,7 +130,10 @@ export const authOptions: NextAuthOptions = {
           };
 
         } catch (error) {
-          console.error("[JWT] Error renovando token:", error);
+          console.error(`${logPrefix} Error renovando token:`, {
+            error: error instanceof Error ? error.message : 'Error desconocido',
+            stack: error instanceof Error ? error.stack?.split('\n')[0] : undefined
+          });
           delete token.isRefreshing; // Liberar bloqueo
           return { ...token, error: "RefreshAccessTokenError" };
         } finally {
@@ -138,7 +152,7 @@ export const authOptions: NextAuthOptions = {
         }
         const payload = await decodeJWT(finalToken);
 
-        console.log('[JWT] Nuevo token generado para usuario:', user.email, 'Expiración:', new Date(payload.exp * 1000).toLocaleTimeString());
+        console.log(`${logPrefix} Nuevo token generado para usuario:`, user.email, 'Expiración:', new Date(payload.exp * 1000).toLocaleTimeString());
 
         return {
           accessToken: finalToken,
@@ -164,6 +178,10 @@ export const authOptions: NextAuthOptions = {
       return token;
     },
     async session({ session, token }) {
+      console.log(`[Sesión][${session.user?.email}] Actualizando sesión`, {
+        token_error: token.error,
+        token_exp: token.accessTokenExpires ? new Date(Number(token.accessTokenExpires)).toISOString() : 'n/a'
+      });
       // Propagación del estado de expiración
       if (token.error || token.expired) {
         session.error = token.error ? String(token.error) : "SessionExpired";
@@ -172,6 +190,10 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
     async signIn({ user, account, credentials }) {
+      console.log(`[Login][${user.email}] Intento con ${account?.provider}`, {
+        provider_id: account?.providerAccountId,
+        method: account?.type
+      });
       if (account?.provider === "google" || account?.provider === "facebook") {
         try {
           const res = await fetch(
