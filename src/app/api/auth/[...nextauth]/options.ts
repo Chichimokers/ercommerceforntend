@@ -110,6 +110,7 @@ async function refreshAccessToken(token: any) {
 }
 
 export const authOptions: NextAuthOptions = {
+  debug: true,
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_ID as string,
@@ -118,9 +119,11 @@ export const authOptions: NextAuthOptions = {
         params: {
           prompt: "consent",
           access_type: "offline",
-          response_type: "code"
+          response_type: "code",
+          scope: "email profile"
         }
-      }
+      },
+      checks: ['none']
     }),
     FacebookProvider({
       clientId: process.env.FACEBOOK_ID as string,
