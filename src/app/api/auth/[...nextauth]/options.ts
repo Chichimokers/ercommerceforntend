@@ -269,7 +269,46 @@ export const authOptions: NextAuthOptions = {
           console.error('Google auth error:', error);
           return false;
         }
-      }
+      } /*else if (account?.provider === "credentials") {
+        if (!credentials) {
+          throw new Error(`Failed to log in with ${account.provider}`);
+        }
+        console.log("Credenciales para inicio de sesión:", credentials);
+        try {
+          const response = await fetch(
+            `${process.env.NEXT_PUBLIC_API_URL}auth/login`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                email: credentials.email,
+                password: credentials.password,
+              }),
+            }
+          );
+
+          console.log(
+            `email: ${credentials.user}\n
+            password: ${credentials.password} 
+            `
+
+          )
+
+          if (!response.ok) {
+            throw new Error("Failed to log in with credentials");
+          }
+
+          return true;
+        } catch (error) {
+          console.error(
+            "Error durante el inicio de sesión con credenciales:",
+            error
+          );
+          return false;
+        }
+      }*/
       return true;
     },
   },
