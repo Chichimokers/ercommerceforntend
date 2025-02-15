@@ -33,7 +33,7 @@ export default function RootLayout({
       }
     };
 
-    const interval = setInterval(checkSession, 30000); // Verificar cada 30 segundos
+    const interval = setInterval(checkSession, 60000);
     return () => clearInterval(interval);
   }, []);
 
@@ -47,7 +47,7 @@ export default function RootLayout({
           attribute="class"
           defaultTheme="system"
         >
-          <SessionProvider refetchInterval={60} refetchOnWindowFocus={true}>
+          <SessionProvider>
             <CurrencyAndExchangeRateProvider>
               <ProductProvider>
                 <CartProvider>
