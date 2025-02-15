@@ -173,12 +173,6 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async jwt({ token, user, account }) {
-      console.log("Ejecutando callback JWT", {
-        user: user?.email,
-        accountProvider: account?.provider,
-      });
-
-      // Para proveedores sociales
       if (account?.provider === 'google' && user) {
         return {
           ...token,
@@ -192,7 +186,7 @@ export const authOptions: NextAuthOptions = {
       if (account && user) {
         console.log("Nueva autenticación detectada", {
           provider: account.provider,
-          userId: user.id,
+          userId: user.name,
           tokenExp: new Date((account.expires_at || 0) * 1000).toLocaleString(),
         });
 
@@ -208,7 +202,7 @@ export const authOptions: NextAuthOptions = {
           refreshToken: user.refresh_token || account.refresh_token,
           user: {
             id: payload.sub,
-            name: payload.username || user.name,
+            name: user.name,
             email: payload.email || user.email,
             role: payload.role,
           },
@@ -269,46 +263,7 @@ export const authOptions: NextAuthOptions = {
           console.error('Google auth error:', error);
           return false;
         }
-      } /*else if (account?.provider === "credentials") {
-        if (!credentials) {
-          throw new Error(`Failed to log in with ${account.provider}`);
-        }
-        console.log("Credenciales para inicio de sesión:", credentials);
-        try {
-          const response = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL}auth/login`,
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                email: credentials.email,
-                password: credentials.password,
-              }),
-            }
-          );
-
-          console.log(
-            `email: ${credentials.user}\n
-            password: ${credentials.password} 
-            `
-
-          )
-
-          if (!response.ok) {
-            throw new Error("Failed to log in with credentials");
-          }
-
-          return true;
-        } catch (error) {
-          console.error(
-            "Error durante el inicio de sesión con credenciales:",
-            error
-          );
-          return false;
-        }
-      }*/
+      }
       return true;
     },
   },
