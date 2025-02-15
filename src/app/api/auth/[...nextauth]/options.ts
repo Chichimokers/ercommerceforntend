@@ -158,7 +158,7 @@ export const authOptions: NextAuthOptions = {
 
           return {
             id: payload.sub,
-            name: payload.username,
+            name: payload.name,
             email: credentials?.email,
             access_token: accessToken,
             refresh_token: refreshToken,
