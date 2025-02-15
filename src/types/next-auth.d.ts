@@ -1,8 +1,13 @@
 import "next-auth";
+import NextAuth from "next-auth";
 
 declare module "next-auth" {
   interface Session {
     accessToken?: string;
+    accessTokenExpires?: number;
+    refreshToken?: string;
+    error?: string;
+    expired?: boolean;
     user: {
       id?: string;
       name?: string | null;
@@ -16,7 +21,9 @@ declare module "next-auth" {
     name?: string | null;
     email?: string | null;
     image?: string | null;
-    access_token?:string | null
+    access_token?: string;
+    refresh_token?: string;
+    exp?: number;
   }
 }
 

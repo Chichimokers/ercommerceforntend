@@ -73,6 +73,7 @@ const App = (props: React.PropsWithChildren<AppProps>) => {
       };
     },
     check: async () => {
+      console.log(status)
       return status === "authenticated"
         ? { authenticated: true }
         : {

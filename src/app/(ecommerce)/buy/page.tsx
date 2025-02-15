@@ -30,7 +30,7 @@ const formSchema = z.object({
   phone: z.string().refine((value) => {
     try {
       const phoneUtil = PhoneNumberUtil.getInstance();
-      const number = phoneUtil.parse(value, "ES");
+      const number = phoneUtil.parse(value, "CU");
       return phoneUtil.isValidNumber(number);
     } catch {
       return false;

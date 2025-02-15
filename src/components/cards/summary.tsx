@@ -45,7 +45,7 @@ const OrderSummary = ({
 
   const handleCreateOrder = () => {
     localStorage.setItem("orderCreation", "true");
-    router.push("/verification");
+    router.push("/buy");
   };
 
   return (

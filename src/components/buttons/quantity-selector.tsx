@@ -19,7 +19,7 @@ const QuantityAdjuster = ({
   className?: string;
 }) => {
   return (
-    <div className={`${className} flex h-9 w-max md:w-[90] lg:w-[100] xl:max-w-[110] items-center rounded-xl border border-neutral-200 dark:border-neutral-700`}>
+    <div className={`${className} flex h-9 w-max md:w-[90] lg:w-[100] xl:max-w-[110] items-center rounded-xl border border-default-600`}>
       <EditProductQuantityButton
         type="minus"
         onClick={(e) => {
@@ -29,7 +29,7 @@ const QuantityAdjuster = ({
           }
         }}
       />
-      <p className="flex w-4 sm:w-6 items-center justify-center px-1 text-center border-l border-r border-neutral-200 dark:border-neutral-700">
+      <p className="flex w-4 sm:w-6 items-center justify-center px-1 text-center border-x border-default-600">
         <span
           className="text-xs sm:text-sm"
           onClick={(e) => e.preventDefault()}

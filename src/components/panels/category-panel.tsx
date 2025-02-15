@@ -15,7 +15,7 @@ const CategoryPanel = () => {
 
   return (
     <div className="relative group">
-      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-50/20 to-transparent dark:via-blue-900/10 pointer-events-none" />
+      <div className="absolute inset-0 pointer-events-none" />
       <div className="flex flex-row overflow-x-auto gap-4 snap-x snap-mandatory scrollbar-hide px-4 py-8">
         <div key="all" className="flex-shrink-0 snap-center animate-fade-in-left">
           <CategoryCard

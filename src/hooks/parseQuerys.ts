@@ -3,8 +3,8 @@ import { Filters } from "@/types/types";
 type QueryParamHandler = (value: any) => any;
 
 const paramHandlers: Record<string, QueryParamHandler> = {
-  category: v => v.toString().split(",").map(Number).filter(Boolean),
-  subcategory: v => v.toString().split(",").map(Number).filter(Boolean),
+  category: v => v.toString().split(",").map(String).filter(Boolean),
+  subcategory: v => v.toString().split(",").map(String).filter(Boolean),
   pricerange: v => {
     const [min, max] = v.toString().split("-").map(Number);
     return (!isNaN(min) && !isNaN(max)) ? [min, max] : null;

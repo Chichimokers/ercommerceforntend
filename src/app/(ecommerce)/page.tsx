@@ -33,9 +33,7 @@ export default function IndexPage() {
         <PublicityBannerSlider banners={banners} />
         <CategoryPanel />
         <PromisesPanel />
-        <div className="mx-4">
-          <LazyFeaturedProducts products={rating_products} />
-        </div>
+        <LazyFeaturedProducts products={rating_products} />
 
         <SecondaryBannerSlider
           className="rounded-xl border-4 border-default-50/50 shadow-lg"
@@ -50,13 +48,13 @@ const FeaturedProducts = ({ products }: { products: ProductBase[] }) => {
   const router = useRouter()
 
   return (
-    <div className="mb-8">
+    <div className="mb-8 px-4 py-8">
       <div className="mb-6">
         <h2 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-blue-600 mb-2 pb-2 border-b-4 border-blue-100 w-max">
-          Tesoros de Es Aki
+          Productos Destacados
         </h2>
       </div>
-      <div className="grid grid-cols-2 gap-2 xm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7">
+      <div className="grid grid-cols-2 gap-2 xm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 ">
         {products.map((product) => (
           <ProductCard
             key={product.id}
