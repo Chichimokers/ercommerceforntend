@@ -9,7 +9,7 @@ import {
   Link,
   Button,
 } from "@heroui/react";
-import { FaFacebook, FaGoogle, FaLock, FaMailBulk } from "react-icons/fa";
+import { FaGoogle, FaLock, FaMailBulk } from "react-icons/fa";
 import Image from "next/image";
 
 import { useFormValidation } from "@/hooks/useFormValidation";
@@ -106,17 +106,9 @@ export default function Login({
         variant="bordered"
         className="bg-transparent hover:bg-transparent"
         color="danger"
-        onClick={() => handleSocialLogin("google")}
+        onClick={() => signIn("google")}
       >
         <FaGoogle className="fill-gray-700 dark:fill-gray-100" />
-      </CustomButton>
-      <CustomButton
-        variant="bordered"
-        className="bg-transparent hover:bg-transparent"
-        color="primary"
-        onClick={() => handleSocialLogin("facebook")}
-      >
-        <FaFacebook className="fill-gray-700 dark:fill-gray-100" />
       </CustomButton>
     </div>
   );
