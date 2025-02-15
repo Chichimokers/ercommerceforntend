@@ -7,7 +7,6 @@ import { usePathname } from "next/navigation";
 import React from "react";
 import Image from "next/image";
 import routerProvider from "@refinedev/nextjs-router";
-import { dataProvider } from "@providers/data-provider";
 import { Spinner } from "@heroui/react";
 import { customDataProvider } from "@providers/data-provider";
 
@@ -90,7 +89,6 @@ const App = (props: React.PropsWithChildren<AppProps>) => {
 				const { user } = data;
 				return {
 					name: user.name,
-					avatar: user.image,
 				};
 			}
 
