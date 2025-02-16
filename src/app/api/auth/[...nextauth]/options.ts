@@ -113,8 +113,8 @@ export const authOptions: NextAuthOptions = {
   debug: true,
   providers: [
     GoogleProvider({
-      clientId: process.env.GOOGLE_ID as string,
-      clientSecret: process.env.GOOGLE_SECRET as string,
+      clientId: process.env.GOOGLE_ID!,
+      clientSecret: process.env.GOOGLE_SECRET!,
       authorization: {
         params: {
           prompt: "consent",
@@ -123,15 +123,22 @@ export const authOptions: NextAuthOptions = {
           scope: "openid email profile"
         }
       },
-      async profile(profile) {
+      profile: async (profile) => {
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}auth/google/callback`, {
-          headers: {
-            Authorization: `Bearer ${profile.id_token}`
-          }
+          headers: { Authorization: `Bearer ${profile.id_token}` }
         });
 
-        if (!res.ok) throw new Error('Error en backend');
-        return await res.json();
+        if (!res.ok) throw new Error('Falló la conexión con el backend');
+
+        const userData = await res.json();
+        return {
+          id: userData.user.id,
+          name: userData.user.name,
+          email: userData.user.email,
+          image: userData.user.picture,
+          accessToken: userData.accessToken,  // Asegurar estos campos
+          refreshToken: userData.refreshToken
+        };
       }
     }),
     FacebookProvider({
@@ -251,32 +258,6 @@ export const authOptions: NextAuthOptions = {
         session.expires = new Date(token.accessTokenExpires).toLocaleString();
       }
       return session;
-    },
-    async signIn({ user, account }) {
-      if (account?.provider === 'google') {
-        try {
-          // Llamar a tu backend para registrar/validar el usuario
-          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}auth/google/callback`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${account.access_token}`
-            }
-          });
-
-          if (!response.ok) throw new Error('Error en autenticación Google');
-
-          const { accessToken, refreshToken } = await response.json();
-
-          user.access_token = accessToken;
-          user.refresh_token = refreshToken;
-
-        } catch (error) {
-          console.error('Google auth error:', error);
-          return false;
-        }
-      }
-      return true;
     },
   },
   pages: {
