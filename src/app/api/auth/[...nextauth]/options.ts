@@ -120,10 +120,19 @@ export const authOptions: NextAuthOptions = {
           prompt: "consent",
           access_type: "offline",
           response_type: "code",
-          scope: "email profile"
+          scope: "openid email profile"
         }
       },
-      checks: ['none']
+      async profile(profile) {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}auth/google/callback`, {
+          headers: {
+            Authorization: `Bearer ${profile.id_token}`
+          }
+        });
+
+        if (!res.ok) throw new Error('Error en backend');
+        return await res.json();
+      }
     }),
     FacebookProvider({
       clientId: process.env.FACEBOOK_ID as string,
