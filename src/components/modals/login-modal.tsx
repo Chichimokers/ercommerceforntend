@@ -106,10 +106,7 @@ export default function Login({
         variant="bordered"
         className="bg-transparent hover:bg-transparent"
         color="danger"
-        onClick={() => signIn("google", {
-          redirect: false,
-          callbackUrl: "/dashboard"
-        })}
+        onClick={() => handleSocialLogin('google')}
       >
         <FaGoogle className="fill-gray-700 dark:fill-gray-100" />
       </CustomButton>

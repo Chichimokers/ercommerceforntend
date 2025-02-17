@@ -21,8 +21,8 @@ declare module "next-auth" {
     name?: string | null;
     email?: string | null;
     image?: string | null;
-    access_token?: string;
-    refresh_token?: string;
+    accessToken?: string;
+    refreshToken?: string;
     exp?: number;
   }
 }

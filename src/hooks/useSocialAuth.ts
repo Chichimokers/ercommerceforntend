@@ -12,12 +12,12 @@ export function useSocialAuth() {
     if (status === 'authenticated') {
       // Guardar tokens en localStorage
       if (session.accessToken) {
-        localStorage.setItem('access_token', session.accessToken);
-        localStorage.setItem('refresh_token', session.refreshToken || '');
+        localStorage.setItem('accessToken', session.accessToken);
+        localStorage.setItem('refreshToken', session.refreshToken || '');
       }
 
       // Redirigir después de login exitoso
-      router.push('/dashboard');
+      router.push('/');
     }
   }, [status, session, router]);
 

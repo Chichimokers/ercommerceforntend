@@ -133,10 +133,8 @@ export const Header = ({ className }: { className?: string }) => {
             href="/"
           >
             <Image
-              priority
               alt="Company Logo"
               height={60}
-              loading="eager"
               src="/logonav.png"
               width={140}
               className="h-12 w-auto object-contain flex-shrink-0"
