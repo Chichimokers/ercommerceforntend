@@ -240,6 +240,7 @@ export const authOptions: NextAuthOptions = {
         const payload = await decodeJWT(finalToken!);
 
         return {
+          ...token,
           accessToken: finalToken,
           accessTokenExpires: payload.exp * 1000,
           refreshToken: user.refreshToken || account.refreshToken,
