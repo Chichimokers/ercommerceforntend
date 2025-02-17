@@ -193,7 +193,8 @@ export const authOptions: NextAuthOptions = {
             throw new Error(errorData.message || 'Falló la autenticación');
           }
 
-          const { accessToken, refreshToken } = await res.json();
+          const data = await res.json();
+          const { accessToken, refreshToken } = data;
           const payload = await decodeJWT(accessToken);
 
           return {
