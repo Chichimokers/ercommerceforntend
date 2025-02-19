@@ -11,13 +11,13 @@ export function useSocialAuth() {
   useEffect(() => {
     if (status === 'authenticated') {
       // Guardar tokens en localStorage
-      if (session.accessToken) {
-        localStorage.setItem('access_token', session.accessToken);
-        localStorage.setItem('refresh_token', session.refreshToken || '');
+      if (session.access_token) {
+        localStorage.setItem('access_token', session.access_token);
+        localStorage.setItem('refresh_token', session.refresh_token || '');
       }
 
       // Redirigir después de login exitoso
-      router.push('/dashboard');
+      router.push('/');
     }
   }, [status, session, router]);
 

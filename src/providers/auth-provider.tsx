@@ -12,7 +12,7 @@ export const authProvider: AuthProvider = {
   },
   check: async () => {
     const session = await getSession();
-    if (!session?.accessToken) {
+    if (!session?.access_token) {
       return {
         success: false,
         redirectTo: "/login",

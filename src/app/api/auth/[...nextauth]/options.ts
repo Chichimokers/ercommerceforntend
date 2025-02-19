@@ -14,7 +14,8 @@ declare module "next-auth" {
       email?: string;
       role?: string;
     };
-    accessToken?: string;
+    idToken: string;
+    access_token?: string;
     error?: string;
     expires?: string;
   }
@@ -29,8 +30,8 @@ declare module "next-auth/jwt" {
       email?: string;
       role?: string;
     };
-    accessToken?: string;
-    refreshToken?: string;
+    access_token?: string;
+    refresh_token?: string;
     accessTokenExpires?: number;
     error?: string;
   }
@@ -39,11 +40,11 @@ declare module "next-auth/jwt" {
 let refreshingTokenPromise: Promise<any> | null = null;
 
 
-async function refreshAccessTokenWithLock(token: any) {
+async function refreshaccesstokenWithLock(token: any) {
   if (refreshingTokenPromise) {
     return refreshingTokenPromise;
   }
-  refreshingTokenPromise = refreshAccessToken(token);
+  refreshingTokenPromise = refreshaccesstoken(token);
   try {
     const newToken = await refreshingTokenPromise;
     return newToken;
@@ -53,11 +54,11 @@ async function refreshAccessTokenWithLock(token: any) {
 }
 
 // Función para renovar el token de acceso
-async function refreshAccessToken(token: any) {
+async function refreshaccesstoken(token: any) {
   try {
     console.log(
       "Intentando renovar token de acceso. Refresh token:",
-      token.refreshToken?.slice(0, 5) + "..."
+      token.refresh_token?.slice(0, 5) + "..."
     );
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}auth/refresh-token`,
@@ -67,7 +68,7 @@ async function refreshAccessToken(token: any) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          refreshToken: token.refreshToken,
+          refresh_token: token.refresh_token,
         }),
       }
     );
@@ -75,12 +76,12 @@ async function refreshAccessToken(token: any) {
     const data = await response.json();
     console.log("Respuesta de renovación:", {
       status: response.status,
-      data: { ...data, accessToken: data.accessToken?.slice(0, 15) + "..." },
+      data: { ...data, access_token: data.access_token?.slice(0, 15) + "..." },
     });
 
     if (!response.ok) throw data;
 
-    const payload = await decodeJWT(data.accessToken);
+    const payload = await decodeJWT(data.access_token);
     console.log(
       "Token renovado exitosamente. Nuevo exp:",
       new Date(payload.exp * 1000).toLocaleString()
@@ -88,9 +89,9 @@ async function refreshAccessToken(token: any) {
 
     return {
       ...token,
-      accessToken: data.accessToken,
+      access_token: data.access_token,
       accessTokenExpires: payload.exp * 1000,
-      refreshToken: data.refreshToken || token.refreshToken,
+      refresh_token: data.refresh_token || token.refresh_token,
       user: {
         ...token.user,
         id: payload.sub,
@@ -103,7 +104,7 @@ async function refreshAccessToken(token: any) {
     console.error("Error en renovación de token:", error);
     return {
       ...token,
-      error: "RefreshAccessTokenError",
+      error: "Refreshaccess_tokenError",
       accessTokenExpires: Date.now() - 1000,
     };
   }
@@ -120,24 +121,26 @@ export const authOptions: NextAuthOptions = {
           prompt: "consent",
           access_type: "offline",
           response_type: "code",
-          scope: "openid email profile"
+          scope: "openid email profile https://www.googleapis.com/auth/userinfo.profile"
         }
       },
-      profile: async (profile) => {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}auth/google/callback`, {
-          headers: { Authorization: `Bearer ${profile.id_token}` }
+      client: {
+        httpOptions: {
+          timeout: 30000 // 30 segundos
+        }
+      },
+      profile: (profile) => {
+        console.log("Perfil de Google recibido:", {
+          id: profile.sub,
+          email: profile.email,
+          name: profile.name
         });
 
-        if (!res.ok) throw new Error('Falló la conexión con el backend');
-
-        const userData = await res.json();
         return {
-          id: userData.user.id,
-          name: userData.user.name,
-          email: userData.user.email,
-          image: userData.user.picture,
-          accessToken: userData.accessToken,  // Asegurar estos campos
-          refreshToken: userData.refreshToken
+          id: profile.sub,
+          email: profile.email,
+          name: profile.name,
+          image: profile.picture,
         };
       }
     }),
@@ -172,15 +175,17 @@ export const authOptions: NextAuthOptions = {
             throw new Error(errorData.message || 'Falló la autenticación');
           }
 
-          const { accessToken, refreshToken } = await res.json();
-          const payload = await decodeJWT(accessToken);
+          const data = await res.json();
+          console.log(`Estos son los datos que me llegan: `, JSON.stringify(data))
+          const { access_token, refresh_token } = data;
+          const payload = await decodeJWT(access_token);
 
           return {
             id: payload.sub,
             name: payload.name,
             email: credentials?.email,
-            access_token: accessToken,
-            refresh_token: refreshToken,
+            access_token: access_token,
+            refresh_token: refresh_token,
           };
 
         } catch (error) {
@@ -192,12 +197,41 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async jwt({ token, user, account }) {
-      if (account?.provider === 'google' && user) {
-        return {
-          ...token,
-          accessToken: user.access_token,
-          refreshToken: user.refresh_token,
-          accessTokenExpires: Date.now() + 900 * 1000, // 15 minutos
+      if (account?.provider === 'google' && account?.id_token && !token.access_token) {
+        try {
+          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}auth/google/token-exchange`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token: account.id_token })
+          });
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Error en intercambio');
+          }
+
+          const data = await response.json();
+          const payload = await decodeJWT(data.access_token);
+
+          if (!data.refresh_token) {
+            throw new Error('Falta refresh_token en la respuesta');
+          }
+
+          return {
+            ...token,
+            access_token: data.access_token,
+            refresh_token: data.refresh_token,
+            accessTokenExpires: payload.exp * 1000,
+            user: {
+              id: payload.sub,
+              name: payload.name || token.user?.name,
+              email: payload.email || token.user?.email,
+              role: payload.role || token.user?.role
+            }
+          };
+        } catch (error) {
+          console.error('Error detallado:', error);
+          return { ...token, error: 'GoogleExchangeError' };
         }
       }
 
@@ -216,9 +250,10 @@ export const authOptions: NextAuthOptions = {
         const payload = await decodeJWT(finalToken!);
 
         return {
-          accessToken: finalToken,
+          ...token,
+          access_token: finalToken,
           accessTokenExpires: payload.exp * 1000,
-          refreshToken: user.refresh_token || account.refresh_token,
+          refresh_token: user.refresh_token || account.refresh_token,
           user: {
             id: payload.sub,
             name: user.name,
@@ -228,42 +263,76 @@ export const authOptions: NextAuthOptions = {
         };
       }
 
-      // Si no hay una nueva autenticación, se verifica si el token sigue siendo válido
       if (
         token.accessTokenExpires &&
-        Date.now() < token.accessTokenExpires - 30000 // 30 segundos de margen
+        Date.now() < token.accessTokenExpires - 30000
       ) {
         console.log("Token aún válido, no se requiere renovación");
         console.log(`Tiempo restante ${(token.accessTokenExpires - Date.now()) / 1000}s`)
         return token;
       }
 
-      // Si el token está por expirar o ya expiró, se renueva
       console.log("Iniciando renovación de token");
-      const newToken = await refreshAccessTokenWithLock(token);
-      return newToken;
+      try {
+        const newToken = await refreshaccesstokenWithLock(token);
+        return newToken;
+      } catch (error) {
+        console.error("Error crítico en renovación de token:", error);
+        return { ...token, error: "RefreshTokenFailed", accessTokenExpires: 0 };
+      }
     },
     async session({ session, token }) {
       console.log("Actualizando sesión", { user: token.user?.email });
+      session.idToken = token.idToken as string;
       session.user = {
         id: token.user?.id ?? "",
         name: token.user?.name ?? "",
         email: token.user?.email ?? "",
         role: token.user?.role ?? "",
       };
-      session.accessToken = token.accessToken;
-      session.refreshToken = token.refreshToken;
+      session.access_token = token.access_token;
+      session.refresh_token = token.refresh_token;
       session.error = token.error;
       if (token.accessTokenExpires) {
         session.expires = new Date(token.accessTokenExpires).toLocaleString();
       }
       return session;
     },
+    /*async signIn({ account, user, profile }) {
+      if (account?.provider === "google") {
+        try {
+          const response = await fetch(
+            `${process.env.NEXT_PUBLIC_API_URL}auth/google/callback`,
+            {
+              method: 'GET',
+              headers: {
+                Authorization: `Bearer ${account.access_token}`
+              }
+            }
+          );
+
+          const data = await response.json();
+
+          account.access_token = data.access_token;
+          account.refresh_token = data.refresh_token;
+          user.exp = data.expiresIn;
+          user.id = data.user.id || profile?.sub
+          user.email = data.user.email || profile?.email
+          user.name = data.user.name || profile?.name
+
+          return true;
+        } catch (error) {
+          console.error('Error en callback:', error);
+          return false;
+        }
+      }
+      return true;
+    }*/
   },
   pages: {
     error: "/auth/error",
   },
-  cookies: {
+  /*cookies: {
     sessionToken: {
       name:
         process.env.NODE_ENV === "production"
@@ -280,7 +349,7 @@ export const authOptions: NextAuthOptions = {
   session: {
     strategy: "jwt",
     maxAge: 4 * 60 * 60,
-  },
+  },*/
   secret: process.env.NEXTAUTH_SECRET,
 };
 

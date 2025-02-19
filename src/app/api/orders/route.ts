@@ -5,7 +5,7 @@ import type { NextRequest } from "next/server";
 export async function GET(req: NextRequest) {
   const secret = process.env.NEXTAUTH_SECRET;
   const token = await getToken({ req, secret });
-  console.log(token?.accessToken)
+  console.log('Mi token: ', JSON.stringify(token?.access_token))
 
   try {
     const response = await fetch(
@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
       {
         method: "GET",
         headers: {
-          Authorization: `Bearer ${token?.accessToken ?? ""}`,
+          Authorization: `Bearer ${token?.access_token}`,
           "Content-Type": "application/json",
         },
       },
