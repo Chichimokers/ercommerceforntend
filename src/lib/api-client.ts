@@ -8,8 +8,8 @@ const apiClient = axios.create({
 apiClient.interceptors.request.use(async (config) => {
   const session = await getSession();
 
-  if (session?.accessToken) {
-    config.headers.Authorization = `Bearer ${session.accessToken}`;
+  if (session?.access_token) {
+    config.headers.Authorization = `Bearer ${session.access_token}`;
   }
 
   return config;
@@ -28,7 +28,7 @@ apiClient.interceptors.response.use(
 
         // Forzar actualización del token
         const newSession = await apiClient.post('/auth/refresh-token', {
-          refreshToken: session?.refreshToken
+          refresh_token: session?.refresh_token
         });
 
         // Actualizar sesión de NextAuth
@@ -36,13 +36,13 @@ apiClient.interceptors.response.use(
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            accessToken: newSession.data.accessToken,
-            refreshToken: newSession.data.refreshToken
+            access_token: newSession.data.access_token,
+            refresh_token: newSession.data.refresh_token
           })
         });
 
         // Reintentar solicitud original
-        originalRequest.headers.Authorization = `Bearer ${newSession.data.accessToken}`;
+        originalRequest.headers.Authorization = `Bearer ${newSession.data.access_token}`;
         return apiClient(originalRequest);
 
       } catch (refreshError) {
