@@ -5,6 +5,7 @@ namespace NodeJS {
     NEXTAUTH_SECRET: string;
     DATABASE_URL: string;
     API_SECRET: string;
+    
     El_TOKE: string;
   }
 }
