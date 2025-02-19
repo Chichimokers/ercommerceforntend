@@ -298,36 +298,6 @@ export const authOptions: NextAuthOptions = {
       }
       return session;
     },
-    /*async signIn({ account, user, profile }) {
-      if (account?.provider === "google") {
-        try {
-          const response = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL}auth/google/callback`,
-            {
-              method: 'GET',
-              headers: {
-                Authorization: `Bearer ${account.access_token}`
-              }
-            }
-          );
-
-          const data = await response.json();
-
-          account.access_token = data.access_token;
-          account.refresh_token = data.refresh_token;
-          user.exp = data.expiresIn;
-          user.id = data.user.id || profile?.sub
-          user.email = data.user.email || profile?.email
-          user.name = data.user.name || profile?.name
-
-          return true;
-        } catch (error) {
-          console.error('Error en callback:', error);
-          return false;
-        }
-      }
-      return true;
-    }*/
   },
   pages: {
     error: "/auth/error",

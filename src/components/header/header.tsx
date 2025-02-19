@@ -22,14 +22,22 @@ import { ProductBase } from "../../types/types";
 
 const IconButton = dynamic(() => import("@/components/buttons/cart-button"), {
   loading: () => (
-    <div className="w-8 h-8 bg-default-200 rounded-full animate-pulse" />
+    <div className="w-10 h-10 bg-default-200 rounded-full animate-pulse" />
   )
 });
 
 const AccountButton = dynamic(
-  () => import("@/components/buttons/account-button")
+  () => import("@/components/buttons/account-button"), {
+  loading: () => (
+    <div className="w-10 h-10 bg-default-200 rounded-full animate-pulse" />
+  )
+}
 );
-const DrawerCart = dynamic(() => import("@/components/drawers/drawer-cart"));
+const DrawerCart = dynamic(() => import("@/components/drawers/drawer-cart"), {
+  loading: () => (
+    <div className="w-10 h-10 bg-default-200 rounded-full animate-pulse" />
+  )
+});
 
 const SearchInput = () => {
   const [searchTerm, setSearchTerm] = useState("");
