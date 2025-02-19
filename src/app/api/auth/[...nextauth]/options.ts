@@ -249,7 +249,6 @@ export const authOptions: NextAuthOptions = {
             : account.access_token;
         const payload = await decodeJWT(finalToken!);
 
-        console.log('Voy a retornar')
         return {
           ...token,
           access_token: finalToken,
