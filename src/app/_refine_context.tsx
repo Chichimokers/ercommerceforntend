@@ -7,7 +7,6 @@ import { usePathname } from "next/navigation";
 import React from "react";
 import Image from "next/image";
 import routerProvider from "@refinedev/nextjs-router";
-import "@styles/global.css";
 import { Spinner } from "@heroui/react";
 import { customDataProvider } from "@providers/data-provider";
 
@@ -74,14 +73,13 @@ const App = (props: React.PropsWithChildren<AppProps>) => {
 			};
 		},
 		check: async () => {
+			console.log(status)
 			return status === "authenticated"
 				? { authenticated: true }
 				: {
-						authenticated: false,
-						redirectTo:
-							"/api/auth/signin?callbackUrl=" +
-							encodeURIComponent(window.location.href),
-					};
+					authenticated: false,
+					redirectTo: "/api/auth/signin?callbackUrl=" + encodeURIComponent(window.location.href)
+				};
 		},
 		getPermissions: async () => {
 			return null;
@@ -91,7 +89,6 @@ const App = (props: React.PropsWithChildren<AppProps>) => {
 				const { user } = data;
 				return {
 					name: user.name,
-					avatar: user.image,
 				};
 			}
 

@@ -13,8 +13,8 @@ const axiosInstance = axios.create({
 
 axiosInstance.interceptors.request.use(async (config) => {
 	const session = await getSession();
-	if (session?.accessToken) {
-		config.headers.Authorization = `Bearer ${session.accessToken}`;
+	if (session?.access_token) {
+		config.headers.Authorization = `Bearer ${session.access_token}`;
 	}
 	return config;
 });

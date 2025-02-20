@@ -22,14 +22,22 @@ import { ProductBase } from "../../types/types";
 
 const IconButton = dynamic(() => import("@/components/buttons/cart-button"), {
   loading: () => (
-    <div className="w-8 h-8 bg-default-200 rounded-full animate-pulse" />
+    <div className="w-10 h-10 bg-default-200 rounded-full animate-pulse" />
   )
 });
 
 const AccountButton = dynamic(
-  () => import("@/components/buttons/account-button")
+  () => import("@/components/buttons/account-button"), {
+  loading: () => (
+    <div className="w-10 h-10 bg-default-200 rounded-full animate-pulse" />
+  )
+}
 );
-const DrawerCart = dynamic(() => import("@/components/drawers/drawer-cart"));
+const DrawerCart = dynamic(() => import("@/components/drawers/drawer-cart"), {
+  loading: () => (
+    <div className="w-10 h-10 bg-default-200 rounded-full animate-pulse" />
+  )
+});
 
 const SearchInput = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -115,7 +123,10 @@ const SearchInput = () => {
 export const Header = ({ className }: { className?: string }) => {
   const pathname = usePathname();
   const isCartPage = pathname === "/shopping-cart";
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
+
+  // Evitar renderizado hasta tener el estado de sesión definido
+  if (status === "loading") return null;
 
   return (
     <HerouiNavbar
@@ -130,10 +141,8 @@ export const Header = ({ className }: { className?: string }) => {
             href="/"
           >
             <Image
-              priority
               alt="Company Logo"
               height={60}
-              loading="eager"
               src="/logonav.png"
               width={140}
               className="h-12 w-auto object-contain flex-shrink-0"
@@ -159,7 +168,6 @@ export const Header = ({ className }: { className?: string }) => {
               />
             </>
           )}
-
           {session ? <AccountButton /> : <LoginButton />}
         </NavbarItem>
       </NavbarContent>

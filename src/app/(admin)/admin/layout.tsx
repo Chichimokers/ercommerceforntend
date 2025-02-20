@@ -16,6 +16,7 @@ import { ConfigProvider, App } from "antd";
 import { theme } from "antd";
 import { useTheme } from "next-themes";
 import { customDataProvider } from "@providers/data-provider";
+import { RefineContext } from "@app/_refine_context";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
 	const { resolvedTheme } = useTheme();
@@ -75,12 +76,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 							show: "/admin/orders/show/:id",
 							meta: { label: "Pedidos", icon: <ShoppingOutlined /> },
 						},
-						{
-							name: "users",
-							list: "/admin/users",
-							meta: { label: "Usuarios", icon: <UserOutlined /> },
-						},
-						// Nuevos recursos
+					
+						
 						{
 							name: "category",
 							list: "/admin/category",

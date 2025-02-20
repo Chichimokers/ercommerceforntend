@@ -18,11 +18,6 @@ const CustomQRCode = ({ value }: { value: string }) => {
         borderColor: isDark ? "#3a3a3a" : "#e5e5e5",
       }}
     >
-      {/* Efecto de brillo dinámico */}
-      <div className="absolute inset-0 overflow-hidden rounded-2xl">
-        <div className="absolute -inset-[100%] animate-spin-slow [background:linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.3)_50%,transparent_75%)] opacity-20 group-hover:opacity-30 transition-opacity"
-          style={{ mixBlendMode: isDark ? 'screen' : 'overlay' }} />
-      </div>
 
       {/* Marco interno sutil */}
       <div className="absolute rounded-xl border"

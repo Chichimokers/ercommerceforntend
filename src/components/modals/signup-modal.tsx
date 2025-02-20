@@ -13,7 +13,6 @@ import {
 } from "@heroui/react";
 import Image from "next/image";
 import {
-  FaFacebook,
   FaGoogle,
   FaLink,
   FaLock,
@@ -35,6 +34,7 @@ import { EyeSlashFilledIcon } from "../images/eye-slash-icon";
 import { EyeFilledIcon } from "../images/eye-filled";
 import { usePathname, useRouter } from "next/navigation";
 import { CustomButton } from "../buttons/custom-button";
+import { signIn } from "next-auth/react";
 
 interface FormData {
   fullName: string;
@@ -174,17 +174,9 @@ export default function SignUp({
         variant="bordered"
         className="bg-transparent hover:bg-transparent"
         color="danger"
-        onClick={() => handleSocialSignUp("google")}
+        onClick={() => signIn('google')}
       >
         <FaGoogle className="fill-gray-700 dark:fill-gray-100" />
-      </CustomButton>
-      <CustomButton
-        variant="bordered"
-        className="bg-transparent hover:bg-transparent"
-        color="primary"
-        onClick={() => handleSocialSignUp("facebook")}
-      >
-        <FaFacebook className="fill-gray-700 dark:fill-gray-100" />
       </CustomButton>
     </div>
   );

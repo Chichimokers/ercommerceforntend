@@ -3,96 +3,117 @@ import { Order, Item } from "@/types/types";
 import { Chip } from "@heroui/react";
 import CustomQRCode from "../qr-code";
 import { CustomButton } from "../buttons/custom-button";
+import React from "react";
+import { Divider } from "@heroui/react";
+import { MapPinIcon } from "lucide-react";
 
-const OrderItem = ({ item }: { item: Item }) => (
-  <div className="flex items-center space-x-4 my-2">
+// Componente memoizado para items
+const OrderItem = React.memo(({ item }: { item: Item }) => (
+  <div className="flex items-center gap-4 p-2 hover:bg-default-50 transition-colors rounded-md">
     <Image
-      alt={`Image of ${item.product.name}`}
+      alt={`Imagen de ${item.product.name}`}
       className="w-16 h-16 object-cover rounded-md shadow border border-default-200"
       height={100}
-      src={item.product.image || "/nophoto.jpeg"}
       width={100}
+      src={item.product.image || "/nophoto.jpeg"}
       unoptimized
       loading="lazy"
+      onError={(e) => {
+        (e.target as HTMLImageElement).src = "/nophoto.jpeg";
+      }}
     />
-    <div>
-      <h4 className="font-medium text-base">{item.product.name}</h4>
-      <p className="text-sm text-gray-600 dark:text-gray-400">
-        Cantidad: {item.quantity}
-      </p>
-      <p className="text-sm font-semibold text-gray-800 dark:text-gray-200">
-        Precio: ${item.product.price.toFixed(2)}
-      </p>
+    <div className="flex-1 min-w-0">
+      <h4 className="font-medium text-base truncate">{item.product.name}</h4>
+      <div className="flex justify-between items-baseline gap-2">
+        <span className="text-sm text-default-600">Cantidad: {item.quantity}</span>
+        <span className="text-sm font-semibold text-default-900">
+          ${item.product.price.toFixed(2)}
+        </span>
+      </div>
     </div>
+  </div>
+));
+
+OrderItem.displayName = 'OrderItem';
+
+// Subcomponente para el encabezado
+const OrderHeader = ({ order }: { order: Order }) => (
+  <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm px-4 pt-4">
+    <div className="flex justify-between items-start gap-4 min-w-[260px]">
+      <div className="space-y-2">
+        <h4 className="text-xl font-semibold">Orden #{order.id.slice(0, 6)}</h4>
+        <p className="text-sm text-default-600">
+          <MapPinIcon className="inline mr-1" />
+          {order.province}
+        </p>
+        <OrderStatus status={order.status} />
+      </div>
+      <CustomQRCode value={order.id} />
+    </div>
+    <Divider className="mt-4" />
   </div>
 );
 
-const OrderComponent = ({
-  order,
-  onCancelOrder,
-}: {
-  order: Order;
-  onCancelOrder?: (orderId: string) => void;
-}) => {
+// Componente para el estado con colores consistentes
+const OrderStatus = ({ status }: { status: Order['status'] }) => {
+  const statusColors = {
+    Enviada: 'primary',
+    Procesando: 'warning',
+    Completada: 'success'
+  } as const;
+
   return (
-    <div
-      className={
-        "md:border md:rounded-xl md:overflow-hidden md:mb-4 md:border-default-200 md:bg-default-100 md:shadow-lg md:transition-all"
-      }
-    >
-      {/* Contenedor principal con tamaño fijo */}
-      <div className="h-[410px] max-h-[410px] flex flex-col overflow-hidden w-full">
-        {/* Sección fija dentro del contenedor (ID, QR, Fecha, Estado) */}
-        <div className="sticky top-0 z-10 px-4 pt-4">
-          <div className="flex justify-between items-start min-w-[280]">
-            <div>
-              <h4 className="text-xl font-semibold">ID: {order.id}</h4>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                Lugar: {order.province}
-              </p>
-              <Chip
-                color={
-                  order.status === "Enviada"
-                    ? "primary"
-                    : order.status === "Procesando"
-                    ? "warning"
-                    : "success"
-                }
-                variant="flat"
-              >
-                <span className={`font-medium`}>{order.status}</span>
-              </Chip>
-            </div>
-            <CustomQRCode value={order.id} />
-          </div>
-        </div>
-
-        <div className="border-b border-default-200 mt-4"></div>
-
-        {/* Sección de productos desplazable */}
-        <div className="overflow-y-auto flex-1 mt-2 px-4">
-          {order.orderItems.map((item, index) => (
-            <OrderItem key={index} item={item} />
-          ))}
-        </div>
-
-        {/* Sección fija para precio total y botón */}
-        <div className="sticky bottom-0 z-10 p-4">
-          <p className="text-lg font-semibold mb-4">
-            Total: ${order.subtotal.toFixed(2)}
-          </p>
-          <CustomButton
-            color="danger"
-            className="w-full"
-            onClick={() => onCancelOrder?.(order.id)}
-            isDisabled={order.status !== "Procesando"}
-          >
-            Cancelar Orden
-          </CustomButton>
-        </div>
-      </div>
-    </div>
+    <Chip color={statusColors[status as keyof typeof statusColors]} variant="dot" radius="sm">
+      <span className="font-medium text-sm">{status}</span>
+    </Chip>
   );
 };
+
+// Componente para la lista de productos
+const OrderProductList = ({ items }: { items: Item[] }) => (
+  <div className="overflow-y-auto flex-1 p-4 space-y-2">
+    {items.map((item) => (
+      <OrderItem key={item.id} item={item} />
+    ))}
+  </div>
+);
+
+// Componente para el pie de orden
+const OrderFooter = ({ order, onCancelOrder }: {
+  order: Order;
+  onCancelOrder?: (orderId: string) => void;
+}) => (
+  <div className="sticky bottom-0 z-10 bg-background/95 backdrop-blur-sm p-4 border-t border-default-200">
+    <div className="flex justify-between items-center mb-4">
+      <span className="font-semibold">Total:</span>
+      <span className="text-lg font-bold text-primary">
+        ${order.subtotal.toFixed(2)}
+      </span>
+    </div>
+    <CustomButton
+      color="danger"
+      variant="filled"
+      className="w-full shadow-lg"
+      onClick={() => onCancelOrder?.(order.id)}
+      isDisabled={order.status !== 'Procesando'}
+    >
+      Cancelar Orden
+    </CustomButton>
+  </div>
+);
+
+// Componente principal optimizado
+const OrderComponent = ({ order, onCancelOrder }: {
+  order: Order;
+  onCancelOrder?: (orderId: string) => void;
+}) => (
+  <div className="order-card-container">
+    <div className="order-card-content">
+      <OrderHeader order={order} />
+      <OrderProductList items={order.orderItems} />
+      <OrderFooter order={order} onCancelOrder={onCancelOrder} />
+    </div>
+  </div>
+);
 
 export default OrderComponent;
