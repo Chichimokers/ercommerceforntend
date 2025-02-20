@@ -4,7 +4,7 @@ import { Authenticated, Refine } from "@refinedev/core";
 import { ThemedLayoutV2, useNotificationProvider } from "@refinedev/antd";
 import { AntdRegistry } from "@ant-design/nextjs-registry";
 import NextRouterProvider from "@refinedev/nextjs-router/app";
-
+import dataProvider from "@refinedev/simple-rest";
 import { authProvider } from "@/providers/auth-provider";
 import {
 	GoogleOutlined,
@@ -36,6 +36,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 				<Refine
 					routerProvider={NextRouterProvider}
 					dataProvider={customDataProvider}
+					authProvider={authProvider}
 					notificationProvider={useNotificationProvider}
 					resources={[
 						{
@@ -67,14 +68,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 							list: "/admin",
 							meta: { label: "Panel", icon: <GoogleOutlined /> },
 						},
-						{
-							name: "products",
-							list: "/admin/products",
-							create: "/admin/products/create",
-							edit: "/admin/products/edit/:id",
-							show: "/admin/products/show/:id",
-							meta: { label: "Productos", icon: <ProductOutlined /> },
-						},
+						
 						{
 							name: "orders",
 							list: "/admin/orders",
@@ -82,8 +76,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 							meta: { label: "Pedidos", icon: <ShoppingOutlined /> },
 						},
 						{
-							name: "user",
-							list: "/admin/user",
+							name: "users",
+							list: "/admin/users",
 							meta: { label: "Usuarios", icon: <UserOutlined /> },
 						},
 						// Nuevos recursos
@@ -101,7 +95,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 							create: "/admin/sub_category/create",
 							edit: "/admin/sub_category/edit/:id",
 							show: "/admin/sub_category/show/:id",
-							meta: { label: "Sub_Categorías" },
+							meta: { label: "Sub Categorías" },
 						},
 						{
 							name: "payments",

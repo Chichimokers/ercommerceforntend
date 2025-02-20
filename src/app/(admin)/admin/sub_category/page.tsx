@@ -1,56 +1,36 @@
 "use client";
 
-import React from "react";
-import {
-	List,
-	useTable,
-	ShowButton,
-	EditButton,
-	DeleteButton,
-} from "@refinedev/antd";
-import { Table, Space } from "antd";
-import { BaseType, SubCategory } from "../../../../types/types"; // Ajusta la ruta según tu estructura
+import { ColumnType } from "antd/es/table";
+import { BaseType, SubCategory } from "../../../../types/types";
+import GenericList from "@components/generic_admin_pages/genericListPage";
 
 const SubCategoryList: React.FC = () => {
-	// Hook para obtener y paginar la lista de subcategorías
-	const { tableProps } = useTable<SubCategory & BaseType>({
-		sorters: { initial: [{ field: "name", order: "asc" }] },
-	});
+  const columns: ColumnType<SubCategory & BaseType>[] = [
+    {
+      title: "Id",
+      dataIndex: "id",
+    },
+    {
+      title: "Nombre",
+      dataIndex: "name",
+      sorter: true,
+    },
+    {
+      title: "Categoría",
+      dataIndex: "categoryId",
+      render: (categoryId: string) => `Id: ${categoryId}`,
+      sorter: true,
+    },
+  ];
 
-	// Definición de las columnas para la tabla
-	const columns = [
-		{
-			title: "ID",
-			dataIndex: "id",
-			sorter: true,
-		},
-		{
-			title: "Nombre",
-			dataIndex: "name",
-			sorter: true,
-		},
-		{
-			title: "Categoría",
-			dataIndex: "categoryId",
-			render: (categoryId: string) => `ID: ${categoryId}`,
-		},
-		{
-			title: "Acciones",
-			render: (_: any, record: SubCategory) => (
-				<Space>
-					<ShowButton recordItemId={record.id} resource="sub_categories" />
-					<EditButton recordItemId={record.id} resource="sub_categories" />
-					<DeleteButton recordItemId={record.id} resource="sub_categories" />
-				</Space>
-			),
-		},
-	];
-
-	return (
-		<List title="Sub Categorías">
-			<Table {...tableProps} columns={columns} rowKey="id" />
-		</List>
-	);
+  return (
+    <GenericList<SubCategory & BaseType>
+      resource="sub_category"
+      title="Sub Categorías"
+      columns={columns}
+      pageSize={10}
+    />
+  );
 };
 
 export default SubCategoryList;

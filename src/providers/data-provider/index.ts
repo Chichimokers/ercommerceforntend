@@ -21,13 +21,14 @@ axiosInstance.interceptors.request.use(async (config) => {
 
 export const customDataProvider: DataProvider = {
 	getList: async ({ resource, pagination }) => {
-		const params = {
-			/*page: pagination?.current,
-      limit: pagination?.pageSize,*/
-		};
+		//const params = {
+		//		_start: pagination?.current - 1,
+		//	_end: pagination?.pageSize,
+		//	};
+		//
 
-		const { data } = await axiosInstance.get(`/${resource}`, { params });
-
+		const { data } = await axiosInstance.get(`/${resource}`, {});
+		console.log(data.data)
 		return {
 			data: data.data || data,
 			total: data.total || data.length,
@@ -67,7 +68,7 @@ export const customDataProvider: DataProvider = {
 	custom: async () => {
 		const params = {
 			/*page: pagination?.current,
-      limit: pagination?.pageSize,*/
+			limit: pagination?.pageSize,*/
 		};
 
 		const { data } = await axiosInstance.get(`/sales`);

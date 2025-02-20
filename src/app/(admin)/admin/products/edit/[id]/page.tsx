@@ -1,168 +1,110 @@
 "use client";
-
-import { useForm, Edit } from "@refinedev/antd";
+import { useForm, useSelect } from "@refinedev/antd";
 import {
-	Form,
-	Input,
-	InputNumber,
-	Select,
-	Upload,
-	Button,
-	message,
-} from "antd";
-import { UploadOutlined } from "@ant-design/icons";
-import { ProductBase } from "../../../../types/types";
-import { useApiUrl } from "@refinedev/core";
-import axios from "axios";
+	BaseType,
+	Category,
+	ProductBase,
+	SubCategory,
+} from "../../../../../../types/types";
+import { Form, Input, Select, Button, Row, Col } from "antd";
+import { useParams } from "next/navigation";
 
-const { TextArea } = Input;
-
-export default function ProductEdit() {
-	const { formProps, saveButtonProps, queryResult } = useForm<ProductBase>({
+const EditProductPage: React.FC = () => {
+	const params = useParams();
+	const {
+		formProps,
+		saveButtonProps,
+		query: productResult,
+	} = useForm<ProductBase>({
 		resource: "products",
+		id: params.id ? String(params.id) : undefined,
 		action: "edit",
-		redirect: "list",
-		meta: {
-			method: "patch",
-		},
 	});
+	const product = productResult?.data?.data;
 
-	const apiUrl = useApiUrl();
-	const productData = queryResult?.data?.data;
+	const { selectProps: categorySelectProps, queryResult: categoriesResult } =
+		useSelect<Category & BaseType>({
+			resource: "category",
+		});
+	const categories = categoriesResult?.data?.data;
 
-	const normFile = (e: any) => {
-		if (Array.isArray(e)) {
-			return e;
-		}
-		return e?.fileList;
-	};
-
-	const handleImageUpload = async (options: any) => {
-		const { file, onSuccess, onError } = options;
-
-		try {
-			const formData = new FormData();
-			formData.append("file", file);
-
-			const response = await axios.post(`${apiUrl}/upload`, formData, {
-				headers: {
-					"Content-Type": "multipart/form-data",
-				},
-			});
-
-			onSuccess(response.data.url);
-		} catch (error) {
-			onError("Error al subir la imagen");
-			console.error("Upload error:", error);
-		}
-	};
-
-	return (
-		<Edit saveButtonProps={saveButtonProps}>
-			<Form {...formProps} layout="vertical">
-				<Form.Item
-					label="Nombre"
-					name="name"
-					rules={[{ required: true, message: "Por favor ingrese el nombre" }]}
-				>
-					<Input />
-				</Form.Item>
-
-				<Form.Item
-					label="Precio"
-					name="price"
-					rules={[{ required: true, message: "Por favor ingrese el precio" }]}
-				>
-					<InputNumber
-						min={0}
-						formatter={(value) =>
-							`$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-						}
-						parser={(value) => value!.replace(/\$\s?|(,*)/g, "")}
-						style={{ width: "100%" }}
-					/>
-				</Form.Item>
-
-				<Form.Item
-					label="Cantidad"
-					name="quantity"
-					rules={[{ required: true, message: "Por favor ingrese la cantidad" }]}
-				>
-					<InputNumber min={0} style={{ width: "100%" }} />
-				</Form.Item>
-
-				<Form.Item
-					label="Descripción Corta"
-					name="short_description"
-					rules={[
-						{
-							required: true,
-							message: "Por favor ingrese una descripción corta",
-						},
-					]}
-				>
-					<TextArea rows={3} />
-				</Form.Item>
-
-				<Form.Item
-					label="Descripción"
-					name="description"
-					rules={[
-						{ required: true, message: "Por favor ingrese la descripción" },
-					]}
-				>
-					<TextArea rows={6} />
-				</Form.Item>
-
-				<Form.Item
-					label="Imagen"
-					name="image"
-					valuePropName="fileList"
-					getValueFromEvent={normFile}
-				>
-					<Upload
-						name="image"
-						listType="picture"
-						customRequest={handleImageUpload}
-						maxCount={1}
-					>
-						<Button icon={<UploadOutlined />}>Subir Imagen</Button>
-					</Upload>
-				</Form.Item>
-
-				<Form.Item
-					label="Categoría"
-					name="product_category"
-					rules={[
-						{ required: true, message: "Por favor seleccione una categoría" },
-					]}
-				>
-					<Select>
-						<Select.Option value="Electrónica">Electrónica</Select.Option>
-						<Select.Option value="Ropa">Ropa</Select.Option>
-						<Select.Option value="Hogar">Hogar</Select.Option>
-						<Select.Option value="Alimentos">Alimentos</Select.Option>
-					</Select>
-				</Form.Item>
-
-				<Form.Item
-					label="Subcategoría"
-					name="product_subcategory"
-					rules={[
-						{
-							required: true,
-							message: "Por favor seleccione una subcategoría",
-						},
-					]}
-				>
-					<Select>
-						<Select.Option value="Smartphones">Smartphones</Select.Option>
-						<Select.Option value="Laptops">Laptops</Select.Option>
-						<Select.Option value="Accesorios">Accesorios</Select.Option>
-						<Select.Option value="Audio">Audio</Select.Option>
-					</Select>
-				</Form.Item>
-			</Form>
-		</Edit>
+	const categoryOfProduct = categories?.find(
+		(category) => Number(category.name) === Number(product?.category),
 	);
-}
+	const {
+		selectProps: subCategorySelectProps,
+		queryResult: subCategoriesResult,
+	} = useSelect<SubCategory & BaseType>({
+		resource: "sub_category",
+	});
+	const scat = subCategoriesResult?.data?.data;
+	const subcategoryOfProduct = scat?.filter(
+		(sc) => sc.id === categoryOfProduct?.id,
+	);
+	return (
+		<>
+			<Row
+				justify="center"
+				style={{
+					paddingTop: 24,
+					paddingBottom: 24,
+				}}
+			>
+				<Col
+					style={{
+						textAlign: "center",
+					}}
+				>
+					<h2>{`Editar Producto: "${product?.name}"`}</h2>
+					<h2>{`Categoria: ${categoryOfProduct?.name}`}</h2>
+					<h2>{`Sub-Categoria: ${product?.subcategory || "N/A"}`}</h2>
+					<h2>{`Precio: ${product?.price}`}</h2>
+				</Col>
+			</Row>
+			<Row justify="center">
+				<Col span={12}>
+					<Form {...formProps} layout="vertical">
+						<Form.Item
+							label="Name"
+							name="name"
+							rules={[
+								{
+									required: true,
+								},
+							]}
+						>
+							<Input />
+						</Form.Item>
+						<Form.Item
+							label="Categoria"
+							name={["category", "id"]}
+							rules={[
+								{
+									required: true,
+								},
+							]}
+						>
+							<Select {...categorySelectProps} />
+						</Form.Item>
+						<Form.Item
+							label="Sub-Categoria"
+							name={["subcategory", "id"]}
+							rules={[
+								{
+									required: true,
+								},
+							]}
+						>
+							<Select {...categorySelectProps} />
+						</Form.Item>
+
+						<Button type="primary" {...saveButtonProps}>
+							Save
+						</Button>
+					</Form>
+				</Col>
+			</Row>
+		</>
+	);
+};
+export default EditProductPage;

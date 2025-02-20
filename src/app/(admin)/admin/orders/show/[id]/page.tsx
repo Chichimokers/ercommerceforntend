@@ -1,58 +1,69 @@
 "use client";
-
 import React from "react";
-import { useShow, IResourceComponentsProps } from "@refinedev/core";
-import { Show, EditButton, ListButton } from "@refinedev/antd";
-import { Order, BaseType } from "../../../../../../types/types";
-import { Typography, Descriptions } from "antd";
+import { useShow } from "@refinedev/core";
+import { BaseType, Order } from "../../../../../../types/types";
+import { Descriptions, Tag } from "antd";
+import GenericShow from "@components/generic_admin_pages/genericShowPage";
 
-const { Title } = Typography;
+const getStatusColor = (status: string) => {
+  const colors: { [key: string]: string } = {
+    pending: "orange",
+    accepted: "blue",
+    paid: "green",
+    cancelled: "red"
+  };
+  return colors[status] || "default";
+};
 
-const OrderShow: React.FC<IResourceComponentsProps> = () => {
-	const { queryResult } = useShow<Order & BaseType>({
-		resource: "orders",
-	});
+const OrderShow = () => {
+  const { queryResult } = useShow<Order & BaseType>({
+    resource: "orders",
+  });
 
-	const { data, isLoading } = queryResult;
-	const record = data?.data;
+  const { data, isLoading } = queryResult;
+  const record = data?.data;
 
-	if (isLoading) {
-		return <div>Cargando...</div>;
-	}
+  return (
+    <GenericShow<Order & BaseType>
+      resource="orders"
+      titleField="id"
+    >
+      <Descriptions.Item label="Cliente">
+        {record?.receiver_name}
+      </Descriptions.Item>
 
-	return (
-		<Show title={<Title level={3}>Detalles de la Orden #{record?.id}</Title>}>
-			{/* Botones de acción: Editar y Volver a la lista */}
-			<div style={{ marginBottom: 16 }}>
-				<EditButton recordItemId={record?.id} resource="orders" />
-				<ListButton />
-			</div>
+      <Descriptions.Item label="Teléfono">
+        {record?.phone}
+      </Descriptions.Item>
 
-			{/* Detalle de la orden usando Descriptions */}
-			<Descriptions bordered column={1}>
-				<Descriptions.Item label="Fecha">
-					{record?.created_at
-						? new Date(record.created_at).toLocaleDateString()
-						: "N/A"}
-				</Descriptions.Item>
-				<Descriptions.Item label="Cliente">
-					{record?.receiver_name} - {record?.phone}
-				</Descriptions.Item>
-				<Descriptions.Item label="Ubicación">
-					{record?.province} - {record?.address}
-				</Descriptions.Item>
-				<Descriptions.Item label="Identificación">
-					{record?.CI || "N/A"}
-				</Descriptions.Item>
-				<Descriptions.Item label="Monto">
-					${record?.subtotal.toFixed(2)}
-				</Descriptions.Item>
-				<Descriptions.Item label="Estado">
-					{record?.status.toUpperCase()}
-				</Descriptions.Item>
-			</Descriptions>
-		</Show>
-	);
+      <Descriptions.Item label="Ubicación">
+        <div>
+          <div><strong>Provincia:</strong> {record?.province}</div>
+          <div><strong>Dirección:</strong> {record?.address}</div>
+        </div>
+      </Descriptions.Item>
+
+      <Descriptions.Item label="Identificación">
+        {record?.CI || "N/A"}
+      </Descriptions.Item>
+
+      <Descriptions.Item label="Monto">
+        ${Number(record?.subtotal).toFixed(2)}
+      </Descriptions.Item>
+
+      <Descriptions.Item label="Estado del Pedido">
+        <Tag color={getStatusColor(record?.status || '')}>
+          {record?.status?.toUpperCase()}
+        </Tag>
+      </Descriptions.Item>
+
+      {record?.stripe_id && (
+        <Descriptions.Item label="ID de Stripe">
+          {record.stripe_id}
+        </Descriptions.Item>
+      )}
+    </GenericShow>
+  );
 };
 
 export default OrderShow;
