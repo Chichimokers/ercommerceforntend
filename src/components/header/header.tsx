@@ -136,16 +136,17 @@ export const Header = ({ className }: { className?: string }) => {
       <NavbarContent className="sm:basis-full max-w-fit" justify="start">
         <NavbarBrand className="gap-3 max-w-none">
           <Link
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 w-[160] h-[60]"
             color="foreground"
             href="/"
           >
             <Image
               alt="Company Logo"
+              loading="lazy"
+              width={160}
               height={60}
               src="/logonav.png"
-              width={140}
-              className="h-12 w-auto object-contain flex-shrink-0"
+              className="w-auto object-contain flex-shrink-0"
             />
           </Link>
         </NavbarBrand>

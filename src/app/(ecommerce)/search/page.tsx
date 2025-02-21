@@ -39,7 +39,7 @@ export default function SearchPage() {
         <div className="grid grid-cols-2 gap-4 xm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
           {[...Array(12)].map((_, i) => (
             <div key={i} className="group">
-              <div className="h-72 bg-gray-100 dark:bg-gray-700 animate-pulse rounded-xl" />
+              <div className="h-72 bg-gray-100 dark:bg-gray-700 animate-pulse rounded-lg" />
               <div className="mt-4 space-y-2">
                 <div className="h-4 bg-gray-200 dark:bg-gray-600 rounded w-3/4" />
                 <div className="h-4 bg-gray-200 dark:bg-gray-600 rounded w-1/2" />

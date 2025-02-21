@@ -4,7 +4,7 @@ import dynamic from "next/dynamic";
 const PromisesCard = dynamic(() => import("../cards/promises-card"), {
   loading: () => (
     <div
-      className="group w-full h-full bg-gray-200 dark:bg-gray-700 bg-opacity-40 backdrop-blur-sm p-6 rounded-xl animate-pulse"
+      className="group w-full h-full bg-gray-200 dark:bg-gray-700 bg-opacity-40 backdrop-blur-sm p-6 rounded-lg animate-pulse"
     >
       <div className="h-12 w-12 mb-4 rounded-full bg-gray-300 dark:bg-gray-600"></div>
       <div className="h-6 w-3/4 mb-3 rounded-lg bg-gray-300 dark:bg-gray-600"></div>

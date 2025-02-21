@@ -36,7 +36,7 @@ export default function IndexPage() {
         <LazyFeaturedProducts products={rating_products} />
 
         <SecondaryBannerSlider
-          className="rounded-xl border-4 border-default-50/50 shadow-lg"
+          className="rounded-lg border-4 border-default-50/50 shadow-lg"
           banners={banners}
         />
       </div>
@@ -69,10 +69,10 @@ const FeaturedProducts = ({ products }: { products: ProductBase[] }) => {
             iconSize={80}
           >
             <div className="flex gap-4 mt-6">
-              <button className="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-all transform hover:-translate-y-1">
+              <button className="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all transform hover:-translate-y-1">
                 Explorar categorías
               </button>
-              <button className="px-8 py-3 bg-gray-900 hover:bg-gray-800 text-white rounded-xl transition-all transform hover:-translate-y-1">
+              <button className="px-8 py-3 bg-gray-900 hover:bg-gray-800 text-white rounded-lg transition-all transform hover:-translate-y-1">
                 Ver ofertas
               </button>
             </div>
@@ -100,7 +100,7 @@ const LazyFeaturedProducts = dynamic(
         <div className="h-8 bg-gray-200 dark:bg-gray-600 rounded w-64 mb-4 mx-4"></div>
         <div className="grid grid-cols-2 gap-2 px-4 xm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7">
           {[...Array(6)].map((_, i) => (
-            <div key={i} className="h-64 bg-gray-50 dark:bg-gray-800 rounded-xl animate-pulse"></div>
+            <div key={i} className="h-64 bg-gray-50 dark:bg-gray-800 rounded-lg animate-pulse"></div>
           ))}
         </div>
       </>

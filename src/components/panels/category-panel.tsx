@@ -6,7 +6,7 @@ import { getCategoryIcon } from "../filters/categories";
 // Carga dinámica de componentes
 const CategoryCard = dynamic(() => import("@/components/cards/category-cards"), {
   loading: () => (
-    <div className="flex-shrink-0 snap-center w-36 md:w-40 h-36 md:h-40 animate-pulse bg-gray-100 dark:bg-gray-800 rounded-xl" />
+    <div className="flex-shrink-0 snap-center w-36 md:w-40 h-36 md:h-40 animate-pulse bg-gray-100 dark:bg-gray-800 rounded-lg" />
   )
 });
 
@@ -23,7 +23,7 @@ const CategoryPanel = () => {
             icon={
               <span className="relative text-blue-600/90 dark:text-blue-300/90 transition-transform group-hover:scale-110">
                 <FaTh />
-                <span className="absolute inset-0 bg-gradient-to-br from-white/30 dark:from-neutral-700/30 to-transparent rounded-xl opacity-0 group-hover:opacity-100 transition-opacity" />
+                <span className="absolute inset-0 bg-gradient-to-br from-white/30 dark:from-neutral-700/30 to-transparent rounded-lg opacity-0 group-hover:opacity-100 transition-opacity" />
               </span>
             }
             size="lg"
@@ -46,7 +46,7 @@ const CategoryPanel = () => {
                 icon={
                   <span className="relative text-blue-600/90 dark:text-blue-300/90 transition-transform group-hover:scale-110">
                     <Icon />
-                    <span className="absolute inset-0 bg-gradient-to-br from-white/30 dark:from-neutral-700/30 to-transparent rounded-xl opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <span className="absolute inset-0 bg-gradient-to-br from-white/30 dark:from-neutral-700/30 to-transparent rounded-lg opacity-0 group-hover:opacity-100 transition-opacity" />
                   </span>
                 }
                 size="lg"

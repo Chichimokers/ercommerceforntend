@@ -68,7 +68,7 @@ export default function ShoppingCartPage() {
           <div className="col-span-2 space-y-6">
             {hasCartProducts && (
               <>
-                <div className="grid-cols-6 gap-4 hidden md:grid bg-default-100/50 px-6 py-4 rounded-xl shadow-sm items-center">
+                <div className="grid-cols-6 gap-4 hidden md:grid bg-default-100/50 px-6 py-4 rounded-lg shadow-sm items-center">
                   <div className="font-semibold col-span-3 text-default-600">Producto</div>
                   <div className="font-semibold text-center text-default-600">Precio Unitario</div>
                   <div className="font-semibold text-center text-default-600">Cantidad</div>
@@ -97,7 +97,7 @@ export default function ShoppingCartPage() {
 
             <div className="col-span-1 snap-center xs:col-span-2 md:col-span-1">
               <Summary
-                className="sticky top-24 rounded-xl shadow-lg bg-background"
+                className="sticky top-24 rounded-lg shadow-lg bg-background"
                 shipping={1}
                 subtotal={subtotal}
                 tax={0.15}

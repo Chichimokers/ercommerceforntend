@@ -31,7 +31,7 @@ export const CustomButton: React.FC<CustomButtonProps> = ({
   isLoading = false,
 }) => {
   const baseClasses = clsx(
-    "relative overflow-hidden rounded-xl focus:outline-none transition duration-200",
+    "relative overflow-hidden rounded-lg focus:outline-none transition duration-200",
     "flex flex-row gap-2 items-center justify-center",
     !isDisabled && !isLoading && "active:brightness-75"
   );

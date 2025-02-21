@@ -30,7 +30,7 @@ export default function ProductsSlider({
   }, []);
 
   return (
-    <div className={`xs:p-0 xl:px-16 ${styles.swiper_container} bg-gray-100 dark:bg-gray-700`}>
+    <div className={`xs:p-0 xl:px-16 ${styles.swiper_container} bg-gray-100 dark:bg-zinc-800`}>
       <Swiper
         navigation={
           isXLScreen

@@ -50,7 +50,7 @@ export const ProductGrid = React.memo(
             hover:bg-default-50 transition-colors`}
         >
           <div className="py-6 flex items-center col-span-2 lg:col-span-3">
-            <div className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-xl border-2 border-default-100 dark:border-default-800 mr-4 
+            <div className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-lg border-2 border-default-100 dark:border-default-800 mr-4 
               shadow-lg hover:shadow-md transition-all group">
               {imageStatus !== 'loaded' && (
                 <div className="absolute inset-0 animate-pulse bg-neutral-200 dark:bg-neutral-800" />

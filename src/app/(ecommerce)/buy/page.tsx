@@ -168,7 +168,7 @@ export default function Buy() {
                         {...methods.register("firstName")}
                         startContent={<UserCircleIcon className="h-5 w-5 text-default-400" />}
                         placeholder="Ej: Juan"
-                        className="group rounded-xl dark:bg-zinc-800 bg-zinc-50"
+                        className="group rounded-lg dark:bg-zinc-800 bg-zinc-50"
                         classNames={{
                           input: "group-hover:bg-zinc-100 dark:group-hover:bg-zinc-700 transition-colors"
                         }}
@@ -180,7 +180,7 @@ export default function Buy() {
                         {...methods.register("lastName")}
                         startContent={<UserCircleIcon className="h-5 w-5 text-default-400" />}
                         placeholder="Ej: Pérez García"
-                        className="rounded-xl dark:bg-zinc-800 bg-zinc-50"
+                        className="rounded-lg dark:bg-zinc-800 bg-zinc-50"
                       />
                     </FormField>
                   </div>
@@ -199,7 +199,7 @@ export default function Buy() {
                         {...methods.register("phone")}
                         startContent={<span className="text-default-400">+53</span>}
                         placeholder="59009301"
-                        className="rounded-xl dark:bg-zinc-800 bg-zinc-50"
+                        className="rounded-lg dark:bg-zinc-800 bg-zinc-50"
                       />
                     </FormField>
                   </div>

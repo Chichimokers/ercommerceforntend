@@ -20,7 +20,7 @@ const CustomQRCode = ({ value }: { value: string }) => {
     >
 
       {/* Marco interno sutil */}
-      <div className="absolute rounded-xl border"
+      <div className="absolute rounded-lg border"
         style={{ borderColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' }} />
 
       <QRCodeCanvas

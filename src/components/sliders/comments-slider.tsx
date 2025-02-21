@@ -40,7 +40,7 @@ const CommentsSlider = ({ comments }: { comments: Comment[] }) => {
       >
         {comments.map((comment) => (
           <SwiperSlide key={comment.id}>
-            <div className="bg-slate-300 bg-opacity-40 dark:bg-zinc-600 dark:bg-opacity-40 p-4 rounded-xl shadow m-4 h-[180px] lg:h-[220px] xxs:h-[200px] xs:h-[250px] xl:h-[180px] 2xl:h-[180px]">
+            <div className="bg-slate-300 bg-opacity-40 dark:bg-zinc-600 dark:bg-opacity-40 p-4 rounded-lg shadow m-4 h-[180px] lg:h-[220px] xxs:h-[200px] xs:h-[250px] xl:h-[180px] 2xl:h-[180px]">
               <p className="text-2xl font-bold mb-2 select-none cursor-default">
                 &quot;{comment.text}&quot;
               </p>

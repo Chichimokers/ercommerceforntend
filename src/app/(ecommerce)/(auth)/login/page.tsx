@@ -156,7 +156,7 @@ export default function Login() {
             <Input
               startContent={<FaMailBulk className="h-5 w-5 text-default-400" />}
               placeholder="you@example.com"
-              className="group rounded-xl dark:bg-zinc-800 bg-zinc-50"
+              className="group rounded-lg dark:bg-zinc-800 bg-zinc-50"
               classNames={{
                 input: "group-hover:bg-zinc-100 dark:group-hover:bg-zinc-700"
               }}
@@ -185,7 +185,7 @@ export default function Login() {
                   )}
                 </button>
               }
-              className="group rounded-xl dark:bg-zinc-800 bg-zinc-50"
+              className="group rounded-lg dark:bg-zinc-800 bg-zinc-50"
               classNames={{
                 input: "group-hover:bg-zinc-100 dark:group-hover:bg-zinc-700"
               }}

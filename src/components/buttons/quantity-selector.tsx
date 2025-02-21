@@ -19,7 +19,7 @@ const QuantityAdjuster = ({
   className?: string;
 }) => {
   return (
-    <div className={`${className} flex h-9 w-max md:w-[90] lg:w-[100] xl:max-w-[110] items-center rounded-xl border-2 border-default-400`}>
+    <div className={`${className} flex h-9 w-max md:w-[90] lg:w-[100] xl:max-w-[110] items-center rounded-lg border border-default-400`}>
       <EditProductQuantityButton
         type="minus"
         onClick={(e) => {

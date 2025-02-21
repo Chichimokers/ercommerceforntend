@@ -140,7 +140,7 @@ const ProductDetailPage = () => {
           </CustomButton>
         )}
         <Link
-          className="w-full flex flex-row items-center justify-center gap-2 relative overflow-hidden rounded-xl focus:outline-none transition bg-green-500 text-white hover:bg-green-600 text-base py-2 px-6 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full flex flex-row items-center justify-center gap-2 relative overflow-hidden rounded-lg focus:outline-none transition bg-green-500 text-white hover:bg-green-600 text-base py-2 px-6 disabled:opacity-50 disabled:cursor-not-allowed"
           href="/shopping-cart"
           onClick={
             !cartActions.isInCart && !cartActions.findInCartLocalStorage()
@@ -177,10 +177,10 @@ const ProductDetailPage = () => {
 
   return (
     <div className="w-full max-w-7xl mx-auto py-8 md:py-12 px-4 sm:px-6 lg:px-8">
-      <div className="bg-white dark:bg-gray-800 shadow-xl rounded-2xl p-6 md:p-8 lg:p-10">
+      <div className="bg-white dark:bg-zinc-900 shadow-xl rounded-2xl p-6 md:p-8 lg:p-10">
         <div className="flex flex-col md:flex-row gap-8 lg:gap-12">
           <div className="flex-shrink-0 md:w-1/2 lg:w-2/5">
-            <div className="relative group rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-700">
+            <div className="relative group rounded-lg overflow-hidden bg-gray-100 dark:bg-zinc-700">
               {!imageState.loaded && <Skeleton className="rounded-lg w-full h-96" />}
 
               <Image
@@ -202,7 +202,7 @@ const ProductDetailPage = () => {
             </div>
 
             <div className="mt-6 space-y-4">
-              <div className="flex items-center justify-between bg-gray-100 dark:bg-gray-700 p-4 rounded-xl">
+              <div className="flex items-center justify-between bg-gray-100 dark:bg-zinc-700 p-4 rounded-lg">
                 <p className="text-3xl font-bold text-green-600 dark:text-green-400">
                   ${displayProduct.price}
                 </p>
@@ -217,7 +217,7 @@ const ProductDetailPage = () => {
                       getLocalStorageData={cartActions.getLocalStorageData}
                       productId={displayProduct.id}
                       maxLimit={displayProduct.quantity}
-                      className="bg-white dark:bg-gray-800 shadow-sm hover:shadow-md transition-shadow"
+                      className="bg-white dark:bg-zinc-800 shadow-sm hover:shadow-md transition-shadow"
                     />
                   </div>
                 )}
@@ -228,7 +228,7 @@ const ProductDetailPage = () => {
           </div>
 
           <div className="flex-1 mt-6 md:mt-0">
-            <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+            <h1 className="text-3xl lg:text-4xl font-bold text-zinc-900 dark:text-white mb-4">
               {displayProduct.name}
             </h1>
             <div className="prose dark:prose-invert max-w-none text-lg leading-relaxed">
@@ -249,7 +249,7 @@ const ProductDetailPage = () => {
 
         {!productState.loading && !productState.error && (
           <section className="mt-16">
-            <h3 className="text-2xl font-bold mb-6 text-gray-800 dark:text-white">
+            <h3 className="text-2xl font-bold mb-6 text-zinc-800 dark:text-white">
               Productos relacionados
             </h3>
             <RelationedProductSection id={displayProduct.id} />

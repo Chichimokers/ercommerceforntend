@@ -8,8 +8,8 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
   const pathname = usePathname();
 
   return (
-    <div className="min-h-screen">
-      <nav className="container mx-auto p-6 flex justify-center items-center">
+    <div className="min-h-screen inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-purple-500/10 to-transparent dark:from-purple-900/20">
+      <nav className="container mx-auto p-2 flex justify-center items-center">
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
@@ -53,7 +53,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       </nav>
 
       <div className="relative">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-purple-500/10 to-transparent dark:from-purple-900/20" />
+        <div className="absolute" />
         <motion.div
           key={pathname}
           initial={{ opacity: 0, y: 20 }}

@@ -68,7 +68,7 @@ export default function VerificationPage() {
   if (!isVerified) {
     return (
       <section className="p-4 flex flex-col items-center justify-center min-h-screen shadow-lg">
-        <div className="w-full max-w-md space-y-6 shadow-lg p-8 rounded-xl border border-default-100">
+        <div className="w-full max-w-md space-y-6 shadow-lg p-8 rounded-lg border border-default-100">
           <h1 className="text-3xl font-bold text-center">Verificación de Email</h1>
           <p className="text-gray-600 text-center">
             Hemos enviado un código de 6 dígitos a tu correo electrónico
