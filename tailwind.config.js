@@ -31,8 +31,8 @@ export default {
         "fade-in": "fade-in 0.3s ease-out forwards",
       },
       screens: {
+        xs: "320px",
         xxs: "380px",
-        xs: "480px",
         xm: "560px",
         sm: "640px",
         md: "768px",
