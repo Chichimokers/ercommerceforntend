@@ -168,7 +168,7 @@ export default function Buy() {
                         {...methods.register("firstName")}
                         startContent={<UserCircleIcon className="h-5 w-5 text-default-400" />}
                         placeholder="Ej: Juan"
-                        className="group rounded-lg dark:bg-zinc-800 bg-zinc-50"
+                        className="group rounded-xl dark:bg-zinc-800 bg-zinc-50"
                         classNames={{
                           input: "group-hover:bg-zinc-100 dark:group-hover:bg-zinc-700 transition-colors"
                         }}
@@ -180,7 +180,7 @@ export default function Buy() {
                         {...methods.register("lastName")}
                         startContent={<UserCircleIcon className="h-5 w-5 text-default-400" />}
                         placeholder="Ej: Pérez García"
-                        className="rounded-lg dark:bg-zinc-800 bg-zinc-50"
+                        className="rounded-xl dark:bg-zinc-800 bg-zinc-50"
                       />
                     </FormField>
                   </div>
@@ -199,7 +199,7 @@ export default function Buy() {
                         {...methods.register("phone")}
                         startContent={<span className="text-default-400">+53</span>}
                         placeholder="59009301"
-                        className="rounded-lg dark:bg-zinc-800 bg-zinc-50"
+                        className="rounded-xl dark:bg-zinc-800 bg-zinc-50"
                       />
                     </FormField>
                   </div>
@@ -231,9 +231,9 @@ export default function Buy() {
               {cart?.map((item) => {
                 const product = products.find(p => p.id === item.id);
                 return (
-                  <div key={item.id} className="flex items-center justify-between p-3 rounded-lg bg-zinc-50 dark:bg-zinc-800">
+                  <div key={item.id} className="flex items-center justify-between p-3 rounded-xl bg-zinc-50 dark:bg-zinc-800">
                     <div className="flex items-center gap-3">
-                      <div className="h-12 w-12 rounded-lg bg-zinc-200 dark:bg-zinc-700 overflow-hidden relative">
+                      <div className="h-12 w-12 rounded-xl bg-zinc-200 dark:bg-zinc-700 overflow-hidden relative">
                         <Image
                           alt={product?.name || 'producto'}
                           src={product?.image || '/nophoto.jpeg'}

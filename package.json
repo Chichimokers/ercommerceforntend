@@ -6,7 +6,7 @@
     "node": ">=18.0.0"
   },
   "scripts": {
-    "dev": "NODE_OPTIONS='--inspect' next dev",
+    "dev": "NODE_OPTIONS='--inspect' next dev --turbo",
     "build": "next build",
     "start": "next start",
     "pre": " npx dotenv -e environments/preprod.env -- next dev --turbo",
@@ -44,7 +44,6 @@
     "framer-motion": "^12.4.7",
     "google-libphonenumber": "^3.2.40",
     "intl-messageformat": "^10.7.15",
-    "keyv": "^5.2.3",
     "lodash.debounce": "^4.0.8",
     "lucide-react": "^0.475.0",
     "next": "15.1.7",
@@ -72,7 +71,6 @@
   },
   "devDependencies": {
     "@next/bundle-analyzer": "^15.1.7",
-    "@tailwindcss/postcss": "^4.0.7",
     "@types/google-libphonenumber": "^7.4.30",
     "@types/lodash.debounce": "^4.0.9",
     "@types/node": "^22.13.4",
@@ -81,19 +79,24 @@
     "@types/react-dom": "^19.0.4",
     "@types/tailwindcss": "^3.1.0",
     "@typescript-eslint/parser": "^8.24.1",
-    "autoprefixer": "^10.4.20",
+    "autoprefixer": "^10.4.19",
     "brotli-webpack-plugin": "^1.1.0",
+    "browserslist": "4.24.4",
     "compression-webpack-plugin": "^11.1.0",
     "cross-env": "^7.0.3",
     "eslint": "^9.20.1",
     "eslint-config-next": "^15.1.7",
     "eslint-import-resolver-typescript": "^3.8.3",
-    "postcss": "^8.5.3",
+    "keyv": "^4.5.4",
+    "postcss": "^8.4.31",
     "postcss-import": "^16.1.0",
-    "tailwindcss": "^4.0.7",
+    "tailwindcss": "3.4.1",
     "typescript": "^5.7.3"
   },
   "refine": {
     "projectId": "EM4vL2-DAtVDH-Ae1UPT"
+  },
+  "resolutions": {
+    "keyv": "4.5.4"
   }
 }

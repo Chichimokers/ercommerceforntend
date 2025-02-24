@@ -4,8 +4,6 @@ import type { NextConfig } from "next";
 
 
 const nextConfig: NextConfig = {
-  output: "standalone",
-  reactStrictMode: true,
 
   async headers() {
     return [
@@ -71,8 +69,6 @@ const nextConfig: NextConfig = {
 
     return config;
   },
-
-  serverExternalPackages: ["keyv", "pg"],
 };
 
 /*export default withBundleAnalyzer({

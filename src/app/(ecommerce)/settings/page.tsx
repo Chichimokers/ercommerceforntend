@@ -15,7 +15,7 @@ export default function SettingsPage() {
     <div>
       <ProfileImageSection />
       <div className="container mx-auto p-6 flex justify-center">
-        <div className="w-full max-w-4xl bg-white dark:bg-transparent p-4 md:p-6 rounded-lg">
+        <div className="w-full max-w-4xl bg-white dark:bg-transparent p-4 md:p-6 rounded-xl">
           <Form
             className=" w-full"
             validationBehavior="native"
@@ -69,7 +69,7 @@ export default function SettingsPage() {
                     classNames={{
                       base: cn(
                         "inline-flex flex-row-reverse w-full max-w-md bg-content1 hover:bg-content2 items-center",
-                        "justify-between cursor-pointer rounded-lg gap-2 p-4 border-2 border-transparent",
+                        "justify-between cursor-pointer rounded-xl gap-2 p-4 border-2 border-transparent",
                         "data-[selected=true]:border-primary"
                       ),
                       wrapper: "p-0 h-4 overflow-visible",
@@ -98,7 +98,7 @@ export default function SettingsPage() {
                     classNames={{
                       base: cn(
                         "inline-flex flex-row-reverse w-full max-w-md bg-content1 hover:bg-content2 items-center",
-                        "justify-between cursor-pointer rounded-lg gap-2 p-4 border-2 border-transparent",
+                        "justify-between cursor-pointer rounded-xl gap-2 p-4 border-2 border-transparent",
                         "data-[selected=true]:border-primary"
                       ),
                       wrapper: "p-0 h-4 overflow-visible",

@@ -140,7 +140,7 @@ const ProductDetailPage = () => {
           </CustomButton>
         )}
         <Link
-          className="w-full flex flex-row items-center justify-center gap-2 relative overflow-hidden rounded-lg focus:outline-none transition bg-green-500 text-white hover:bg-green-600 text-base py-2 px-6 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full flex flex-row items-center justify-center gap-2 relative overflow-hidden rounded-xl focus:outline-none transition bg-green-500 text-white hover:bg-green-600 text-base py-2 px-6 disabled:opacity-50 disabled:cursor-not-allowed"
           href="/shopping-cart"
           onClick={
             !cartActions.isInCart && !cartActions.findInCartLocalStorage()
@@ -157,7 +157,7 @@ const ProductDetailPage = () => {
 
   if (productState.error && id && !productState.loading) {
     return (
-      <div className="w-full mx-auto py-10 rounded-lg">
+      <div className="w-full mx-auto py-10 rounded-xl">
         <div className="p-5 flex flex-col items-center justify-center">
           <h2 className="text-xl font-bold text-red-600">
             Error al cargar el producto
@@ -180,8 +180,8 @@ const ProductDetailPage = () => {
       <div className="bg-white dark:bg-zinc-900 shadow-xl rounded-2xl p-6 md:p-8 lg:p-10">
         <div className="flex flex-col md:flex-row gap-8 lg:gap-12">
           <div className="flex-shrink-0 md:w-1/2 lg:w-2/5">
-            <div className="relative group rounded-lg overflow-hidden bg-gray-100 dark:bg-zinc-700">
-              {!imageState.loaded && <Skeleton className="rounded-lg w-full h-96" />}
+            <div className="relative group rounded-xl overflow-hidden bg-gray-100 dark:bg-zinc-700">
+              {!imageState.loaded && <Skeleton className="rounded-xl w-full h-96" />}
 
               <Image
                 key={displayProduct.image}
@@ -202,7 +202,7 @@ const ProductDetailPage = () => {
             </div>
 
             <div className="mt-6 space-y-4">
-              <div className="flex items-center justify-between bg-gray-100 dark:bg-zinc-700 p-4 rounded-lg">
+              <div className="flex items-center justify-between bg-gray-100 dark:bg-zinc-700 p-4 rounded-xl">
                 <p className="text-3xl font-bold text-green-600 dark:text-green-400">
                   ${displayProduct.price}
                 </p>

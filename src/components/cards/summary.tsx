@@ -53,7 +53,7 @@ const OrderSummary = ({
       <Card
         className="w-full sm:w-[400px] md:w-[450px]
                   bg-background shadow-none
-                  border border-default-200 rounded-lg mx-auto"
+                  border border-default-200 rounded-xl mx-auto"
       >
         <CardBody className="gap-2 p-3 xs:p-4">
           <div className="space-y-3">

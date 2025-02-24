@@ -28,7 +28,7 @@ const OrderList = dynamic(() => import("@/components/order-list"), {
               <div className="space-y-4 p-2">
                 <Skeleton className="h-4 w-full rounded-md" />
                 <Skeleton className="h-4 w-3/4 rounded-md" />
-                <Skeleton className="h-10 w-full rounded-lg" />
+                <Skeleton className="h-10 w-full rounded-xl" />
               </div>
             </AccordionItem>
           ))}
@@ -74,7 +74,7 @@ const OrderList = dynamic(() => import("@/components/order-list"), {
                   <Skeleton className="h-4 w-12 rounded-md" />
                   <Skeleton className="h-6 w-20 rounded-md" />
                 </div>
-                <Skeleton className="h-10 w-full rounded-lg" />
+                <Skeleton className="h-10 w-full rounded-xl" />
               </div>
             </div>
           </div>

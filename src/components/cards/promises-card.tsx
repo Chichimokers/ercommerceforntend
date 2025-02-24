@@ -8,7 +8,7 @@ export default function PromisesCard({
   description: string;
 }) {
   return (
-    <div className="group bg-gray-100 dark:bg-zinc-800 dark:bg-opacity-40 bg-opacity-40 backdrop-blur-sm hover:backdrop-blur duration-300 shadow-sm hover:shadow-md p-4 rounded-lg hover:scale-[1.02] transform-gpu hover:bg-opacity-60 dark:hover:bg-opacity-60 transition-all border border-default-200">
+    <div className="group bg-gray-100 dark:bg-zinc-800 dark:bg-opacity-40 bg-opacity-40 backdrop-blur-sm hover:backdrop-blur duration-300 shadow-sm hover:shadow-md p-4 rounded-xl hover:scale-[1.02] transform-gpu hover:bg-opacity-60 dark:hover:bg-opacity-60 transition-all border border-default-200">
       <div className="flex flex-row gap-2 items-center justify-center">
         <div className="text-2xl mb-3 text-blue-600 dark:text-blue-800 p-2 rounded-full bg-indigo-200 dark:bg-blue-200 w-max h-max">
           {icon}

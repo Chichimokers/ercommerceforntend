@@ -16,7 +16,7 @@ export default function EmptyState({
 }: EmptyStateProps) {
   return (
     <div
-      className={`flex flex-col items-center justify-center p-8 space-y-4 bg-default-50/50 backdrop-blur-sm border border-gray-100/50 rounded-lg shadow-sm ${className}`}
+      className={`flex flex-col items-center justify-center p-8 space-y-4 bg-default-50/50 backdrop-blur-sm border border-gray-100/50 rounded-xl shadow-sm ${className}`}
     >
       <div className="relative group">
         <div className="absolute -inset-2 bg-gradient-to-r from-purple-400/30 to-blue-400/30 rounded-full blur-lg opacity-70 group-hover:opacity-100 transition-opacity duration-300 animate-[pulse_2s_infinite]" />

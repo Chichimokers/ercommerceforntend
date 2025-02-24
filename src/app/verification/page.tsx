@@ -68,7 +68,7 @@ export default function VerificationPage() {
   if (!isVerified) {
     return (
       <section className="p-4 flex flex-col items-center justify-center min-h-screen shadow-lg">
-        <div className="w-full max-w-md space-y-6 shadow-lg p-8 rounded-lg border border-default-100">
+        <div className="w-full max-w-md space-y-6 shadow-lg p-8 rounded-xl border border-default-100">
           <h1 className="text-3xl font-bold text-center">Verificación de Email</h1>
           <p className="text-gray-600 text-center">
             Hemos enviado un código de 6 dígitos a tu correo electrónico
@@ -84,7 +84,7 @@ export default function VerificationPage() {
                   maxLength={1}
                   value={digit}
                   onChange={(e) => handleChange(index, e.target.value)}
-                  className="w-12 h-12 text-2xl text-center border-2 rounded-lg focus:border-blue-500 focus:outline-none"
+                  className="w-12 h-12 text-2xl text-center border-2 rounded-xl focus:border-blue-500 focus:outline-none"
                   disabled={isSubmitting}
                 />
               ))}
@@ -95,7 +95,7 @@ export default function VerificationPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full py-3 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 transition-colors"
+              className="w-full py-3 px-4 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:bg-gray-400 transition-colors"
             >
               {isSubmitting ? 'Verificando...' : 'Verificar Código'}
             </button>
