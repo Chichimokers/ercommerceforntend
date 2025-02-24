@@ -94,7 +94,7 @@ export default function DrawerCart({ className }: { className?: string }) {
 
   if (!cart) {
     return (
-      <div className="flex items-center justify-center h-full rounded-lg">
+      <div className="flex items-center justify-center h-full rounded-xl">
         Loading cart...
       </div>
     );

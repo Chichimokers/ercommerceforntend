@@ -8,6 +8,7 @@ import { Navbar } from "@/components/navbar/nav";
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <>
+
       <Header className="fixed top-0 left-0 right-0 z-50 h-16 border-b border-default-50" />
 
       <main

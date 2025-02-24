@@ -67,7 +67,7 @@ export default function RelatedProductSection({
   };
 
   return (
-    <Card className="border-y border-default-200 shadow-none rounded-xl h-max w-full overflow-hidden min-h-[300px] flex flex-col py-4 bg-gray-100 dark:bg-gray-700">
+    <Card className="border-y border-default-200 shadow-none rounded-xl h-max w-full overflow-hidden min-h-[300px] flex flex-col py-4 bg-gray-100 dark:bg-zinc-800">
       <CardBody>{renderContent()}</CardBody>
     </Card>
   );

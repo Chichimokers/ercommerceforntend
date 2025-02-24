@@ -231,9 +231,9 @@ export default function Buy() {
               {cart?.map((item) => {
                 const product = products.find(p => p.id === item.id);
                 return (
-                  <div key={item.id} className="flex items-center justify-between p-3 rounded-lg bg-zinc-50 dark:bg-zinc-800">
+                  <div key={item.id} className="flex items-center justify-between p-3 rounded-xl bg-zinc-50 dark:bg-zinc-800">
                     <div className="flex items-center gap-3">
-                      <div className="h-12 w-12 rounded-lg bg-zinc-200 dark:bg-zinc-700 overflow-hidden relative">
+                      <div className="h-12 w-12 rounded-xl bg-zinc-200 dark:bg-zinc-700 overflow-hidden relative">
                         <Image
                           alt={product?.name || 'producto'}
                           src={product?.image || '/nophoto.jpeg'}

@@ -84,7 +84,7 @@ export default function VerificationPage() {
                   maxLength={1}
                   value={digit}
                   onChange={(e) => handleChange(index, e.target.value)}
-                  className="w-12 h-12 text-2xl text-center border-2 rounded-lg focus:border-blue-500 focus:outline-none"
+                  className="w-12 h-12 text-2xl text-center border-2 rounded-xl focus:border-blue-500 focus:outline-none"
                   disabled={isSubmitting}
                 />
               ))}
@@ -95,7 +95,7 @@ export default function VerificationPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full py-3 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 transition-colors"
+              className="w-full py-3 px-4 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:bg-gray-400 transition-colors"
             >
               {isSubmitting ? 'Verificando...' : 'Verificar Código'}
             </button>

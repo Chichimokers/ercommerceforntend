@@ -105,7 +105,7 @@ const Footer = () => {
             </h2>
             <div className="grid grid-cols-4">
               {['visa', 'mastercard', 'paypal'].map((icon) => (
-                <div key={icon} className="rounded-lg transition-colors w-[60] h-[40]">
+                <div key={icon} className="rounded-xl transition-colors w-[60] h-[40]">
                   <Image
                     src={`/icons/${icon}.svg`}
                     alt={icon}

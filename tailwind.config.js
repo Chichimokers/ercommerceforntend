@@ -9,8 +9,8 @@ export default {
     "./src/**/*.{js,ts,jsx,tsx,mdx}",
     "./node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}",
     "./layouts/**/*.{js,ts,jsx,tsx,mdx}",
-    './src/app/(ecommerce)/**/*.{js,ts,jsx,tsx,mdx}',
-    './src/app/(admin)/**/*.{js,ts,jsx,tsx,mdx}',
+    "./src/app/(ecommerce)/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/app/(admin)/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
     extend: {
@@ -28,7 +28,7 @@ export default {
       },
       animation: {
         "spin-slow": "spin 3s linear infinite",
-        'fade-in': 'fade-in 0.3s ease-out forwards',
+        "fade-in": "fade-in 0.3s ease-out forwards",
       },
       screens: {
         xs: "320px",
@@ -43,9 +43,9 @@ export default {
         "3xl": "1850px",
       },
       keyframes: {
-        'fade-in': {
-          '0%': { opacity: '0' },
-          '100%': { opacity: '1' },
+        "fade-in": {
+          "0%": { opacity: "0" },
+          "100%": { opacity: "1" },
         },
       },
     },

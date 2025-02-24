@@ -6,14 +6,14 @@ const nextConfig = {
   async headers() {
     return [
       {
-        source: '/(.*)',
+        source: "/(.*)",
         headers: [
           // Configuraciones de CORS o seguridad estricta
-          { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
-          { key: 'X-Content-Type-Options', value: 'nosniff' }
-        ]
-      }
-    ]
+          { key: "X-Frame-Options", value: "SAMEORIGIN" },
+          { key: "X-Content-Type-Options", value: "nosniff" },
+        ],
+      },
+    ];
   },
 
   // Configuración de redirects o rewrites
@@ -21,11 +21,11 @@ const nextConfig = {
     return [
       // Redirecciones que pueden interferir
       {
-        source: '/old-path',
-        destination: '/new-path',
-        permanent: true
-      }
-    ]
+        source: "/old-path",
+        destination: "/new-path",
+        permanent: true,
+      },
+    ];
   },
 
   // Optimización de imágenes
@@ -77,15 +77,19 @@ const nextConfig = {
   // Compresión avanzada
   compress: true,
   webpack: (config) => {
-    config.plugins.push(new (require("compression-webpack-plugin"))({
-      algorithm: "gzip",
-      test: /\.(js|css|html|svg|json)$/,
-    }));
-    config.plugins.push(new (require("compression-webpack-plugin"))({
-      algorithm: "brotliCompress",
-      filename: "[path][base].br",
-      test: /\.(js|css|html|svg|json)$/,
-    }));
+    config.plugins.push(
+      new (require("compression-webpack-plugin"))({
+        algorithm: "gzip",
+        test: /\.(js|css|html|svg|json)$/,
+      })
+    );
+    config.plugins.push(
+      new (require("compression-webpack-plugin"))({
+        algorithm: "brotliCompress",
+        filename: "[path][base].br",
+        test: /\.(js|css|html|svg|json)$/,
+      })
+    );
     return config;
   },
 };

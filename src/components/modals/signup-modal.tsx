@@ -13,7 +13,6 @@ import {
 } from "@heroui/react";
 import Image from "next/image";
 import {
-  FaFacebook,
   FaGoogle,
   FaLink,
   FaLock,

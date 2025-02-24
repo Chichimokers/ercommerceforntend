@@ -15,7 +15,7 @@ import { ArrowRight } from "lucide-react";
 const ProductCard = dynamic(() => import("@/components/cards/product-card"));
 const PublicityBannerSlider = dynamic(
   () => import("@/components/sliders/publicity-banner-slider"),
-  { loading: () => <div className="h-[300] bg-gray-100 dark:bg-gray-700 animate-pulse rounded-lg" /> }
+  { loading: () => <div className="h-[300] bg-gray-100 dark:bg-gray-700 animate-pulse rounded-xl" /> }
 );
 
 const SecondaryBannerSlider = dynamic(

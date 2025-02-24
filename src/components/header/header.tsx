@@ -22,14 +22,22 @@ import { ProductBase } from "../../types/types";
 
 const IconButton = dynamic(() => import("@/components/buttons/cart-button"), {
   loading: () => (
-    <div className="w-8 h-8 bg-default-200 rounded-full animate-pulse" />
+    <div className="w-10 h-10 bg-default-200 rounded-full animate-pulse" />
   )
 });
 
 const AccountButton = dynamic(
-  () => import("@/components/buttons/account-button")
+  () => import("@/components/buttons/account-button"), {
+  loading: () => (
+    <div className="w-10 h-10 bg-default-200 rounded-full animate-pulse" />
+  )
+}
 );
-const DrawerCart = dynamic(() => import("@/components/drawers/drawer-cart"));
+const DrawerCart = dynamic(() => import("@/components/drawers/drawer-cart"), {
+  loading: () => (
+    <div className="w-10 h-10 bg-default-200 rounded-full animate-pulse" />
+  )
+});
 
 const SearchInput = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -128,16 +136,17 @@ export const Header = ({ className }: { className?: string }) => {
       <NavbarContent className="sm:basis-full max-w-fit" justify="start">
         <NavbarBrand className="gap-3 max-w-none">
           <Link
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 w-[160] h-[60]"
             color="foreground"
             href="/"
           >
             <Image
               alt="Company Logo"
+              loading="lazy"
+              width={160}
               height={60}
               src="/logonav.png"
-              width={140}
-              className="h-12 w-auto object-contain flex-shrink-0"
+              className="w-auto object-contain flex-shrink-0"
             />
           </Link>
         </NavbarBrand>
