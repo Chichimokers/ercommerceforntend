@@ -1,5 +1,4 @@
 import { heroui } from "@heroui/theme";
-import type { Config } from "tailwindcss";
 
 /** @type {import('tailwindcss').Config} */
 export default {
@@ -10,8 +9,8 @@ export default {
     "./src/**/*.{js,ts,jsx,tsx,mdx}",
     "./node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}",
     "./layouts/**/*.{js,ts,jsx,tsx,mdx}",
-    './src/app/(ecommerce)/**/*.{js,ts,jsx,tsx,mdx}',
-    './src/app/(admin)/**/*.{js,ts,jsx,tsx,mdx}',
+    "./src/app/(ecommerce)/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/app/(admin)/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
     extend: {
@@ -52,7 +51,5 @@ export default {
     },
   },
   darkMode: "class",
-  plugins: [
-    heroui(),
-  ],
-} satisfies Config;
+  plugins: [heroui()],
+};
