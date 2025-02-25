@@ -10,6 +10,7 @@ import { signOut, useSession } from "next-auth/react";
 import { useModal } from "@/contexts/modal-context";
 import { FaUser } from "react-icons/fa6";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 // Función para generar color basado en el nombre
 const generateColorFromName = (name: string) => {
@@ -24,6 +25,8 @@ const generateColorFromName = (name: string) => {
 const AccountButton = React.memo(({ className }: { className?: string }) => {
   const { data: session } = useSession();
   const { openLogin } = useModal();
+  const pathname = usePathname();
+  const isOrdersPage = pathname === "/orders";
 
   return (
     <>
@@ -61,9 +64,13 @@ const AccountButton = React.memo(({ className }: { className?: string }) => {
               </DropdownItem>
             </>
           ) : null}
-          <DropdownItem as={Link} key="orders" href="/orders">
-            Ordenes
-          </DropdownItem>
+          {!isOrdersPage ?
+            <DropdownItem as={Link} key="orders" href="/orders">
+              Ordenes
+            </DropdownItem>
+            : null
+          }
+
           <DropdownItem key="help_and_feedback">
             Ayuda y retroalimentación
           </DropdownItem>
