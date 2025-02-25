@@ -1,4 +1,4 @@
-
+que
 on:
   push:
     branches: [master]
@@ -32,9 +32,10 @@ jobs:
         working-directory: ./frontend
         run: |
           npm install
-
+      - name: borrar procedo
+        working-directory: ./frontend
+        run: pm2 delete frontend || true
+      
       - name: Desplegar frontend
         working-directory: ./frontend
-        run: |
-          pm2 delete frontend || true
-          pm2 start npm --name "frontend" -- run pre -- -p 3001
+        run: pm2 start npm --name "frontend" -- run pre -- -p 3001
