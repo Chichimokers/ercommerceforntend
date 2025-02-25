@@ -17,6 +17,7 @@ const icons = {
   Lock
 };
 
+//Calmate perra
 type SectionIcon = keyof typeof icons;
 
 export const TermsModal = () => {
