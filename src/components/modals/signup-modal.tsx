@@ -211,175 +211,181 @@ export default function SignUp({
               </ModalHeader>
 
               <ModalBody className="flex flex-col gap-2 max-h-[calc(100vh-14rem)] overflow-y-auto">
-                <section className="grid grid-cols-1 xm:grid-cols-2 gap-2">
-                  <Input
-                    className="w-full"
-                    classNames={{
-                      errorMessage: "text-[10px] xxs:text-xs",
-                      label: "text-xs xxs:text-sm",
-                    }}
-                    errorMessage={errors.fullName}
-                    isInvalid={!!errors.fullName}
-                    label={windowWidth > 380 ? "Nombre completo" : undefined}
-                    labelPlacement="outside"
-                    placeholder="Nombre completo"
-                    size={windowWidth <= 380 ? "sm" : "md"}
-                    startContent={
-                      <FaUser
-                        className={`text-default-400 pointer-events-none flex-shrink-0 ${windowWidth <= 380 ? "text-sm" : "text-xl"
-                          }`}
-                      />
-                    }
-                    value={formData.fullName}
-                    variant="bordered"
-                    onValueChange={(value) =>
-                      handleInputChange("fullName", value)
-                    }
-                  />
+                <form onSubmit={(e) => {
+                  e.preventDefault();
+                  handleSubmit();
+                }}>
+                  <section className="grid grid-cols-1 xm:grid-cols-2 gap-2">
+                    <Input
+                      className="w-full"
+                      classNames={{
+                        errorMessage: "text-[10px] xxs:text-xs",
+                        label: "text-xs xxs:text-sm",
+                      }}
+                      errorMessage={errors.fullName}
+                      isInvalid={!!errors.fullName}
+                      label={windowWidth > 380 ? "Nombre completo" : undefined}
+                      labelPlacement="outside"
+                      placeholder="Nombre completo"
+                      size={windowWidth <= 380 ? "sm" : "md"}
+                      startContent={
+                        <FaUser
+                          className={`text-default-400 pointer-events-none flex-shrink-0 ${windowWidth <= 380 ? "text-sm" : "text-xl"
+                            }`}
+                        />
+                      }
+                      value={formData.fullName}
+                      variant="bordered"
+                      onValueChange={(value) =>
+                        handleInputChange("fullName", value)
+                      }
+                    />
 
-                  <Input
-                    className="w-full"
-                    classNames={{
-                      errorMessage: "text-[10px] xxs:text-xs",
-                      label: "text-xs xxs:text-sm",
-                    }}
-                    errorMessage={errors.email}
-                    isInvalid={!!errors.email}
-                    label={windowWidth > 380 ? "Correo electrónico" : undefined}
-                    labelPlacement="outside"
-                    placeholder="you@example.com"
-                    size={windowWidth <= 380 ? "sm" : "md"}
-                    startContent={
-                      <FaMailBulk
-                        className={`text-default-400 pointer-events-none flex-shrink-0 ${windowWidth <= 380 ? "text-sm" : "text-xl"
-                          }`}
-                      />
-                    }
-                    type="email"
-                    value={formData.email}
-                    variant="bordered"
-                    onValueChange={(value) => handleInputChange("email", value)}
-                  />
+                    <Input
+                      className="w-full"
+                      classNames={{
+                        errorMessage: "text-[10px] xxs:text-xs",
+                        label: "text-xs xxs:text-sm",
+                      }}
+                      errorMessage={errors.email}
+                      isInvalid={!!errors.email}
+                      label={windowWidth > 380 ? "Correo electrónico" : undefined}
+                      labelPlacement="outside"
+                      placeholder="you@example.com"
+                      size={windowWidth <= 380 ? "sm" : "md"}
+                      startContent={
+                        <FaMailBulk
+                          className={`text-default-400 pointer-events-none flex-shrink-0 ${windowWidth <= 380 ? "text-sm" : "text-xl"
+                            }`}
+                        />
+                      }
+                      type="email"
+                      value={formData.email}
+                      variant="bordered"
+                      onValueChange={(value) => handleInputChange("email", value)}
+                    />
 
-                  <Input
-                    className="w-full"
-                    classNames={{
-                      errorMessage: "text-[10px] xxs:text-xs",
-                      label: "text-xs xxs:text-sm",
-                    }}
-                    errorMessage={errors.password}
-                    isInvalid={!!errors.password}
-                    label={windowWidth > 380 ? "Contraseña" : undefined}
-                    labelPlacement="outside"
-                    placeholder="Crear contraseña"
-                    size={windowWidth <= 380 ? "sm" : "md"}
-                    startContent={
-                      <FaLock
-                        className={`text-default-400 pointer-events-none flex-shrink-0 ${windowWidth <= 380 ? "text-sm" : "text-xl"
-                          }`}
-                      />
-                    }
-                    type={isVisibleP ? "text" : "password"}
-                    endContent={
-                      <button
-                        aria-label="toggle password visibility"
-                        className="focus:outline-none"
-                        type="button"
-                        onClick={toggleVisibilityP}
-                      >
-                        {isVisibleP ? (
-                          <EyeSlashFilledIcon className="text-2xl text-default-400 pointer-events-none" />
-                        ) : (
-                          <EyeFilledIcon className="text-2xl text-default-400 pointer-events-none" />
-                        )}
-                      </button>
-                    }
-                    value={formData.password}
-                    variant="bordered"
-                    onValueChange={(value) =>
-                      handleInputChange("password", value)
-                    }
-                  />
+                    <Input
+                      className="w-full"
+                      classNames={{
+                        errorMessage: "text-[10px] xxs:text-xs",
+                        label: "text-xs xxs:text-sm",
+                      }}
+                      errorMessage={errors.password}
+                      isInvalid={!!errors.password}
+                      label={windowWidth > 380 ? "Contraseña" : undefined}
+                      labelPlacement="outside"
+                      placeholder="Crear contraseña"
+                      size={windowWidth <= 380 ? "sm" : "md"}
+                      startContent={
+                        <FaLock
+                          className={`text-default-400 pointer-events-none flex-shrink-0 ${windowWidth <= 380 ? "text-sm" : "text-xl"
+                            }`}
+                        />
+                      }
+                      type={isVisibleP ? "text" : "password"}
+                      endContent={
+                        <button
+                          aria-label="toggle password visibility"
+                          className="focus:outline-none"
+                          type="button"
+                          onClick={toggleVisibilityP}
+                        >
+                          {isVisibleP ? (
+                            <EyeSlashFilledIcon className="text-2xl text-default-400 pointer-events-none" />
+                          ) : (
+                            <EyeFilledIcon className="text-2xl text-default-400 pointer-events-none" />
+                          )}
+                        </button>
+                      }
+                      value={formData.password}
+                      variant="bordered"
+                      onValueChange={(value) =>
+                        handleInputChange("password", value)
+                      }
+                    />
 
-                  <Input
-                    className="w-full"
-                    classNames={{
-                      errorMessage: "text-[10px] xxs:text-xs",
-                      label: "text-xs xxs:text-sm",
-                    }}
-                    errorMessage={errors.confirmPassword}
-                    isInvalid={!!errors.confirmPassword}
-                    label={
-                      windowWidth > 380 ? "Confirmar contraseña" : undefined
-                    }
-                    labelPlacement="outside"
-                    placeholder={
-                      !(windowWidth > 559)
-                        ? "Confirma tu contraseña"
-                        : "Contraseña"
-                    }
-                    size={windowWidth <= 380 ? "sm" : "md"}
-                    startContent={
-                      <FaLock
-                        className={`text-default-400 pointer-events-none flex-shrink-0 ${windowWidth <= 380 ? "text-sm" : "text-xl"
-                          }`}
-                      />
-                    }
-                    type={isVisibleCP ? "text" : "password"}
-                    endContent={
-                      <button
-                        aria-label="toggle password visibility"
-                        className="focus:outline-none"
-                        type="button"
-                        onClick={toggleVisibilityCP}
-                      >
-                        {isVisibleCP ? (
-                          <EyeSlashFilledIcon className="text-2xl text-default-400 pointer-events-none" />
-                        ) : (
-                          <EyeFilledIcon className="text-2xl text-default-400 pointer-events-none" />
-                        )}
-                      </button>
-                    }
-                    value={formData.confirmPassword}
-                    variant="bordered"
-                    onValueChange={(value) =>
-                      handleInputChange("confirmPassword", value)
-                    }
-                  />
-                </section>
-                <Checkbox
-                  className={`w-max text-xs sm:text-sm ${errors.acceptTerms ? "text-danger" : ""
-                    }`}
-                  checked={formData.acceptTerms}
-                  onChange={(value) => handleInputChange("acceptTerms", value)}
-                  label="Acepto los términos y condiciones"
-                ></Checkbox>
-                {errors.acceptTerms && (
-                  <p className="text-danger text-xs">{errors.acceptTerms}</p>
-                )}
+                    <Input
+                      className="w-full"
+                      classNames={{
+                        errorMessage: "text-[10px] xxs:text-xs",
+                        label: "text-xs xxs:text-sm",
+                      }}
+                      errorMessage={errors.confirmPassword}
+                      isInvalid={!!errors.confirmPassword}
+                      label={
+                        windowWidth > 380 ? "Confirmar contraseña" : undefined
+                      }
+                      labelPlacement="outside"
+                      placeholder={
+                        !(windowWidth > 559)
+                          ? "Confirma tu contraseña"
+                          : "Contraseña"
+                      }
+                      size={windowWidth <= 380 ? "sm" : "md"}
+                      startContent={
+                        <FaLock
+                          className={`text-default-400 pointer-events-none flex-shrink-0 ${windowWidth <= 380 ? "text-sm" : "text-xl"
+                            }`}
+                        />
+                      }
+                      type={isVisibleCP ? "text" : "password"}
+                      endContent={
+                        <button
+                          aria-label="toggle password visibility"
+                          className="focus:outline-none"
+                          type="button"
+                          onClick={toggleVisibilityCP}
+                        >
+                          {isVisibleCP ? (
+                            <EyeSlashFilledIcon className="text-2xl text-default-400 pointer-events-none" />
+                          ) : (
+                            <EyeFilledIcon className="text-2xl text-default-400 pointer-events-none" />
+                          )}
+                        </button>
+                      }
+                      value={formData.confirmPassword}
+                      variant="bordered"
+                      onValueChange={(value) =>
+                        handleInputChange("confirmPassword", value)
+                      }
+                    />
+                  </section>
+                  <Checkbox
+                    className={`w-max text-xs sm:text-sm ${errors.acceptTerms ? "text-danger" : ""
+                      }`}
+                    checked={formData.acceptTerms}
+                    onChange={(value) => handleInputChange("acceptTerms", value)}
+                    label="Acepto los términos y condiciones"
+                  ></Checkbox>
+                  {errors.acceptTerms && (
+                    <p className="text-danger text-xs">{errors.acceptTerms}</p>
+                  )}
 
-                <Link className="text-xs select-none cursor-pointer">
-                  <FaLink className="mx-1"></FaLink>
-                  Terminos y condiciones
-                </Link>
+                  <Link className="text-xs select-none cursor-pointer">
+                    <FaLink className="mx-1"></FaLink>
+                    Terminos y condiciones
+                  </Link>
 
-                <div className="text-center text-sm">
-                  <p className="mb-2 text-xs">O regístrese con</p>
-                  {renderSocialButtons()}
-                </div>
+                  <div className="text-center text-sm">
+                    <p className="mb-2 text-xs">O regístrese con</p>
+                    {renderSocialButtons()}
+                  </div>
+
+                  <Button
+                    fullWidth
+                    type="submit"
+                    className="bg-blue-600"
+                    color="primary"
+                    isLoading={isLoading}
+                    variant="solid"
+                  >
+                    {isLoading ? "Creating Account..." : "Crear una cuenta"}
+                  </Button>
+                </form>
               </ModalBody>
 
               <ModalFooter className="flex flex-col gap-2">
-                <Button
-                  fullWidth
-                  className="bg-blue-600"
-                  color="primary"
-                  isLoading={isLoading}
-                  variant="solid"
-                  onPress={handleSubmit}
-                >
-                  {isLoading ? "Creating Account..." : "Crear una cuenta"}
-                </Button>
                 <hr />
                 <p className="text-center text-xs">
                   ¿Ya tienes una cuenta?{" "}

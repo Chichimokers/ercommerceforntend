@@ -19,8 +19,8 @@ const CategoryCard = ({
     <Card
       isHoverable
       isPressable
-      className={`relative overflow-hidden transition-transform duration-300 hover:scale-105 hover:shadow-xl ${className}`}
-      shadow="md"
+      className={`relative overflow-hidden transition-transform duration-300 hover:scale-105 hover:shadow-md ${className}`}
+      shadow="none"
       as={Link}
       href={url}
     >

@@ -1,25 +1,25 @@
-import { cn } from "@heroui/react";
-import { useModal } from "@/contexts/modal-context";
+import { Button, cn } from "@heroui/react";
 import { LogInIcon } from "lucide-react";
-import { CustomButton } from "./custom-button";
+import Link from "next/link";
 
 export const LoginButton = ({ className }: { className?: string }) => {
-  const { openLogin } = useModal();
   return (
-    <CustomButton
+    <Button
       className={cn(
-        "cursor-pointer h-10 w-10 border-2 border-default-200 hover:border-default-400 bg-opacity-50 dark:bg-opacity-50 bg-white dark:bg-black !rounded-full group !px-0 !transition-none",
+        "cursor-pointer h-10 min-w-10 w-10 p-0 border-2 border-default-200 hover:border-default-400 bg-opacity-50 dark:bg-opacity-50 bg-white dark:bg-black rounded-full",
         className
       )}
       variant="bordered"
       color="default"
-      onClick={() => openLogin()}
+      size="sm"
+      as={Link}
+      href="/login"
     >
       <LogInIcon
         size={20}
         opacity={0.7}
         className="mx-auto text-default-800"
       />
-    </CustomButton>
+    </Button>
   );
 };

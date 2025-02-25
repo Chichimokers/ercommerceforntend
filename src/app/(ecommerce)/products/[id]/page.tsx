@@ -116,6 +116,16 @@ const ProductDetailPage = () => {
     getProductData();
   }, [id, products]);
 
+  useEffect(() => {
+    setImageState({ loaded: false, error: false });
+
+    const img = new (window.Image as unknown as typeof HTMLImageElement)();
+    img.src = displayProduct.image ? `${displayProduct.image}?v=${Date.now()}` : "/nohphoto.jpeg";
+
+    img.onload = () => setImageState({ loaded: true, error: false });
+    img.onerror = () => setImageState({ loaded: true, error: true });
+  }, [displayProduct.image]);
+
   const cartActions = useCartActions({
     id: displayProduct.id,
     price: displayProduct.price,
@@ -189,8 +199,7 @@ const ProductDetailPage = () => {
                 className={`w-full h-96 object-contain ${imageState.loaded ? 'block' : 'hidden'}`}
                 height={320}
                 width={320}
-                loading="eager"
-                priority
+                loading="lazy"
                 onLoadingComplete={() => setImageState({ loaded: true, error: false })}
                 onError={() => setImageState({ loaded: true, error: true })}
                 src={

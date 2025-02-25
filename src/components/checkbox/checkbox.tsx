@@ -2,6 +2,7 @@ import React from "react";
 
 interface CheckboxProps {
   label?: string;
+  children?: React.ReactNode
   checked: boolean;
   onChange: (checked: boolean) => void;
   className?: string;
@@ -9,6 +10,7 @@ interface CheckboxProps {
 
 const Checkbox: React.FC<CheckboxProps> = ({
   label,
+  children,
   checked,
   onChange,
   className = "",
@@ -55,14 +57,17 @@ const Checkbox: React.FC<CheckboxProps> = ({
           </svg>
         </div>
       </div>
-      {label && (
+      {label ? (
         <label
           htmlFor={label || "checkbox"}
           className="text-base text-default-600 cursor-pointer"
         >
           {label}
         </label>
-      )}
+      ) :
+        children
+      }
+
     </div>
   );
 };

@@ -121,7 +121,8 @@ export const authOptions: NextAuthOptions = {
           prompt: "consent",
           access_type: "offline",
           response_type: "code",
-          scope: "openid email profile https://www.googleapis.com/auth/userinfo.profile"
+          scope: "openid email profile https://www.googleapis.com/auth/userinfo.profile",
+          redirect_uri: `${process.env.NEXTAUTH_URL}api/auth/callback/google`
         }
       },
       client: {
@@ -302,7 +303,7 @@ export const authOptions: NextAuthOptions = {
   pages: {
     error: "/auth/error",
   },
-  cookies: {
+  /*cookies: {
     sessionToken: {
       name:
         process.env.NODE_ENV === "production"
@@ -319,7 +320,7 @@ export const authOptions: NextAuthOptions = {
   session: {
     strategy: "jwt",
     maxAge: 4 * 60 * 60,
-  },
+  },*/
   secret: process.env.NEXTAUTH_SECRET,
 };
 

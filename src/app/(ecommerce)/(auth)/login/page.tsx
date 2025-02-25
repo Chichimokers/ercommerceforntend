@@ -9,34 +9,19 @@ import {
 import { FaGoogle, FaLock, FaMailBulk } from "react-icons/fa";
 import Image from "next/image";
 import { motion } from "framer-motion";
-
 import { useFormValidation } from "@/hooks/useFormValidation";
-import { LoginProps } from "@/types/login-props";
-import { signIn, useSession } from "next-auth/react";
+import { signIn } from "next-auth/react";
 import UnSuccessModal from "@components/modals/unsucces-modal";
-import SuccessModal from "@components/modals/succes-modal";
-import { useModal } from "@/contexts/modal-context";
 import { EyeSlashFilledIcon } from "@components/images/eye-slash-icon";
 import { EyeFilledIcon } from "@components/images/eye-filled";
 import { CustomButton } from "@components/buttons/custom-button";
 import { useRouter } from "next/navigation";
+import { FormField } from "@components/forms/form-field";
 
 interface FormData {
   email: string;
   password: string;
 }
-
-const FormField = ({ label, error, children }: {
-  label: string;
-  error?: string;
-  children: React.ReactNode
-}) => (
-  <div className="flex flex-col gap-1">
-    <label className="text-sm font-medium">{label}</label>
-    {children}
-    {error && <span className="text-red-500 text-sm">{error}</span>}
-  </div>
-);
 
 export default function Login() {
 
@@ -63,7 +48,6 @@ export default function Login() {
   const [SubmitError, setSubmitError] = useState("");
   const [SubmitErrorModal, setSubmitErrorModal] = useState(false);
   const [SubmitSuccessModal, setSubmitSuccessModal] = useState(false);
-  const { setIsAuthorizationInProgress } = useModal();
   const [isVisible, setIsVisible] = useState(false);
   const toggleVisibility = () => setIsVisible(!isVisible);
   const handleSubmit = async () => {
@@ -110,7 +94,7 @@ export default function Login() {
     <div className="flex justify-center gap-4 w-full">
       <CustomButton
         variant="bordered"
-        className="bg-white/90 dark:bg-zinc-800/90 hover:bg-zinc-100 dark:hover:bg-zinc-700 backdrop-blur-sm transition-all"
+        className="w-full bg-white/90 dark:bg-zinc-800/90 hover:bg-zinc-100 dark:hover:bg-zinc-700 backdrop-blur-sm transition-all"
         color="primary"
         onClick={() => handleSocialLogin('google')}
         startContent={
@@ -120,7 +104,7 @@ export default function Login() {
         }
       >
         <span className="text-zinc-700 dark:text-zinc-200 font-medium">
-          Iniciar sesion con Google
+          Continuar con Google
         </span>
       </CustomButton>
     </div>
@@ -147,94 +131,101 @@ export default function Login() {
       </div>
 
       <div className="flex flex-col gap-4 relative z-10">
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-        >
-          <FormField label="Correo electrónico" error={errors.email}>
-            <Input
-              startContent={<FaMailBulk className="h-5 w-5 text-default-400" />}
-              placeholder="you@example.com"
-              className="group rounded-xl dark:bg-zinc-800 bg-zinc-50"
-              classNames={{
-                input: "group-hover:bg-zinc-100 dark:group-hover:bg-zinc-700"
-              }}
-              value={formData.email}
-              onValueChange={(value) => handleChange("email", value)}
-            />
-          </FormField>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-        >
-          <FormField label="Contraseña" error={errors.password}>
-            <Input
-              startContent={<FaLock className="h-5 w-5 text-default-400" />}
-              placeholder="••••••••"
-              type={isVisible ? "text" : "password"}
-              endContent={
-                <button onClick={toggleVisibility} className="p-1">
-                  {isVisible ? (
-                    <EyeSlashFilledIcon className="text-2xl text-default-400" />
-                  ) : (
-                    <EyeFilledIcon className="text-2xl text-default-400" />
-                  )}
-                </button>
-              }
-              className="group rounded-xl dark:bg-zinc-800 bg-zinc-50"
-              classNames={{
-                input: "group-hover:bg-zinc-100 dark:group-hover:bg-zinc-700"
-              }}
-              value={formData.password}
-              onValueChange={(value) => handleChange("password", value)}
-            />
-          </FormField>
-        </motion.div>
-
-        <div className="text-center">
-          <Link href="#" className="text-medium">
-            ¿Has olvidado tu contraseña?
-          </Link>
-        </div>
-
-        <div className="text-center text-xs">
-          <div className="flex flex-row mb-4 w-full items-center justify-center text-center">
-            <hr className="w-full" />
-            <p className="text-medium mx-2">O</p>
-            <hr className="w-full" />
-          </div>
-          {renderSocialButtons()}
-        </div>
-
-        {SubmitErrorModal ? (
-          <UnSuccessModal
-            isOpen={SubmitErrorModal}
-            onClose={(val: boolean) => setSubmitErrorModal(val)}
-            message={SubmitError}
-          />
-        ) : undefined}
-      </div>
-
-      <div className="flex flex-col gap-4 mt-4 relative z-10">
-        <motion.div
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          className="mt-4"
-        >
-          <Button
-            fullWidth
-            className="bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg hover:shadow-xl hover:shadow-purple-500/20 transition-all"
-            isLoading={isLoading}
-            variant="solid"
-            onPress={handleSubmit}
+        <form
+          className="gap-4"
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSubmit();
+          }}>
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
           >
-            {isLoading ? "Ingresando..." : "Iniciar sesión"}
-          </Button>
-        </motion.div>
+            <FormField label="Correo electrónico" error={errors.email} className="my-4">
+              <Input
+                startContent={<FaMailBulk className="h-5 w-5 text-default-400" />}
+                placeholder="you@example.com"
+                className="group rounded-xl dark:bg-zinc-800 bg-zinc-50"
+                classNames={{
+                  input: "group-hover:bg-zinc-100 dark:group-hover:bg-zinc-700"
+                }}
+                value={formData.email}
+                onValueChange={(value) => handleChange("email", value)}
+              />
+            </FormField>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+          >
+            <FormField label="Contraseña" error={errors.password} className="my-4">
+              <Input
+                startContent={<FaLock className="h-5 w-5 text-default-400" />}
+                placeholder="••••••••"
+                type={isVisible ? "text" : "password"}
+                endContent={
+                  <button onClick={toggleVisibility} className="p-1">
+                    {isVisible ? (
+                      <EyeSlashFilledIcon className="text-2xl text-default-400" />
+                    ) : (
+                      <EyeFilledIcon className="text-2xl text-default-400" />
+                    )}
+                  </button>
+                }
+                className="group rounded-xl dark:bg-zinc-800 bg-zinc-50"
+                classNames={{
+                  input: "group-hover:bg-zinc-100 dark:group-hover:bg-zinc-700"
+                }}
+                value={formData.password}
+                onValueChange={(value) => handleChange("password", value)}
+              />
+            </FormField>
+          </motion.div>
+
+          <div className="text-center my-4">
+            <Link href="#" className="text-medium">
+              ¿Has olvidado tu contraseña?
+            </Link>
+          </div>
+
+          <div className="flex flex-col gap-4 my-4 relative z-10">
+            <motion.div
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="mt-4"
+            >
+              <Button
+                fullWidth
+                type="submit"
+                className="bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg hover:shadow-xl hover:shadow-purple-500/20 transition-all"
+                isLoading={isLoading}
+                variant="solid"
+              >
+                {isLoading ? "Ingresando..." : "Iniciar sesión"}
+              </Button>
+            </motion.div>
+          </div>
+
+          <div className="text-center text-xs">
+            <div className="flex flex-row mb-4 w-full items-center justify-center text-center">
+              <hr className="w-full" />
+              <p className="text-medium mx-2">O</p>
+              <hr className="w-full" />
+            </div>
+            {renderSocialButtons()}
+          </div>
+
+          {SubmitErrorModal ? (
+            <UnSuccessModal
+              isOpen={SubmitErrorModal}
+              onClose={(val: boolean) => setSubmitErrorModal(val)}
+              message={SubmitError}
+            />
+          ) : undefined}
+        </form>
       </div>
     </motion.div>
   );

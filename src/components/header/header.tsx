@@ -124,6 +124,7 @@ export const Header = ({ className }: { className?: string }) => {
   const pathname = usePathname();
   const isCartPage = pathname === "/shopping-cart";
   const { data: session, status } = useSession();
+  const isAuthPage = pathname === "/login" || pathname === "/register";
 
   // Evitar renderizado hasta tener el estado de sesión definido
   if (status === "loading") return null;
@@ -131,7 +132,7 @@ export const Header = ({ className }: { className?: string }) => {
   return (
     <HerouiNavbar
       maxWidth="full"
-      className={`${className} z-50 top-0 left-0 right-0 h-16 backdrop-blur-sm bg-white/80 dark:bg-black/80`}
+      className={`${className} z-40 top-0 left-0 right-0 h-16 backdrop-blur-sm bg-white/80 dark:bg-black/80`}
     >
       <NavbarContent className="sm:basis-full max-w-fit" justify="start">
         <NavbarBrand className="gap-3 max-w-none">
@@ -169,7 +170,7 @@ export const Header = ({ className }: { className?: string }) => {
               />
             </>
           )}
-          {session ? <AccountButton /> : <LoginButton />}
+          {session ? <AccountButton /> : !isAuthPage && <LoginButton />}
         </NavbarItem>
       </NavbarContent>
 
