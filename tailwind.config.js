@@ -1,5 +1,6 @@
 import { heroui } from "@heroui/theme";
-//plp
+
+//haciendo commit ahora aqui
 /** @type {import('tailwindcss').Config} */
 export default {
   content: [
