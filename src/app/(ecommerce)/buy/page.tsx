@@ -156,7 +156,7 @@ export default function Buy() {
           <div className="p-6 rounded-2xl bg-white dark:bg-zinc-900 shadow-xl border border-default-200 transition-all duration-300 hover:shadow-2xl">
             <div className="flex items-center gap-2 mb-6 pb-4 border-b border-default-200">
               <UserCircleIcon className="h-6 w-6 text-primary" />
-              <h2 className="text-xl font-semibold">Datos Personales</h2>
+              <h2 className="text-xl font-semibold">Datos Personales (Destinatario)</h2>
             </div>
 
             <FormProvider {...methods}>

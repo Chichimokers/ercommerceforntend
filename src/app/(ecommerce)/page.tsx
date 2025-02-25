@@ -50,7 +50,7 @@ const FeaturedProducts = ({ products }: { products: ProductBase[] }) => {
   return (
     <div className="mb-8 px-4 py-8">
       <div className="mb-6">
-        <h2 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-blue-600 mb-2 pb-2 border-b-4 border-blue-100 w-max">
+        <h2 className="text-3xl font-bold pb-2 border-b-4 border-blue-100 w-max">
           Productos Destacados
         </h2>
       </div>
@@ -84,7 +84,7 @@ const FeaturedProducts = ({ products }: { products: ProductBase[] }) => {
           className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-full transition-colors duration-300 flex items-center gap-2 mx-auto group"
           onClick={() => router.push('/products')}
         >
-          Explora el Universo Es Aki
+          Explora nuestros productos
           <ArrowRight className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-2" />
         </button>
       </div>

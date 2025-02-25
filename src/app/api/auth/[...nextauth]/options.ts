@@ -303,7 +303,7 @@ export const authOptions: NextAuthOptions = {
   pages: {
     error: "/auth/error",
   },
-  cookies: {
+  /*cookies: {
     sessionToken: {
       name:
         process.env.NODE_ENV === "production"
@@ -320,7 +320,7 @@ export const authOptions: NextAuthOptions = {
   session: {
     strategy: "jwt",
     maxAge: 4 * 60 * 60,
-  },
+  },*/
   secret: process.env.NEXTAUTH_SECRET,
 };
 

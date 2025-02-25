@@ -32,6 +32,7 @@ import { CustomButton } from "@components/buttons/custom-button";
 import { signIn } from "next-auth/react";
 import { motion } from "framer-motion";
 import { FormField } from "@components/forms/form-field";
+import { TermsModal } from "@components/modals/terms-modal";
 
 interface FormData {
   fullName: string;
@@ -315,8 +316,7 @@ export default function SignUp() {
                 }`}
               checked={formData.acceptTerms}
               onChange={(value) => handleInputChange("acceptTerms", value)}
-              label="Acepto términos y condiciones"
-            ></Checkbox>
+            >Acepto los <TermsModal /></Checkbox>
           </motion.div>
           {errors.acceptTerms && (
             <motion.div
@@ -328,17 +328,6 @@ export default function SignUp() {
               {errors.acceptTerms}
             </motion.div>
           )}
-
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.8 }}
-          >
-            <Link className="text-xs select-none cursor-pointer mt-4">
-              <FaLink className="mx-1"></FaLink>
-              Terminos y condiciones
-            </Link>
-          </motion.div>
 
           <motion.div
             whileHover={{ scale: 1.02 }}
