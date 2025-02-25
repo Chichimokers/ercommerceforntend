@@ -1,5 +1,6 @@
 import { heroui } from "@heroui/theme";
 
+//pero aqui va otro
 /** @type {import('tailwindcss').Config} */
 export default {
   content: [
