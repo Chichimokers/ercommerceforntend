@@ -35,8 +35,7 @@ jobs:
 
       - name: borrar procedo
         working-directory: ./frontend
-        run:|
-         pm2 delete frontend || true
+        run : pm2 delete frontend || true
       
       - name: Desplegar frontend
         working-directory: ./frontend
