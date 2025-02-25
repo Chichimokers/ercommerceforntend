@@ -30,7 +30,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
                   transition={{ type: "spring", stiffness: 300, damping: 20 }}
                 />
               )}
-              <span className="relative z-10">Iniciar Sesión</span>
+              <span className="relative z-10 text-sm xxs:text-medium">Iniciar Sesión</span>
             </Link>
             <Link
               href="/register"
@@ -60,7 +60,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
           transition={{ duration: 0.3, delay: 0.1 }}
-          className="container mx-auto p-4 flex items-center justify-center min-h-[calc(100vh-100px)] relative"
+          className="container mx-auto md:p-4 flex justify-center relative my-4"
         >
           {children}
         </motion.div>
