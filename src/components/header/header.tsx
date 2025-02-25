@@ -124,6 +124,7 @@ export const Header = ({ className }: { className?: string }) => {
   const pathname = usePathname();
   const isCartPage = pathname === "/shopping-cart";
   const { data: session, status } = useSession();
+  const isAuthPage = pathname === "/login" || pathname === "/register";
 
   // Evitar renderizado hasta tener el estado de sesión definido
   if (status === "loading") return null;
@@ -169,7 +170,7 @@ export const Header = ({ className }: { className?: string }) => {
               />
             </>
           )}
-          {session ? <AccountButton /> : <LoginButton />}
+          {session ? <AccountButton /> : !isAuthPage && <LoginButton />}
         </NavbarItem>
       </NavbarContent>
 
