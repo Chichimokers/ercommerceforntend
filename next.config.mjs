@@ -76,15 +76,18 @@ const nextConfig = {
 
   // Compresión avanzada
   compress: true,
-  webpack: (config) => {
+  webpack: async (config) => {
+    const CompressionPlugin = (await import("compression-webpack-plugin"))
+      .default;
+
     config.plugins.push(
-      new (require("compression-webpack-plugin"))({
+      new CompressionPlugin({
         algorithm: "gzip",
         test: /\.(js|css|html|svg|json)$/,
       })
     );
     config.plugins.push(
-      new (require("compression-webpack-plugin"))({
+      new CompressionPlugin({
         algorithm: "brotliCompress",
         filename: "[path][base].br",
         test: /\.(js|css|html|svg|json)$/,
