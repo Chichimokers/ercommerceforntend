@@ -121,7 +121,8 @@ export const authOptions: NextAuthOptions = {
           prompt: "consent",
           access_type: "offline",
           response_type: "code",
-          scope: "openid email profile https://www.googleapis.com/auth/userinfo.profile"
+          scope: "openid email profile https://www.googleapis.com/auth/userinfo.profile",
+          redirect_uri: `${process.env.NEXTAUTH_URL}api/auth/callback/google`
         }
       },
       client: {
