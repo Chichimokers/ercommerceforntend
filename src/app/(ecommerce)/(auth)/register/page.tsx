@@ -131,6 +131,9 @@ export default function SignUp() {
       };
 
       await signUp(user);
+      setData(user);
+      openVerify();
+
       addToast({
         title: "Registro exitoso",
         description: "Hemos enviado un código de verificación a tu correo",
@@ -141,8 +144,6 @@ export default function SignUp() {
           description: "text-green-600 dark:text-green-200",
         }
       });
-      setData(user);
-      openVerify();
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Error al registrarse";
 
@@ -375,9 +376,7 @@ export default function SignUp() {
       </div>
       <VerificationModal
         isOpen={isVerifyOpen}
-        onClose={() => {
-          closeVerify();
-        }}
+        onClose={closeVerify}
         onVerifyCode={() => {
           addToast({
             title: "Verificación exitosa",
@@ -389,6 +388,7 @@ export default function SignUp() {
               description: "text-green-600 dark:text-green-200",
             }
           });
+
           router.replace(pathname, { scroll: false });
         }}
         userData={data}
