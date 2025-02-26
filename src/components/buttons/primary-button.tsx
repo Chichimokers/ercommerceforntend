@@ -1,4 +1,4 @@
-import { Button } from "@heroui-org/react";
+import { Button } from "@heroui/react";
 
 const PrimaryButton = ({
   text,

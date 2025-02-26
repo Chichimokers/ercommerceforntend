@@ -5,8 +5,21 @@ import { ShowButton, EditButton, DeleteButton } from "@refinedev/antd";
 import { ColumnType } from "antd/es/table";
 import { Category, BaseType } from "../../../../types/types";
 import GenericList from "@components/generic_admin_pages/genericListPage";
+import { Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 
-const CategoryList: React.FC = () => {
+function CategoryPage() {
+	return (
+		<Suspense fallback={<div>Cargando categorías...</div>}>
+			<CategoryContent />
+		</Suspense>
+	);
+}
+
+const CategoryContent: React.FC = () => {
+	const searchParams = useSearchParams();
+	const page = searchParams.get('page');
+
 	const columns: ColumnType<Category & BaseType>[] = [
 		{
 			title: "ID",
@@ -24,7 +37,7 @@ const CategoryList: React.FC = () => {
 					? subCategories.map((sub) => sub.name).join(", ")
 					: "N/A",
 		},
-	
+
 	];
 
 	return (
@@ -37,4 +50,4 @@ const CategoryList: React.FC = () => {
 	);
 };
 
-export default CategoryList;
+export default CategoryPage;

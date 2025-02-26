@@ -41,7 +41,7 @@ export const ThemeSwitch: FC<ThemeSwitchProps> = ({
     // Aplicar el tema inmediatamente
     setTheme(savedTheme);
     setIsMounted(true);
-  }, []);
+  }, [setTheme]);
 
   const {
     Component,

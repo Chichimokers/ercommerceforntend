@@ -1,4 +1,4 @@
-import { Input } from "@heroui-org/react";
+import { Input } from "@heroui/react";
 
 const InputComponent = ({
   className,

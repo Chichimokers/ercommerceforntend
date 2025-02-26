@@ -1,4 +1,4 @@
-import { Autocomplete, AutocompleteItem } from "@heroui-org/react";
+import { Autocomplete, AutocompleteItem } from "@heroui/react";
 
 const AutocompleteComponent = ({ places }: { places: string[] }) => {
   return (

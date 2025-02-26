@@ -76,9 +76,8 @@ const nextConfig = {
 
   // Compresión avanzada
   compress: true,
-  webpack: async (config) => {
-    const CompressionPlugin = (await import("compression-webpack-plugin"))
-      .default;
+  webpack: (config: any) => {
+    const CompressionPlugin = require("compression-webpack-plugin");
 
     config.plugins.push(
       new CompressionPlugin({
@@ -97,9 +96,9 @@ const nextConfig = {
   },
 };
 
-// Corrección usando import dinámico
-const withBundleAnalyzer = (await import("@next/bundle-analyzer")).default({
+// Corregir la importación del bundle analyzer
+const withBundleAnalyzer = require("@next/bundle-analyzer")({
   enabled: process.env.ANALYZE === "true",
 });
 
-export default withBundleAnalyzer(nextConfig);
+module.exports = withBundleAnalyzer(nextConfig);

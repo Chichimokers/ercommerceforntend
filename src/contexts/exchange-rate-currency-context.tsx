@@ -88,6 +88,20 @@ const CurrencyAndExchangeRateProvider: React.FC<{ children: ReactNode }> = ({
     }
   }, [SelectedCurrency, fetchCurrencyData]);
 
+  // Definir funciones inline con dependencias explícitas
+  const updateExchangeRate = useCallback((newRate: number) => {
+    setRateExchange(prev => ({
+      ...(prev || { country: '', currency: 'USD', symbol: '$' }),
+      exchangeRate: newRate
+    }));
+    localStorage.setItem('exchangeRate', newRate.toString());
+  }, [setRateExchange]);
+
+  const handleCurrencyChange = useCallback((newCurrency: string) => {
+    setSelectedCurrency(newCurrency);
+    localStorage.setItem('selectedCurrency', newCurrency);
+  }, [setSelectedCurrency]); // Dependencia explícita
+
   return (
     <CurrencyAndExchangeRateContext.Provider
       value={{

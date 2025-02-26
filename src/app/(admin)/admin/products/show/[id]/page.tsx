@@ -1,13 +1,13 @@
 "use client";
 
 import React from "react";
-import { useShow, IResourceComponentsProps } from "@refinedev/core";
+import { useShow } from "@refinedev/core";
 import { Show, EditButton, ListButton } from "@refinedev/antd";
 import { BaseType, ProductBase } from "../../../../../../types/types";
 import { Typography, Descriptions } from "antd";
 const { Title } = Typography;
 
-const ProductShow: React.FC<IResourceComponentsProps> = () => {
+const ProductShow = () => {
 	// Hook para obtener los datos del producto basándose en el id que llega por la URL
 	const { queryResult } = useShow<ProductBase & BaseType>({
 		resource: "products",
