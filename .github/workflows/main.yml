@@ -17,7 +17,7 @@ jobs:
   
         uses: actions/setup-node@v3
         with:
-              node-version: 22.9.0
+              node-version: 22.13.1
 
       # Instalar herramientas globales
       - name: Instalar dependencias globales
