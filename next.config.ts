@@ -77,15 +77,17 @@ const nextConfig = {
 
   // Compresión avanzada
   compress: true,
-  webpack: (config) => {
+  webpack: (config: any) => {
+    const CompressionPlugin = require("compression-webpack-plugin");
+
     config.plugins.push(
-      new (require("compression-webpack-plugin"))({
+      new CompressionPlugin({
         algorithm: "gzip",
         test: /\.(js|css|html|svg|json)$/,
       })
     );
     config.plugins.push(
-      new (require("compression-webpack-plugin"))({
+      new CompressionPlugin({
         algorithm: "brotliCompress",
         filename: "[path][base].br",
         test: /\.(js|css|html|svg|json)$/,
@@ -95,9 +97,9 @@ const nextConfig = {
   },
 };
 
-// Corrección usando import dinámico
-const withBundleAnalyzer = (await import("@next/bundle-analyzer")).default({
+// Corregir la importación del bundle analyzer
+const withBundleAnalyzer = require("@next/bundle-analyzer")({
   enabled: process.env.ANALYZE === "true",
 });
 
-export default withBundleAnalyzer(nextConfig);
+module.exports = withBundleAnalyzer(nextConfig);

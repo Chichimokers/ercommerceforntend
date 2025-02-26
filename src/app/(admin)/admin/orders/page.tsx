@@ -1,102 +1,93 @@
 "use client";
 
-import { List, useTable, EditButton, ShowButton, DeleteButton, ExportButton } from "@refinedev/antd";
-import { Table, Space, Tag } from "antd";
-import { Order } from "../../../../types/types";
-import { ColumnType } from "antd/es/table";
+import { Tag } from "antd";
+import { Order, BaseType } from "../../../../types/types";
+import GenericList, { ExtendedColumnType } from "@components/generic_admin_pages/genericListPage";
 
-export default function OrderList() {
-    const { tableProps } = useTable<Order>({
-        sorters: { initial: [{ field: "createdAt", order: "desc" }] }
-    });
+const OrderList: React.FC = () => {
+  const columns: ExtendedColumnType<Order & BaseType>[] = [
+    {
+      title: 'Id',
+      dataIndex: 'id',
+    },
+    {
+      title: 'Fecha Creación',
+      dataIndex: 'created_at',
+      render: (date: string) => new Date(date).toLocaleDateString(),
+      sorter: true,
+    },
+    {
+      title: 'Última Actualización',
+      dataIndex: 'updated_at',
+      render: (date: string) => new Date(date).toLocaleDateString(),
+      sorter: true,
+    },
+    {
+      title: 'Cliente',
+      dataIndex: 'receiver_name',
+      render: (name: string, record: Order) => (
+        <div>
+          <div>{name}</div>
+          <div className="text-gray-500">CI:{record.CI}</div>
+          <div className="text-gray-500">Tel:{record.phone}</div>
 
-    const columns = [
-        {
-            title: 'Fecha',
-            dataIndex: 'created_at',
-            render: (date: string) => new Date(date).toLocaleDateString(),
-            sorter: true,
-            defaultSortOrder: 'descend'
-        },
-        {
-            title: 'Cliente',
-            dataIndex: 'receiver_name',
-            render: (name: string, record: Order) => (
-                <div>
-                    <div>{name}</div>
-                    <div style={{ color: '#666' }}>{record.phone}</div>
-                </div>
-            )
-        },
-        {
-            title: 'Ubicación',
-            dataIndex: 'province',
-            render: (province: string, record: Order) => (
-                <div>
-                    <div>{province}</div>
-                    <div style={{ fontSize: '0.8em' }}>{record.address}</div>
-                </div>
-            )
-        },
-        {
-            title: 'Identificación',
-            dataIndex: 'CI',
-            render: (ci: string) => ci || 'N/A'
-        },
-        {
-            title: 'Monto',
-            dataIndex: 'subtotal',
-            render: (amount: number) => `$${amount.toFixed(2)}`,
-            align: 'right'
-        },
-        {
-            title: 'Estado',
-            dataIndex: 'status',
-            render: (status: string) => {
-                let color = 'default';
-                if (status === 'entregado') color = 'green';
-                if (status === 'cancelado') color = 'red';
-                if (status === 'procesando') color = 'blue';
-                return <Tag color={color}>{status.toUpperCase()}</Tag>;
-            }
-        },
-        {
-            title: 'Acciones',
-            render: (record: Order) => (
-                <Space>
-                    <ShowButton
-                        hideText
-                        recordItemId={record.id}
-                        resource="orders"
-                    />
-                    <EditButton
-                        hideText
-                        recordItemId={record.id}
-                        resource="orders"
-                    />
-                    <DeleteButton
-                        hideText
-                        recordItemId={record.id}
-                        resource="orders"
-                        meta={{ id: record.id }}
-                    />
-                </Space>
-            )
-        }
-    ];
+        </div>
+      ),
+      sorter: true,
+    },
+    {
+      title: 'Ubicación',
+      dataIndex: 'province',
+      render: (province: string, record: Order) => (
+        <div>
+          <div>{province}</div>
+          <div className="text-sm">{record.address}</div>
+        </div>
+      ),
+      sorter: true,
+    },
+    
+    {
+      title: 'Monto',
+      dataIndex: 'subtotal',
+      align: 'right',
+      sorter: true,
+      rangeFilter:true
+    },
+    {
+      title: 'Estado',
+      dataIndex: 'status',
+      render: (status: string) => {
+        const colorMap: Record<string, string> = {
+          accepted: 'green',
+          cancelled: 'red',
+          pending: 'blue',
+          paid:'yellow',
+          default: 'default',
+        };
 
-    return (
-        <List
-            title="Ordenes"
-            canCreate
-            headerButtons={({ defaultButtons }) => (
-                <>
-                    {defaultButtons}
-                    <ExportButton />
-                </>
-            )}
-        >
-            <Table<Order> {...tableProps} columns={columns as ColumnType<Order>[]} rowKey="id" />
-        </List>
-    );
-}
+        const color = colorMap[status] || colorMap.default;
+        return <Tag color={color}>{status.toUpperCase()}</Tag>;
+      },
+      sorter: true,
+      filters: [
+        { text: "Aceptadas", value: "accepted" },
+        { text: "Canceladas", value: "cancelled" },
+        { text: "Pendientes", value: "pending" },
+        { text: "Pagadas", value: "paid" },
+      ],
+    },
+  
+  ];
+
+  return (
+    <GenericList<Order & BaseType>
+      resource="orders"
+      title="Órdenes"
+      columns={columns}
+      pageSize={10}
+    />
+  );
+};
+
+export default OrderList;

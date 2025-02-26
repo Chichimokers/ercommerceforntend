@@ -5,13 +5,13 @@ import {
   Input,
   Link,
   Button,
+  addToast,
 } from "@heroui/react";
 import { FaGoogle, FaLock, FaMailBulk } from "react-icons/fa";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { useFormValidation } from "@/hooks/useFormValidation";
 import { signIn } from "next-auth/react";
-import UnSuccessModal from "@components/modals/unsucces-modal";
 import { EyeSlashFilledIcon } from "@components/images/eye-slash-icon";
 import { EyeFilledIcon } from "@components/images/eye-filled";
 import { CustomButton } from "@components/buttons/custom-button";
@@ -45,9 +45,6 @@ export default function Login() {
     handleChange,
     validateForm,
   } = useFormValidation<FormData>({ email: "", password: "" }, validationRules);
-  const [SubmitError, setSubmitError] = useState("");
-  const [SubmitErrorModal, setSubmitErrorModal] = useState(false);
-  const [SubmitSuccessModal, setSubmitSuccessModal] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const toggleVisibility = () => setIsVisible(!isVisible);
   const handleSubmit = async () => {
@@ -64,13 +61,34 @@ export default function Login() {
       if (result?.error) {
         throw new Error(result.error);
       }
-
-      setSubmitSuccessModal(true);
-      router.push('/')
+      addToast({
+        title: "Sesión iniciada",
+        description: "Has ingresado correctamente",
+        color: "success",
+        classNames: {
+          base: "bg-gradient-to-br from-green-50 to-green-100 dark:from-green-800 dark:to-green-900",
+          title: "text-green-800 dark:text-green-100",
+          description: "text-green-600 dark:text-green-200",
+        }
+      });
+      router.push('/');
 
     } catch (error) {
-      setSubmitError(error instanceof Error ? error.message : "Error desconocido");
-      setSubmitErrorModal(true);
+      const errorMessage = error instanceof Error
+        ? error.message.includes("login error")
+          ? "El usuario no está registrado"
+          : error.message
+        : "Error desconocido";
+      addToast({
+        title: "Error de autenticación",
+        description: errorMessage,
+        color: "danger",
+        classNames: {
+          base: "bg-gradient-to-br from-red-50 to-red-100 dark:from-red-800 dark:to-red-900",
+          title: "text-red-800 dark:text-red-100",
+          description: "text-red-600 dark:text-red-200",
+        }
+      });
     } finally {
       setIsLoading(false);
     }
@@ -217,14 +235,6 @@ export default function Login() {
             </div>
             {renderSocialButtons()}
           </div>
-
-          {SubmitErrorModal ? (
-            <UnSuccessModal
-              isOpen={SubmitErrorModal}
-              onClose={(val: boolean) => setSubmitErrorModal(val)}
-              message={SubmitError}
-            />
-          ) : undefined}
         </form>
       </div>
     </motion.div>

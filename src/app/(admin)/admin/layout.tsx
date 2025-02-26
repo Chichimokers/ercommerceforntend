@@ -4,7 +4,7 @@ import { Authenticated, Refine } from "@refinedev/core";
 import { ThemedLayoutV2, useNotificationProvider } from "@refinedev/antd";
 import { AntdRegistry } from "@ant-design/nextjs-registry";
 import NextRouterProvider from "@refinedev/nextjs-router/app";
-
+import dataProvider from "@refinedev/simple-rest";
 import { authProvider } from "@/providers/auth-provider";
 import {
 	GoogleOutlined,
@@ -18,7 +18,7 @@ import { useTheme } from "next-themes";
 import { customDataProvider } from "@providers/data-provider";
 import { RefineContext } from "@app/_refine_context";
 
-export default function Layout({ children }: { children: React.ReactNode }) {
+function Layout({ children }: { children: React.ReactNode }) {
 	const { resolvedTheme } = useTheme();
 
 	return (
@@ -38,6 +38,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 					<Refine
 						routerProvider={NextRouterProvider}
 						dataProvider={customDataProvider}
+						authProvider={authProvider}
 						notificationProvider={useNotificationProvider}
 						resources={[
 							{
@@ -69,26 +70,15 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 								list: "/admin",
 								meta: { label: "Panel", icon: <GoogleOutlined /> },
 							},
-							{
-								name: "products",
-								list: "/admin/products",
-								create: "/admin/products/create",
-								edit: "/admin/products/edit/:id",
-								show: "/admin/products/show/:id",
-								meta: { label: "Productos", icon: <ProductOutlined /> },
-							},
+
 							{
 								name: "orders",
 								list: "/admin/orders",
 								show: "/admin/orders/show/:id",
 								meta: { label: "Pedidos", icon: <ShoppingOutlined /> },
 							},
-							{
-								name: "user",
-								list: "/admin/user",
-								meta: { label: "Usuarios", icon: <UserOutlined /> },
-							},
-							// Nuevos recursos
+
+
 							{
 								name: "category",
 								list: "/admin/category",
@@ -103,7 +93,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 								create: "/admin/sub_category/create",
 								edit: "/admin/sub_category/edit/:id",
 								show: "/admin/sub_category/show/:id",
-								meta: { label: "Sub_Categorías" },
+								meta: { label: "Sub Categorías" },
 							},
 							{
 								name: "payments",
@@ -140,3 +130,5 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 		</RefineContext>
 	);
 }
+
+export default Layout;

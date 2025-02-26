@@ -1,6 +1,6 @@
 'use client';
 
-import { HeroUIProvider } from "@heroui/react"
+import { HeroUIProvider, ToastProvider } from "@heroui/react"
 import { CurrencyAndExchangeRateProvider } from "@contexts/exchange-rate-currency-context"
 import { ModalProvider } from "@contexts/modal-context"
 import { SessionProvider } from "next-auth/react"
@@ -8,6 +8,8 @@ import AuthLayout from "@components/layout/auth-layout"
 import { ProductProvider } from "@contexts/product-context"
 import { CartProvider } from "@contexts/cart-context"
 import { ThemeProvider } from "next-themes"
+
+// tantos comentarios me marean
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -23,6 +25,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
             <CartProvider>
               <ModalProvider>
                 <HeroUIProvider>
+                  <ToastProvider />
                   <AuthLayout>
                     {children}
                   </AuthLayout>

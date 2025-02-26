@@ -9,7 +9,8 @@ export type ProductBase = {
 	image?: string;
 	quantity: number;
 	averageRating?: number;
-	deleted_at?: Date;
+	
+	
 	discount?: {
 		min: number;
 		reduction: number;
@@ -42,7 +43,7 @@ export interface SubCategory {
 }
 
 export interface Category {
-	id: number;
+	id: string;
 	name: string;
 	subCategories: SubCategory[];
 }

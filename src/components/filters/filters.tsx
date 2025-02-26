@@ -126,11 +126,11 @@ const Filters = ({ onFilterChange, setIsInvalidFilters, className }: FiltersProp
     }
   }, [onFilterChange, isLoading, filterState, setIsInvalidFilters]);
 
-  const updateFilterState = (partialState: Partial<FilterStateType>) => {
+  const updateFilterState = useCallback((partialState: Partial<FilterStateType>) => {
     setFilterState(prev => {
       const newState = { ...prev, ...partialState };
       onFilterChange?.({
-        categories: filterState.categories.names.includes(ALL_CATEGORIES)
+        categories: prev.categories.names.includes(ALL_CATEGORIES)
           ? []
           : newState.categories.ids,
         subcategories: newState.subcategories.ids,
@@ -139,7 +139,7 @@ const Filters = ({ onFilterChange, setIsInvalidFilters, className }: FiltersProp
       });
       return newState;
     });
-  };
+  }, [onFilterChange]);
 
   const handleCategoryChange = useCallback((selectedNames: string[]) => {
     const isSelectingAll = selectedNames.includes(ALL_CATEGORIES);
@@ -238,7 +238,10 @@ const Filters = ({ onFilterChange, setIsInvalidFilters, className }: FiltersProp
         }}
       >
         {ratingOptions.map((option, index) => (
-          <SelectItem key={index.toString()} value={index.toString()}>
+          <SelectItem
+            key={index.toString()}
+            id={index.toString()}
+          >
             {option}
           </SelectItem>
         ))}

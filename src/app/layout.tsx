@@ -9,6 +9,8 @@ export const metadata: Metadata = {
   description: "Creado por y para los cubanos",
 };
 
+export const dynamic = 'force-dynamic';
+
 export default function RootLayout({
   children,
 }: {
