@@ -4,12 +4,11 @@ import React, { useState } from "react";
 import {
   Button,
   Input,
-  Link,
+  addToast,
 } from "@heroui/react";
 import Image from "next/image";
 import {
   FaGoogle,
-  FaLink,
   FaLock,
   FaMailBulk,
   FaUser,
@@ -18,13 +17,10 @@ import Checkbox from "@components/checkbox/checkbox";
 
 import { useFormValidation } from "@/hooks/useFormValidation";
 import { useWindowWidth } from "@/hooks/useWindowWidth";
-import { SignUpProps } from "@/types/signup-props";
 import { signUp } from "@/services/authService";
 import { UserData } from "@/types/types";
 import VerificationModal from "@components/modals/verification-modal";
-import SuccessModal from "@components/modals/succes-modal";
 import { useModal } from "@/contexts/modal-context";
-import UnSuccessModal from "@components/modals/unsucces-modal";
 import { EyeSlashFilledIcon } from "@components/images/eye-slash-icon";
 import { EyeFilledIcon } from "@components/images/eye-filled";
 import { usePathname, useRouter } from "next/navigation";
@@ -61,8 +57,6 @@ export default function SignUp() {
     setData,
   } = useModal();
   const [submitError, setSubmitError] = useState("");
-  const [successModalOpen, setSuccessModalOpen] = useState(false);
-  const [UnSuccessModalOpen, setUnSuccessModalOpen] = useState(false);
   const [isVisibleP, setIsVisibleP] = React.useState(false);
   const toggleVisibilityP = () => setIsVisibleP(!isVisibleP);
   const [isVisibleCP, setIsVisibleCP] = React.useState(false);
@@ -137,13 +131,31 @@ export default function SignUp() {
       };
 
       await signUp(user);
+      addToast({
+        title: "Registro exitoso",
+        description: "Hemos enviado un código de verificación a tu correo",
+        color: "success",
+        classNames: {
+          base: "bg-gradient-to-br from-green-50 to-green-100 dark:from-green-800 dark:to-green-900",
+          title: "text-green-800 dark:text-green-100",
+          description: "text-green-600 dark:text-green-200",
+        }
+      });
       setData(user);
       openVerify();
     } catch (error) {
-      setSubmitError(
-        error instanceof Error ? error.message : "Error al registrarse"
-      );
-      setUnSuccessModalOpen(true);
+      const errorMessage = error instanceof Error ? error.message : "Error al registrarse";
+
+      addToast({
+        title: "Error en registro",
+        description: errorMessage,
+        color: "danger",
+        classNames: {
+          base: "bg-gradient-to-br from-red-50 to-red-100 dark:from-red-800 dark:to-red-900",
+          title: "text-red-800 dark:text-red-100",
+          description: "text-red-600 dark:text-red-200",
+        }
+      });
     } finally {
       setIsLoading(false);
     }
@@ -367,24 +379,19 @@ export default function SignUp() {
           closeVerify();
         }}
         onVerifyCode={() => {
-          setSuccessModalOpen(true);
-        }}
-        userData={data}
-      />
-      <SuccessModal
-        message={"¡Verificación Exitosa!"}
-        isOpen={successModalOpen}
-        onClose={() => {
-          setSuccessModalOpen(false);
-          setIsAuthorizationInProgress(false);
-
+          addToast({
+            title: "Verificación exitosa",
+            description: "¡Tu cuenta ha sido activada correctamente!",
+            color: "success",
+            classNames: {
+              base: "bg-gradient-to-br from-green-50 to-green-100 dark:from-green-800 dark:to-green-900",
+              title: "text-green-800 dark:text-green-100",
+              description: "text-green-600 dark:text-green-200",
+            }
+          });
           router.replace(pathname, { scroll: false });
         }}
-      />
-      <UnSuccessModal
-        isOpen={UnSuccessModalOpen}
-        onClose={(val: boolean) => setUnSuccessModalOpen(val)}
-        message={submitError}
+        userData={data}
       />
     </motion.div>
   );
