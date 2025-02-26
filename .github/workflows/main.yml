@@ -33,8 +33,11 @@ jobs:
         run: |
           npm install
 
+      - name: Borrar  frontend
+        working-directory: ./frontend
+        run: |
+           pm2 delete "frontend" || true
       - name: Desplegar frontend
         working-directory: ./frontend
         run: |
-          pm2 delete frontend || true
-          pm2 start npm --name "frontend" -- run pre -- -p 3001
+           pm2 start npm --name "frontend" -- run pre -- -p 3001
