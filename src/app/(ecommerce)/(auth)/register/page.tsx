@@ -198,15 +198,13 @@ export default function SignUp() {
 
   return (
     <motion.div
-      initial={{ scale: 0.95, opacity: 0 }}
-      animate={{ scale: 1, opacity: 1 }}
       className="w-full max-w-2xl bg-white dark:bg-zinc-900 p-8 rounded-2xl shadow-md relative overflow-hidden bg-opacity-70 dark:bg-opacity-70"
     >
 
       <div className="flex flex-col items-center gap-4 mb-8 relative z-10">
         <Image
           alt="Company Logo"
-          className="w-32 h-auto transition-transform hover:scale-105"
+          className="w-32 h-auto"
           src="/logo.png"
           width={128}
           height={128}
@@ -374,6 +372,7 @@ export default function SignUp() {
           </motion.div>
         </form>
       </div>
+
       <VerificationModal
         isOpen={isVerifyOpen}
         onClose={closeVerify}
@@ -388,8 +387,8 @@ export default function SignUp() {
               description: "text-green-600 dark:text-green-200",
             }
           });
-
-          router.replace(pathname, { scroll: false });
+          closeVerify();
+          router.push("/");
         }}
         userData={data}
       />
