@@ -48,7 +48,7 @@ apiClient.interceptors.response.use(
       } catch (refreshError) {
         console.error('Error renovando token:', refreshError);
         await signOut({ redirect: false });
-        window.location.href = '/?modal=login';
+        window.location.href = '/login';
         return Promise.reject(error);
       }
     }

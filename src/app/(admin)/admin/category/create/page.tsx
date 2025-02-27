@@ -4,7 +4,7 @@ import { Input, Form } from "antd";
 import { BaseType, Category } from "../../../../../types/types";
 import GenericCreatePage from "@components/generic_admin_pages/genericCreatePage";
 
-const CategoryCreate: React.FC = () => {
+export default function CategoryCreate() {
 	return (
 		<GenericCreatePage<Category & BaseType>
 			resource="category"
@@ -19,6 +19,4 @@ const CategoryCreate: React.FC = () => {
 			</Form.Item>
 		</GenericCreatePage>
 	);
-};
-
-export default CategoryCreate;
+}

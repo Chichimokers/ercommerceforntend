@@ -9,7 +9,7 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
       const session = await getSession();
       if (session?.error || session?.expired) {
         await signOut({ redirect: false });
-        window.location.href = '/?modal=login';
+        window.location.href = '/login';
       }
     };
 
