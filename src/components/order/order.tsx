@@ -37,34 +37,47 @@ const OrderItem = React.memo(({ item }: { item: Item }) => (
 OrderItem.displayName = 'OrderItem';
 
 // Subcomponente para el encabezado
-const OrderHeader = ({ order }: { order: Order }) => (
-  <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm px-4 pt-4">
-    <div className="flex justify-between items-start gap-4 min-w-[260px]">
-      <div className="space-y-2">
-        <h4 className="text-xl font-semibold">Orden #{order.id.slice(0, 6)}</h4>
-        <p className="text-sm text-default-600">
-          <MapPinIcon className="inline mr-1" />
-          {order.province}
-        </p>
-        <OrderStatus status={order.status} />
+const OrderHeader = ({ order }: { order: Order }) => {
+
+  return (
+    <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm px-4 pt-4">
+      <div className="flex justify-between items-start gap-4 min-w-[260px]">
+        <div className="space-y-2">
+          <h4 className="text-xl font-semibold">Orden #{order.id.slice(0, 6)}</h4>
+          <p className="text-sm text-default-600">
+            <MapPinIcon className="inline mr-1" />
+            {order.province}
+          </p>
+          <OrderStatus status={order.status} />
+        </div>
+        <CustomQRCode value={order.id} />
       </div>
-      <CustomQRCode value={order.id} />
+      <Divider className="mt-4" />
     </div>
-    <Divider className="mt-4" />
-  </div>
-);
+  );
+}
 
 // Componente para el estado con colores consistentes
 const OrderStatus = ({ status }: { status: Order['status'] }) => {
   const statusColors = {
-    Enviada: 'primary',
-    Procesando: 'warning',
-    Completada: 'success'
+    accepted: 'primary',
+    cancelled: 'danger',
+    pending: 'warning',
+    paid: 'success',
+    default: 'default',
+  } as const;
+
+  const spanishStatus = {
+    accepted: 'Aceptada',
+    cancelled: 'Cancelada',
+    pending: 'Pendiente',
+    paid: 'Pagada',
+    default: 'Desconocido',
   } as const;
 
   return (
-    <Chip color={statusColors[status as keyof typeof statusColors]} variant="dot" radius="sm">
-      <span className="font-medium text-sm">{status}</span>
+    <Chip color={statusColors[status as keyof typeof statusColors]} variant="flat" radius="sm">
+      <span className="font-medium text-sm">{spanishStatus[status as keyof typeof statusColors]}</span>
     </Chip>
   );
 };

@@ -93,6 +93,40 @@ const Filters = ({ onFilterChange, setIsInvalidFilters, className }: FiltersProp
     });
   }, [searchParams, categories]);
 
+  useEffect(() => {
+    // Verificamos si existe el parámetro "category" en la URL
+    const categoryParam = searchParams.get("category");
+    if (!categoryParam || categoryParam.trim() === "") {
+      // Si no hay parámetro o viene vacío, se mantiene el estado por defecto (con "Todos")
+      setFilterState(DEFAULT_FILTER_STATE);
+      return;
+    }
+
+    // Función auxiliar para mapear IDs a nombres según el tipo (categoría o subcategoría)
+    const getMappedIds = (param: string | null, type: 'category' | 'subcategory') => {
+      const items = param?.split(",") || [];
+      return items.map((id) => {
+        const found = categories
+          .flatMap((cat) => (type === "category" ? [cat] : cat.subCategories))
+          .find((item) => item.id.toString() === id);
+        return found ? found.name : id;
+      });
+    };
+
+    setFilterState({
+      categories: {
+        ids: categoryParam.split(","),
+        names: getMappedIds(categoryParam, "category"),
+      },
+      subcategories: {
+        ids: searchParams.get("subcategory")?.split(",") || [],
+        names: getMappedIds(searchParams.get("subcategory"), "subcategory"),
+      },
+      ratingIndex: Number(searchParams.get("rate")) || 0,
+      priceRange: parsePriceRange(searchParams.get("pricerange")),
+    });
+  }, [searchParams, categories]);
+
   // Efecto centralizado para propagar cambios de filtros
   useEffect(() => {
     if (!isLoading) {
@@ -125,12 +159,33 @@ const Filters = ({ onFilterChange, setIsInvalidFilters, className }: FiltersProp
 
   const handleCategoryChange = useCallback(
     (selectedNames: string[]) => {
-      const isSelectingAll = selectedNames.includes(ALL_CATEGORIES);
+      const prevSelectedNames = filterState.categories.names;
+      let newSelectedNames: string[] = [];
+
+      // Si el usuario agrega "Todos" y antes no estaba seleccionado, se reemplaza toda la selección por "Todos".
+      if (
+        !prevSelectedNames.includes(ALL_CATEGORIES) &&
+        selectedNames.includes(ALL_CATEGORIES)
+      ) {
+        newSelectedNames = [ALL_CATEGORIES];
+      }
+      // Si ya estaba "Todos" y se agrega otra opción, se quita "Todos"
+      else if (
+        prevSelectedNames.includes(ALL_CATEGORIES) &&
+        selectedNames.length > 1
+      ) {
+        newSelectedNames = selectedNames.filter(name => name !== ALL_CATEGORIES);
+      }
+      // En otros casos, se usa la selección tal cual.
+      else {
+        newSelectedNames = selectedNames;
+      }
+
       const newCategories = {
-        names: isSelectingAll ? [ALL_CATEGORIES] : selectedNames,
-        ids: isSelectingAll
+        names: newSelectedNames,
+        ids: newSelectedNames.includes(ALL_CATEGORIES)
           ? []
-          : selectedNames.map(name =>
+          : newSelectedNames.map(name =>
             categories.find(cat => cat.name === name)?.id?.toString() || name
           ),
       };
@@ -140,8 +195,11 @@ const Filters = ({ onFilterChange, setIsInvalidFilters, className }: FiltersProp
         subcategories: { ids: [], names: [] },
       });
     },
-    [updateFilterState, categories]
+    [updateFilterState, categories, filterState.categories.names]
   );
+
+
+
 
   const handleSubcategoryChange = useCallback(
     (selectedNames: string[]) => {

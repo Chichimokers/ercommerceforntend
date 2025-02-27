@@ -117,6 +117,8 @@ export default function BuyPage() {
         })
       );
 
+      localStorage.removeItem("cart")
+
       toast.success("Pedido realizado con éxito!", {
         duration: 4000,
         position: "bottom-right",
