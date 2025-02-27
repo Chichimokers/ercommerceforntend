@@ -8,7 +8,7 @@ import GenericList from "@components/generic_admin_pages/genericListPage";
 import { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 
-function CategoryPage() {
+export default function CategoryList() {
 	return (
 		<Suspense fallback={<div>Cargando categorías...</div>}>
 			<CategoryContent />
@@ -49,5 +49,3 @@ const CategoryContent: React.FC = () => {
 		/>
 	);
 };
-
-export default CategoryPage;

@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: "standalone",
-  
+
   reactStrictMode: true,
 
   async headers() {
@@ -61,19 +61,23 @@ const nextConfig = {
         hostname: "via.placeholder.com",
       },
     ],
-    formats: ["image/avif", "image/webp"], // Formatos modernos
+    formats: ["image/avif", "image/webp"],
     minimumCacheTTL: 86400, // 1 día de caché
   },
 
-  // Mejor manejo de MDX
   experimental: {
-    turbo: {
-      rules: {
-        "*.mdx": ["@mdx-js/loader"],
-      },
-      resolveExtensions: [".mdx", ".tsx", ".ts", ".jsx", ".js"], // Extensiones adicionales
-    },
+    turbo: false,
   },
+
+  // Se comenta la configuración experimental de Turbopack
+  // experimental: {
+  //   turbo: {
+  //     rules: {
+  //       "*.mdx": ["@mdx-js/loader"],
+  //     },
+  //     resolveExtensions: [".mdx", ".tsx", ".ts", ".jsx", ".js"],
+  //   },
+  // },
 
   // Compresión avanzada
   compress: true,

@@ -1,13 +1,5 @@
-import {
-  useEffect,
-  useState,
-  useCallback,
-  useMemo,
-  Dispatch,
-  SetStateAction,
-} from "react";
-import { Slider, Select, SelectItem } from "@heroui/react";
-import CheckboxGroup from "../checkbox/checkbox-group";
+import { useEffect, useState, useCallback, useMemo, Dispatch, SetStateAction } from "react";
+import { Slider, Select, SelectItem, CheckboxGroup, Checkbox } from "@heroui/react";
 import { useSearchParams } from "next/navigation";
 import { useProductContext } from "@/contexts/product-context";
 import { ratingOptions } from "./relation";
@@ -35,17 +27,17 @@ interface FilterStateType {
 const ALL_CATEGORIES = "Todos";
 const DEFAULT_PRICE_RANGE: [number, number] = [0, 1000];
 
-const DEFAULT_FILTER_STATE = {
+const DEFAULT_FILTER_STATE: FilterStateType = {
   categories: {
     ids: [],
-    names: [ALL_CATEGORIES]
+    names: [ALL_CATEGORIES],
   },
   subcategories: {
     ids: [],
-    names: []
+    names: [],
   },
   ratingIndex: 0,
-  priceRange: DEFAULT_PRICE_RANGE
+  priceRange: DEFAULT_PRICE_RANGE,
 };
 
 const Filters = ({ onFilterChange, setIsInvalidFilters, className }: FiltersProps) => {
@@ -55,7 +47,7 @@ const Filters = ({ onFilterChange, setIsInvalidFilters, className }: FiltersProp
   const [filterState, setFilterState] = useState<FilterStateType>(DEFAULT_FILTER_STATE);
 
   const categoryOptions = useMemo(
-    () => [ALL_CATEGORIES, ...categories.map((cat) => cat.name)],
+    () => [ALL_CATEGORIES, ...categories.map(cat => cat.name)],
     [categories]
   );
 
@@ -76,7 +68,7 @@ const Filters = ({ onFilterChange, setIsInvalidFilters, className }: FiltersProp
       const items = param?.split(',') || [];
       return items.map(id => {
         const found = categories
-          .flatMap(cat => type === 'category' ? [cat] : cat.subCategories)
+          .flatMap(cat => (type === 'category' ? [cat] : cat.subCategories))
           .find(item => item.id.toString() === id);
         return found ? found.name : id;
       });
@@ -87,21 +79,55 @@ const Filters = ({ onFilterChange, setIsInvalidFilters, className }: FiltersProp
       return;
     }
 
-    setFilterState(prev => ({
-      ...prev,
+    setFilterState({
       categories: {
         ids: searchParams.get('category')?.split(',') || [],
-        names: getMappedIds(searchParams.get('category'), 'category')
+        names: getMappedIds(searchParams.get('category'), 'category'),
       },
       subcategories: {
         ids: searchParams.get('subcategory')?.split(',') || [],
-        names: getMappedIds(searchParams.get('subcategory'), 'subcategory')
+        names: getMappedIds(searchParams.get('subcategory'), 'subcategory'),
       },
       ratingIndex: Number(searchParams.get('rate')) || 0,
-      priceRange: parsePriceRange(searchParams.get('pricerange'))
-    }));
+      priceRange: parsePriceRange(searchParams.get('pricerange')),
+    });
   }, [searchParams, categories]);
 
+  useEffect(() => {
+    // Verificamos si existe el parámetro "category" en la URL
+    const categoryParam = searchParams.get("category");
+    if (!categoryParam || categoryParam.trim() === "") {
+      // Si no hay parámetro o viene vacío, se mantiene el estado por defecto (con "Todos")
+      setFilterState(DEFAULT_FILTER_STATE);
+      return;
+    }
+
+    // Función auxiliar para mapear IDs a nombres según el tipo (categoría o subcategoría)
+    const getMappedIds = (param: string | null, type: 'category' | 'subcategory') => {
+      const items = param?.split(",") || [];
+      return items.map((id) => {
+        const found = categories
+          .flatMap((cat) => (type === "category" ? [cat] : cat.subCategories))
+          .find((item) => item.id.toString() === id);
+        return found ? found.name : id;
+      });
+    };
+
+    setFilterState({
+      categories: {
+        ids: categoryParam.split(","),
+        names: getMappedIds(categoryParam, "category"),
+      },
+      subcategories: {
+        ids: searchParams.get("subcategory")?.split(",") || [],
+        names: getMappedIds(searchParams.get("subcategory"), "subcategory"),
+      },
+      ratingIndex: Number(searchParams.get("rate")) || 0,
+      priceRange: parsePriceRange(searchParams.get("pricerange")),
+    });
+  }, [searchParams, categories]);
+
+  // Efecto centralizado para propagar cambios de filtros
   useEffect(() => {
     if (!isLoading) {
       onFilterChange?.({
@@ -113,7 +139,8 @@ const Filters = ({ onFilterChange, setIsInvalidFilters, className }: FiltersProp
         priceRange: filterState.priceRange,
       });
 
-      const isDefaultPrice = filterState.priceRange[0] === DEFAULT_PRICE_RANGE[0] &&
+      const isDefaultPrice =
+        filterState.priceRange[0] === DEFAULT_PRICE_RANGE[0] &&
         filterState.priceRange[1] === DEFAULT_PRICE_RANGE[1];
       const isDefaultRating = filterState.ratingIndex === 0;
       const isDefaultCategories = filterState.categories.names.includes(ALL_CATEGORIES);
@@ -124,45 +151,63 @@ const Filters = ({ onFilterChange, setIsInvalidFilters, className }: FiltersProp
         (isDefaultCategories || filterState.categories.names.length === 0)
       );
     }
-  }, [onFilterChange, isLoading, filterState, setIsInvalidFilters]);
+  }, [filterState, isLoading, onFilterChange, setIsInvalidFilters]);
 
   const updateFilterState = useCallback((partialState: Partial<FilterStateType>) => {
-    setFilterState(prev => {
-      const newState = { ...prev, ...partialState };
-      onFilterChange?.({
-        categories: prev.categories.names.includes(ALL_CATEGORIES)
+    setFilterState(prev => ({ ...prev, ...partialState }));
+  }, []);
+
+  const handleCategoryChange = useCallback(
+    (selectedNames: string[]) => {
+      const prevSelectedNames = filterState.categories.names;
+      let newSelectedNames: string[] = [];
+
+      // Si el usuario agrega "Todos" y antes no estaba seleccionado, se reemplaza toda la selección por "Todos".
+      if (
+        !prevSelectedNames.includes(ALL_CATEGORIES) &&
+        selectedNames.includes(ALL_CATEGORIES)
+      ) {
+        newSelectedNames = [ALL_CATEGORIES];
+      }
+      // Si ya estaba "Todos" y se agrega otra opción, se quita "Todos"
+      else if (
+        prevSelectedNames.includes(ALL_CATEGORIES) &&
+        selectedNames.length > 1
+      ) {
+        newSelectedNames = selectedNames.filter(name => name !== ALL_CATEGORIES);
+      }
+      // En otros casos, se usa la selección tal cual.
+      else {
+        newSelectedNames = selectedNames;
+      }
+
+      const newCategories = {
+        names: newSelectedNames,
+        ids: newSelectedNames.includes(ALL_CATEGORIES)
           ? []
-          : newState.categories.ids,
-        subcategories: newState.subcategories.ids,
-        rating: newState.ratingIndex,
-        priceRange: newState.priceRange
+          : newSelectedNames.map(name =>
+            categories.find(cat => cat.name === name)?.id?.toString() || name
+          ),
+      };
+
+      updateFilterState({
+        categories: newCategories,
+        subcategories: { ids: [], names: [] },
       });
-      return newState;
-    });
-  }, [onFilterChange]);
+    },
+    [updateFilterState, categories, filterState.categories.names]
+  );
 
-  const handleCategoryChange = useCallback((selectedNames: string[]) => {
-    const isSelectingAll = selectedNames.includes(ALL_CATEGORIES);
-    const newCategories = {
-      names: isSelectingAll ? [ALL_CATEGORIES] : selectedNames,
-      ids: isSelectingAll ? [] : selectedNames.map(name =>
-        categories.find(cat => cat.name === name)?.id?.toString() || name
-      )
-    };
 
-    updateFilterState({
-      categories: newCategories,
-      subcategories: { ids: [], names: [] }
-    });
-  }, [updateFilterState, categories]);
+
 
   const handleSubcategoryChange = useCallback(
     (selectedNames: string[]) => {
       const ids = selectedNames
-        .map((name) =>
+        .map(name =>
           categories
-            .flatMap((cat) => cat.subCategories)
-            .find((sub) => sub.name === name)
+            .flatMap(cat => cat.subCategories)
+            .find(sub => sub.name === name)
             ?.id?.toString()
         )
         .filter((id): id is string => Boolean(id));
@@ -177,41 +222,54 @@ const Filters = ({ onFilterChange, setIsInvalidFilters, className }: FiltersProp
     [categories, updateFilterState]
   );
 
-  const handlePriceRangeChange = useCallback((value: number | number[]) => {
-    const newRange: [number, number] = Array.isArray(value)
-      ? [value[0], value[1]]
-      : [0, value];
+  const handlePriceRangeChange = useCallback(
+    (value: number | number[]) => {
+      const newRange: [number, number] = Array.isArray(value)
+        ? [value[0], value[1]]
+        : [0, value];
 
-    updateFilterState({
-      priceRange: newRange,
-    });
-  }, [updateFilterState]);
+      updateFilterState({
+        priceRange: newRange,
+      });
+    },
+    [updateFilterState]
+  );
 
   return (
     <div className={`${className} opacity-0 animate-fade-in h-max mb-4`}>
       <CheckboxGroup
         label="Categorías"
-        options={categoryOptions}
-        selected={filterState.categories.names}
+        value={filterState.categories.names}
         onChange={handleCategoryChange}
         className="mb-2"
-        required
-        errorCondition={(selected) => selected.length === 0}
-      />
+        isRequired
+        isInvalid={filterState.categories.names.length === 0}
+      >
+        {categoryOptions.map(category => (
+          <Checkbox key={category} value={category}>
+            {category}
+          </Checkbox>
+        ))}
+      </CheckboxGroup>
 
       {!hasAllCategories && subcategoryOptions.length > 0 && (
         <CheckboxGroup
           label="Subcategorías"
-          options={subcategoryOptions}
-          selected={filterState.subcategories.names}
+          value={filterState.subcategories.names}
           onChange={handleSubcategoryChange}
           className="mb-4"
-        />
+        >
+          {subcategoryOptions.map(subcategory => (
+            <Checkbox key={subcategory} value={subcategory} size="md">
+              {subcategory}
+            </Checkbox>
+          ))}
+        </CheckboxGroup>
       )}
 
       <div className="mb-4">
         <Slider
-          label={"Precio:"}
+          label="Precio:"
           formatOptions={{
             style: "currency",
             currencyDisplay: "narrowSymbol",
@@ -238,10 +296,7 @@ const Filters = ({ onFilterChange, setIsInvalidFilters, className }: FiltersProp
         }}
       >
         {ratingOptions.map((option, index) => (
-          <SelectItem
-            key={index.toString()}
-            id={index.toString()}
-          >
+          <SelectItem key={index.toString()} id={index.toString()}>
             {option}
           </SelectItem>
         ))}
