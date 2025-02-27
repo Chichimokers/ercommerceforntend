@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: "standalone",
-  
+
   reactStrictMode: true,
 
   async headers() {
@@ -61,8 +61,12 @@ const nextConfig = {
         hostname: "via.placeholder.com",
       },
     ],
-    formats: ["image/avif", "image/webp"], // Formatos modernos
+    formats: ["image/avif", "image/webp"],
     minimumCacheTTL: 86400, // 1 día de caché
+  },
+
+  experimental: {
+    turbo: false,
   },
 
   // Se comenta la configuración experimental de Turbopack
