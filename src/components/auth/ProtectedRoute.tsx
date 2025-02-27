@@ -1,5 +1,6 @@
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import React from "react";
 
 export default function ProtectedRoute({ children }: { children: React.ReactNode }) {
     const { data: session, status } = useSession();
