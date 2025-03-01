@@ -14,4 +14,4 @@ RUN npm install --force --verbose
 EXPOSE 3001
 
 # Comando para iniciar la aplicación en producción
-CMD ["npm", "run", "start:pre"]
+CMD ["npm", "run", "pre"]
