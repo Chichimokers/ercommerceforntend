@@ -165,7 +165,6 @@ export const Header = ({ className }: { className?: string }) => {
           {!isCartPage && (
             <>
               <DrawerCart
-                className="hover:animate-pulse"
                 aria-label="Abrir carrito"
               />
             </>

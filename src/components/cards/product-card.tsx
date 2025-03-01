@@ -50,7 +50,7 @@ const ProductCard = React.memo(({ product, prefetch = "none", className, imgClas
 
   return (
     <Card
-      className={`${className} group w-full flex-1 min-h-[330px] flex flex-col rounded-3xl border border-default-200 hover:border-deafult-300 transition-all hover:shadow-lg overflow-hidden bg-default-50/50`}
+      className={`${className} group w-full flex-1 min-h-[330px] flex flex-col rounded-3xl border border-gray-200 dark:border-gray-700 transition-all hover:shadow-xl overflow-hidden bg-white dark:bg-gray-800`}
       shadow="none"
       as={Link}
       href={`/products/${product.id}`}
@@ -60,7 +60,7 @@ const ProductCard = React.memo(({ product, prefetch = "none", className, imgClas
       aria-labelledby={`product-title-${product.id}`}
     >
       <CardBody className="overflow-hidden p-0 flex-none aspect-square w-full">
-        <div className="relative w-full h-full bg-default-100 aspect-square">
+        <div className="relative w-full h-full bg-gray-100 dark:bg-gray-700">
           <OptimizedImage
             imgClassName={`${imgClassName} object-cover w-full h-full transition-transform duration-300 group-hover:scale-105`}
             product={product}
@@ -106,7 +106,7 @@ const OptimizedImage = React.memo(
       {!mediaState.loaded && (
         <motion.div
           layoutId={`skeleton-${product.id}`}
-          className="absolute inset-0 bg-gradient-to-br from-default-200 to-default-300"
+          className="absolute inset-0 bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600"
           initial={{ opacity: 1 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -116,8 +116,7 @@ const OptimizedImage = React.memo(
 
       <Image
         alt={product.name}
-        className={`${imgClassName} absolute inset-0 w-full h-full object-cover transition-all duration-300 ${mediaState.loaded ? "opacity-100" : "opacity-0"
-          }`}
+        className={`${imgClassName} absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${mediaState.loaded ? "opacity-100" : "opacity-0"}`}
         src={mediaState.error ? "/nophoto.jpeg" : product.image || "/nophoto.jpeg"}
         onLoad={() => setMediaState((prev) => ({ ...prev, loaded: true }))}
         onError={() => setMediaState((prev) => ({ ...prev, error: true }))}
@@ -126,7 +125,7 @@ const OptimizedImage = React.memo(
         loading="lazy"
       />
     </>
-  ),
+  )
 )
 
 OptimizedImage.displayName = "OptimizedImage"
