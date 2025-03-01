@@ -5,65 +5,46 @@ import { useProductContext } from "@/contexts/product-context";
 const useCartActions = (product: { id: string; price: number }) => {
   const cartContext = useContext(CartContext);
   const { cart, AddCartItem, DelCartItem, increaseQuantity, decreaseQuantity } = cartContext || {};
+  const { mutateCartProducts } = useProductContext();
+
   const [quantity, setQuantity] = useState(1);
-  const {mutateCartProducts} = useProductContext()
-  // Verificar si el producto está en el carrito
+
   const isInCart = useMemo(
     () => cart?.some((item: { id: string }) => item.id === product.id) || false,
     [cart, product.id]
   );
 
-  //Quyantity y la cantidad del carrito no se sincronizaban por eso daba errores 
-  //NO se esta actualizando cuando cambia el id en la pagina del shoping cart
-  
   useEffect(() => {
-   //me parece que la condicional estaba de mas if(isInCart) ==> si no era asi no restablecia la cantidad al cambiar de id 
-   //el estado se inicializaba pero no cambiaba con el id 
-      const productInCart = cart?.find((item: { id: string }) => item.id === product.id);
-      setQuantity(productInCart?.cantidad || 1);
-    
-    console.log(quantity)
-  }, [cart, isInCart, product.id]);
+    const productInCart = cart?.find((item) => item.id === product.id);
+    setQuantity(productInCart?.cantidad || 1);
+  }, [cart, product.id]);
 
- 
+  const handleMutation = useCallback((action: () => void) => {
+    action();
+    mutateCartProducts?.();
+  }, [mutateCartProducts]);
+
   const handleAddToCart = useCallback(() => {
     if (!product || quantity <= 0) return;
-    AddCartItem?.({ id: product.id, price: product.price }, quantity);
-    mutateCartProducts()
-  }, [product, quantity, AddCartItem]);
+    handleMutation(() => AddCartItem?.({ id: product.id, price: product.price }, quantity));
+  }, [product, quantity, AddCartItem, handleMutation]);
 
- //Lo mas logico es manejar las mutaciones desde el action pero igual a veces
- //O al navegar a la pagina del shoping cart o el drawer 
- //en el drawer lo puse talves al navegar tambien para no hacer mutacioner inecesarias 
- //A hay algunas particularidades en el drawer con los nombres largos 
- //y no se pq no se aumenta la cantidad pero necesito dormir ya despues vere creo que es relacionado con el map del shopingcart
- //y la interaccion con los botones de ma y meno ta lenta otrave ):
   const handleRemoveFromCart = useCallback(() => {
-    if (!product) return;
-    setQuantity(1);
-    DelCartItem?.({ id: product.id });
-    mutateCartProducts()
-  }, [product, DelCartItem]);
+    handleMutation(() => {
+      setQuantity(1);
+      DelCartItem?.({ id: product.id });
+    });
+  }, [DelCartItem, product.id, handleMutation]);
 
+  const handleQuantityChange = useCallback((operation: 'inc' | 'dec') => {
+    console.log(operation)
+    const handler = isInCart
+      ? (amount: number) => (operation === 'inc' ? increaseQuantity : decreaseQuantity)?.(product, amount)
+      : operation === 'inc' ? (amount: number) => setQuantity(prev => Math.max(1, prev + amount))
+        : (amount: number) => setQuantity(prev => Math.max(1, prev - amount));
 
-  const handleQuantityInc = useCallback(() => {
-    if (isInCart) {
-      increaseQuantity?.(product, 1);
-     
-    } else {
-      setQuantity((prevQuantity) => Math.max(1, prevQuantity + 1));
-    }
-  }, [isInCart, product, increaseQuantity]);
-
-
-  const handleQuantityDec = useCallback(() => {
-    if (isInCart) {
-      decreaseQuantity?.(product, 1);
-      
-    } else{
-      setQuantity((prevQuantity) => Math.max(1, prevQuantity - 1));
-    }
-  }, [isInCart, product, decreaseQuantity]);
+    handler(1);
+  }, [isInCart, product, increaseQuantity, decreaseQuantity]);
 
   const findInCartLocalStorage = useCallback(() => {
     return cart?.some((item: { id: string }) => item.id === product.id) || false;
@@ -75,6 +56,10 @@ const useCartActions = (product: { id: string; price: number }) => {
     },
     [cart]
   );
+
+  const handleQuantityInc = useCallback(() => handleQuantityChange('inc'), [handleQuantityChange]);
+  const handleQuantityDec = useCallback(() => handleQuantityChange('dec'), [handleQuantityChange]);
+
 
   return {
     isInCart,

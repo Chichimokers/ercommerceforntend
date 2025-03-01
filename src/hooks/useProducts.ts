@@ -3,7 +3,7 @@ import useSWR from "swr";
 import { buildQueryParams } from "./buildQueryParams";
 import { Filters } from "@/types/types";
 
-export const useProducts = (baseUrl:string,filters: Filters, page: number) => {
+export const useProducts = (baseUrl: string, filters: Filters, page: number) => {
   const queryParams = useMemo(() => buildQueryParams(filters, page, 30), [filters, page]);
   const fetchUrl = `${baseUrl}/public/products?${queryParams}`;
 
@@ -16,10 +16,12 @@ export const useProducts = (baseUrl:string,filters: Filters, page: number) => {
     return response.json();
   };
 
-  return useSWR(fetchUrl, fetcher, {
+  useSWR(fetchUrl, fetcher, {
     revalidateOnFocus: true,
     revalidateOnReconnect: true,
   });
+
+  return useSWR(fetchUrl, fetcher);
 };
 
 

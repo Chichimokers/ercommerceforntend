@@ -1,29 +1,25 @@
-import {
-  useEffect,
-  useState,
-  useCallback,
-  useMemo,
-  Dispatch,
-  SetStateAction,
-} from "react";
-import { Slider, Select, SelectItem } from "@heroui/react";
-import CheckboxGroup from "../checkbox/checkbox-group";
+import { useEffect, useState, useCallback, useMemo, Dispatch, SetStateAction } from "react";
+import { Slider, Select, SelectItem, CheckboxGroup, Checkbox } from "@heroui/react";
 import { useSearchParams } from "next/navigation";
 import { useProductContext } from "@/contexts/product-context";
 import { ratingOptions } from "./relation";
-import FiltersSkeleton from "../skeletons/filters-skeleton";
 import { FilterState } from "@/types/types";
 
 interface FiltersProps {
   onFilterChange?: (filters: FilterState) => void;
   setIsInvalidFilters: Dispatch<SetStateAction<boolean>>;
+  className?: string;
 }
 
 interface FilterStateType {
-  categoryIds: string[];
-  subcategoryIds: string[];
-  categoryNames: string[];
-  subcategoryNames: string[];
+  categories: {
+    ids: string[];
+    names: string[];
+  };
+  subcategories: {
+    ids: string[];
+    names: string[];
+  };
   ratingIndex: number;
   priceRange: [number, number];
 }
@@ -31,218 +27,249 @@ interface FilterStateType {
 const ALL_CATEGORIES = "Todos";
 const DEFAULT_PRICE_RANGE: [number, number] = [0, 1000];
 
-const Filters = ({ onFilterChange, setIsInvalidFilters }: FiltersProps) => {
+const DEFAULT_FILTER_STATE: FilterStateType = {
+  categories: {
+    ids: [],
+    names: [ALL_CATEGORIES],
+  },
+  subcategories: {
+    ids: [],
+    names: [],
+  },
+  ratingIndex: 0,
+  priceRange: DEFAULT_PRICE_RANGE,
+};
+
+const Filters = ({ onFilterChange, setIsInvalidFilters, className }: FiltersProps) => {
   const { categories, isLoading } = useProductContext();
   const searchParams = useSearchParams();
 
-  const [filterState, setFilterState] = useState<FilterStateType>({
-    categoryIds: [],
-    subcategoryIds: [],
-    categoryNames: [ALL_CATEGORIES],
-    subcategoryNames: [],
-    ratingIndex: 0,
-    priceRange: DEFAULT_PRICE_RANGE,
-  });
+  const [filterState, setFilterState] = useState<FilterStateType>(DEFAULT_FILTER_STATE);
 
   const categoryOptions = useMemo(
-    () => [ALL_CATEGORIES, ...categories.map((cat) => cat.name)],
+    () => [ALL_CATEGORIES, ...categories.map(cat => cat.name)],
     [categories]
+  );
+
+  const hasAllCategories = useMemo(
+    () => filterState.categories.names.includes(ALL_CATEGORIES),
+    [filterState.categories.names]
   );
 
   const subcategoryOptions = useMemo(() => {
-    if (filterState.categoryNames.includes(ALL_CATEGORIES)) return [];
-
+    if (hasAllCategories) return [];
     return categories
-      .filter((cat) => filterState.categoryNames.includes(cat.name))
-      .flatMap((cat) => cat.subCategories.map((sub) => sub.name));
-  }, [categories, filterState.categoryNames]);
-
-  const applyFilters = useCallback(() => {
-    if (!onFilterChange) return;
-
-    const filtersToApply: FilterState = {
-      categories: filterState.categoryNames.includes(ALL_CATEGORIES)
-        ? []
-        : filterState.categoryIds,
-      subcategories: filterState.subcategoryIds,
-      rating: filterState.ratingIndex,
-      priceRange: filterState.priceRange,
-    };
-
-    onFilterChange(filtersToApply);
-  }, [filterState, onFilterChange]);
+      .filter(cat => filterState.categories.names.includes(cat.name))
+      .flatMap(cat => cat.subCategories.map(sub => sub.name));
+  }, [categories, filterState.categories.names, hasAllCategories]);
 
   useEffect(() => {
-    const category = searchParams.get("category");
-    const subcategory = searchParams.get("subcategory");
-    const pricerange = searchParams.get("pricerange");
-    const rate = searchParams.get("rate");
+    const getMappedIds = (param: string | null, type: 'category' | 'subcategory') => {
+      const items = param?.split(',') || [];
+      return items.map(id => {
+        const found = categories
+          .flatMap(cat => (type === 'category' ? [cat] : cat.subCategories))
+          .find(item => item.id.toString() === id);
+        return found ? found.name : id;
+      });
+    };
 
-    // Si no hay parámetros, mantener valores por defecto
-    if (!category && !subcategory && !pricerange && !rate) {
-      setFilterState((prev) => ({
-        ...prev,
-        categoryIds: [],
-        subcategoryIds: [],
-        categoryNames: [ALL_CATEGORIES],
-        subcategoryNames: [],
-        ratingIndex: 0,
-        priceRange: DEFAULT_PRICE_RANGE,
-      }));
+    if (!searchParams.size) {
+      setFilterState(DEFAULT_FILTER_STATE);
       return;
     }
 
-    // Procesar parámetros
-    const categoryIds = category?.split(",") || [];
-    const subcategoryIds = subcategory?.split(",") || [];
-
-    const priceRangeValues = pricerange
-      ? pricerange.split("-").map(Number)
-      : DEFAULT_PRICE_RANGE;
-
-    const validPriceRange: [number, number] =
-      priceRangeValues.length === 2
-        ? [priceRangeValues[0], priceRangeValues[1]]
-        : DEFAULT_PRICE_RANGE;
-
-    const rateValue = rate ? Number(rate) : 0;
-
-    // Obtener nombres de categorías
-    const categoryNames =
-      categoryIds.length > 0
-        ? categories
-            .filter((cat) => categoryIds.includes(cat.id.toString()))
-            .map((cat) => cat.name)
-        : [ALL_CATEGORIES];
-
-    // Obtener nombres de subcategorías
-    const subcategoryNames = categories
-      .flatMap((cat) => cat.subCategories)
-      .filter((sub) => subcategoryIds.includes(sub.id.toString()))
-      .map((sub) => sub.name);
-
-    // Actualizar estado
     setFilterState({
-      categoryIds,
-      subcategoryIds,
-      categoryNames,
-      subcategoryNames,
-      ratingIndex: rateValue,
-      priceRange: validPriceRange,
+      categories: {
+        ids: searchParams.get('category')?.split(',') || [],
+        names: getMappedIds(searchParams.get('category'), 'category'),
+      },
+      subcategories: {
+        ids: searchParams.get('subcategory')?.split(',') || [],
+        names: getMappedIds(searchParams.get('subcategory'), 'subcategory'),
+      },
+      ratingIndex: Number(searchParams.get('rate')) || 0,
+      priceRange: parsePriceRange(searchParams.get('pricerange')),
     });
-  }, [searchParams, categories, setFilterState]); // Dependencias actualizadas
+  }, [searchParams, categories]);
 
   useEffect(() => {
-    if (!isLoading) {
-      applyFilters();
+    // Verificamos si existe el parámetro "category" en la URL
+    const categoryParam = searchParams.get("category");
+    if (!categoryParam || categoryParam.trim() === "") {
+      // Si no hay parámetro o viene vacío, se mantiene el estado por defecto (con "Todos")
+      setFilterState(DEFAULT_FILTER_STATE);
+      return;
     }
-  }, [applyFilters, isLoading]);
 
-  //hay que arreglar ++>>
+    // Función auxiliar para mapear IDs a nombres según el tipo (categoría o subcategoría)
+    const getMappedIds = (param: string | null, type: 'category' | 'subcategory') => {
+      const items = param?.split(",") || [];
+      return items.map((id) => {
+        const found = categories
+          .flatMap((cat) => (type === "category" ? [cat] : cat.subCategories))
+          .find((item) => item.id.toString() === id);
+        return found ? found.name : id;
+      });
+    };
+
+    setFilterState({
+      categories: {
+        ids: categoryParam.split(","),
+        names: getMappedIds(categoryParam, "category"),
+      },
+      subcategories: {
+        ids: searchParams.get("subcategory")?.split(",") || [],
+        names: getMappedIds(searchParams.get("subcategory"), "subcategory"),
+      },
+      ratingIndex: Number(searchParams.get("rate")) || 0,
+      priceRange: parsePriceRange(searchParams.get("pricerange")),
+    });
+  }, [searchParams, categories]);
+
+  // Efecto centralizado para propagar cambios de filtros
+  useEffect(() => {
+    if (!isLoading) {
+      onFilterChange?.({
+        categories: filterState.categories.names.includes(ALL_CATEGORIES)
+          ? []
+          : filterState.categories.ids,
+        subcategories: filterState.subcategories.ids,
+        rating: filterState.ratingIndex,
+        priceRange: filterState.priceRange,
+      });
+
+      const isDefaultPrice =
+        filterState.priceRange[0] === DEFAULT_PRICE_RANGE[0] &&
+        filterState.priceRange[1] === DEFAULT_PRICE_RANGE[1];
+      const isDefaultRating = filterState.ratingIndex === 0;
+      const isDefaultCategories = filterState.categories.names.includes(ALL_CATEGORIES);
+
+      setIsInvalidFilters(
+        isDefaultPrice &&
+        isDefaultRating &&
+        (isDefaultCategories || filterState.categories.names.length === 0)
+      );
+    }
+  }, [filterState, isLoading, onFilterChange, setIsInvalidFilters]);
+
+  const updateFilterState = useCallback((partialState: Partial<FilterStateType>) => {
+    setFilterState(prev => ({ ...prev, ...partialState }));
+  }, []);
+
   const handleCategoryChange = useCallback(
     (selectedNames: string[]) => {
-      // Si se selecciona 'Todos', desmarcamos todas las categorías y subcategorías
-      if (selectedNames.includes(ALL_CATEGORIES)) {
-        setFilterState((prev) => ({
-          ...prev,
-          categoryNames: [ALL_CATEGORIES], // Solo dejamos 'Todos' seleccionado
-          categoryIds: [], // Desmarcamos todas las categorías
-          subcategoryNames: [], // Limpiamos las subcategorías
-          subcategoryIds: [], // Limpiamos las subcategorías
-        }));
-      } else {
-        // Si 'Todos' no está seleccionado, actualizamos las categorías seleccionadas
-        const filteredNames = selectedNames.filter(
-          (name) => name !== ALL_CATEGORIES
-        );
+      const prevSelectedNames = filterState.categories.names;
+      let newSelectedNames: string[] = [];
 
-        // Si se selecciona alguna categoría, eliminamos 'Todos' de la selección
-        const ids = filteredNames
-          .map((name) =>
-            categories.find((cat) => cat.name === name)?.id?.toString()
-          )
-          .filter((id): id is string => Boolean(id));
-
-        // Actualizamos las categorías seleccionadas
-        setFilterState((prev) => ({
-          ...prev,
-          categoryNames: filteredNames, // Actualizamos las categorías seleccionadas
-          categoryIds: ids, // Actualizamos los IDs correspondientes
-          subcategoryNames: [], // Limpiamos las subcategorías cuando cambiamos de categoría
-          subcategoryIds: [], // Limpiamos las subcategorías
-        }));
+      // Si el usuario agrega "Todos" y antes no estaba seleccionado, se reemplaza toda la selección por "Todos".
+      if (
+        !prevSelectedNames.includes(ALL_CATEGORIES) &&
+        selectedNames.includes(ALL_CATEGORIES)
+      ) {
+        newSelectedNames = [ALL_CATEGORIES];
       }
-      setIsInvalidFilters(selectedNames.length === 0);
+      // Si ya estaba "Todos" y se agrega otra opción, se quita "Todos"
+      else if (
+        prevSelectedNames.includes(ALL_CATEGORIES) &&
+        selectedNames.length > 1
+      ) {
+        newSelectedNames = selectedNames.filter(name => name !== ALL_CATEGORIES);
+      }
+      // En otros casos, se usa la selección tal cual.
+      else {
+        newSelectedNames = selectedNames;
+      }
+
+      const newCategories = {
+        names: newSelectedNames,
+        ids: newSelectedNames.includes(ALL_CATEGORIES)
+          ? []
+          : newSelectedNames.map(name =>
+            categories.find(cat => cat.name === name)?.id?.toString() || name
+          ),
+      };
+
+      updateFilterState({
+        categories: newCategories,
+        subcategories: { ids: [], names: [] },
+      });
     },
-    [categories]
+    [updateFilterState, categories, filterState.categories.names]
   );
+
+
+
 
   const handleSubcategoryChange = useCallback(
     (selectedNames: string[]) => {
       const ids = selectedNames
-        .map((name) =>
+        .map(name =>
           categories
-            .flatMap((cat) => cat.subCategories)
-            .find((sub) => sub.name === name)
+            .flatMap(cat => cat.subCategories)
+            .find(sub => sub.name === name)
             ?.id?.toString()
         )
         .filter((id): id is string => Boolean(id));
 
-      setFilterState((prev) => ({
-        ...prev,
-        subcategoryNames: selectedNames,
-        subcategoryIds: ids,
-      }));
+      updateFilterState({
+        subcategories: {
+          ids,
+          names: selectedNames,
+        },
+      });
     },
-    [categories]
+    [categories, updateFilterState]
   );
 
-  const handlePriceRangeChange = useCallback((value: number | number[]) => {
-    const newRange: [number, number] = Array.isArray(value)
-      ? [value[0], value[1]]
-      : [0, value];
+  const handlePriceRangeChange = useCallback(
+    (value: number | number[]) => {
+      const newRange: [number, number] = Array.isArray(value)
+        ? [value[0], value[1]]
+        : [0, value];
 
-    setFilterState((prev) => ({
-      ...prev,
-      priceRange: newRange,
-    }));
-  }, []);
-
-  if (isLoading) {
-    return (
-      <div className="h-max">
-        <FiltersSkeleton />
-      </div>
-    );
-  }
+      updateFilterState({
+        priceRange: newRange,
+      });
+    },
+    [updateFilterState]
+  );
 
   return (
-    <div className="h-max mb-4">
+    <div className={`${className} opacity-0 animate-fade-in h-max mb-4`}>
       <CheckboxGroup
         label="Categorías"
-        options={categoryOptions}
-        selected={filterState.categoryNames}
+        value={filterState.categories.names}
         onChange={handleCategoryChange}
         className="mb-2"
-        required
-        errorCondition={(selected) => selected.length === 0}
-      />
+        isRequired
+        isInvalid={filterState.categories.names.length === 0}
+      >
+        {categoryOptions.map(category => (
+          <Checkbox key={category} value={category}>
+            {category}
+          </Checkbox>
+        ))}
+      </CheckboxGroup>
 
-      {filterState.categoryNames.length > 0 &&
-        !filterState.categoryNames.includes(ALL_CATEGORIES) &&
-        subcategoryOptions.length > 0 && (
-          <CheckboxGroup
-            label="Subcategorías"
-            options={subcategoryOptions}
-            selected={filterState.subcategoryNames}
-            onChange={handleSubcategoryChange}
-            className="mb-4"
-          />
-        )}
+      {!hasAllCategories && subcategoryOptions.length > 0 && (
+        <CheckboxGroup
+          label="Subcategorías"
+          value={filterState.subcategories.names}
+          onChange={handleSubcategoryChange}
+          className="mb-4"
+        >
+          {subcategoryOptions.map(subcategory => (
+            <Checkbox key={subcategory} value={subcategory} size="md">
+              {subcategory}
+            </Checkbox>
+          ))}
+        </CheckboxGroup>
+      )}
 
       <div className="mb-4">
         <Slider
-          label={"Precio:"}
+          label="Precio:"
           formatOptions={{
             style: "currency",
             currencyDisplay: "narrowSymbol",
@@ -263,14 +290,13 @@ const Filters = ({ onFilterChange, setIsInvalidFilters }: FiltersProps) => {
         defaultSelectedKeys={[filterState.ratingIndex.toString()]}
         onSelectionChange={(keys) => {
           const selectedKey = Array.from(keys)[0];
-          setFilterState((prev) => ({
-            ...prev,
+          updateFilterState({
             ratingIndex: Number(selectedKey),
-          }));
+          });
         }}
       >
         {ratingOptions.map((option, index) => (
-          <SelectItem key={index.toString()} value={index.toString()}>
+          <SelectItem key={index.toString()} id={index.toString()}>
             {option}
           </SelectItem>
         ))}
@@ -278,5 +304,11 @@ const Filters = ({ onFilterChange, setIsInvalidFilters }: FiltersProps) => {
     </div>
   );
 };
+
+function parsePriceRange(pricerange: string | null): [number, number] {
+  if (!pricerange) return DEFAULT_PRICE_RANGE;
+  const values = pricerange.split('-').map(Number);
+  return values.length === 2 ? [values[0], values[1]] : DEFAULT_PRICE_RANGE;
+}
 
 export default Filters;

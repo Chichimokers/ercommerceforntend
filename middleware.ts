@@ -1,6 +1,5 @@
 import { authProvider } from "@providers/auth-provider";
 import type { NextRequest } from "next/server";
-
 import { NextResponse } from "next/server";
 
 export async function middleware(request: NextRequest) {
@@ -20,15 +19,15 @@ export async function middleware(request: NextRequest) {
     }
   }*/
 
-    if (request.nextUrl.pathname.startsWith("/admin")) {
+  if (request.nextUrl.pathname.startsWith("/admin")) {
     if (!authenticated) {
       return NextResponse.redirect(
         new URL(`/login?to=${request.nextUrl.pathname}`, request.url)
       );
     }
   }
-    
-    if (authenticated && request.nextUrl.pathname === "/login") {
+
+  if (authenticated && request.nextUrl.pathname === "/login") {
     return NextResponse.redirect(new URL("/admin", request.url));
   }
 

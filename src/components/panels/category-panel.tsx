@@ -1,39 +1,53 @@
-import { categoryIcons } from "../filters/categories";
 import { useProductContext } from "@/contexts/product-context";
 import { FaTh } from "react-icons/fa";
 import dynamic from "next/dynamic";
+import { getCategoryIcon } from "../filters/categories";
 
 // Carga dinámica de componentes
-const CategoryCard = dynamic(() => import("@/components/cards/category-cards"));
+const CategoryCard = dynamic(() => import("@/components/cards/category-cards"), {
+  loading: () => (
+    <div className="flex-shrink-0 snap-center w-36 md:w-40 h-36 md:h-40 animate-pulse bg-gray-100 dark:bg-gray-800 rounded-xl" />
+  )
+});
 
 const CategoryPanel = () => {
   const { categories } = useProductContext();
+
   return (
-    <div className="relative w-full">
+    <div className="relative group">
       <div className="absolute inset-0 pointer-events-none" />
-      <div className="flex flex-row overflow-x-auto gap-2 snap-x snap-mandatory scrollbar-hide px-2 py-6">
-        <div key="all" className="flex-shrink-0 snap-center">
+      <div className="flex flex-row overflow-x-auto gap-4 snap-x snap-mandatory scrollbar-hide px-4 py-8">
+        <div key="all" className="flex-shrink-0 snap-center animate-fade-in-left">
           <CategoryCard
-            className="text-xs w-32 md:w-36 h-32 md:h-36 transition-all transition-border group border-2 border-default-400 dark:bg-opacity-0 hover:border-blue-600 hover:text-blue-600 dark:hover:border-blue-400 dark:hover:text-blue-400"
+            className="text-sm w-36 md:w-40 h-36 md:h-40 transition-all duration-300 ease-out group-hover:brightness-100 border-2 border-default-200 hover:border-blue-500/80 dark:hover:border-blue-300 bg-white/90 dark:bg-default-100 backdrop-blur-sm hover:shadow-lg"
             icon={
-              <FaTh className="transition-colors group-hover:text-blue-600 dark:group-hover:text-blue-400" />
+              <span className="relative text-blue-600/90 dark:text-blue-300/90 transition-transform group-hover:scale-110">
+                <FaTh />
+                <span className="absolute inset-0 bg-gradient-to-br from-white/30 dark:from-neutral-700/30 to-transparent rounded-xl opacity-0 group-hover:opacity-100 transition-opacity" />
+              </span>
             }
             size="lg"
             text="Todos"
             url="/products/"
           />
         </div>
-        {categories.map((category) => {
-          const Icon =
-            categoryIcons[category.name as keyof typeof categoryIcons];
+        {categories.map((category, index) => {
+          const Icon = getCategoryIcon(category.name);
           const url = `/products?page=1&limit=30&category=${category.id}`;
 
           return (
-            <div key={category.id} className="flex-shrink-0 snap-center">
+            <div
+              key={category.id}
+              className="flex-shrink-0 snap-center"
+              style={{ animationDelay: `${index * 50}ms` }}
+            >
               <CategoryCard
-                className="text-xs w-32 md:w-36 h-32 md:h-36 transition-all transition-border group border-2 border-default-400 dark:bg-opacity-0 hover:border-blue-600 hover:text-blue-600 dark:hover:border-blue-400 dark:hover:text-blue-400"
+                className="text-sm w-36 md:w-40 h-36 md:h-40 transition-all duration-300 ease-out group-hover:brightness-100 border-2 border-default-200 hover:border-blue-500/80 dark:hover:border-blue-300 bg-white/90 dark:bg-default-100 backdrop-blur-sm hover:shadow-lg animate-fade-in-left"
                 icon={
-                  <Icon className="transition-colors group-hover:text-blue-600 dark:group-hover:text-blue-400" />
+                  <span className="relative text-blue-600/90 dark:text-blue-300/90 transition-transform group-hover:scale-110">
+                    <Icon />
+                    <span className="absolute inset-0 bg-gradient-to-br from-white/30 dark:from-neutral-700/30 to-transparent rounded-xl opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </span>
                 }
                 size="lg"
                 text={category.name}

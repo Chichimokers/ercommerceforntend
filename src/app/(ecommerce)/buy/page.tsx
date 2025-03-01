@@ -1,277 +1,307 @@
 "use client";
 
-import { useCallback, useContext, useMemo, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { Input } from "@heroui/react";
 import React from "react";
-import { CartItem } from "@/types/interfaces";
-import { products } from "@/test-data/products";
+import { useProductContext } from "@contexts/product-context";
 import { CartContext } from "@/contexts/cart-context";
-import { CustomButton } from "@/components/buttons/custom-button";
 import { PhoneNumberUtil } from "google-libphonenumber";
+import { useForm, FormProvider } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import toast, { Toaster } from "react-hot-toast";
+import { ShoppingCartIcon, UserCircleIcon, MapPinIcon, CreditCardIcon, IdCard } from "lucide-react";
+import { AddressForm } from "@components/AddressForm";
+import Image from "next/image";
+import { useSession } from "next-auth/react";
+import { FormField } from "@components/forms/form-field";
 
-export default function Buy() {
-  /*const router = useRouter();
+// Esquema de validación con Zod
+const formSchema = z.object({
+  firstName: z.string().min(2, "Mínimo 2 caracteres"),
+  lastName: z.string().min(2, "Mínimo 2 caracteres"),
+  province: z.string().min(3, "Mínimo 3 caracteres"),
+  municipality: z.string().min(3, "Mínimo 3 caracteres"),
+  district: z.string().min(3, "Mínimo 3 caracteres"),
+  street: z.string().min(3, "Mínimo 3 caracteres"),
+  houseNumber: z.string().min(1, "Requerido"),
+  idCard: z.string().min(10, "Mínimo 10 caracteres"),
+  phone: z.string().refine((value) => {
+    try {
+      const phoneUtil = PhoneNumberUtil.getInstance();
+      const number = phoneUtil.parse(value, "CU");
+      return phoneUtil.isValidNumber(number);
+    } catch {
+      return false;
+    }
+  }, "Teléfono inválido")
+});
+
+type FormValues = z.infer<typeof formSchema>;
+
+export default function BuyPage() {
+  const { cart } = useContext(CartContext) || {};
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { products } = useProductContext();
   const { data: session } = useSession();
 
+  const methods = useForm<FormValues>({
+    resolver: zodResolver(formSchema)
+  });
+
   useEffect(() => {
-    // Verificaciones del lado del cliente
-    const cartItems = localStorage.getItem("cartItems");
-    const emailValidated = localStorage.getItem("emailValidated");
+    console.log("Errores actuales:", methods.formState.errors);
+  }, [methods.formState.errors]);
 
-    if (!session || !cartItems || !emailValidated) {
-      router.push("/");
-    }
-  }, [session, router]);*/
+  // Calculo optimizado del subtotal
+  const subtotal = useMemo(() => {
+    return (
+      cart?.reduce((total, item) => {
+        const product = products.find((p) => p.id === item.id);
+        return total + (product?.price || 0) * item.cantidad;
+      }, 0) || 0
+    );
+  }, [cart, products]);
 
-  const [errors, setErrors] = useState<any>({});
-  const phoneUtil = PhoneNumberUtil.getInstance();
+  const onSubmit = async (data: FormValues) => {
+    console.log("Intentando enviar formulario");
+    setIsSubmitting(true);
+    try {
+      const orderProducts = cart?.map((item) => ({
+        product_id: item.id,
+        quantity: item.cantidad
+      }));
 
-  // Values
-  const [firstName, setFirstName] = useState<string>("");
-  const [lastName, setLastName] = useState<string>("");
-  const [province, setProvince] = useState<string>("");
-  const [municipality, setMunicipality] = useState<string>("");
-  const [district, setDistrict] = useState<string>("");
-  const [street, setStreet] = useState<string>("");
-  const [houseNumber, setHouseNumber] = useState<string>("");
-  const [idCard, setIdCard] = useState<string>("");
-  const [phone, setPhone] = useState<string>("");
+      const orderData = {
+        products: orderProducts,
+        province: data.province,
+        address: `${data.municipality}, ${data.district}, ${data.street} ${data.houseNumber}`,
+        receiver_name: `${data.firstName} ${data.lastName}`,
+        ci: data.idCard,
+        phone: data.phone
+      };
 
-  const { cart } = useContext(CartContext) || {};
-
-  const productMap = useMemo(
-    () => new Map(products.map((p) => [p.id, p])),
-    [products]
-  );
-
-  const calculateSubtotal = useCallback(() => {
-    return cart
-      ? cart.reduce(
-          (total, item) =>
-            total + item.cantidad * (productMap.get(item.id)?.price ?? 0),
-          0
-        )
-      : 0;
-  }, [cart, productMap]);
-
-  const convertCartItemToProductBase = useCallback(
-    (item: CartItem) => {
-      const product = productMap.get(item.id);
-      return product ? { ...product, quantity: item.cantidad } : null;
-    },
-    [productMap]
-  );
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    let validationErrors: any = {};
-
-    // Validar campos requeridos
-    const formElements = e.target as HTMLFormElement;
-    const formData = new FormData(formElements);
-
-    formData.forEach((value, key) => {
-      if (!value) {
-        validationErrors[key] = `${key} es obligatorio.`;
-      }
-    });
-
-    // Validación de teléfono
-    const phoneInput = formData.get("phone") as string;
-    if (phoneInput) {
-      try {
-        const phoneNumber = phoneUtil.parse(phoneInput, "ES"); // 'ES' es para España, ajusta si es otro país
-        if (!phoneUtil.isValidNumber(phoneNumber)) {
-          validationErrors.phone = "Número de teléfono no válido";
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}userpublic/create-order`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${session?.access_token}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(orderData)
         }
-      } catch (error) {
-        validationErrors.phone = "Número de teléfono no válido";
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Error en el pedido");
       }
-    }
 
-    // Aquí agregarías otras validaciones como el carnet de identidad si es necesario
-    // Ejemplo: Validación del carnet de identidad
-    const idCardInput = formData.get("idCard") as string;
-    if (idCardInput && idCardInput.length < 10) {
-      validationErrors.idCard = "Carnet de identidad no válido";
-    }
+      // Obtener la respuesta del servidor
+      const orderResult = await response.json();
 
-    // Si hay errores, actualizar el estado
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
-      return; // No continuar con el submit
-    }
+      // Guardar detalles del pedido en localStorage (ajusta los campos según lo que retorne tu API)
+      localStorage.setItem(
+        "orderDetails",
+        JSON.stringify({
+          id: orderResult.id,
+          receiver_name: orderResult.receiver_name,
+          phone: orderResult.phone,
+          province: orderResult.province,
+          address: orderResult.address,
+          CI: orderResult.CI,
+          subtotal: orderResult.subtotal,
+          created_at: orderResult.created_at,
+          status: orderResult.status,
+        })
+      );
 
-    // Si no hay errores, puedes enviar el formulario o continuar con el proceso
-    console.log("Formulario enviado correctamente");
+      localStorage.removeItem("cart")
+
+      toast.success("Pedido realizado con éxito!", {
+        duration: 4000,
+        position: "bottom-right",
+        icon: "🎉"
+      });
+
+      setTimeout(() => {
+        window.location.href = "/order-confirmation";
+      }, 2000);
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Error desconocido";
+      toast.error(`Error: ${errorMessage}`, {
+        duration: 5000,
+        position: "top-right",
+        icon: "❌"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
-    <section className="flex flex-col items-center justify-center gap-4 py-8 md:py-10 xs:px-8 xl:px-0">
+    <section className="flex flex-col items-center justify-center gap-8 py-12 md:py-16 px-4 xl:px-0">
+      <Toaster
+        toastOptions={{
+          className: "dark:bg-zinc-800 dark:text-white",
+          success: {
+            className: "border border-green-500"
+          },
+          error: {
+            className: "border border-red-500"
+          }
+        }}
+      />
       <div className="inline-block max-w-6xl w-full">
-        <div className="gap-4">
-          <div className="dark:bg-black bg-white w-full">
-            <p className="mb-4 xs:text-lg sm:text-xl xl:text-2xl">
-              Informacion del receptor
-            </p>
-
-            <p className="text-zinc-500 dark:text-gray-500 mb-2">
-              La siguiente información sera encriptada y solo utilizada para el
-              envío de su pedido.
-            </p>
-
-            <form
-              onSubmit={handleSubmit}
-              className="p-4 rounded-xl dark:bg-zinc-900 shadow-lg border border-default-200"
-            >
-              {/* Datos personales */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                <Input
-                  className="mt-1 block w-full rounded-2xl dark:bg-black"
-                  label="Nombre"
-                  placeholder="Nombre"
-                  required={true}
-                  type="text"
-                  name="firstName"
-                  value={firstName}
-                  size="lg"
-                  onValueChange={setFirstName}
-                />
-                {errors.firstName && (
-                  <span className="text-red-500">{errors.firstName}</span>
-                )}
-                <Input
-                  className="mt-1 block w-full rounded-2xl dark:bg-black"
-                  label="Apellidos"
-                  placeholder="Apellidos"
-                  required={true}
-                  type="text"
-                  name="lastName"
-                  value={lastName}
-                  size="lg"
-                  onValueChange={setLastName}
-                />
-                {errors.lastName && (
-                  <span className="text-red-500">{errors.lastName}</span>
-                )}
+        <h1 className="text-3xl md:text-4xl font-bold text-center mb-8 flex items-center justify-center gap-2">
+          <ShoppingCartIcon className="h-8 w-8 text-primary" />
+          Finalizar Compra
+        </h1>
+        <div className="grid lg:grid-cols-2 gap-8">
+          {/* Sección del Formulario */}
+          <div className="p-6 rounded-2xl bg-white dark:bg-zinc-900 shadow-md border border-default-200 transition-all duration-300 hover:shadow-2xl">
+            <div className="flex items-center gap-2 mb-6 pb-4 border-b border-default-200">
+              <UserCircleIcon className="h-6 w-6 text-primary" />
+              <h2 className="text-xl font-semibold">Datos Personales (Destinatario)</h2>
+            </div>
+            <FormProvider {...methods}>
+              <form onSubmit={methods.handleSubmit(onSubmit)}>
+                <div className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FormField
+                      label="Nombre"
+                      error={methods.formState.errors.firstName?.message}
+                    >
+                      <Input
+                        {...methods.register("firstName")}
+                        startContent={
+                          <UserCircleIcon className="h-5 w-5 text-default-400" />
+                        }
+                        placeholder="Ej: Juan"
+                        className="group rounded-xl dark:bg-zinc-800 bg-zinc-50"
+                        classNames={{
+                          input:
+                            "group-hover:bg-zinc-100 dark:group-hover:bg-zinc-700 transition-colors"
+                        }}
+                      />
+                    </FormField>
+                    <FormField
+                      label="Apellidos"
+                      error={methods.formState.errors.lastName?.message}
+                    >
+                      <Input
+                        {...methods.register("lastName")}
+                        startContent={
+                          <UserCircleIcon className="h-5 w-5 text-default-400" />
+                        }
+                        placeholder="Ej: Pérez García"
+                        className="rounded-xl dark:bg-zinc-800 bg-zinc-50"
+                      />
+                    </FormField>
+                    <FormField
+                      label="Teléfono"
+                      error={methods.formState.errors.phone?.message}
+                    >
+                      <Input
+                        {...methods.register("phone")}
+                        startContent={<span className="text-default-400">+53</span>}
+                        placeholder="59009301"
+                        className="rounded-xl dark:bg-zinc-800 bg-zinc-50"
+                        onChange={(e) => {
+                          methods.setValue("phone", `+53${e.target.value}`);
+                        }}
+                      />
+                    </FormField>
+                    <FormField
+                      label="Carnet de Identidad"
+                      error={methods.formState.errors.idCard?.message}
+                    >
+                      <Input
+                        {...methods.register("idCard")}
+                        startContent={
+                          <span className="text-default-400">
+                            <IdCard />
+                          </span>
+                        }
+                        placeholder="03030355697"
+                        className="rounded-xl dark:bg-zinc-800 bg-zinc-50"
+                      />
+                    </FormField>
+                  </div>
+                  <div className="flex items-center gap-2 mt-8 mb-6 pb-4 border-b border-default-200">
+                    <MapPinIcon className="h-6 w-6 text-primary" />
+                    <h2 className="text-xl font-semibold">Dirección de Envío</h2>
+                  </div>
+                  {/* El AddressForm se encarga de renderizar los campos relacionados a la dirección */}
+                  <AddressForm />
+                </div>
+                <div className="mt-8 w-full">
+                  <button
+                    type="submit"
+                    className="w-full py-6 text-lg font-semibold bg-gradient-to-r from-primary to-blue-600 hover:from-blue-600 hover:to-primary transition-all"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting
+                      ? "Procesando pago..."
+                      : "Confirmar Pedido"}
+                  </button>
+                </div>
+              </form>
+            </FormProvider>
+          </div>
+          {/* Resumen del Pedido */}
+          <div className="p-6 rounded-2xl bg-white dark:bg-zinc-900 shadow-md border border-default-200">
+            <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
+              <ShoppingCartIcon className="h-6 w-6 text-primary" />
+              Resumen del Pedido
+            </h2>
+            <div className="space-y-4">
+              {cart?.map((item) => {
+                const product = products.find((p) => p.id === item.id);
+                return (
+                  <div
+                    key={item.id}
+                    className="flex items-center justify-between p-3 rounded-xl bg-zinc-50 dark:bg-zinc-800"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="h-12 w-12 rounded-xl bg-zinc-200 dark:bg-zinc-700 overflow-hidden relative">
+                        <Image
+                          alt={product?.name || "producto"}
+                          src={product?.image || "/nophoto.jpeg"}
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
+                      <div>
+                        <p className="font-medium">{product?.name}</p>
+                        <p className="text-sm text-default-500">
+                          Cantidad: {item.cantidad}
+                        </p>
+                      </div>
+                    </div>
+                    <p className="font-medium">
+                      {(product?.price || 0) * item.cantidad}€
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+            <div className="mt-8 pt-6 border-t border-default-200">
+              <div className="flex justify-between items-center mb-4">
+                <span className="text-default-600">Subtotal:</span>
+                <span className="font-semibold">{subtotal}€</span>
               </div>
-
-              <div className="grid grid-cols-1 xxs:grid-cols-2 gap-2 mt-2">
-                <Input
-                  className="mt-1 block w-full rounded-2xl dark:bg-black"
-                  label="Provincia"
-                  placeholder="Provincia"
-                  required={true}
-                  type="text"
-                  name="province"
-                  value={province}
-                  size="lg"
-                  onValueChange={setProvince}
-                />
-                {errors.province && (
-                  <span className="text-red-500">{errors.province}</span>
-                )}
-                <Input
-                  className="mt-1 block w-full rounded-2xl dark:bg-black"
-                  label="Municipio"
-                  placeholder="Municipio"
-                  required={true}
-                  type="text"
-                  name="municipality"
-                  value={municipality}
-                  size="lg"
-                  onValueChange={setMunicipality}
-                />
-                {errors.municipality && (
-                  <span className="text-red-500">{errors.municipality}</span>
-                )}
+              <div className="flex justify-between items-center mb-4">
+                <span className="text-default-600">Envío:</span>
+                <span className="font-semibold">Gratis</span>
               </div>
-
-              {/* Ciudad, CP y Provincia */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mt-2">
-                <Input
-                  className="mt-1 block w-full rounded-2xl dark:bg-black"
-                  label="Reparto"
-                  placeholder="Reparto"
-                  required={true}
-                  type="text"
-                  name="district"
-                  value={district}
-                  size="lg"
-                  onValueChange={setDistrict}
-                />
-                {errors.district && (
-                  <span className="text-red-500">{errors.district}</span>
-                )}
-                <Input
-                  className="mt-1 block w-full rounded-2xl dark:bg-black"
-                  label="Calle"
-                  placeholder="Calle"
-                  required={true}
-                  type="text"
-                  name="street"
-                  value={street}
-                  size="lg"
-                  onValueChange={setStreet}
-                />
-                {errors.street && (
-                  <span className="text-red-500">{errors.street}</span>
-                )}
-                <Input
-                  className="mt-1 block w-full rounded-2xl dark:bg-black"
-                  label="Numero"
-                  placeholder="Casa o apartamento"
-                  required={true}
-                  type="text"
-                  name="houseNumber"
-                  value={houseNumber}
-                  size="lg"
-                  onValueChange={setHouseNumber}
-                />
-                {errors.houseNumber && (
-                  <span className="text-red-500">{errors.houseNumber}</span>
-                )}
+              <div className="flex justify-between items-center text-xl font-bold">
+                <span>Total:</span>
+                <span className="text-primary">{subtotal}€</span>
               </div>
-
-              {/* Teléfono */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
-                <Input
-                  className="mt-1 block w-full rounded-2xl dark:bg-black"
-                  label="Carnet de identidad"
-                  placeholder="Carnet de identidad"
-                  required={true}
-                  type="text"
-                  name="idCard"
-                  value={idCard}
-                  size="lg"
-                  onValueChange={setIdCard}
-                />
-                {errors.idCard && (
-                  <span className="text-red-500">{errors.idCard}</span>
-                )}
-                <Input
-                  className="mt-1 block w-full rounded-2xl dark:bg-black"
-                  label="Teléfono de contacto"
-                  placeholder="Teléfono de contacto"
-                  required={true}
-                  type="tel"
-                  name="phone"
-                  value={phone}
-                  size="lg"
-                  onValueChange={setPhone}
-                />
-                {errors.phone && (
-                  <span className="text-red-500">{errors.phone}</span>
-                )}
-              </div>
-
-              {/* Botón de envío */}
-              <div className="mt-4 w-full">
-                <CustomButton className="w-full" type="submit">
-                  Confirmar Pedido
-                </CustomButton>
-              </div>
-            </form>
+            </div>
           </div>
         </div>
       </div>

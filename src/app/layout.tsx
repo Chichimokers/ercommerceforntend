@@ -1,20 +1,18 @@
-"use client";
-
-import { theme } from "antd"
-import { HeroUIProvider } from "@heroui/react"
-import { CurrencyAndExchangeRateProvider } from "@contexts/exchange-rate-currency-context"
-import { ModalProvider } from "@contexts/modal-context"
-import { ConfigProvider } from "antd";
+import "@styles/global.css";
 import { Head } from "./head";
-import { RefineContext } from "./_refine_context"
-import { SessionProvider } from "next-auth/react"
-import AuthLayout from "@components/layout/auth-layout"
-import { ProductProvider } from "@contexts/product-context"
-import { CartProvider } from "@contexts/cart-context"
-import { ThemeProvider } from "next-themes"
+import { Metadata } from "next";
+import { Providers } from "./providers";
+import { ClientLayout } from "./client-layout";
+
+export const metadata: Metadata = {
+  title: "EsAki Shop",
+  description: "Creado por y para los cubanos",
+};
+
+export const dynamic = 'force-dynamic';
 
 export default function RootLayout({
-  children
+  children,
 }: {
   children: React.ReactNode
 }) {
@@ -22,39 +20,11 @@ export default function RootLayout({
     <html lang="es" suppressHydrationWarning>
       <Head />
       <body className="min-h-screen flex flex-col">
-        <ThemeProvider
-          disableTransitionOnChange
-          enableSystem
-          attribute="class"
-          defaultTheme="system"
-        >
-          <RefineContext>
-            <SessionProvider>
-              <CurrencyAndExchangeRateProvider>
-                <ModalProvider>
-                  <ProductProvider>
-                    <CartProvider>
-                      <AuthLayout>
-
-                        <ConfigProvider
-                          theme={{
-                            algorithm: theme.defaultAlgorithm,
-                          }}
-                        >
-                          <HeroUIProvider>
-                            {/* Elementos globales como analytics, theme providers */}
-                            {children}
-                          </HeroUIProvider>
-                        </ConfigProvider>
-
-                      </AuthLayout>
-                    </CartProvider>
-                  </ProductProvider>
-                </ModalProvider>
-              </CurrencyAndExchangeRateProvider>
-            </SessionProvider>
-          </RefineContext>
-        </ThemeProvider>
+        <Providers>
+          <ClientLayout>
+            {children}
+          </ClientLayout>
+        </Providers>
       </body>
     </html>
   )

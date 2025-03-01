@@ -25,93 +25,76 @@ import Image from "next/image";
 const CartCard = dynamic(() => import("../cards/cart-cards"));
 const Price = dynamic(() => import("../price"));
 
-export const MailIcon = (props: any) => {
-  return (
-    <svg
-      aria-hidden="true"
-      fill="none"
-      focusable="false"
-      height="1em"
-      role="presentation"
-      viewBox="0 0 24 24"
-      width="1em"
-      {...props}
-    >
-      <path
-        d="M17 3.5H7C4 3.5 2 5 2 8.5V15.5C2 19 4 20.5 7 20.5H17C20 20.5 22 19 22 15.5V8.5C22 5 20 3.5 17 3.5ZM17.47 9.59L14.34 12.09C13.68 12.62 12.84 12.88 12 12.88C11.16 12.88 10.31 12.62 9.66 12.09L6.53 9.59C6.21 9.33 6.16 8.85 6.41 8.53C6.67 8.21 7.14 8.15 7.46 8.41L10.59 10.91C11.35 11.52 12.64 11.52 13.4 10.91L16.53 8.41C16.85 8.15 17.33 8.2 17.58 8.53C17.84 8.85 17.79 9.33 17.47 9.59Z"
-        fill="currentColor"
-      />
-    </svg>
-  );
-};
-
-export const LockIcon = (props: any) => {
-  return (
-    <svg
-      aria-hidden="true"
-      fill="none"
-      focusable="false"
-      height="1em"
-      role="presentation"
-      viewBox="0 0 24 24"
-      width="1em"
-      {...props}
-    >
-      <path
-        d="M12.0011 17.3498C12.9013 17.3498 13.6311 16.6201 13.6311 15.7198C13.6311 14.8196 12.9013 14.0898 12.0011 14.0898C11.1009 14.0898 10.3711 14.8196 10.3711 15.7198C10.3711 16.6201 11.1009 17.3498 12.0011 17.3498Z"
-        fill="currentColor"
-      />
-      <path
-        d="M18.28 9.53V8.28C18.28 5.58 17.63 2 12 2C6.37 2 5.72 5.58 5.72 8.28V9.53C2.92 9.88 2 11.3 2 14.79V16.65C2 20.75 3.25 22 7.35 22H16.65C20.75 22 22 20.75 22 16.65V14.79C22 11.3 21.08 9.88 18.28 9.53ZM12 18.74C10.33 18.74 8.98 17.38 8.98 15.72C8.98 14.05 10.34 12.7 12 12.7C13.66 12.7 15.02 14.06 15.02 15.72C15.02 17.39 13.67 18.74 12 18.74ZM7.35 9.44C7.27 9.44 7.2 9.44 7.12 9.44V8.28C7.12 5.35 7.95 3.4 12 3.4C16.05 3.4 16.88 5.35 16.88 8.28V9.45C16.8 9.45 16.73 9.45 16.65 9.45H7.35V9.44Z"
-        fill="currentColor"
-      />
-    </svg>
-  );
-};
-
 export default function DrawerCart({ className }: { className?: string }) {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [backdrop, setBackdrop] = React.useState("blur");
   const { cart } = useContext(CartContext) || {};
   const { cartProducts, mutateCartProducts } = useProductContext();
-  const ctx = useContext(CurrencyAndExchangeRateContext);
-  const { rateExchange } = ctx || {};
-  const { currency, exchangeRate, symbol } = rateExchange || {};
+  const { rateExchange } = useContext(CurrencyAndExchangeRateContext) || {};
+  const { currency, exchangeRate } = rateExchange || {};
   const [imageLoaded, setImageLoaded] = useState(false);
 
-  const handleBackdropChange = (backdrop: any) => {
-    setBackdrop(backdrop);
-    mutateCartProducts();
-    setTimeout(() => {
-      onOpen();
-    }, 0);
-  };
-
-  const productMap = useMemo(() => {
-    return new Map(cartProducts.map((p) => [p.id, p]));
+  const { productMap, convertItem } = useMemo(() => {
+    const map = new Map(cartProducts.map((p) => [p.id, p]));
+    return {
+      productMap: map,
+      convertItem: (item: CartItem) => {
+        const product = map.get(item.id);
+        return product ? { ...product, quantity: item.cantidad } : null;
+      }
+    };
   }, [cartProducts]);
 
-  const convertCartItemToProductBase = useCallback(
-    (item: CartItem) => {
-      const product = productMap.get(item.id);
-      return product ? { ...product, quantity: item.cantidad } : null;
-    },
-    [productMap]
-  );
-
-  const calculateSubtotal = useCallback(() => {
-    return (
-      cart?.reduce(
-        (total, item) =>
-          total + item.cantidad * (productMap.get(item.id)?.price ?? 0),
-        0
-      ) ?? 0
-    );
+  const subtotal = useMemo(() => {
+    if (!cart) return 0;
+    return cart.reduce((total, item) =>
+      total + (item.cantidad * (productMap.get(item.id)?.price || 0)), 0);
   }, [cart, productMap]);
+
+  const handleBackdropChange = useCallback((backdrop: string) => {
+    setBackdrop(backdrop);
+    mutateCartProducts();
+    setTimeout(onOpen, 0);
+  }, [mutateCartProducts, onOpen]);
+
+  const emptyCartContent = useMemo(() => (
+    <div className="w-full flex flex-col items-center justify-center py-8">
+      <div className="relative w-full xs:w-3/4 sm:w-2/3 md:w-1/2 h-[30vh] xs:h-[35vh] md:h-[40vh]">
+        <Image
+          alt="Carrito Vacío"
+          className={`object-contain transition-all duration-300 ${imageLoaded ? "opacity-100" : "opacity-0"
+            }`}
+          src="/Empty_Cart.svg"
+          onLoad={() => setImageLoaded(true)}
+          fill
+          quality={Number(process.env.IMAGE_QUALITY) || 75}
+          loading="lazy"
+        />
+      </div>
+      <h2 className="text-lg xs:text-xl md:text-2xl text-default-500 font-medium text-center mt-4">
+        No hay productos en el carrito
+      </h2>
+    </div>
+  ), [imageLoaded]);
+
+  const cartItemsContent = useMemo(() =>
+    cart?.map((item) => {
+      const product = convertItem(item);
+      return product ? (
+        <React.Suspense key={product.id} fallback={<div>Cargando producto...</div>}>
+          <CartCard productCart={product} />
+        </React.Suspense>
+      ) : null;
+    })
+    , [cart, convertItem]);
+
+  const renderCartItems = useMemo(() =>
+    cart?.length ? cartItemsContent : emptyCartContent
+    , [cart?.length, cartItemsContent, emptyCartContent]);
 
   if (!cart) {
     return (
-      <div className="flex items-center justify-center h-full rounded-lg">
+      <div className="flex items-center justify-center h-full rounded-xl">
         Loading cart...
       </div>
     );
@@ -156,16 +139,11 @@ export default function DrawerCart({ className }: { className?: string }) {
               <DrawerHeader className="flex flex-col mt-6 gap-1">
                 <div className="flex flex-row justify-between items-center">
                   <h1>Carro de Compras</h1>
-
                   <Chip color="success" variant="flat">
                     <div className="flex flex-row text-xs xs:text-sm">
                       <span className="text-foreground">Subtotal: </span>
                       <Price
-                        amount={
-                          exchangeRate
-                            ? (calculateSubtotal() * exchangeRate).toFixed(2)
-                            : calculateSubtotal().toFixed(2)
-                        }
+                        amount={(exchangeRate ? subtotal * exchangeRate : subtotal).toFixed(2)}
                         currencyCode={currency || "USD"}
                         className="font-medium ml-1"
                       />
@@ -174,39 +152,7 @@ export default function DrawerCart({ className }: { className?: string }) {
                 </div>
               </DrawerHeader>
               <DrawerBody>
-                {cart.length > 0 ? (
-                  cart.map((item, index) => {
-                    const product = convertCartItemToProductBase(item);
-                    return product ? (
-                      <React.Suspense
-                        fallback={<div>Loading...</div>}
-                        key={index}
-                      >
-                        <CartCard key={product.id} productCart={product} />
-                      </React.Suspense>
-                    ) : null;
-                  })
-                ) : (
-                  <div className="w-full flex flex-col items-center justify-center py-8">
-                    <div className="relative w-full xs:w-3/4 sm:w-2/3 md:w-1/2 h-[30vh] xs:h-[35vh] md:h-[40vh]">
-                      <Image
-                        alt="Carrito Vacío"
-                        className={`object-contain transition-all duration-300 ${
-                          imageLoaded ? "opacity-100" : "opacity-0"
-                        }`}
-                        src="/Empty_Cart.svg"
-                        onLoad={() => setImageLoaded(true)}
-                        fill
-                        quality={Number(process.env.IMAGE_QUALITY)}
-                        loading="lazy"
-                        priority={false}
-                      />
-                    </div>
-                    <h2 className="text-lg xs:text-xl md:text-2xl text-default-500 font-medium text-center mt-4">
-                      No hay productos en el carrito
-                    </h2>
-                  </div>
-                )}
+                {renderCartItems}
               </DrawerBody>
 
               <DrawerFooter>

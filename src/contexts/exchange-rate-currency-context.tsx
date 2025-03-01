@@ -33,71 +33,74 @@ const CurrencyAndExchangeRateProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
   const [rateExchange, setRateExchange] = useState<RateExchange | null>(null);
-  const [SelectedCurrency, setSelectedCurrency] = useState<string | undefined>(
-    undefined
+  const [SelectedCurrency, setSelectedCurrency] = useState<string>();
+  const [isDataChanging, setIsDataChanging] = useState(false);
+
+  // Memoizar la persistencia en localStorage
+  const persistData = useCallback(
+    debounce((rate: RateExchange | null, currency: string | undefined) => {
+      if (rate) localStorage.setItem("rateExchange", JSON.stringify(rate));
+      if (currency) localStorage.setItem("SelectedCurrency", currency);
+    }, 500),
+    []
   );
-  const [isDataChanging, setIsDataChanging] = useState<boolean>(false);
 
+  // Carga inicial desde localStorage
+  useEffect(() => {
+    const storedRate = localStorage.getItem("rateExchange");
+    const storedCurrency = localStorage.getItem("SelectedCurrency");
+
+    if (storedRate) setRateExchange(JSON.parse(storedRate));
+    if (storedCurrency) setSelectedCurrency(storedCurrency);
+  }, []);
+
+  // Fetch optimizado con manejo de estado actual
   const fetchCurrencyData = useCallback(
-    debounce(async () => {
+    debounce(async (currency?: string) => {
       try {
-        const data = await getUserCurrencyAndRate(SelectedCurrency);
+        const data = await getUserCurrencyAndRate(currency || SelectedCurrency);
 
-        if (data && data.exchangeRate !== rateExchange?.exchangeRate) {
-          setRateExchange(data);
+        if (data) {
+          setRateExchange(prev =>
+            prev?.exchangeRate === data.exchangeRate ? prev : data
+          );
+          setSelectedCurrency(data.currency);
         }
-        setSelectedCurrency(data?.currency);
-
-        setIsDataChanging(false);
       } catch (error) {
         console.error("Error al obtener la tasa de cambio:", error);
+      } finally {
         setIsDataChanging(false);
       }
     }, 500),
-    [SelectedCurrency, rateExchange]
+    [SelectedCurrency]
   );
 
+  // Persistencia automática al cambiar datos
   useEffect(() => {
-    const saveToLocalStorage = debounce(() => {
-      if (rateExchange) {
-        localStorage.setItem("rateExchange", JSON.stringify(rateExchange));
-      }
+    persistData(rateExchange, SelectedCurrency);
+    return () => persistData.cancel();
+  }, [rateExchange, SelectedCurrency, persistData]);
 
-      if (SelectedCurrency) {
-        localStorage.setItem("SelectedCurrency", SelectedCurrency);
-      }
-    }, 500);
-
-    saveToLocalStorage();
-
-    return () => saveToLocalStorage.cancel();
-  }, [rateExchange, SelectedCurrency]);
-
+  // Fetch condicional optimizado
   useEffect(() => {
-    const storedRateExchange = localStorage.getItem("rateExchange");
-    const storedSelectedCurrency = localStorage.getItem("SelectedCurrency");
-
-    if (storedRateExchange) {
-      setRateExchange(JSON.parse(storedRateExchange));
-    }
-    if (storedSelectedCurrency) {
-      setSelectedCurrency(storedSelectedCurrency);
-    }
-  }, []);
-
-  useEffect(() => {
-    const isLocalRateExchange = localStorage.getItem("rateExchange") !== null;
-    const isLocalSelectedCurrency =
-      localStorage.getItem("SelectedCurrency") !== null;
-
-    if (
-      (!SelectedCurrency &&
-        !(isLocalRateExchange && isLocalSelectedCurrency)) ||
-      isDataChanging
-    ) {
+    if (!SelectedCurrency && !localStorage.getItem("SelectedCurrency")) {
       fetchCurrencyData();
     }
   }, [SelectedCurrency, fetchCurrencyData]);
+
+  // Definir funciones inline con dependencias explícitas
+  const updateExchangeRate = useCallback((newRate: number) => {
+    setRateExchange(prev => ({
+      ...(prev || { country: '', currency: 'USD', symbol: '$' }),
+      exchangeRate: newRate
+    }));
+    localStorage.setItem('exchangeRate', newRate.toString());
+  }, [setRateExchange]);
+
+  const handleCurrencyChange = useCallback((newCurrency: string) => {
+    setSelectedCurrency(newCurrency);
+    localStorage.setItem('selectedCurrency', newCurrency);
+  }, [setSelectedCurrency]); // Dependencia explícita
 
   return (
     <CurrencyAndExchangeRateContext.Provider

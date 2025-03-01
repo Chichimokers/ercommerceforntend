@@ -1,0 +1,240 @@
+"use client";
+
+import React, { useState } from "react";
+import {
+  Input,
+  Link,
+  Button,
+  addToast,
+} from "@heroui/react";
+import { FaGoogle, FaLock, FaMailBulk } from "react-icons/fa";
+import Image from "next/image";
+import { motion } from "framer-motion";
+import { useFormValidation } from "@/hooks/useFormValidation";
+import { signIn } from "next-auth/react";
+import { EyeSlashFilledIcon } from "@components/images/eye-slash-icon";
+import { EyeFilledIcon } from "@components/images/eye-filled";
+import { CustomButton } from "@components/buttons/custom-button";
+import { useRouter } from "next/navigation";
+import { FormField } from "@components/forms/form-field";
+
+interface FormData {
+  email: string;
+  password: string;
+}
+
+export default function Login() {
+
+  const validationRules = {
+    email: {
+      required: true,
+      pattern: /\S+@gmail.com+/,
+    },
+    password: {
+      required: true,
+      minLength: 6,
+    },
+  };
+
+  const router = useRouter();
+  const {
+    formData,
+    errors,
+    isLoading,
+    setIsLoading,
+    handleChange,
+    validateForm,
+  } = useFormValidation<FormData>({ email: "", password: "" }, validationRules);
+  const [isVisible, setIsVisible] = useState(false);
+  const toggleVisibility = () => setIsVisible(!isVisible);
+  const handleSubmit = async () => {
+    if (!validateForm()) return;
+
+    try {
+      setIsLoading(true);
+      const result = await signIn("credentials", {
+        email: formData.email,
+        password: formData.password,
+        redirect: false,
+      });
+
+      if (result?.error) {
+        throw new Error(result.error);
+      }
+      addToast({
+        title: "Sesión iniciada",
+        description: "Has ingresado correctamente",
+        color: "success",
+        classNames: {
+          base: "bg-gradient-to-br from-green-50 to-green-100 dark:from-green-800 dark:to-green-900",
+          title: "text-green-800 dark:text-green-100",
+          description: "text-green-600 dark:text-green-200",
+        }
+      });
+      router.push('/');
+
+    } catch (error) {
+      const errorMessage = error instanceof Error
+        ? error.message.includes("login error")
+          ? "El usuario no está registrado"
+          : error.message
+        : "Error desconocido";
+      addToast({
+        title: "Error de autenticación",
+        description: errorMessage,
+        color: "danger",
+        classNames: {
+          base: "bg-gradient-to-br from-red-50 to-red-100 dark:from-red-800 dark:to-red-900",
+          title: "text-red-800 dark:text-red-100",
+          description: "text-red-600 dark:text-red-200",
+        }
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSocialLogin = async (provider: "google" | "facebook") => {
+    try {
+      setIsLoading(true);
+      await signIn(provider, {
+        redirect: false,
+        callbackUrl: "/"
+      });
+    } catch (error) {
+      console.error(`${provider} login failed:`, error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const renderSocialButtons = () => (
+    <div className="flex justify-center gap-4 w-full">
+      <CustomButton
+        variant="bordered"
+        className="w-full bg-white/90 dark:bg-zinc-800/90 hover:bg-zinc-100 dark:hover:bg-zinc-700 backdrop-blur-sm transition-all"
+        color="primary"
+        onClick={() => handleSocialLogin('google')}
+        startContent={
+          <div className="p-1.5 bg-white dark:bg-zinc-900 rounded-full shadow-sm">
+            <FaGoogle className="text-lg text-[#4285F4] dark:text-[#669df6]" />
+          </div>
+        }
+      >
+        <span className="text-zinc-700 dark:text-zinc-200 font-medium">
+          Continuar con Google
+        </span>
+      </CustomButton>
+    </div>
+  );
+
+  return (
+    <motion.div
+      className="w-full max-w-2xl bg-white dark:bg-zinc-900 p-8 rounded-2xl shadow-md relative overflow-hidden bg-opacity-70 dark:bg-opacity-70"
+    >
+
+      <div className="flex flex-col items-center gap-4 mb-8 relative z-10">
+        <Image
+          alt="Company Logo"
+          className="w-32 h-auto"
+          src="/logo.png"
+          width={128}
+          height={128}
+        />
+        <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+          Bienvenido de vuelta
+        </h1>
+      </div>
+
+      <div className="flex flex-col gap-4 relative z-10">
+        <form
+          className="gap-4"
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSubmit();
+          }}>
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+          >
+            <FormField label="Correo electrónico" error={errors.email} className="my-4">
+              <Input
+                startContent={<FaMailBulk className="h-5 w-5 text-default-400" />}
+                placeholder="you@example.com"
+                className="group rounded-xl dark:bg-zinc-800 bg-zinc-50"
+                classNames={{
+                  input: "group-hover:bg-zinc-100 dark:group-hover:bg-zinc-700"
+                }}
+                value={formData.email}
+                onValueChange={(value) => handleChange("email", value)}
+              />
+            </FormField>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+          >
+            <FormField label="Contraseña" error={errors.password} className="my-4">
+              <Input
+                startContent={<FaLock className="h-5 w-5 text-default-400" />}
+                placeholder="••••••••"
+                type={isVisible ? "text" : "password"}
+                endContent={
+                  <button onClick={toggleVisibility} className="p-1">
+                    {isVisible ? (
+                      <EyeSlashFilledIcon className="text-2xl text-default-400" />
+                    ) : (
+                      <EyeFilledIcon className="text-2xl text-default-400" />
+                    )}
+                  </button>
+                }
+                className="group rounded-xl dark:bg-zinc-800 bg-zinc-50"
+                classNames={{
+                  input: "group-hover:bg-zinc-100 dark:group-hover:bg-zinc-700"
+                }}
+                value={formData.password}
+                onValueChange={(value) => handleChange("password", value)}
+              />
+            </FormField>
+          </motion.div>
+
+          <div className="text-center my-4">
+            <Link href="#" className="text-medium">
+              ¿Has olvidado tu contraseña?
+            </Link>
+          </div>
+
+          <div className="flex flex-col gap-4 my-4 relative z-10">
+            <motion.div
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="mt-4"
+            >
+              <Button
+                fullWidth
+                type="submit"
+                className="bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg hover:shadow-xl hover:shadow-purple-500/20 transition-all"
+                isLoading={isLoading}
+                variant="solid"
+              >
+                {isLoading ? "Ingresando..." : "Iniciar sesión"}
+              </Button>
+            </motion.div>
+          </div>
+
+          <div className="text-center text-xs">
+            <div className="flex flex-row mb-4 w-full items-center justify-center text-center">
+              <hr className="w-full" />
+              <p className="text-medium mx-2">O</p>
+              <hr className="w-full" />
+            </div>
+            {renderSocialButtons()}
+          </div>
+        </form>
+      </div>
+    </motion.div>
+  );
+}

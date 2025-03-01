@@ -9,7 +9,6 @@ import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/navigation";
 import { ProductBase } from "@/types/types";
-import styles from "./styles.module.css";
 
 export default function ProductsSlider({
   products,
@@ -30,43 +29,43 @@ export default function ProductsSlider({
   }, []);
 
   return (
-    <div className={`xs:p-0 xl:px-16 ${styles.swiper_container}`}>
+    <div className={`xs:p-0 xl:px-16 bg-gray-100 dark:bg-zinc-800`}>
       <Swiper
         navigation={
           isXLScreen
             ? {
-                nextEl: ".swiper-button-next",
-                prevEl: ".swiper-button-prev",
-              }
+              nextEl: ".swiper-button-next",
+              prevEl: ".swiper-button-prev",
+            }
             : false
         }
-        slidesPerView={2}
+        slidesPerView={1}
         spaceBetween={5}
         pagination={{
           clickable: true,
         }}
         breakpoints={{
           320: {
+            slidesPerView: 1,
+            spaceBetween: 5,
+          },
+          540: {
             slidesPerView: 2,
             spaceBetween: 5,
           },
-          640: {
+          768: {
             slidesPerView: 3,
             spaceBetween: 5,
           },
-          768: {
-            slidesPerView: 4,
-            spaceBetween: 5,
-          },
           1024: {
-            slidesPerView: 5,
+            slidesPerView: 4,
             spaceBetween: 5,
           },
         }}
         modules={[Navigation, Pagination]}
       >
         {products.map((product) => (
-          <SwiperSlide key={product.id} className="mt-2 mb-12">
+          <SwiperSlide key={product.id} className="mt-2 mb-12 justify-items-center">
             <ProductCard product={product} />
           </SwiperSlide>
         ))}

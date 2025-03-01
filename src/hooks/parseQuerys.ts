@@ -1,24 +1,27 @@
 import { Filters } from "@/types/types";
 
+type QueryParamHandler = (value: any) => any;
+
+const paramHandlers: Record<string, QueryParamHandler> = {
+  category: v => v.toString().split(",").map(String).filter(Boolean),
+  subcategory: v => v.toString().split(",").map(String).filter(Boolean),
+  pricerange: v => {
+    const [min, max] = v.toString().split("-").map(Number);
+    return (!isNaN(min) && !isNaN(max)) ? [min, max] : null;
+  },
+  rate: v => {
+    const num = Number(v);
+    return !isNaN(num) ? num : null;
+  }
+};
+
 export const parseQueryToFilters = (query: any): { filters: Filters; page: number } => {
-    const filters: Filters = {};
-    const page = Math.max(1, Number(Array.isArray(query.page) ? query.page[0] : query.page) || 1);
-  
-    if (query.category) {
-      filters.category = query.category.toString().split(",").map(Number).filter(Boolean);
-    }
-    if (query.subcategory) {
-      filters.subcategory = query.subcategory.toString().split(",").map(Number).filter(Boolean);
-    }
-    if (query.pricerange) {
-      const [min, max] = query.pricerange.toString().split("-").map(Number);
-      if (!isNaN(min) && !isNaN(max)) filters.pricerange = [min, max];
-    }
-    if (query.rate) {
-      const rate = Number(query.rate);  
-      if (!isNaN(rate)) filters.rate = rate;
-    }
-  
-    return { filters, page };
-  };
-  
+  const filters = Object.entries(paramHandlers).reduce((acc, [key, handler]) => {
+    const value = query[key] ? handler(query[key]) : undefined;
+    return value ? { ...acc, [key]: value } : acc;
+  }, {} as Filters);
+
+  const page = Math.max(1, Number(query.page?.[0] || query.page || 1));
+
+  return { filters, page };
+};

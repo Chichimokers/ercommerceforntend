@@ -41,7 +41,7 @@ export const ThemeSwitch: FC<ThemeSwitchProps> = ({
     // Aplicar el tema inmediatamente
     setTheme(savedTheme);
     setIsMounted(true);
-  }, []);
+  }, [setTheme]);
 
   const {
     Component,
@@ -78,7 +78,7 @@ export const ThemeSwitch: FC<ThemeSwitchProps> = ({
           class: clsx(
             [
               "bg-transparent",
-              "rounded-lg",
+              "rounded-xl",
               "flex items-center justify-center",
               "group-data-[selected=true]:bg-transparent",
               "!text-default-500",
