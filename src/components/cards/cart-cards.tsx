@@ -21,26 +21,15 @@ const CartCard = React.memo(
     className?: string;
   }) => {
     const { cart } = useContext(CartContext) || {};
-    const {
-      isInCart,
-      quantity,
-      handleRemoveFromCart,
-      handleQuantityInc,
-      handleQuantityDec,
-    } = useCartActions(productCart);
+    const { isInCart, handleRemoveFromCart, handleQuantityInc, handleQuantityDec } = useCartActions(productCart);
     const { cartProducts } = useProductContext();
-    const product = useMemo(
-      () => cartProducts.find((p) => p.id === productCart.id),
-      [cartProducts, productCart.id]
-    );
+    const product = useMemo(() => cartProducts.find((p) => p.id === productCart.id), [cartProducts, productCart.id]);
     const [imageStatus, setImageStatus] = useState<'loading' | 'error' | 'loaded'>('loading');
 
     const cartQuantity = useMemo(() => {
-      return cart?.find((item: { id: string }) => item.id === product?.id)
-        ?.cantidad;
+      return cart?.find((item: { id: string }) => item.id === product?.id)?.cantidad;
     }, [cart, product]);
-    const ctx = useContext(CurrencyAndExchangeRateContext);
-    const { rateExchange } = ctx || {};
+    const { rateExchange } = useContext(CurrencyAndExchangeRateContext) || {};
 
     if (!product) {
       return (
@@ -83,14 +72,12 @@ const CartCard = React.memo(
               />
 
               <QuantityAdjuster
-                quantity={cartQuantity || quantity}
+                quantity={cartQuantity || 1}
                 isInCart={isInCart}
                 handleQuantityInc={handleQuantityInc}
                 handleQuantityDec={handleQuantityDec}
                 findInCartLocalStorage={() => !!cartQuantity}
-                getLocalStorageData={() =>
-                  cart?.find((item) => item.id === product.id)
-                }
+                getLocalStorageData={() => cart?.find((item) => item.id === product.id)}
                 productId={product.id}
                 maxLimit={product.quantity || 100}
               />

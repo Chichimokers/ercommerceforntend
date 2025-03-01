@@ -119,4 +119,6 @@ const OrderComponent = ({ order, onCancelOrder, onProceedToPayment }: {
   </div>
 );
 
+OrderItem.displayName = "OrderItem"
+
 export default OrderComponent;

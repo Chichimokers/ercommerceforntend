@@ -34,8 +34,8 @@ export default function ReadyToStart() {
               inline-block 
               px-8 
               py-3 
-              bg-orange-500 
-              hover:bg-orange-600 
+              bg-blue-600 
+              hover:bg-blue-700
               text-white 
               font-semibold 
               rounded-full 
