@@ -15,10 +15,11 @@ import { usePathname, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { LoginButton } from "../buttons/login-button";
 import dynamic from "next/dynamic";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useDebouncedCallback } from "use-debounce";
 import { SearchSuggestions } from "@/components/search-suggestions";
 import { ProductBase } from "../../types/types";
+import clsx from "clsx";
 
 const IconButton = dynamic(() => import("@/components/buttons/cart-button"), {
   loading: () => (
@@ -99,7 +100,7 @@ const SearchInput = () => {
         onFocus={() => setIsFocused(true)}
         onBlur={() => setTimeout(() => setIsFocused(false), 200)}
         classNames={{
-          inputWrapper: "bg-opacity-50 dark:bg-opacity-50 rounded-full border-2 border-default-200 hover:border-default-400 transition-all duration-300 shadow-sm hover:shadow-md px-6",
+          inputWrapper: "bg-opacity-50 dark:bg-opacity-50 rounded-full border-2 border-default-200 hover:border-default-400 transition-all duration-300 hover:shadow-sm px-6",
           input: "text-md placeholder:text-gray-400 dark:placeholder:text-gray-500",
         }}
         labelPlacement="outside"
