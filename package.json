@@ -70,6 +70,7 @@
     "zod": "^3.24.2"
   },
   "devDependencies": {
+    "dotenv-cli": "^8.0.0",
     "@next/bundle-analyzer": "^15.1.7",
     "@types/google-libphonenumber": "^7.4.30",
     "@types/lodash.debounce": "^4.0.9",
