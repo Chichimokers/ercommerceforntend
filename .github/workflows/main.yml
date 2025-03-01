@@ -24,7 +24,6 @@ jobs:
         run: |
           docker image prune -f  # Elimina imágenes sin uso para ahorrar espacio
 
-
       - name: Ejecutar nuevo contenedor
         run: |
           docker run -d \
