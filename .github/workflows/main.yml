@@ -28,6 +28,6 @@ jobs:
         run: |
           docker run -d \
             --name esakifront \
-            -p 3001:3001 \
+            -p 3000:3000 \
             --restart unless-stopped \
             esakifront:latest
