@@ -1,40 +1,28 @@
+name: Deploy to Docker
 
 on:
   push:
-    branches: [master]
-  pull_request:
-    branches: [master]
-
+    branches:
+      - master
 
 jobs:
-  deploy-frontend:
-    runs-on: self-hosted
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
     steps:
-      - name: Clonar repositorio frontend
+      - name: Clonar repositorio
         uses: actions/checkout@v3
-        with:
-            path: frontend 
 
-      - name: Configurar Node.js
-  
-        uses: actions/setup-node@v3
-        with:
-              node-version: 22.9.0
 
-      # Instalar herramientas globales
-      - name: Instalar dependencias globales
-        working-directory: ./frontend
-        run: |
-              npm install -g dotenv-cli
-              npm install -g pm2
-              
-      - name: Instalar y buildear
-        working-directory: ./frontend
-        run: |
-          npm install
+      - name: Configurar Docker Buildx
+        uses: docker/setup-buildx-action@v2
 
-      - name: Desplegar frontend
-        working-directory: ./frontend
+      - name: Construir la imagen Docker
         run: |
-          pm2 delete frontend || true
-          pm2 start npm --name "frontend" -- run pre -- -p 3001
+          docker build -f DockerFile.integration  -t esakiback .
+        env:
+          DOCKER_BUILDKIT: 1
+
+      - name: Ejecutar el contenedor
+        run: |
+          docker run -d -p 3001:3001 --name esakiback esakiback
