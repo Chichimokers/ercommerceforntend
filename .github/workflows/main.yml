@@ -4,25 +4,31 @@ on:
   push:
     branches:
       - master
-
 jobs:
   build-and-deploy:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted  # Especifica que se ejecuta en un runner self-hosted
 
     steps:
       - name: Clonar repositorio
         uses: actions/checkout@v3
 
-
-      - name: Configurar Docker Buildx
-        uses: docker/setup-buildx-action@v2
-
-      - name: Construir la imagen Docker
+      - name: Construir imagen con etiqueta latest
         run: |
-          docker build -f DockerFile.integration  -t esakiback .
-        env:
-          DOCKER_BUILDKIT: 1
+          docker build -f DockerFile.vps -t esakifront:latest .
 
-      - name: Ejecutar el contenedor
+      - name: Eliminar contenedor antiguo
         run: |
-          docker run -d -p 3001:3001 --name esakiback esakiback
+          docker rm -f esakifront || true  # Fuerza eliminación si existe
+
+      - name: Limpiar imágenes huérfanas (opcional)
+        run: |
+          docker image prune -f  # Elimina imágenes sin uso para ahorrar espacio
+
+
+      - name: Ejecutar nuevo contenedor
+        run: |
+          docker run -d \
+            --name esakiback \
+            -p 3100:3100 \
+            --restart unless-stopped \
+            esakifront:latest
