@@ -4,7 +4,7 @@ import dynamic from "next/dynamic";
 const PromisesCard = dynamic(() => import("../cards/promises-card"), {
   loading: () => (
     <div
-      className="group w-full h-full bg-gray-200 dark:bg-gray-700 bg-opacity-40 backdrop-blur-sm px-8 py-12 rounded-xl animate-pulse"
+      className="group w-full h-full bg-gray-200 dark:bg-gray-700 bg-opacity-40 backdrop-blur-sm px-8 py-20 rounded-xl animate-pulse"
     >
       <div className="h-12 w-12 mb-4 rounded-full bg-gray-300 dark:bg-gray-600"></div>
       <div className="h-6 w-3/4 mb-3 rounded-xl bg-gray-300 dark:bg-gray-600"></div>
@@ -21,7 +21,7 @@ export const PromisesPanel = () => {
   return (
     <section className="relative">
       {/* Fondo con degradado */}
-      <div className="bg-gradient-to-r from-blue-50 via-white to-blue-100 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 py-12 px-4 sm:px-6 md:px-8 transition-colors duration-300">
+      <div className="bg-blue-50 dark:bg-gray-900 py-12 px-4 sm:px-6 md:px-8 sm:py-12 md:py-20 transition-colors duration-300">
 
         {/* Título de sección (opcional) */}
         <div className="max-w-2xl mx-auto text-center mb-10">

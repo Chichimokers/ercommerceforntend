@@ -15,7 +15,7 @@ export default function PromisesCard({
     <div className="
       group 
       bg-white/70 
-      dark:bg-zinc-800/70 
+      dark:bg-gray-800/70 
       backdrop-blur 
       border 
       border-gray-200 
