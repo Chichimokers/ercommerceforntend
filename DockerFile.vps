@@ -11,7 +11,7 @@ COPY . .
 RUN npm install --force --verbose
 
 # Expone el puerto en el que tu aplicación escuchará
-EXPOSE 3001
+EXPOSE 3000
 
 # Comando para iniciar la aplicación en producción
 CMD ["npm", "run", "pre"]
