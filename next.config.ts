@@ -65,19 +65,15 @@ const nextConfig = {
     minimumCacheTTL: 86400, // 1 día de caché
   },
 
-  experimental: {
-    turbo: false,
-  },
-
   // Se comenta la configuración experimental de Turbopack
-  // experimental: {
-  //   turbo: {
-  //     rules: {
-  //       "*.mdx": ["@mdx-js/loader"],
-  //     },
-  //     resolveExtensions: [".mdx", ".tsx", ".ts", ".jsx", ".js"],
-  //   },
-  // },
+  experimental: {
+    turbo: {
+      rules: {
+        "*.mdx": ["@mdx-js/loader"],
+      },
+      resolveExtensions: [".mdx", ".tsx", ".ts", ".jsx", ".js"],
+    },
+  },
 
   // Compresión avanzada
   compress: true,

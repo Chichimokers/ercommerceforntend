@@ -17,6 +17,7 @@ import { theme } from "antd";
 import { useTheme } from "next-themes";
 import { customDataProvider } from "@providers/data-provider";
 import { RefineContext } from "@app/_refine_context";
+import React from "react";
 
 function Layout({ children }: { children: React.ReactNode }) {
 	const { resolvedTheme } = useTheme();

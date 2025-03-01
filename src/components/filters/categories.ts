@@ -1,8 +1,9 @@
 import {
     FaMusic, FaBook, FaTshirt, FaLaptop, FaHome, FaQuestion,
     FaUtensils, FaHeart, FaDumbbell, FaBaby, FaToolbox, FaSeedling,
-    FaCamera, FaCar, FaPaw, FaGamepad, FaPlane, FaBriefcase
+    FaCamera, FaCar, FaPaw, FaGamepad, FaPlane, FaBriefcase, FaDragon
 } from "react-icons/fa";
+import React from "react";
 
 type IconMap = {
     [key: string]: React.ComponentType;
@@ -11,29 +12,38 @@ type IconMap = {
 
 // Mapa de palabras clave a iconos
 const keywordIconMap: IconMap = {
-    música: FaMusic,
+    musica: FaMusic,
     libro: FaBook,
     ropa: FaTshirt,
-    electróni: FaLaptop,
+    electronica: FaLaptop,
     hogar: FaHome,
     comida: FaUtensils,
     salud: FaHeart,
     deporte: FaDumbbell,
-    bebé: FaBaby,
+    bebe: FaBaby,
     bricolaje: FaToolbox,
-    jardín: FaSeedling,
+    jardin: FaSeedling,
     foto: FaCamera,
     coche: FaCar,
     mascota: FaPaw,
     juego: FaGamepad,
     viaje: FaPlane,
     trabajo: FaBriefcase,
+    juguetes: FaDragon,
     default: FaQuestion
 };
 
 // Función de coincidencia aproximada
 export const getCategoryIcon = (categoryName: string) => {
-    const lowerName = categoryName.toLowerCase();
+
+    const cleanText = (text: string): string => {
+        return text
+            .normalize('NFD') // Descompone los caracteres acentuados en su forma base + marca diacrítica
+            .replace(/[\u0300-\u036f]/g, '') // Elimina todos los caracteres diacríticos
+            .replace(/[^a-zA-Z0-9\s]/g, ''); // Opcional: Elimina cualquier carácter que no sea alfanumérico o espacio
+    };
+
+    const lowerName = cleanText(categoryName.toLowerCase());
 
     // Buscar coincidencia en palabras clave
     const matchedKey = Object.keys(keywordIconMap).find(key =>

@@ -1,23 +1,68 @@
+import React from "react";
+
+interface PromisesCardProps {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+}
+
 export default function PromisesCard({
   icon,
   title,
   description,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  description: string;
-}) {
+}: PromisesCardProps) {
   return (
-    <div className="group bg-gray-100 dark:bg-zinc-800 dark:bg-opacity-40 bg-opacity-40 backdrop-blur-sm hover:backdrop-blur duration-300 shadow-sm hover:shadow-md p-4 rounded-xl hover:scale-[1.02] transform-gpu hover:bg-opacity-60 dark:hover:bg-opacity-60 transition-all border border-default-200">
-      <div className="flex flex-row gap-2 items-center">
-        <div className="text-2xl mb-3 text-blue-600 dark:text-blue-800 p-2 rounded-full bg-indigo-200 dark:bg-blue-200 w-max h-max">
+    <div className="
+      group 
+      bg-white/70 
+      dark:bg-zinc-800/70 
+      backdrop-blur 
+      border 
+      border-gray-200 
+      dark:border-gray-700 
+      rounded-xl 
+      p-6 
+      shadow-sm 
+      hover:shadow-md 
+      transition-all 
+      hover:-translate-y-1
+    ">
+      <div className="flex items-center gap-3 mb-3">
+        <div className="
+          text-2xl 
+          text-blue-600 
+          dark:text-blue-400 
+          p-3 
+          bg-blue-100 
+          dark:bg-blue-900/20 
+          rounded-full 
+          transition-transform 
+          duration-300 
+          group-hover:scale-110
+        ">
           {icon}
         </div>
-        <h3 className="text-lg font-bold mb-2 select-none text-gray-800 dark:text-gray-100 group-hover:text-black dark:group-hover:text-white transition-colors">
+        <h3 className="
+          text-lg 
+          font-bold 
+          text-gray-800 
+          dark:text-gray-100 
+          transition-colors 
+          duration-300
+        ">
           {title}
         </h3>
       </div>
-      <p className="select-none text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-gray-100 transition-colors leading-relaxed">
+      <p className="
+        text-sm 
+        text-gray-700 
+        dark:text-gray-300 
+        leading-relaxed 
+        group-hover:text-gray-800 
+        dark:group-hover:text-gray-100 
+        transition-colors 
+        duration-300
+      ">
         {description}
       </p>
     </div>

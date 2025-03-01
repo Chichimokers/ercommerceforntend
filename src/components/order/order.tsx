@@ -3,16 +3,14 @@ import { Order, Item } from "@/types/types";
 import { Chip } from "@heroui/react";
 import CustomQRCode from "../qr-code";
 import { CustomButton } from "../buttons/custom-button";
-import React from "react";
-import { Divider } from "@heroui/react";
 import { MapPinIcon } from "lucide-react";
+import React from "react";
 
-// Componente memoizado para items
 const OrderItem = React.memo(({ item }: { item: Item }) => (
-  <div className="flex items-center gap-4 p-2 hover:bg-default-50 transition-colors rounded-md">
+  <div className="flex items-center gap-4 p-3 rounded-lg shadow-sm hover:shadow-md transition-all bg-zinc-50 dark:bg-zinc-900 border border-default-200">
     <Image
       alt={`Imagen de ${item.product.name}`}
-      className="w-16 h-16 object-cover rounded-md shadow border border-default-200"
+      className="w-16 h-16 object-cover rounded-lg border border-default-300 shadow-sm"
       height={100}
       width={100}
       src={item.product.image || "/nophoto.jpeg"}
@@ -23,110 +21,104 @@ const OrderItem = React.memo(({ item }: { item: Item }) => (
       }}
     />
     <div className="flex-1 min-w-0">
-      <h4 className="font-medium text-base truncate">{item.product.name}</h4>
-      <div className="flex justify-between items-baseline gap-2">
+      <h4 className="font-semibold text-base truncate text-default-900 dark:text-white">{item.product.name}</h4>
+      <div className="flex justify-between items-center">
         <span className="text-sm text-default-600">Cantidad: {item.quantity}</span>
-        <span className="text-sm font-semibold text-default-900">
-          ${item.product.price.toFixed(2)}
-        </span>
+        <span className="text-sm font-semibold text-primary">${item.product.price.toFixed(2)}</span>
       </div>
     </div>
   </div>
 ));
 
-OrderItem.displayName = 'OrderItem';
-
-// Subcomponente para el encabezado
-const OrderHeader = ({ order }: { order: Order }) => {
-
-  return (
-    <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm px-4 pt-4">
-      <div className="flex justify-between items-start gap-4 min-w-[260px]">
-        <div className="space-y-2">
-          <h4 className="text-xl font-semibold">Orden #{order.id.slice(0, 6)}</h4>
-          <p className="text-sm text-default-600">
-            <MapPinIcon className="inline mr-1" />
-            {order.province}
-          </p>
-          <OrderStatus status={order.status} />
-        </div>
-        <CustomQRCode value={order.id} />
-      </div>
-      <Divider className="mt-4" />
+const OrderHeader = ({ order }: { order: Order }) => (
+  <div className="sticky top-0 z-10 px-5 pt-5 pb-3 border-b border-default-200 flex justify-between items-start">
+    <div>
+      <h4 className="text-lg font-bold text-default-900 dark:text-white">Orden #{order.id.slice(0, 6)}</h4>
+      <p className="text-sm text-default-600 flex items-center gap-1">
+        <MapPinIcon className="w-4 h-4 text-default-500" /> {order.province}
+      </p>
+      <OrderStatus status={order.status} />
     </div>
-  );
-}
+    <CustomQRCode value={order.id} />
+  </div>
+);
 
-// Componente para el estado con colores consistentes
 const OrderStatus = ({ status }: { status: Order['status'] }) => {
   const statusColors = {
-    accepted: 'primary',
-    cancelled: 'danger',
-    pending: 'warning',
-    paid: 'success',
-    default: 'default',
+    accepted: "primary",
+    cancelled: "danger",
+    pending: "warning",
+    paid: "success",
+    default: "default",
   } as const;
 
   const spanishStatus = {
-    accepted: 'Aceptada',
-    cancelled: 'Cancelada',
-    pending: 'Pendiente',
-    paid: 'Pagada',
-    default: 'Desconocido',
+    accepted: "Aceptada",
+    cancelled: "Cancelada",
+    pending: "Pendiente",
+    paid: "Pagada",
+    default: "Desconocido",
   } as const;
 
   return (
-    <Chip color={statusColors[status as keyof typeof statusColors]} variant="flat" radius="sm">
-      <span className="font-medium text-sm">{spanishStatus[status as keyof typeof statusColors]}</span>
+    <Chip color={statusColors[status as keyof typeof statusColors]} variant="flat" radius="sm" className="mt-1">
+      <span className="text-sm font-medium">{spanishStatus[status as keyof typeof spanishStatus]}</span>
     </Chip>
   );
 };
 
-// Componente para la lista de productos
 const OrderProductList = ({ items }: { items: Item[] }) => (
-  <div className="overflow-y-auto flex-1 p-4 space-y-2">
+  <div className="flex-1 overflow-y-auto p-5 space-y-3 max-h-60">
     {items.map((item) => (
       <OrderItem key={item.id} item={item} />
     ))}
   </div>
 );
 
-// Componente para el pie de orden
-const OrderFooter = ({ order, onCancelOrder }: {
+const OrderFooter = ({ order, onCancelOrder, onProceedToPayment }: {
   order: Order;
   onCancelOrder?: (orderId: string) => void;
+  onProceedToPayment?: (orderId: string) => void;
 }) => (
-  <div className="sticky bottom-0 z-10 bg-background/95 backdrop-blur-sm p-4 border-t border-default-200">
+  <div className="sticky bottom-0 z-10 p-5 border-t border-default-200 shadow-sm">
     <div className="flex justify-between items-center mb-4">
-      <span className="font-semibold">Total:</span>
-      <span className="text-lg font-bold text-primary">
-        ${order.subtotal.toFixed(2)}
-      </span>
+      <span className="font-semibold text-default-900 dark:text-white">Total:</span>
+      <span className="text-xl font-bold text-primary">${order.subtotal.toFixed(2)}</span>
     </div>
-    <CustomButton
-      color="danger"
-      variant="filled"
-      className="w-full shadow-lg"
-      onClick={() => onCancelOrder?.(order.id)}
-      isDisabled={order.status !== 'Procesando'}
-    >
-      Cancelar Orden
-    </CustomButton>
+    {order.status === "pending" ? (
+      <CustomButton
+        color="danger"
+        variant="filled"
+        className="w-full shadow-lg"
+        onClick={() => onCancelOrder?.(order.id)}
+      >
+        Cancelar Orden
+      </CustomButton>
+    ) : order.status === "accepted" ? (
+      <CustomButton
+        color="primary"
+        variant="filled"
+        className="w-full shadow-lg"
+        onClick={() => onProceedToPayment?.(order.id)}
+      >
+        Proceder al Pago
+      </CustomButton>
+    ) : null}
   </div>
 );
 
-// Componente principal optimizado
-const OrderComponent = ({ order, onCancelOrder }: {
+const OrderComponent = ({ order, onCancelOrder, onProceedToPayment }: {
   order: Order;
   onCancelOrder?: (orderId: string) => void;
+  onProceedToPayment?: (orderId: string) => void;
 }) => (
-  <div className="order-card-container">
-    <div className="order-card-content">
-      <OrderHeader order={order} />
-      <OrderProductList items={order.orderItems} />
-      <OrderFooter order={order} onCancelOrder={onCancelOrder} />
-    </div>
+  <div className="w-full max-w-lg mx-auto bg-white dark:bg-zinc-950 rounded-xl shadow-sm overflow-hidden border border-default-200">
+    <OrderHeader order={order} />
+    <OrderProductList items={order.orderItems} />
+    <OrderFooter order={order} onCancelOrder={onCancelOrder} onProceedToPayment={onProceedToPayment} />
   </div>
 );
+
+OrderItem.displayName = "OrderItem"
 
 export default OrderComponent;
