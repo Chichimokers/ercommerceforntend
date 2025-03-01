@@ -52,7 +52,7 @@ const OrderSummary = ({
     <div className={`flex justify-center w-full ${className}`}>
       <Card
         className="w-full sm:w-[400px] md:w-[450px]
-                  bg-background shadow-none
+                  shadow-none  bg-white dark:bg-gray-800/75
                   border border-default-200 rounded-xl mx-auto"
       >
         <CardBody className="gap-2 p-3 xs:p-4">

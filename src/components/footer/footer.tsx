@@ -44,7 +44,7 @@ const CustomerService = ({ href, value }: { href: string; value: string }) => {
 
 const Footer = () => {
   return (
-    <footer className="bg-gradient-to-b from-background to-default-50 border-t border-default-200">
+    <footer className="bg-gradient-to-b from-gray-50 dark:from-gray-900 to-default-50 border-t border-default-200">
       <div className="container mx-auto px-4 py-12 md:py-16">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
           <div className="space-y-4">

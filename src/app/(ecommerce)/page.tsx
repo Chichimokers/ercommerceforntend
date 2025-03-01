@@ -40,23 +40,18 @@ export default function IndexPage() {
   const rating_products = useMemo(() => products.slice(0, 4), [products]);
 
   return (
-    <div className="bg-default-50 dark:bg-black">
-      {/* Sección Hero */}
+    <div className="bg-default-50">
+
       <HeroSection />
 
-      {/* Panel de Promesas o Ventajas */}
       <PromisesPanel />
 
-      {/* Panel de Categorías */}
       <CategoryPanel />
 
-      {/* Sección de Productos Destacados */}
       <LazyFeaturedProducts products={rating_products} />
 
-      {/* Slider publicitario */}
       <PublicityBannerSlider banners={banners} />
 
-      {/* Sección para invitar a iniciar (Ready To Start) */}
       <ReadyToStart />
 
     </div>
@@ -67,7 +62,7 @@ const FeaturedProducts = ({ products }: { products: ProductBase[] }) => {
   const router = useRouter();
 
   return (
-    <div className="px-4 py-20 bg-white dark:bg-gray-900">
+    <div className="px-4 py-20 bg-white dark:bg-gray-800">
       <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-default-200 pb-2">
         <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white">
           Productos Destacados
@@ -98,7 +93,7 @@ const FeaturedProducts = ({ products }: { products: ProductBase[] }) => {
               <button className="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-transform transform hover:-translate-y-1">
                 Explorar categorías
               </button>
-              <button className="px-8 py-3 bg-gray-900 hover:bg-gray-800 text-white rounded-xl transition-transform transform hover:-translate-y-1">
+              <button className="px-8 py-3 bg-gray-800 hover:bg-gray-800 text-white rounded-xl transition-transform transform hover:-translate-y-1">
                 Ver ofertas
               </button>
             </div>

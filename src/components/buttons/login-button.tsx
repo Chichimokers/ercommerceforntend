@@ -13,7 +13,7 @@ export const LoginButton = ({ className }: { className?: string }) => {
     >
       <Button
         className={cn(
-          "cursor-pointer h-10 min-w-10 w-10 p-0 border-2 border-default-200 hover:border-default-400 bg-opacity-50 dark:bg-opacity-50 bg-white dark:bg-black rounded-full",
+          "cursor-pointer h-10 min-w-10 w-10 p-0 border-2 border-default-200 hover:border-default-400 bg-opacity-50 dark:bg-opacity-50 rounded-full",
           className
         )}
         variant="bordered"

@@ -19,7 +19,7 @@ const IconButton = React.memo(({ className }: { className?: string }) => {
       isInvisible={!cart?.length}
     >
       <Link
-        className={`${className} flex-col justify-center gap-4 items-center hover:border-default-400 w-10 h-10 rounded-full border-2 border-default-200 bg-white dark:bg-black`}
+        className={`${className} flex-col justify-center gap-4 items-center hover:border-default-400 w-10 h-10 rounded-full border-2 border-default-200`}
         href="/shopping-cart"
       >
         <FaShoppingCart opacity={0.7} size={22} />

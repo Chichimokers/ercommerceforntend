@@ -13,7 +13,7 @@ export const AddressForm = () => {
           <label className="text-sm font-medium">Provincia</label>
           <input
             {...register("province")}
-            className="w-full rounded-xl p-2 border border-default-200 dark:bg-zinc-800 focus:ring-2 focus:ring-primary"
+            className="w-full rounded-xl p-2 border border-default-200 bg-gray-100 dark:bg-gray-900/50 focus:ring-2 focus:ring-primary"
           />
           {errors.province && (
             <span className="text-red-500 text-sm">
@@ -26,7 +26,7 @@ export const AddressForm = () => {
           <label className="text-sm font-medium">Municipio</label>
           <input
             {...register("municipality")}
-            className="w-full rounded-xl p-2 border border-default-200 dark:bg-zinc-800"
+            className="w-full rounded-xl p-2 border border-default-200 bg-gray-100 dark:bg-gray-900/50"
           />
           {errors.municipality && (
             <span className="text-red-500 text-sm">
@@ -39,7 +39,7 @@ export const AddressForm = () => {
           <label className="text-sm font-medium">Distrito</label>
           <input
             {...register("district")}
-            className="w-full rounded-xl p-2 border border-default-200 dark:bg-zinc-800"
+            className="w-full rounded-xl p-2 border border-default-200 bg-gray-100 dark:bg-gray-900/50"
           />
           {errors.district && (
             <span className="text-red-500 text-sm">
@@ -52,7 +52,7 @@ export const AddressForm = () => {
           <label className="text-sm font-medium">Calle</label>
           <input
             {...register("street")}
-            className="w-full rounded-xl p-2 border border-default-200 dark:bg-zinc-800"
+            className="w-full rounded-xl p-2 border border-default-200 bg-gray-100 dark:bg-gray-900/50"
           />
           {errors.street && (
             <span className="text-red-500 text-sm">
@@ -65,7 +65,7 @@ export const AddressForm = () => {
           <label className="text-sm font-medium">Número</label>
           <input
             {...register("houseNumber")}
-            className="w-full rounded-xl p-2 border border-default-200 dark:bg-zinc-800"
+            className="w-full rounded-xl p-2 border border-default-200 bg-gray-100 dark:bg-gray-900/50"
           />
           {errors.houseNumber && (
             <span className="text-red-500 text-sm">

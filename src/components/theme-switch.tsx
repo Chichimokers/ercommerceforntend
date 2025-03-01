@@ -70,7 +70,7 @@ export const ThemeSwitch: FC<ThemeSwitchProps> = ({
         aria-label={isSelected ? "Switch to dark mode" : "Switch to light mode"}
         {...getBaseProps({
           className: clsx(
-            "px-px flex flex-col items-center justify-center border-2 border-default-200 h-10 w-10 rounded-full hover:border-default-400 cursor-pointer bg-white dark:bg-black bg-opacity-50 dark:bg-opacity-50",
+            "px-px flex flex-col items-center justify-center border-2 border-default-200 h-10 w-10 rounded-full hover:border-default-400 cursor-pointer bg-opacity-50 dark:bg-opacity-50",
             className,
             classNames?.base
           ),

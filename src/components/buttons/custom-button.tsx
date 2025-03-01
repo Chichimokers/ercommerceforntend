@@ -41,7 +41,7 @@ export const CustomButton: React.FC<CustomButtonProps> = ({
     'bg-gray-500 hover:bg-gray-600': color === 'secondary',
     'bg-green-500 hover:bg-green-600': color === 'success',
     'bg-red-500 hover:bg-red-600': color === 'danger',
-    'bg-white dark:bg-black': color === 'default',
+    '': color === 'default',
     'text-white': ['primary', 'secondary', 'success', 'danger'].includes(color),
     'text-default-800': color === 'default' || variant === 'ghost',
   });
