@@ -38,7 +38,7 @@ export const ProductGrid = React.memo(
         className={`hidden md:grid grid-cols-5 lg:grid-cols-6 gap-6 border-b border-gray-200 dark:border-gray-700 px-4 ${className} hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors`}
       >
         <div className="py-6 flex items-center col-span-2 lg:col-span-3">
-          <div className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-xl border-2 border-gray-100 dark:border-gray-800 mr-4 shadow-lg transition-all group hover:shadow-md">
+          <div className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-xl border-2 border-gray-100 dark:border-gray-800 mr-4 shadow-sm transition-all group hover:shadow-md">
             {imageStatus !== 'loaded' && (
               <div className="absolute inset-0 animate-pulse bg-gray-200 dark:bg-gray-700" />
             )}

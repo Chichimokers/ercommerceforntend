@@ -9,11 +9,10 @@ import dynamic from "next/dynamic";
 import Image from "next/image";
 import React from "react";
 import { useForceUpdate } from "@hooks/useForceUpdate"; // Hook para forzar re-render
-import { ArrowRight } from "lucide-react";
 import { useIsMobile } from "@hooks/useMobile";
 
 const Summary = dynamic(() => import("@/components/cards/summary"));
-const CartCard = dynamic(() => import("@/components/cards/cart-cards"), { ssr: false });
+const CartCard = dynamic(() => import("@/components/cards/cart-cards"));
 
 export default function ShoppingCartPage() {
   const { cart } = useContext(CartContext) || {};
@@ -80,7 +79,7 @@ export default function ShoppingCartPage() {
   }
 
   return (
-    <section className="py-12 bg-gray-50 dark:bg-black">
+    <section className="py-12">
       <div className="container mx-auto px-4">
         <header className="mb-8">
           <h1 className="text-4xl font-extrabold text-gray-800 dark:text-white inline-block border-b-4 border-blue-300 pb-2">
@@ -132,7 +131,7 @@ export default function ShoppingCartPage() {
           {hasCartProducts && (
             <div className="lg:col-span-1">
               <Summary
-                className="sticky top-24 rounded-xl shadow-lg bg-white dark:bg-gray-800"
+                className="sticky top-24 rounded-xl shadow-sm"
                 shipping={1}
                 subtotal={subtotal}
                 tax={0.15}

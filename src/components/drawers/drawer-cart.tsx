@@ -149,7 +149,7 @@ export default function DrawerCart({ className }: { className?: string }) {
 
 
       <Drawer
-        className="h-full"
+        className="h-full bg-gray-100 dark:bg-gray-800"
         classNames={{
           closeButton: "absolute top-1 right-1",
         }}

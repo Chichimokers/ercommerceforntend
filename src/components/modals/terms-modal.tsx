@@ -35,7 +35,7 @@ export const TermsModal = () => {
       </button>
 
       {isOpen && (
-        <div className="fixed inset-0 z-[1000] bg-black/70 backdrop-blur-lg flex items-start justify-center p-4 pt-20 overflow-y-auto">
+        <div className="fixed inset-0 z-[1000] backdrop-blur-lg flex items-start justify-center p-4 pt-20 overflow-y-auto">
           <motion.div
             initial={{ opacity: 0, y: 20, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}

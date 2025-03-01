@@ -22,14 +22,18 @@
   --color-hover-bg-dark: rgba(0, 119, 255, 0.3);
 }
 
-:root[data-theme="light"] {
-  --text-color: #000000;
-  --color-hover-bg: var(--color-hover-bg-light);
+/* globals.css */
+:root {
+  --background-light: f9fafb; /* Color de fondo en modo claro */
+  --background-dark: #111827; /* Color de fondo en modo oscuro */
 }
 
-:root[data-theme="dark"] {
-  --text-color: #080202;
-  --color-hover-bg: var(--color-hover-bg-dark);
+html.light {
+  background-color: var(--background-light);
+}
+
+html.dark {
+  background-color: var(--background-dark);
 }
 
 .checkbox-wrapper-4 .cbx:hover {

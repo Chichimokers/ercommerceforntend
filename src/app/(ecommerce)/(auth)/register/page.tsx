@@ -184,7 +184,7 @@ export default function SignUp() {
         color="primary"
         onClick={() => handleSocialSignUp('google')}
         startContent={
-          <div className="p-1.5 bg-white dark:bg-zinc-900 rounded-full shadow-sm">
+          <div className="p-1.5 bg-white dark:bg-gray-800 rounded-full shadow-sm">
             <FaGoogle className="text-lg text-[#4285F4] dark:text-[#669df6]" />
           </div>
         }
@@ -198,7 +198,7 @@ export default function SignUp() {
 
   return (
     <motion.div
-      className="w-full max-w-2xl bg-white dark:bg-zinc-900 p-8 rounded-2xl shadow-md relative overflow-hidden bg-opacity-70 dark:bg-opacity-70"
+      className="w-full max-w-2xl bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-md relative overflow-hidden bg-opacity-70 dark:bg-opacity-70"
     >
 
       <div className="flex flex-col items-center gap-4 mb-8 relative z-10">

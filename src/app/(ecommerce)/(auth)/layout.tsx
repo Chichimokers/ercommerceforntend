@@ -17,7 +17,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           animate={{ opacity: 1, x: 0 }}
           className="flex items-center gap-4 relative"
         >
-          <div className="flex gap-2 bg-white dark:bg-zinc-800 p-2 rounded-full shadow-lg">
+          <div className="flex gap-2 bg-white dark:bg-gray-800 p-2 rounded-full shadow-lg">
             <Link
               href="/login"
               className={`relative px-6 py-2 rounded-full transition-all duration-300 ${pathname === "/login"

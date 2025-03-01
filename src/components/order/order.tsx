@@ -7,7 +7,7 @@ import { MapPinIcon } from "lucide-react";
 import React from "react";
 
 const OrderItem = React.memo(({ item }: { item: Item }) => (
-  <div className="flex items-center gap-4 p-3 rounded-lg shadow-sm hover:shadow-md transition-all bg-zinc-50 dark:bg-zinc-900 border border-default-200">
+  <div className="flex items-center gap-4 p-3 rounded-lg bg-gray-100 dark:bg-gray-900/50 shadow-sm hover:shadow-md transition-all border border-default-200">
     <Image
       alt={`Imagen de ${item.product.name}`}
       className="w-16 h-16 object-cover rounded-lg border border-default-300 shadow-sm"
@@ -112,7 +112,7 @@ const OrderComponent = ({ order, onCancelOrder, onProceedToPayment }: {
   onCancelOrder?: (orderId: string) => void;
   onProceedToPayment?: (orderId: string) => void;
 }) => (
-  <div className="w-full max-w-lg mx-auto bg-white dark:bg-zinc-950 rounded-xl shadow-sm overflow-hidden border border-default-200">
+  <div className="w-full max-w-lg mx-auto bg-gray-50 dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden border border-default-200">
     <OrderHeader order={order} />
     <OrderProductList items={order.orderItems} />
     <OrderFooter order={order} onCancelOrder={onCancelOrder} onProceedToPayment={onProceedToPayment} />

@@ -50,7 +50,7 @@ const ProductCard = React.memo(({ product, prefetch = "none", className, imgClas
 
   return (
     <Card
-      className={`${className} group w-full flex-1 min-h-[330px] flex flex-col rounded-3xl border border-gray-200 dark:border-gray-700 transition-all hover:shadow-xl overflow-hidden bg-white dark:bg-gray-800`}
+      className={`${className} group w-full flex-1 min-h-[330px] flex flex-col rounded-3xl border border-gray-200 dark:border-gray-700 transition-all hover:shadow-xl overflow-hidden bg-white dark:bg-gray-800/50`}
       shadow="none"
       as={Link}
       href={`/products/${product.id}`}
@@ -146,17 +146,34 @@ const PriceDisplay = React.memo(
   ({
     price,
     rateExchange,
-  }: { price: number; rateExchange?: { symbol: string; exchangeRate: number; currency: string } }) => (
-    <p
-      className="text-default-600 whitespace-nowrap text-sm xs:text-md text-start font-bold"
-      aria-label={`Precio: ${price} USD`}
-    >
-      {rateExchange
-        ? `${rateExchange.symbol}${(price * rateExchange.exchangeRate).toFixed(2)} ${rateExchange.currency}`
-        : `$${price} USD`}
-    </p>
-  ),
-)
+  }: { price: number; rateExchange?: { symbol: string; exchangeRate: number; currency: string } }) => {
+    const formattedPrice = rateExchange
+      ? (price * rateExchange.exchangeRate).toFixed(2)
+      : price.toFixed(2);
+
+    const [integerPart, decimalPart] = formattedPrice.split(".");
+
+    return (
+      <p
+        className="text-default-600 whitespace-nowrap text-sm xs:text-md md:text-xl text-start font-semibold"
+        aria-label={`Precio: ${price} USD`}
+      >
+        {rateExchange ? (
+          <>
+            {rateExchange.symbol}{integerPart}
+            <sup>{decimalPart}</sup> {rateExchange.currency}
+          </>
+        ) : (
+          <>
+            ${integerPart}
+            <sup>{decimalPart}</sup> USD
+          </>
+        )}
+      </p>
+    );
+  }
+);
+
 
 PriceDisplay.displayName = "PriceDisplay"
 

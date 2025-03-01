@@ -49,7 +49,7 @@ export default function OrderConfirmationPage() {
   } as const;
 
   return (
-    <section className="min-h-screen flex flex-col items-center justify-center bg-gray-50 dark:bg-zinc-900 px-4 py-8">
+    <section className="min-h-screen flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-900 px-4 py-8">
       <Toaster
         toastOptions={{
           className: "dark:bg-zinc-800 dark:text-white",
@@ -57,7 +57,7 @@ export default function OrderConfirmationPage() {
           error: { className: "border border-red-500" },
         }}
       />
-      <div className="bg-white dark:bg-zinc-800 shadow-xl rounded-lg p-8 max-w-3xl w-full">
+      <div className="bg-white dark:bg-gray-800 shadow-xl rounded-lg p-8 max-w-3xl w-full">
         <div className="flex flex-col items-center">
           <CheckCircleIcon className="h-20 w-20 text-green-500 mb-4" />
           <h1 className="text-3xl font-bold mb-2">¡Pedido Confirmado!</h1>

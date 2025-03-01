@@ -43,7 +43,7 @@ const AccountButton = React.memo(({ className }: { className?: string }) => {
           <div className="inline-flex">
             <DropdownTrigger
               className={cn(
-                "cursor-pointer h-10 w-10 border-2 border-default-200 hover:border-default-400 bg-opacity-50 dark:bg-opacity-50 bg-white dark:bg-black rounded-full group",
+                "cursor-pointer h-10 w-10 border-2 border-default-200 hover:border-default-400 bg-opacity-50 dark:bg-opacity-50 rounded-full group",
                 className
               )}
             >

@@ -99,7 +99,7 @@ const SearchInput = () => {
         onFocus={() => setIsFocused(true)}
         onBlur={() => setTimeout(() => setIsFocused(false), 200)}
         classNames={{
-          inputWrapper: "bg-white dark:bg-black bg-opacity-50 dark:bg-opacity-50 rounded-full border-2 border-default-200 hover:border-default-400 transition-all duration-300 shadow-sm hover:shadow-md px-6",
+          inputWrapper: "bg-opacity-50 dark:bg-opacity-50 rounded-full border-2 border-default-200 hover:border-default-400 transition-all duration-300 shadow-sm hover:shadow-md px-6",
           input: "text-md placeholder:text-gray-400 dark:placeholder:text-gray-500",
         }}
         labelPlacement="outside"
@@ -122,7 +122,7 @@ const SearchInput = () => {
 
 export const Header = ({ className }: { className?: string }) => {
   const pathname = usePathname();
-  const isCartPage = pathname === "/shopping-cart";
+  const isCartOrBuyPage = pathname === "/shopping-cart" || pathname === "/buy";
   const { data: session, status } = useSession();
   const isAuthPage = pathname === "/login" || pathname === "/register";
 
@@ -132,7 +132,7 @@ export const Header = ({ className }: { className?: string }) => {
   return (
     <HerouiNavbar
       maxWidth="full"
-      className={`${className} z-40 top-0 left-0 right-0 h-16 backdrop-blur-sm bg-white/80 dark:bg-black/80`}
+      className={`${className} z-40 top-0 left-0 right-0 h-16 backdrop-blur-sm bg-gray-50/85 dark:bg-gray-900/85`}
     >
       <NavbarContent className="sm:basis-full max-w-fit" justify="start">
         <NavbarBrand className="gap-3 max-w-none">
@@ -162,7 +162,7 @@ export const Header = ({ className }: { className?: string }) => {
         </NavbarItem>
         <NavbarItem className="hidden xm:flex gap-4 items-center">
           <ThemeSwitch />
-          {!isCartPage && (
+          {!isCartOrBuyPage && (
             <>
               <DrawerCart
                 aria-label="Abrir carrito"
@@ -175,9 +175,9 @@ export const Header = ({ className }: { className?: string }) => {
 
       <NavbarContent className="xm:hidden basis" justify="end">
         <ThemeSwitch />
-        {!isCartPage && (
+        {!isCartOrBuyPage && (
           <div className="hidden xm:flex">
-            <IconButton className="hover:animate-bounce" />
+            <IconButton />
           </div>
         )}
         {session ? <AccountButton /> : <LoginButton />}

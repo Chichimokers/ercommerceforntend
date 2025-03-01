@@ -20,7 +20,7 @@ export const Navbar = ({ className }: { className?: string }) => {
 
   return (
     <div
-      className={`bg-white/85 dark:bg-black/85 backdrop-blur-lg border-t border-divider h-16 flex w-full px-4 flex-col z-50 ${className}`}
+      className={`bg-gray-50/85 dark:bg-gray-900/85 backdrop-blur-lg border-t border-divider h-16 flex w-full px-4 flex-col z-50 ${className}`}
     >
       <Tabs
         aria-label="Options"

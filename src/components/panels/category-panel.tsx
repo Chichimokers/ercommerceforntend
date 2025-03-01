@@ -15,15 +15,12 @@ const CategoryCard = dynamic(() => import("@/components/cards/category-cards"), 
 const CategoryPanel = () => {
   const { categories, products } = useProductContext();
 
-  // Ejemplo: Podrías tomar el total de productos de tu estado global
   const totalProducts = products?.length || 0;
 
   return (
     <div className="relative group">
-      {/* Bloque informativo con fondo degradado */}
       <div className="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-gray-900 dark:to-gray-800 py-12 px-6 transition-colors duration-300">
         <div className="mx-auto max-w-6xl flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
-          {/* Texto descriptivo */}
           <div className="space-y-3 max-w-xl">
             <h2 className="text-2xl md:text-3xl font-extrabold text-gray-800 dark:text-gray-100">
               Explora nuestras ofertas para Cuba
@@ -34,7 +31,6 @@ const CategoryPanel = () => {
               Próximamente, estaremos expandiéndonos a más regiones y añadiendo nuevas categorías
               para cubrir todas tus necesidades. ¡Comienza a explorar ahora!
             </p>
-            {/* Botón CTA */}
             <Link
               href="/products"
               className="inline-block mt-4 px-6 py-3 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold shadow-lg transition-transform active:scale-95"
@@ -43,7 +39,6 @@ const CategoryPanel = () => {
             </Link>
           </div>
 
-          {/* Sección de datos destacados */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
             <div className="flex flex-col items-center">
               <ShoppingCart className="h-6 w-6 text-blue-600 dark:text-blue-400 mb-1" />
@@ -85,8 +80,7 @@ const CategoryPanel = () => {
         </div>
       </div>
 
-      {/* Divisor con forma de ola (Wave Divider) */}
-      <div className="relative -mt-1">
+      <div className="relative">
         <svg
           className="w-full h-16 text-white dark:text-gray-800"
           viewBox="0 0 1440 320"
@@ -101,7 +95,7 @@ const CategoryPanel = () => {
       </div>
 
       {/* Panel de categorías */}
-      <div className="relative flex overflow-x-auto gap-6 snap-x snap-mandatory scrollbar-hide px-4 py-16 bg-white dark:bg-gray-900">
+      <div className="relative flex overflow-x-auto gap-6 snap-x snap-mandatory scrollbar-hide px-4 py-16 bg-white dark:bg-gray-800">
         {/* Tarjeta "Todos" */}
         <div key="all" className="flex-shrink-0 snap-center animate-fade-in-left">
           <CategoryCard

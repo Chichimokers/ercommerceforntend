@@ -1,32 +1,25 @@
-import { Input } from "@heroui/react";
+import React from "react";
 
-const InputComponent = ({
-  className,
-  label,
-  placeholder,
-  type,
-  required,
-}: {
-  className?: string;
-  label: string;
-  placeholder: string;
-  type: string;
-  required: boolean;
-}) => {
-  return (
-    <div className="w-full flex flex-col gap-4 z-0 items-center justify-center">
-      <div className="flex w-full flex-wrap md:flex-nowrap mb-6 md:mb-0 gap-4">
-        <Input
-          className={className}
-          label={label}
-          placeholder={placeholder}
-          required={required}
-          type={type}
-          variant="bordered"
+interface InputFieldProps extends React.InputHTMLAttributes<HTMLInputElement> {
+  startContent?: React.ReactNode;
+}
+
+const InputField = React.forwardRef<HTMLInputElement, InputFieldProps>(
+  ({ startContent, className, ...props }, ref) => {
+    return (
+      <div className="relative flex items-center">
+        {startContent && (
+          <span className="absolute left-3 text-gray-400">{startContent}</span>
+        )}
+        <input
+          ref={ref}
+          className={`pl-${startContent ? "10" : "3"} py-2 px-3 rounded-xl bg-gray-100 dark:bg-gray-900/50 group-hover:bg-gray-200 dark:group-hover:bg-gray-700 transition-colors w-full outline-none ${className}`}
+          {...props}
         />
       </div>
-    </div>
-  );
-};
+    );
+  }
+);
 
-export default InputComponent;
+InputField.displayName = "InputField";
+export default InputField;
