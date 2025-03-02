@@ -30,7 +30,7 @@ export default function SearchPage() {
   }, [query]);
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8 mt-16">
       <header className="mb-10 text-center">
         <h1 className="text-4xl font-extrabold text-gray-900 dark:text-white">
           Buscando: <span className="text-primary">{query}</span>

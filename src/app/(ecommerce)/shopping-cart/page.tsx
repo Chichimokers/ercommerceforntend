@@ -79,7 +79,7 @@ export default function ShoppingCartPage() {
   }
 
   return (
-    <section className="py-12">
+    <section className="py-12 mt-16">
       <div className="container mx-auto px-4">
         <header className="mb-8">
           <h1 className="text-4xl font-extrabold text-gray-800 dark:text-white inline-block border-b-4 border-blue-300 pb-2">

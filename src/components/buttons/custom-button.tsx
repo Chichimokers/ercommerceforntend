@@ -53,7 +53,7 @@ export const CustomButton: React.FC<CustomButtonProps> = ({
   }[size];
 
   const variantClasses = clsx({
-    'border-2 border-current bg-transparent': variant === 'outlined',
+    'border-2 border-default-400 bg-transparent': variant === 'outlined',
     'bg-transparent hover:bg-gray-100': variant === 'ghost',
     'border-2 border-default-200 hover:border-default-400': variant === 'bordered',
   });

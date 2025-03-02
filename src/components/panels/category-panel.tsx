@@ -31,12 +31,6 @@ const CategoryPanel = () => {
               Próximamente, estaremos expandiéndonos a más regiones y añadiendo nuevas categorías
               para cubrir todas tus necesidades. ¡Comienza a explorar ahora!
             </p>
-            <Link
-              href="/products"
-              className="inline-block mt-4 px-6 py-3 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold shadow-lg transition-transform active:scale-95"
-            >
-              Ver todos los productos
-            </Link>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">

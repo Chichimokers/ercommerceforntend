@@ -146,7 +146,7 @@ const OrdersPage = () => {
 
   if (error) {
     return (
-      <section className="flex flex-col items-center justify-center min-h-[400px] py-8 px-4">
+      <section className="flex flex-col items-center justify-center min-h-[400px] py-8 px-4 mt-16">
         <div className="flex flex-col items-center gap-4 text-center">
           <FaExclamationTriangle className="h-12 w-12 text-red-400" />
           {error.message === 'No orders found' ? (
@@ -161,11 +161,11 @@ const OrdersPage = () => {
             </>
           ) : (
             <>
-              <h2 className="text-2xl font-semibold text-gray-800">Error de conexión</h2>
+              <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-100">Error de conexión</h2>
               <p className="text-gray-500 max-w-md">
                 Ocurrió un problema al cargar tus pedidos. Por favor intenta nuevamente más tarde.
               </p>
-              <CustomButton className="mt-4" variant="outlined" onClick={() => mutate(API_URL)}>
+              <CustomButton className="mt-4" variant="filled" onClick={() => mutate(API_URL)}>
                 Reintentar
               </CustomButton>
             </>
@@ -177,7 +177,7 @@ const OrdersPage = () => {
 
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
+      <div className="flex flex-col items-center justify-center min-h-[400px] gap-4 mt-16">
         <Spinner color="primary" className="h-12 w-12" />
         <p className="text-lg text-gray-600 animate-pulse">Buscando tus pedidos...</p>
       </div>
@@ -185,7 +185,7 @@ const OrdersPage = () => {
   }
 
   return (
-    <div className="mx-auto py-8 md:py-12 px-4">
+    <div className="mx-auto py-8 md:py-12 px-4 mt-16">
       <div className="mb-8 text-center">
         <h1 className="text-3xl md:text-4xl font-bold text-primary-600 mb-2">
           Historial de Pedidos

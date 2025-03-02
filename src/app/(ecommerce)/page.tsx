@@ -14,7 +14,7 @@ import { ArrowRight } from "lucide-react";
 
 // Nuevos componentes de diseño
 import HeroSection from "@components/hero-section";
-import NewsletterSubscription from "@components/newsletter-subscription";
+//import NewsletterSubscription from "@components/newsletter-subscription";
 import ReadyToStart from "@components/ready-to-start";
 
 // Carga dinámica de ProductCard con placeholder mientras carga

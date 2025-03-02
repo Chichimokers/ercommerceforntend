@@ -49,10 +49,10 @@ export default function OrderConfirmationPage() {
   } as const;
 
   return (
-    <section className="min-h-screen flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-900 px-4 py-8">
+    <section className="min-h-screen flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-900 px-4 py-8 mt-16">
       <Toaster
         toastOptions={{
-          className: "dark:bg-zinc-800 dark:text-white",
+          className: "dark:bg-gray-800 dark:text-white",
           success: { className: "border border-green-500" },
           error: { className: "border border-red-500" },
         }}
