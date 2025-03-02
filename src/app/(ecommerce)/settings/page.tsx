@@ -12,7 +12,7 @@ export default function SettingsPage() {
   };
 
   return (
-    <div>
+    <div className="mt-16">
       <ProfileImageSection />
       <div className="container mx-auto p-6 flex justify-center">
         <div className="w-full max-w-4xl bg-white dark:bg-transparent p-4 md:p-6 rounded-xl">

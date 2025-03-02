@@ -167,7 +167,7 @@ const ProductDetailPage = () => {
 
   if (productState.error && id && !productState.loading) {
     return (
-      <div className="w-full mx-auto py-10 rounded-xl">
+      <div className="w-full mx-auto py-10 rounded-xl mt-16">
         <div className="p-5 flex flex-col items-center justify-center">
           <h2 className="text-xl font-bold text-red-600">
             Error al cargar el producto
@@ -186,7 +186,7 @@ const ProductDetailPage = () => {
   }
 
   return (
-    <div className="w-full max-w-7xl mx-auto py-8 md:py-12 px-4 sm:px-6 lg:px-8">
+    <div className="w-full max-w-7xl mx-auto py-8 md:py-12 px-4 sm:px-6 lg:px-8 mt-16">
       <div className="bg-white dark:bg-gray-800 shadow-xl rounded-2xl p-6 md:p-8 lg:p-10">
         <div className="flex flex-col md:flex-row gap-8 lg:gap-12">
           <div className="flex-shrink-0 md:w-1/2 lg:w-2/5">

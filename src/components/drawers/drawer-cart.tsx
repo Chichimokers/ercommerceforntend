@@ -136,12 +136,12 @@ export default function DrawerCart({ className }: { className?: string }) {
           >
             <CustomButton
               key={backdrop}
-              className={`flex flex-col min-w-10 !p-0 justify-center items-center !w-10 !h-10 !rounded-full border-2 border-default-200 bg-opacity-50 transition-none ${className}`}
+              className={`flex flex-col min-w-10 !p-0 justify-center items-center !w-10 !h-10 !rounded-full border border-default-600 bg-opacity-50 transition-none ${className}`}
               color="default"
               variant="bordered"
               onClick={() => handleBackdropChange(backdrop)}
             >
-              <FaShoppingCart opacity={0.6} size={22} />
+              <FaShoppingCart opacity={0.8} size={22} />
             </CustomButton>
           </Badge>
         </div>

@@ -15,7 +15,6 @@ export default function RootLayout({ children }: { children: ReactNode }) {
 
       <main
         className="flex-grow container mx-auto max-w-[1920px] min-h-[70vh]"
-        style={{ paddingTop: '4rem' }}
       >
         {children}
       </main>

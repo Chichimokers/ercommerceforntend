@@ -8,7 +8,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
   const pathname = usePathname();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-500/20 via-purple-500/10 to-gray-900">
+    <div className="min-h-screen bg-gradient-to-br from-blue-500/20 via-purple-500/10 to-gray-900 mt-16">
       {/* Navbar */}
       <nav className="container mx-auto p-4 flex justify-center items-center">
         <motion.div

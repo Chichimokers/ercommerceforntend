@@ -143,7 +143,7 @@ export default function BuyPage() {
   };
 
   return (
-    <section className="flex flex-col items-center justify-center gap-8 py-12 md:py-16 px-4 xl:px-0">
+    <section className="flex flex-col items-center justify-center gap-8 py-12 md:py-16 px-4 xl:px-0 mt-16">
       <Toaster
         toastOptions={{
           className: "dark:bg-gray-900/50 dark:text-white",
