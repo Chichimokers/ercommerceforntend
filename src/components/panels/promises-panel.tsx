@@ -29,7 +29,7 @@ export const PromisesPanel = () => {
             ¿Por qué elegirnos?
           </h2>
           <p className="text-sm md:text-base text-gray-600 dark:text-gray-300 mt-2">
-            Descubre nuestras principales ventajas para tu negocio
+            Descubre nuestras principales de comprar con nosotros
           </p>
         </div>
 

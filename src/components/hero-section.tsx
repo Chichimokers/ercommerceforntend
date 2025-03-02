@@ -9,7 +9,7 @@ export default function HeroSection() {
       {/* Imagen de fondo */}
       <div className="absolute inset-0 w-full h-full">
         <Image
-          src="/hero-esaki.webp"
+          src="/banner-principal.png"
           alt="Es Aki - E-commerce cubano"
           layout="fill"
           objectFit="cover"

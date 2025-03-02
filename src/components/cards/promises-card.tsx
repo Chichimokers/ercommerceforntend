@@ -14,10 +14,11 @@ export default function PromisesCard({
   return (
     <div className="
       group 
-      bg-white/70 
-      dark:bg-gray-800/70 
-      backdrop-blur 
       border 
+      bg-blue-50/75
+      dark:bg-gray-800/75
+      backdrop-blur-3xl
+      dark:backdrop-blur-3xl
       border-gray-200 
       dark:border-gray-700 
       rounded-xl 
@@ -33,8 +34,8 @@ export default function PromisesCard({
           text-blue-600 
           dark:text-blue-400 
           p-3 
-          bg-blue-100 
-          dark:bg-blue-900/20 
+          bg-blue-200/75
+          dark:bg-gray-900/75
           rounded-full 
           transition-transform 
           duration-300 

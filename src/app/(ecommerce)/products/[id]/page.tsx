@@ -190,7 +190,7 @@ const ProductDetailPage = () => {
       <div className="bg-white dark:bg-gray-800 shadow-xl rounded-2xl p-6 md:p-8 lg:p-10">
         <div className="flex flex-col md:flex-row gap-8 lg:gap-12">
           <div className="flex-shrink-0 md:w-1/2 lg:w-2/5">
-            <div className="relative group rounded-xl overflow-hidden bg-gray-100 dark:bg-zinc-700">
+            <div className="relative group rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-700">
               {!imageState.loaded && <Skeleton className="rounded-xl w-full h-96" />}
 
               <Image
@@ -211,7 +211,7 @@ const ProductDetailPage = () => {
             </div>
 
             <div className="mt-6 space-y-4">
-              <div className="flex items-center justify-between bg-gray-100 dark:bg-zinc-700 p-4 rounded-xl">
+              <div className="flex items-center justify-between bg-gray-100 dark:bg-gray-700 p-4 rounded-xl">
                 <p className="text-3xl font-bold text-green-600 dark:text-green-400">
                   ${displayProduct.price}
                 </p>
@@ -226,7 +226,7 @@ const ProductDetailPage = () => {
                       getLocalStorageData={cartActions.getLocalStorageData}
                       productId={displayProduct.id}
                       maxLimit={displayProduct.quantity}
-                      className="bg-white dark:bg-zinc-800 shadow-sm hover:shadow-md transition-shadow"
+                      className="bg-white dark:bg-gray-800 shadow-sm hover:shadow-md transition-shadow"
                     />
                   </div>
                 )}

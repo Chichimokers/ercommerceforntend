@@ -223,7 +223,7 @@ export default function BuyPage() {
                           </span>
                         }
                         placeholder="03030355697"
-                        className="rounded-xl dark:bg-gray-900/50 bg-zinc-50"
+                        className="rounded-xl dark:bg-gray-900/50 bg-gray-50"
                       />
                     </FormField>
                   </div>
@@ -260,10 +260,10 @@ export default function BuyPage() {
                 return (
                   <div
                     key={item.id}
-                    className="flex items-center justify-between p-3 rounded-xl bg-zinc-50 dark:bg-gray-900/50"
+                    className="flex items-center justify-between p-3 rounded-xl bg-gray-50 dark:bg-gray-900/50"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="h-12 w-12 rounded-xl bg-zinc-200 dark:bg-zinc-700 overflow-hidden relative">
+                      <div className="h-12 w-12 rounded-xl bg-gray-200 dark:bg-gray-700 overflow-hidden relative">
                         <Image
                           alt={product?.name || "producto"}
                           src={product?.image || "/nophoto.jpeg"}

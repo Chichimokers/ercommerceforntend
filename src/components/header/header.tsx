@@ -15,11 +15,10 @@ import { usePathname, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { LoginButton } from "../buttons/login-button";
 import dynamic from "next/dynamic";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useDebouncedCallback } from "use-debounce";
 import { SearchSuggestions } from "@/components/search-suggestions";
 import { ProductBase } from "../../types/types";
-import clsx from "clsx";
 
 const IconButton = dynamic(() => import("@/components/buttons/cart-button"), {
   loading: () => (
@@ -133,7 +132,7 @@ export const Header = ({ className }: { className?: string }) => {
   return (
     <HerouiNavbar
       maxWidth="full"
-      className={`${className} z-40 top-0 left-0 right-0 h-16 backdrop-blur-sm bg-gray-50/85 dark:bg-gray-900/85`}
+      className={`${className} z-40 top-0 left-0 right-0 h-16 backdrop-blur-lg bg-gray-50/85 dark:bg-gray-900/20`}
     >
       <NavbarContent className="sm:basis-full max-w-fit" justify="start">
         <NavbarBrand className="gap-3 max-w-none">
