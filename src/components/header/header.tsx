@@ -45,32 +45,27 @@ const SearchInput = () => {
   const [isFocused, setIsFocused] = useState(false);
   const router = useRouter();
 
-  // Debounce para sugerencias
-  const fetchSuggestions = useDebouncedCallback(async (value: string) => {
-    if (value.length > 2) {
-      try {
-        const url = `${process.env.NEXT_PUBLIC_API_URL}public/search`;
+  const fetchSuggestions = useDebouncedCallback(
+    async (value: string) => {
+      if (value.length < 3) return setSuggestions([]); // Evita llamadas innecesarias
 
-        const response = await fetch(url, {
-          method: 'POST', // Cambiado a POST
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name: value }), // Corregido (elimina el objeto anidado)
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}public/search`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name: value }),
         });
 
-        if (!response.ok) {
-          const errorText = await response.text();
-          throw new Error(`HTTP ${response.status}: ${errorText}`);
-        }
-
-        const data = await response.json();
-        console.log('Resultados obtenidos:', data);
-        setSuggestions(data);
+        if (!response.ok) throw new Error(`Error: ${response.status}`);
+        setSuggestions(await response.json());
       } catch (error) {
-        console.error('Error completo:', error);
+        console.error("Error de búsqueda:", error);
         setSuggestions([]);
       }
-    }
-  }, 300);
+    },
+    300
+  );
+
 
   const handleSearch = () => {
     if (searchTerm.trim()) {
@@ -123,16 +118,13 @@ const SearchInput = () => {
 export const Header = ({ className }: { className?: string }) => {
   const pathname = usePathname();
   const isCartOrBuyPage = pathname === "/shopping-cart" || pathname === "/buy";
-  const { data: session, status } = useSession();
+  const { data: session, status } = useSession({ required: false });
   const isAuthPage = pathname === "/login" || pathname === "/register";
-
-  // Evitar renderizado hasta tener el estado de sesión definido
-  if (status === "loading") return null;
 
   return (
     <HerouiNavbar
       maxWidth="full"
-      className={`${className} z-40 top-0 left-0 right-0 h-16 backdrop-blur-lg bg-gray-50/85 dark:bg-gray-900/20`}
+      className={`${className} z-50 top-0 left-0 right-0 h-16 backdrop-blur-lg bg-gray-50/85 dark:bg-gray-900/20`}
     >
       <NavbarContent className="sm:basis-full max-w-fit" justify="start">
         <NavbarBrand className="gap-3 max-w-none">
@@ -153,25 +145,23 @@ export const Header = ({ className }: { className?: string }) => {
         </NavbarBrand>
       </NavbarContent>
 
-      <NavbarContent
-        className="hidden xm:flex sm:basis-full w-full gap-4"
-        justify="end"
-      >
+      <NavbarContent className="hidden xm:flex sm:basis-full w-full gap-4" justify="end">
         <NavbarItem className="hidden md:flex flex-1 justify-center">
           <SearchInput />
         </NavbarItem>
-        <NavbarItem className="hidden xm:flex gap-4 items-center">
+        <NavbarItem className="flex gap-4 items-center">
           <ThemeSwitch />
-          {!isCartOrBuyPage && (
-            <>
-              <DrawerCart
-                aria-label="Abrir carrito"
-              />
-            </>
+          {!isCartOrBuyPage && <DrawerCart />}
+          {status === "loading" ? (
+            <div className="w-10 h-10 bg-default-200 rounded-full animate-pulse" />
+          ) : session ? (
+            <AccountButton />
+          ) : (
+            !isAuthPage && <LoginButton />
           )}
-          {session ? <AccountButton /> : !isAuthPage && <LoginButton />}
         </NavbarItem>
       </NavbarContent>
+
 
       <NavbarContent className="xm:hidden basis" justify="end">
         <ThemeSwitch />
@@ -180,7 +170,13 @@ export const Header = ({ className }: { className?: string }) => {
             <IconButton />
           </div>
         )}
-        {session ? <AccountButton /> : <LoginButton />}
+        {status === "loading" ? (
+          <div className="w-10 h-10 bg-default-200 rounded-full animate-pulse" />
+        ) : session ? (
+          <AccountButton />
+        ) : (
+          !isAuthPage && <LoginButton />
+        )}
       </NavbarContent>
     </HerouiNavbar>
   );

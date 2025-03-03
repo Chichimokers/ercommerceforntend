@@ -56,6 +56,21 @@ export default function Login() {
     }
   };
 
+  const handleSocialSignin = async (provider: "google" | "facebook") => {
+    try {
+      setIsLoading(true);
+      await signIn(provider, {
+        redirect: false,
+        callbackUrl: "/"
+      });
+    } catch (error) {
+      addToast({ title: "Error de autenticación", description: "Credenciales incorrectas", color: "danger" });
+      console.error(`${provider} login failed:`, error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -118,7 +133,7 @@ export default function Login() {
         <CustomButton
           variant="bordered"
           className="w-full bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700"
-          onClick={() => signIn("google")}
+          onClick={() => handleSocialSignin("google")}
           startContent={<FaGoogle className="text-lg text-red-500" />}
         >
           <span className="text-gray-800 dark:text-gray-200">Continuar con Google</span>
