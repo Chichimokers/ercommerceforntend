@@ -14,18 +14,18 @@ export default function HeroSection() {
           layout="fill"
           objectFit="cover"
           priority
-          className="absolute inset-0 w-full h-full opacity-30"
+          className="absolute inset-0 w-full h-full dark:opacity-40"
         />
         {/* Capa de degradado para desvanecimiento */}
         <div className="absolute inset-0 bg-gradient-to-t from-blue-50 dark:from-gray-900 to-transparent" />
       </div>
 
       {/* Contenido */}
-      <div className="relative z-10 text-white p-6 rounded-3xl">
-        <h1 className="text-4xl md:text-5xl font-bold drop-shadow-lg">
+      <div className="relative z-10 text-white drop-shadow-md p-6 rounded-3xl bg-black/20 backdrop-blur-sm">
+        <h1 className="text-4xl md:text-5xl font-bold drop-shadow-md">
           ¡Bienvenido a Es Aki!
         </h1>
-        <p className="text-lg md:text-xl mt-4 mb-8 drop-shadow-lg">
+        <p className="text-lg md:text-xl mt-4 mb-8 drop-shadow-md">
           Descubre los mejores productos con entrega rápida en Cuba.
         </p>
         <Link href="/products">

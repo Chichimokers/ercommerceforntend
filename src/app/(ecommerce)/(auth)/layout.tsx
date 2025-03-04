@@ -8,14 +8,13 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
   const pathname = usePathname();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-500/20 via-purple-500/10 to-gray-900 mt-16">
-      {/* Navbar */}
+    <div className="min-h-screen bg-gradient-to-br from-blue-100/50 dark:from-blue-800/20 via-purple-100/10 dark:via-purple-500/10 to-gray-100 dark:to-gray-900 pt-16">
       <nav className="container mx-auto p-4 flex justify-center items-center">
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="flex items-center gap-4 bg-white/20 dark:bg-gray-900/20 py-2 px-4 rounded-full backdrop-blur-lg"
+          className="flex items-center gap-4 bg-white/50 dark:bg-gray-900/50 py-2 px-4 rounded-full backdrop-blur-lg shadow-sm"
         >
           <AuthLink href="/login" label="Iniciar Sesión" active={pathname === "/login"} />
           <AuthLink href="/register" label="Registrarse" active={pathname === "/register"} />
@@ -31,7 +30,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         transition={{ duration: 0.3, delay: 0.1 }}
         className="container mx-auto flex justify-center items-center min-h-[70vh] pb-8"
       >
-        <div className="bg-white/20 dark:bg-gray-900/20 rounded-3xl backdrop-blur-lg w-full max-w-lg">
+        <div className="bg-white/20 dark:bg-gray-900/50 rounded-3xl backdrop-blur-lg w-full max-w-lg">
           {children}
         </div>
       </motion.div>

@@ -3,29 +3,45 @@ import { FaTh } from "react-icons/fa";
 import { Globe, Package, ShoppingCart, MapPin } from "lucide-react";
 import dynamic from "next/dynamic";
 import { getCategoryIcon } from "../filters/categories";
-import Link from "next/link";
+import useSWR from "swr";
 
-// Carga dinámica del componente de tarjeta con placeholder mientras carga
+type Info = {
+  products: string;
+  provinces: string;
+  category: string;
+}
+
 const CategoryCard = dynamic(() => import("@/components/cards/category-cards"), {
   loading: () => (
     <div className="flex-shrink-0 snap-center w-36 md:w-40 h-36 md:h-40 animate-pulse bg-gray-100 dark:bg-gray-800 rounded-xl" />
   ),
 });
 
-const CategoryPanel = () => {
-  const { categories, products } = useProductContext();
+const fetcher = async (url: string) => {
+  const response = await fetch(url);
+  if (!response.ok) {
+    const errorResponse = await response.json();
+    console.log('Di error hijo de puta')
+    throw new Error(errorResponse?.message || response.statusText);
+  }
+  return response.json();
+};
 
-  const totalProducts = products?.length || 0;
+const CategoryPanel = () => {
+  const { categories } = useProductContext();
+  const fetchUrl = `${process.env.NEXT_PUBLIC_API_URL}public/main`
+
+  const { data, error, isLoading } = useSWR(fetchUrl, fetcher);
 
   return (
     <div className="relative group">
       <div className="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-gray-900 dark:to-gray-800 py-12 px-6 transition-colors duration-300">
-        <div className="mx-auto max-w-6xl flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
-          <div className="space-y-3 max-w-xl">
-            <h2 className="text-2xl md:text-3xl font-extrabold text-gray-800 dark:text-gray-100">
+        <div className="mx-auto max-w-6xl flex flex-col md:flex-row items-center justify-between gap-8 text-center md:text-left">
+          <div className="space-y-4 w-full max-w-lg">
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-800 dark:text-gray-100">
               Explora nuestras ofertas para Cuba
             </h2>
-            <p className="text-sm md:text-base text-gray-700 dark:text-gray-300 leading-relaxed">
+            <p className="text-sm sm:text-base text-gray-700 dark:text-gray-300 leading-relaxed">
               Nos enfocamos en brindar una amplia gama de productos para las provincias de{" "}
               <strong>Santiago de Cuba</strong> y <strong>Villa Clara</strong>.
               Próximamente, estaremos expandiéndonos a más regiones y añadiendo nuevas categorías
@@ -33,46 +49,79 @@ const CategoryPanel = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-            <div className="flex flex-col items-center">
-              <ShoppingCart className="h-6 w-6 text-blue-600 dark:text-blue-400 mb-1" />
-              <span className="block text-xl md:text-2xl font-bold text-blue-600 dark:text-blue-400">
-                {totalProducts > 0 ? `+${totalProducts}` : "+100"}
-              </span>
-              <span className="block text-xs md:text-sm text-gray-700 dark:text-gray-300">
-                Productos
-              </span>
-            </div>
-            <div className="flex flex-col items-center">
-              <MapPin className="h-6 w-6 text-blue-600 dark:text-blue-400 mb-1" />
-              <span className="block text-xl md:text-2xl font-bold text-blue-600 dark:text-blue-400">
-                2
-              </span>
-              <span className="block text-xs md:text-sm text-gray-700 dark:text-gray-300">
-                Provincias
-              </span>
-            </div>
-            <div className="flex flex-col items-center">
-              <Package className="h-6 w-6 text-blue-600 dark:text-blue-400 mb-1" />
-              <span className="block text-xl md:text-2xl font-bold text-blue-600 dark:text-blue-400">
-                {categories?.length || 5}
-              </span>
-              <span className="block text-xs md:text-sm text-gray-700 dark:text-gray-300">
-                Categorías
-              </span>
-            </div>
-            <div className="flex flex-col items-center">
-              <Globe className="h-6 w-6 text-blue-600 dark:text-blue-400 mb-1" />
-              <span className="block text-xl md:text-2xl font-bold text-blue-600 dark:text-blue-400">
-                Creciendo
-              </span>
-              <span className="block text-xs md:text-sm text-gray-700 dark:text-gray-300">
-                Nuevas ofertas
-              </span>
-            </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-2 lg:grid-cols-4 gap-8 w-full max-w-lg">
+            {isLoading ? (
+              <div className="flex flex-col items-center">
+                <div className="rounded-full w-8 h-8 animate-pulse"></div>
+                <div className="w-8 h-4 rounded-2xl animate-pulse"></div>
+                <div className="w-12 h-2 rounded-2xl animate-pulse"></div>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center">
+                <ShoppingCart className="h-8 w-8 text-blue-600 dark:text-blue-400 mb-2" />
+                <span className="text-lg sm:text-xl font-bold text-blue-600 dark:text-blue-400">
+                  {data.products ? `+${data.products}` : "+100"}
+                </span>
+                <span className="text-xs sm:text-sm text-gray-700 dark:text-gray-300">
+                  Productos
+                </span>
+              </div>
+            )}
+            {isLoading ? (
+              <div className="flex flex-col items-center">
+                <div className="rounded-full w-8 h-8 animate-pulse"></div>
+                <div className="w-8 h-4 rounded-2xl animate-pulse"></div>
+                <div className="w-12 h-2 rounded-2xl animate-pulse"></div>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center">
+                <MapPin className="h-8 w-8 text-blue-600 dark:text-blue-400 mb-2" />
+                <span className="text-lg sm:text-xl font-bold text-blue-600 dark:text-blue-400">
+                  {data.provinces ? `${data.provinces}` : 2}
+                </span>
+                <span className="text-xs sm:text-sm text-gray-700 dark:text-gray-300">
+                  Provincias
+                </span>
+              </div>
+            )}
+            {isLoading ? (
+              <div className="flex flex-col items-center">
+                <div className="rounded-full w-8 h-8 animate-pulse"></div>
+                <div className="w-8 h-4 rounded-2xl animate-pulse"></div>
+                <div className="w-12 h-2 rounded-2xl animate-pulse"></div>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center">
+                <Package className="h-8 w-8 text-blue-600 dark:text-blue-400 mb-2" />
+                <span className="text-lg sm:text-xl font-bold text-blue-600 dark:text-blue-400">
+                  {data.category ? data.category : 5}
+                </span>
+                <span className="text-xs sm:text-sm text-gray-700 dark:text-gray-300">
+                  Categorías
+                </span>
+              </div>
+            )}
+            {isLoading ? (
+              <div className="flex flex-col items-center">
+                <div className="rounded-full w-8 h-8 animate-pulse"></div>
+                <div className="w-8 h-4 rounded-2xl animate-pulse"></div>
+                <div className="w-12 h-2 rounded-2xl animate-pulse"></div>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center">
+                <Globe className="h-8 w-8 text-blue-600 dark:text-blue-400 mb-2" />
+                <span className="text-lg sm:text-xl font-bold text-blue-600 dark:text-blue-400">
+                  Creciendo
+                </span>
+                <span className="text-xs sm:text-sm text-gray-700 dark:text-gray-300">
+                  Nuevas ofertas
+                </span>
+              </div>
+            )}
           </div>
         </div>
       </div>
+
 
       <div className="relative">
         <svg

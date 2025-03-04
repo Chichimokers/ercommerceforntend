@@ -11,6 +11,7 @@ import { ProductBase } from "@/types/types";
 import React from "react";
 import { useRouter } from "next/navigation";
 import { ArrowRight } from "lucide-react";
+import { useSession } from "next-auth/react";
 
 // Nuevos componentes de diseño
 import HeroSection from "@components/hero-section";
@@ -39,6 +40,8 @@ export default function IndexPage() {
   // Seleccionamos los primeros 4 productos destacados, por ejemplo
   const rating_products = useMemo(() => products.slice(0, 4), [products]);
 
+  const { data: session, status } = useSession({ required: false });
+
   return (
     <div className="bg-default-50">
 
@@ -52,7 +55,17 @@ export default function IndexPage() {
 
       <PublicityBannerSlider banners={banners} />
 
-      <ReadyToStart />
+      {status === 'loading' ? (
+        <div className="relative z-10 container mx-auto px-4 py-20 flex flex-col items-center text-center space-y-6 animate-pulse">
+        </div>
+      )
+        :
+        session ? (
+          null
+        ) : (
+          <ReadyToStart />
+        )}
+
 
     </div>
   );
@@ -75,7 +88,7 @@ const FeaturedProducts = ({ products }: { products: ProductBase[] }) => {
           <ArrowRight className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-2" />
         </button>
       </div>
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
         {products.map((product) => (
           <ProductCard
             key={product.id}

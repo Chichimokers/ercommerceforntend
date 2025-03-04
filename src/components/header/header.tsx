@@ -15,7 +15,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { LoginButton } from "../buttons/login-button";
 import dynamic from "next/dynamic";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useDebouncedCallback } from "use-debounce";
 import { SearchSuggestions } from "@/components/search-suggestions";
 import { ProductBase } from "../../types/types";
@@ -47,7 +47,7 @@ const SearchInput = () => {
 
   const fetchSuggestions = useDebouncedCallback(
     async (value: string) => {
-      if (value.length < 3) return setSuggestions([]); // Evita llamadas innecesarias
+      if (value.length < 3) return setSuggestions([]);
 
       try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}public/search`, {
@@ -94,13 +94,13 @@ const SearchInput = () => {
         onFocus={() => setIsFocused(true)}
         onBlur={() => setTimeout(() => setIsFocused(false), 200)}
         classNames={{
-          inputWrapper: "bg-opacity-50 dark:bg-opacity-50 rounded-full border-2 border-default-200 hover:border-default-400 transition-all duration-300 hover:shadow-sm px-6",
-          input: "text-md placeholder:text-gray-400 dark:placeholder:text-gray-500",
+          inputWrapper: "bg-blue-50/30 dark:bg-gray-900/30 rounded-full border-2 border-default-400 hover:border-default-700 transition-all duration-300 hover:shadow-sm px-6",
+          input: "text-md placeholder:text-default-600",
         }}
         labelPlacement="outside"
         placeholder="Buscar..."
         startContent={
-          <SearchIcon className="text-base text-default-400 pointer-events-none flex-shrink-0" />
+          <SearchIcon className="text-base text-default-600 pointer-events-none flex-shrink-0" />
         }
         type="search"
       />
@@ -124,7 +124,8 @@ export const Header = ({ className }: { className?: string }) => {
   return (
     <HerouiNavbar
       maxWidth="full"
-      className={`${className} z-50 top-0 left-0 right-0 h-16 backdrop-blur-lg bg-gray-50/85 dark:bg-gray-900/20`}
+      className={`${className} z-50 top-0 left-0 right-0 h-16 backdrop-blur-3xl bg-gray-50/40 dark:bg-gray-900/40`}
+
     >
       <NavbarContent className="sm:basis-full max-w-fit" justify="start">
         <NavbarBrand className="gap-3 max-w-none">

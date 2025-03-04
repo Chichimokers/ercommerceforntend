@@ -26,7 +26,7 @@ export const FilterPanel = () => {
           />
         </div>
       </div>
-      <div className="sticky inset-x-0 bottom-0 z-50">
+      <div className="sticky inset-x-0 bottom-0 z-50 w-full py-4 bg-white dark:bg-gray-900">
         <CustomButton className="w-full" onClick={applyFilters} isDisabled={isInvalidFilters}>
           Aplicar filtros
         </CustomButton>
