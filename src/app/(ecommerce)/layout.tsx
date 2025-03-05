@@ -11,7 +11,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <>
 
-      <Header className="fixed top-0 left-0 right-0 h-16 border-b border-default-50" />
+      <Header className="fixed top-0 left-0 right-0 h-16" />
 
       <main
         className="flex-grow container mx-auto max-w-[1920px] min-h-[70vh]"

@@ -120,7 +120,7 @@ export default function ProductPage() {
                     onChange={handlePageChange}
                     isCompact
                     showControls
-                    size="md"
+                    size="lg"
                   />
                 </div>
               )}

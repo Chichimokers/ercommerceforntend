@@ -10,7 +10,7 @@ export const SearchSuggestions = ({
   onSelect: () => void;
 }) => {
   return (
-    <div className="absolute top-full left-0 right-0 z-50 mt-2 bg-white dark:bg-gray-800 rounded-xl shadow-xl max-h-96 overflow-y-auto">
+    <div className="absolute top-full left-0 right-0 z-50 mt-2 bg-blue-50 dark:bg-gray-800 rounded-xl shadow-xl max-h-96 overflow-y-auto">
       <div className="p-2 space-y-2">
         {suggestions.map((product) => (
           <Link

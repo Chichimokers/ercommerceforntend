@@ -8,6 +8,7 @@ import GenericShow from "@components/generic_admin_pages/genericShowPage";
 const getStatusColor = (status: string) => {
   const colors: { [key: string]: string } = {
     pending: "orange",
+    retired: "red",
     accepted: "blue",
     paid: "green",
     cancelled: "red"

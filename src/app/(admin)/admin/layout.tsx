@@ -4,7 +4,6 @@ import { Authenticated, Refine } from "@refinedev/core";
 import { ThemedLayoutV2, useNotificationProvider } from "@refinedev/antd";
 import { AntdRegistry } from "@ant-design/nextjs-registry";
 import NextRouterProvider from "@refinedev/nextjs-router/app";
-import dataProvider from "@refinedev/simple-rest";
 import { authProvider } from "@/providers/auth-provider";
 import {
 	GoogleOutlined,
@@ -18,6 +17,7 @@ import { useTheme } from "next-themes";
 import { customDataProvider } from "@providers/data-provider";
 import { RefineContext } from "@app/_refine_context";
 import React from "react";
+import { Spinner } from "@heroui/react";
 
 function Layout({ children }: { children: React.ReactNode }) {
 	const { resolvedTheme } = useTheme();
@@ -118,8 +118,12 @@ function Layout({ children }: { children: React.ReactNode }) {
 					>
 						<Authenticated
 							key="admin-auth"
-							redirectOnFail="/api/auth/signin?callbackUrl=/admin"
-							loading={<div>Cargando...</div>}
+							redirectOnFail="/login"
+							loading={
+								<div className="h-screen flex flex-col justify-center items-center">
+									<Spinner />
+								</div>
+							}
 						>
 							<App>
 								<ThemedLayoutV2>{children}</ThemedLayoutV2>

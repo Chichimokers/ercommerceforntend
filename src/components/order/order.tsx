@@ -32,7 +32,7 @@ const OrderItem = React.memo(({ item }: { item: Item }) => (
 
 const OrderHeader = ({ order }: { order: Order }) => (
   <div className="sticky top-0 z-10 px-5 pt-5 pb-3 border-b border-default-200 flex justify-between items-start">
-    <div>
+    <div className="space-y-2">
       <h4 className="text-lg font-bold text-default-900 dark:text-white">Orden #{order.id.slice(0, 6)}</h4>
       <p className="text-sm text-default-600 flex items-center gap-1">
         <MapPinIcon className="w-4 h-4 text-default-500" /> {order.province}
@@ -47,6 +47,7 @@ const OrderStatus = ({ status }: { status: Order['status'] }) => {
   const statusColors = {
     accepted: "primary",
     cancelled: "danger",
+    retired: "danger",
     pending: "warning",
     paid: "success",
     default: "default",
@@ -55,6 +56,7 @@ const OrderStatus = ({ status }: { status: Order['status'] }) => {
   const spanishStatus = {
     accepted: "Aceptada",
     cancelled: "Cancelada",
+    retired: "Retirada",
     pending: "Pendiente",
     paid: "Pagada",
     default: "Desconocido",
@@ -111,13 +113,15 @@ const OrderComponent = ({ order, onCancelOrder, onProceedToPayment }: {
   order: Order;
   onCancelOrder?: (orderId: string) => void;
   onProceedToPayment?: (orderId: string) => void;
-}) => (
-  <div className="w-full max-w-lg mx-auto bg-gray-50 dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden border border-default-200">
-    <OrderHeader order={order} />
-    <OrderProductList items={order.orderItems} />
-    <OrderFooter order={order} onCancelOrder={onCancelOrder} onProceedToPayment={onProceedToPayment} />
-  </div>
-);
+}) => {
+  return (
+    <div className="w-full max-w-lg mx-auto bg-gray-50 dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden border border-default-200">
+      <OrderHeader order={order} />
+      <OrderProductList items={order.orderItems} />
+      <OrderFooter order={order} onCancelOrder={onCancelOrder} onProceedToPayment={onProceedToPayment} />
+    </div>
+  );
+};
 
 OrderItem.displayName = "OrderItem"
 

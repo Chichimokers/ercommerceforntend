@@ -207,7 +207,7 @@ export default function BuyPage() {
                         placeholder="59009301"
                         className="rounded-xl dark:bg-gray-900/50 bg-gray-100"
                         onChange={(e) => {
-                          methods.setValue("phone", `+53${e.target.value}`);
+                          methods.setValue("phone", e.target.value);
                         }}
                       />
                     </FormField>

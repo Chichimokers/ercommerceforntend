@@ -46,13 +46,13 @@ const OrderList: React.FC = () => {
       ),
       sorter: true,
     },
-    
+
     {
       title: 'Monto',
       dataIndex: 'subtotal',
       align: 'right',
       sorter: true,
-      rangeFilter:true
+      rangeFilter: true
     },
     {
       title: 'Estado',
@@ -61,8 +61,9 @@ const OrderList: React.FC = () => {
         const colorMap: Record<string, string> = {
           accepted: 'green',
           cancelled: 'red',
+          retired: 'red',
           pending: 'blue',
-          paid:'yellow',
+          paid: 'yellow',
           default: 'default',
         };
 
@@ -77,7 +78,7 @@ const OrderList: React.FC = () => {
         { text: "Pagadas", value: "paid" },
       ],
     },
-  
+
   ];
 
   return (
