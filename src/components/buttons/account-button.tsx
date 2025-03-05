@@ -58,7 +58,7 @@ const AccountButton = React.memo(({ className }: { className?: string }) => {
             </DropdownTrigger>
           </div>
         </Tooltip>
-        <DropdownMenu aria-label="Profile Actions" variant="shadow">
+        <DropdownMenu aria-label="Profile Actions" variant="faded">
           {session && (
             <DropdownItem key="profile" className="h-14 gap-2">
               <p className="font-semibold">Signed in as</p>

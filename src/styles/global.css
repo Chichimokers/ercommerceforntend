@@ -3,18 +3,41 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-/* 
-* These styles were added to improve the appearance of the example pages.
-* It is safe to delete them, and they are not intended to be used by Refine components.
-*/
-/* Ocultar scrollbar pero mantener funcionalidad */
-.scrollbar-hide {
-  -ms-overflow-style: none; /* Para Internet Explorer y Edge */
-  scrollbar-width: none; /* Para Firefox */
+
+/* Ocultar la barra de desplazamiento en dispositivos móviles */
+@media (max-width: 768px) {
+  body {
+    -ms-overflow-style: none; /* IE y Edge */
+    scrollbar-width: none; /* Firefox */
+    overflow: -moz-scrollbars-none; /* Firefox legacy */
+  }
+
+  body::-webkit-scrollbar {
+    width: 0px;
+    height: 0px;
+  }
 }
 
-.scrollbar-hide::-webkit-scrollbar {
-  display: none; /* Para Chrome, Safari y Opera */
+/* Estilizar la barra de desplazamiento en pantallas grandes */
+@media (min-width: 769px) {
+  body::-webkit-scrollbar {
+    width: 8px; /* Grosor de la barra */
+  }
+
+  body::-webkit-scrollbar-track {
+    background: #f5f5f5; /* Color de fondo */
+    border-radius: 10px;
+  }
+
+  body::-webkit-scrollbar-thumb {
+    background: #b3b3b3; /* Color del thumb (deslizador) */
+    border-radius: 10px;
+    transition: background 0.3s;
+  }
+
+  body::-webkit-scrollbar-thumb:hover {
+    background: #888; /* Cambio de color al pasar el cursor */
+  }
 }
 
 :root {

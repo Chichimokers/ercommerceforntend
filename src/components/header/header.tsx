@@ -259,7 +259,7 @@ export const Header = ({ className }: { className?: string }) => {
   return (
     <HerouiNavbar
       maxWidth="full"
-      className={`${className} z-50 top-0 left-0 right-0 h-16 backdrop-blur-3xl bg-gray-50/40 dark:bg-gray-900/40`}
+      className={`${className} z-50 top-0 left-0 right-0 h-16 backdrop-blur-3xl bg-blue-50/50 dark:bg-gray-900/50`}
 
     >
       <NavbarContent className="sm:basis-full max-w-fit" justify="start">
@@ -274,6 +274,7 @@ export const Header = ({ className }: { className?: string }) => {
               loading="lazy"
               width={160}
               height={60}
+              quality={50}
               src="/logonav.png"
               className="w-auto object-contain flex-shrink-0"
             />
