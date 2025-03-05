@@ -169,13 +169,10 @@ const MobileSearch = () => {
             )}
           </motion.div>
         )}
-
       </div>
     </>
-
   );
 };
-
 
 const SearchInput = () => {
   const [searchTerm, setSearchTerm] = useState("");
