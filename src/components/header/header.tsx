@@ -169,13 +169,10 @@ const MobileSearch = () => {
             )}
           </motion.div>
         )}
-
       </div>
     </>
-
   );
 };
-
 
 const SearchInput = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -283,12 +280,14 @@ export const Header = ({ className }: { className?: string }) => {
           </Link>
         </NavbarBrand>
       </NavbarContent>
-
-      <NavbarContent className="hidden xm:flex sm:basis-full w-full gap-2 justify-center">
+      <NavbarContent className="hidden md:flex sm:basis-full w-full gap-2" justify="center">
         <NavbarItem className="hidden md:flex flex-grow justify-center">
           <SearchInput />
         </NavbarItem>
-        <NavbarItem className="flex gap-4 items-center">
+      </NavbarContent>
+
+      <NavbarContent className="hidden xm:flex sm:basis-full w-full gap-2" justify="end">
+        <NavbarItem className="flex gap-4 items-end">
           <ThemeSwitch />
           {!isCartOrBuyPage && <DrawerCart />}
           {status === "loading" ? (
