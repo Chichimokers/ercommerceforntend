@@ -10,7 +10,8 @@ import {
   useDisclosure,
   Badge,
   Chip,
-  Tooltip
+  Tooltip,
+  Button
 } from "@heroui/react";
 import { CartContext } from "@/contexts/cart-context";
 import { FaShoppingCart } from "react-icons/fa";
@@ -134,15 +135,16 @@ export default function DrawerCart({ className }: { className?: string }) {
             showOutline={false}
             isInvisible={!cart?.length}
           >
-            <CustomButton
+            <Button
               key={backdrop}
+              isIconOnly
               className={`flex flex-col min-w-10 !p-0 justify-center items-center !w-10 !h-10 !rounded-full !border border-default-600 bg-blue-50/50 dark:bg-gray-900/50 transition-none ${className}`}
               color="default"
-              variant="outlined"
-              onClick={() => handleBackdropChange(backdrop)}
+              variant="bordered"
+              onPress={() => handleBackdropChange(backdrop)}
             >
               <FaShoppingCart opacity={0.8} size={22} />
-            </CustomButton>
+            </Button>
           </Badge>
         </div>
       </Tooltip>

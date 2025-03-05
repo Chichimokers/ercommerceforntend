@@ -60,6 +60,14 @@ const nextConfig = {
         protocol: "https",
         hostname: "via.placeholder.com",
       },
+      {
+        protocol: "http",
+        hostname: "localhost",
+      },
+      {
+        protocol: "https",
+        hostname: "esaki-jrr.com",
+      },
     ],
     formats: ["image/avif", "image/webp"],
     minimumCacheTTL: 86400, // 1 día de caché

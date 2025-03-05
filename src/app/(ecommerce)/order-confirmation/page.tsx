@@ -43,6 +43,7 @@ export default function OrderConfirmationPage() {
   const spanishStatus = {
     accepted: 'Aceptada',
     cancelled: 'Cancelada',
+    retired: 'Retirada',
     pending: 'Pendiente',
     paid: 'Pagada',
     default: 'Desconocido',
