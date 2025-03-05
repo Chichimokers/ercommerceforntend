@@ -274,6 +274,7 @@ export const Header = ({ className }: { className?: string }) => {
               loading="lazy"
               width={160}
               height={60}
+              quality={50}
               src="/logonav.png"
               className="w-auto object-contain flex-shrink-0"
             />
