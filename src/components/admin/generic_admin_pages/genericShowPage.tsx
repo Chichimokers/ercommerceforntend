@@ -3,7 +3,7 @@ import React from "react";
 import { useShow, IResourceComponentsProps } from "@refinedev/core";
 import { Show, EditButton, ListButton } from "@refinedev/antd";
 import { Typography, Descriptions, Spin, Tag } from "antd";
-import { BaseType } from "../../types/types";
+import { BaseType } from "../../../types/types";
 
 const { Title } = Typography;
 

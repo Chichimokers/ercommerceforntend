@@ -1,14 +1,14 @@
 "use client";
 
 import { Input, Form } from "antd";
-import { BaseType, Category } from "../../../../../types/types";
+import { BaseType, Province } from "../../../../../types/types";
 import GenericCreatePage from "@components/admin/generic_admin_pages/genericCreatePage";
 
-export default function CategoryCreate() {
+export default function ProvinceCreate() {
   return (
-    <GenericCreatePage<Category & BaseType>
-      resource="category"
-      title="Crear Categoría"
+    <GenericCreatePage<Province & BaseType>
+      resource="province"
+      title="Añadir Provincia"
     >
 
       <Form.Item
@@ -16,7 +16,7 @@ export default function CategoryCreate() {
         label="Nombre"
         rules={[{ required: true, message: "El nombre es obligatorio" }]}
       >
-        <Input placeholder="Nombre de la categoría" />
+        <Input placeholder="Nombre de la provincia" />
       </Form.Item>
     </GenericCreatePage>
   );

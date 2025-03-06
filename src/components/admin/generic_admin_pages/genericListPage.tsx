@@ -4,7 +4,7 @@ import React, { useMemo, useState, useCallback } from "react";
 import { List, useTable, ExportButton, DeleteButton, EditButton, ShowButton } from "@refinedev/antd";
 import { Space, Table, Slider, Input, Button, Form } from "antd";
 import type { ColumnType, TablePaginationConfig } from "antd/es/table";
-import { BaseType } from "../../types/types";
+import { BaseType } from "../../../types/types";
 import { LogicalFilter } from "@refinedev/core";
 import { FilterValue, SorterResult } from "antd/es/table/interface";
 
@@ -245,6 +245,7 @@ const GenericList = <T extends BaseType>({
         const isFiltered = activeFilters.some(
           f => isRangeFilter(f) && f.field === dataIndex
         );
+     
         
         return {
           ...column,
@@ -285,7 +286,7 @@ const GenericList = <T extends BaseType>({
         ...column,
         filteredValue: standardFilter?.value ? 
           (Array.isArray(standardFilter.value) ? standardFilter.value : [standardFilter.value]) 
-          : null,
+          : null, 
         sorter: true,
         sortOrder: activeSorter?.field === dataIndex ? activeSorter.order : null,
       };

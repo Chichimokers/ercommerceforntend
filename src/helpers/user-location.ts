@@ -89,7 +89,7 @@ export async function getUserCurrencyAndRate(selectedCurrency: string | undefine
 
         const exchangeRate = targetCurrency !== "CUP" 
             ? await getExchangeRate(targetCurrency)
-            : 310.0;
+            : 310.0 //Aqui se llamaria a la api del toque para obtener el cambio de usd a cup;
 
         const symbol = currencies[targetCurrency.toUpperCase()]?.symbol;
 

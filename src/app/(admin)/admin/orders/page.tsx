@@ -2,14 +2,10 @@
 
 import { Tag } from "antd";
 import { Order, BaseType } from "../../../../types/types";
-import GenericList, { ExtendedColumnType } from "@components/generic_admin_pages/genericListPage";
+import GenericList, { ExtendedColumnType } from "@components/admin/generic_admin_pages/genericListPage";
 
 const OrderList: React.FC = () => {
   const columns: ExtendedColumnType<Order & BaseType>[] = [
-    {
-      title: 'Id',
-      dataIndex: 'id',
-    },
     {
       title: 'Fecha Creación',
       dataIndex: 'created_at',
@@ -36,6 +32,29 @@ const OrderList: React.FC = () => {
       sorter: true,
     },
     {
+      title: 'Estado',
+      dataIndex: 'status',
+      render: (status: string) => {
+        const colorMap: Record<string, string> = {
+          accepted: 'green',
+          cancelled: 'red',
+          pending: 'blue',
+          paid:'yellow',
+          default: 'default',
+        };
+        
+        const color = colorMap[status] || colorMap.default;
+        return <Tag color={color}>{status.toUpperCase()}</Tag>;
+      },
+      sorter: true,
+      filters: [
+        { text: "Aceptadas", value: "accepted" },
+        { text: "Canceladas", value: "cancelled" },
+        { text: "Pendientes", value: "pending" },
+        { text: "Pagadas", value: "paid" },
+      ],
+    },
+    {
       title: 'Ubicación',
       dataIndex: 'province',
       render: (province: string, record: Order) => (
@@ -55,31 +74,13 @@ const OrderList: React.FC = () => {
       rangeFilter:true
     },
     {
-      title: 'Estado',
-      dataIndex: 'status',
-      render: (status: string) => {
-        const colorMap: Record<string, string> = {
-          accepted: 'green',
-          cancelled: 'red',
-          pending: 'blue',
-          paid:'yellow',
-          default: 'default',
-        };
-
-        const color = colorMap[status] || colorMap.default;
-        return <Tag color={color}>{status.toUpperCase()}</Tag>;
-      },
-      sorter: true,
-      filters: [
-        { text: "Aceptadas", value: "accepted" },
-        { text: "Canceladas", value: "cancelled" },
-        { text: "Pendientes", value: "pending" },
-        { text: "Pagadas", value: "paid" },
-      ],
+      title: 'Id',
+      dataIndex: 'id',
+    
     },
-  
+    
   ];
-
+  
   return (
     <GenericList<Order & BaseType>
       resource="orders"
