@@ -21,7 +21,7 @@ const FilterDrawer = React.memo(function FilterDrawer({ className }: { className
 
   const buttonClasses = useMemo(
     () =>
-      "!fixed !h-12 !pr-12 !bottom-1/2 !right-4 !rounded-full !z-50 " +
+      "!fixed !h-12 !pr-12 !bottom-1/2 !right-4 !rounded-full !z-40 " +
       "!shadow-xl !border !border-default-400 transition-transform duration-300 " +
       "ease-in-out transform translate-x-12 bg-opacity-80 backdrop-blur-sm",
     []

@@ -12,14 +12,14 @@ const IconButton = React.memo(({ className }: { className?: string }) => {
       style={{ right: "6px", top: "6px" }}
       size="sm"
       color="danger"
-      className={`w-5 h-5 shadow-lg border-2 text-[.6rem] text-white border-[#e4e4e7] dark:border-[#3f3f46]`}
+      className={`w-5 h-5 shadow-lg border text-[.6rem] text-white border-[#e4e4e7] dark:border-[#3f3f46]`}
       content={cart?.length ? cart.length.toString() : undefined}
       shape="circle"
       showOutline={false}
       isInvisible={!cart?.length}
     >
       <Link
-        className={`${className} flex-col justify-center gap-4 items-center hover:border-default-400 w-10 h-10 rounded-full border-2 border-default-200 bg-white dark:bg-black`}
+        className={`${className} flex-col justify-center gap-4 items-center hover:border-default-400 w-10 h-10 rounded-full border border-default-600`}
         href="/shopping-cart"
       >
         <FaShoppingCart opacity={0.7} size={22} />

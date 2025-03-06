@@ -38,8 +38,9 @@ const OrderList: React.FC = () => {
         const colorMap: Record<string, string> = {
           accepted: 'green',
           cancelled: 'red',
+          retired: 'red',
           pending: 'blue',
-          paid:'yellow',
+          paid: 'yellow',
           default: 'default',
         };
         

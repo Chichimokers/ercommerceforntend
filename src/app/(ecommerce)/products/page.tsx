@@ -36,7 +36,7 @@ export default function ProductPage() {
   );
 
   return (
-    <div>
+    <div className="mt-16">
       <div className="flex flex-col md:flex-row w-full min-h-screen">
         <FilterPanel />
         <div className="block md:hidden">
@@ -120,7 +120,7 @@ export default function ProductPage() {
                     onChange={handlePageChange}
                     isCompact
                     showControls
-                    size="md"
+                    size="lg"
                   />
                 </div>
               )}

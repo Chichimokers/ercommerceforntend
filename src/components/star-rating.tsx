@@ -33,9 +33,9 @@ const StarRating = ({
   return (
     <div className={`flex items-center gap-1 ${className}`}>
       {stars}
-      <span className="ml-1 text-sm text-gray-600 dark:text-gray-300">
+      {/*<span className="ml-1 text-sm text-gray-600 dark:text-gray-300">
         ({rating.toFixed(1)})
-      </span>
+      </span>*/}
     </div>
   );
 };

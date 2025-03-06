@@ -5,6 +5,7 @@ import {
   DropdownMenu,
   DropdownItem,
   cn,
+  Tooltip,
 } from "@heroui/react";
 import { signOut, useSession } from "next-auth/react";
 import { useModal } from "@/contexts/modal-context";
@@ -30,23 +31,34 @@ const AccountButton = React.memo(({ className }: { className?: string }) => {
 
   return (
     <>
+
       <Dropdown placement="bottom-end" className="">
-        <DropdownTrigger
-          className={cn(
-            "cursor-pointer h-10 w-10 border-2 border-default-200 hover:border-default-400 bg-opacity-50 dark:bg-opacity-50 bg-white dark:bg-black rounded-full group",
-            className
-          )}
+        <Tooltip
+          className="h-auto"
+          content={
+            session?.user.name
+          }
+          delay={200}
         >
-          <div className="flex flex-row items-center">
-            <div
-              className={`w-full h-full rounded-full flex items-center justify-center text-white text-xl font-bold 
-                ${session?.user?.name ? generateColorFromName(session.user.name) : 'bg-default-200'}`}
+          <div className="inline-flex">
+            <DropdownTrigger
+              className={cn(
+                "cursor-pointer h-10 w-10 border border-default-600 hover:border-default-400 bg-blue-50/50 dark:bg-gray-900/50 rounded-full group",
+                className
+              )}
             >
-              {session?.user?.name ? session.user.name[0].toUpperCase() : <FaUser size={20} opacity={0.6} />}
-            </div>
+              <div className="flex flex-row items-center">
+                <div
+                  className={`w-full h-full rounded-full flex items-center justify-center text-white text-xl font-bold 
+                ${session?.user?.name ? generateColorFromName(session.user.name) : 'bg-default-200'}`}
+                >
+                  {session?.user?.name ? session.user.name[0].toUpperCase() : <FaUser size={20} opacity={0.6} />}
+                </div>
+              </div>
+            </DropdownTrigger>
           </div>
-        </DropdownTrigger>
-        <DropdownMenu aria-label="Profile Actions" variant="shadow">
+        </Tooltip>
+        <DropdownMenu aria-label="Profile Actions" variant="faded">
           {session && (
             <DropdownItem key="profile" className="h-14 gap-2">
               <p className="font-semibold">Signed in as</p>
@@ -85,6 +97,7 @@ const AccountButton = React.memo(({ className }: { className?: string }) => {
           )}
         </DropdownMenu>
       </Dropdown>
+
     </>
   );
 });

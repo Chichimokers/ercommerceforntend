@@ -121,8 +121,7 @@ export const authOptions: NextAuthOptions = {
           prompt: "consent",
           access_type: "offline",
           response_type: "code",
-          scope: "openid email profile https://www.googleapis.com/auth/userinfo.profile",
-          redirect_uri: `${process.env.NEXTAUTH_URL}api/auth/callback/google`
+          scope: "openid email profile",
         }
       },
       client: {
@@ -303,6 +302,22 @@ export const authOptions: NextAuthOptions = {
   pages: {
     error: "/auth/error",
   },
+
+  cookies: {
+    sessionToken: {
+      name: process.env.NODE_ENV === "production" ? "__Secure-next-auth.session-token" : "next-auth.session-token",
+      options: {
+        httpOnly: true,
+        sameSite: "lax", // Prueba esto si la API está en otro dominio
+        secure: process.env.NODE_ENV !== "development",
+        path: "/",
+      },
+    },
+  },
+  session: {
+    strategy: "jwt",
+  },
+
   /*cookies: {
     sessionToken: {
       name:

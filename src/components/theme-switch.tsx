@@ -2,10 +2,9 @@
 
 import { FC, useState, useEffect } from "react";
 import { VisuallyHidden } from "@react-aria/visually-hidden";
-import { SwitchProps, useSwitch } from "@heroui/react";
+import { SwitchProps, Tooltip, useSwitch } from "@heroui/react";
 import { useTheme } from "next-themes";
 import clsx from "clsx";
-
 import { SunFilledIcon, MoonFilledIcon } from "@/components/icons";
 
 export interface ThemeSwitchProps {
@@ -59,43 +58,51 @@ export const ThemeSwitch: FC<ThemeSwitchProps> = ({
   if (!isMounted) return <div className="w-10 h-10" />;
 
   return (
-    <Component
-      aria-label={isSelected ? "Switch to dark mode" : "Switch to light mode"}
-      {...getBaseProps({
-        className: clsx(
-          "px-px flex flex-col items-center justify-center border-2 border-default-200 h-10 w-10 rounded-full hover:border-default-400 cursor-pointer bg-white dark:bg-black bg-opacity-50 dark:bg-opacity-50",
-          className,
-          classNames?.base
-        ),
-      })}
+    <Tooltip
+      className="h-auto"
+      content={
+        isSelected ? "Cambiar a modo oscuro" : "Cambiar a modo claro"
+      }
+      delay={200}
     >
-      <VisuallyHidden>
-        <input {...getInputProps()} />
-      </VisuallyHidden>
-      <div
-        {...getWrapperProps()}
-        className={slots.wrapper({
-          class: clsx(
-            [
-              "bg-transparent",
-              "rounded-xl",
-              "flex items-center justify-center",
-              "group-data-[selected=true]:bg-transparent",
-              "!text-default-500",
-              "pt-px",
-              "px-0",
-              "mx-0",
-            ],
-            classNames?.wrapper
+      <Component
+        aria-label={isSelected ? "Switch to dark mode" : "Switch to light mode"}
+        {...getBaseProps({
+          className: clsx(
+            "px-px flex flex-col items-center justify-center border border-default-600 h-10 w-10 rounded-full hover:border-default-400 cursor-pointer bg-blue-50/50 dark:bg-gray-900/50",
+            className,
+            classNames?.base
           ),
         })}
       >
-        {isSelected ? (
-          <MoonFilledIcon size={22} />
-        ) : (
-          <SunFilledIcon size={22} />
-        )}
-      </div>
-    </Component>
+        <VisuallyHidden>
+          <input {...getInputProps()} />
+        </VisuallyHidden>
+        <div
+          {...getWrapperProps()}
+          className={slots.wrapper({
+            class: clsx(
+              [
+                "bg-transparent",
+                "rounded-xl",
+                "flex items-center justify-center",
+                "group-data-[selected=true]:bg-transparent",
+                "!text-default-foreground hover:text-default-400",
+                "pt-px",
+                "px-0",
+                "mx-0",
+              ],
+              classNames?.wrapper,
+            ),
+          })}
+        >
+          {isSelected ? (
+            <MoonFilledIcon size={22} opacity={0.8} />
+          ) : (
+            <SunFilledIcon size={22} opacity={0.8} />
+          )}
+        </div>
+      </Component>
+    </Tooltip>
   );
 };

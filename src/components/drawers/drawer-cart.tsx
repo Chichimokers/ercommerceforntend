@@ -10,6 +10,8 @@ import {
   useDisclosure,
   Badge,
   Chip,
+  Tooltip,
+  Button
 } from "@heroui/react";
 import { CartContext } from "@/contexts/cart-context";
 import { FaShoppingCart } from "react-icons/fa";
@@ -102,30 +104,54 @@ export default function DrawerCart({ className }: { className?: string }) {
 
   return (
     <>
-      <div className="flex gap-2">
-        <Badge
-          style={{ right: "6px", top: "6px" }}
-          size="sm"
-          className="w-5 h-5 shadow-lg border border-default-500 text-xs"
-          content={cart?.length ? cart.length.toString() : undefined}
-          shape="circle"
-          color="danger"
-          showOutline={false}
-          isInvisible={!cart?.length}
-        >
-          <CustomButton
-            key={backdrop}
-            className={`flex flex-col min-w-10 !p-0 justify-center items-center !w-10 !h-10 !rounded-full border-2 border-default-200 bg-opacity-50 transition-none ${className}`}
-            color="default"
-            variant="bordered"
-            onClick={() => handleBackdropChange(backdrop)}
+      <Tooltip
+        className="h-auto"
+        content={
+          cart?.length ?
+            <span className="text-sm font-medium">
+              Subtotal:{" "}
+              <strong>
+                {(exchangeRate ? subtotal * exchangeRate : subtotal).toFixed(2)}{" "}
+                {currency || "USD"}
+              </strong>
+            </span>
+            :
+            <span className="text-sm font-medium">
+              <strong>
+                Carrito vacio
+              </strong>
+            </span>
+        }
+        delay={200}
+      >
+        <div className="inline-flex">
+          <Badge
+            style={{ right: "6px", top: "6px" }}
+            size="sm"
+            className="w-5 h-5 shadow-lg border border-default-500 text-xs"
+            content={cart?.length ? cart.length.toString() : undefined}
+            shape="circle"
+            color="danger"
+            showOutline={false}
+            isInvisible={!cart?.length}
           >
-            <FaShoppingCart opacity={0.6} size={22} />
-          </CustomButton>
-        </Badge>
-      </div>
+            <Button
+              key={backdrop}
+              isIconOnly
+              className={`flex flex-col min-w-10 !p-0 justify-center items-center !w-10 !h-10 !rounded-full !border border-default-600 bg-blue-50/50 dark:bg-gray-900/50 transition-none ${className}`}
+              color="default"
+              variant="bordered"
+              onPress={() => handleBackdropChange(backdrop)}
+            >
+              <FaShoppingCart opacity={0.8} size={22} />
+            </Button>
+          </Badge>
+        </div>
+      </Tooltip>
+
+
       <Drawer
-        className="h-full"
+        className="h-full bg-gray-100 dark:bg-gray-800"
         classNames={{
           closeButton: "absolute top-1 right-1",
         }}

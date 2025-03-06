@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import { signOut, getSession } from "next-auth/react";
 
 export function ClientLayout({ children }: { children: React.ReactNode }) {

@@ -3,7 +3,6 @@ import { getSession } from "next-auth/react";
 
 export const authProvider: AuthProvider = {
   login: async () => {
-    // NextAuth maneja el login directamente
     return {
       success: false,
       error: new Error("Usar el método de login de NextAuth"),

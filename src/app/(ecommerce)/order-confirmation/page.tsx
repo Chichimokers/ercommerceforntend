@@ -21,13 +21,14 @@ export default function OrderConfirmationPage() {
   const [order, setOrder] = useState<Order | null>(null);
 
   useEffect(() => {
-    // Se espera que al crear la orden hayas guardado sus detalles en localStorage
     const storedOrder = localStorage.getItem("orderDetails");
     if (storedOrder) {
       try {
         setOrder(JSON.parse(storedOrder));
       } catch (error) {
         console.error("Error al parsear los detalles de la orden", error);
+      } finally {
+        localStorage.removeItem("orderDetails");
       }
     }
   }, []);
@@ -42,26 +43,27 @@ export default function OrderConfirmationPage() {
   const spanishStatus = {
     accepted: 'Aceptada',
     cancelled: 'Cancelada',
+    retired: 'Retirada',
     pending: 'Pendiente',
     paid: 'Pagada',
     default: 'Desconocido',
   } as const;
 
   return (
-    <section className="min-h-screen flex flex-col items-center justify-center bg-gray-50 dark:bg-zinc-900 px-4 py-8">
+    <section className="min-h-screen flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-900 px-4 py-8 mt-16">
       <Toaster
         toastOptions={{
-          className: "dark:bg-zinc-800 dark:text-white",
+          className: "dark:bg-gray-800 dark:text-white",
           success: { className: "border border-green-500" },
           error: { className: "border border-red-500" },
         }}
       />
-      <div className="bg-white dark:bg-zinc-800 shadow-xl rounded-lg p-8 max-w-3xl w-full">
+      <div className="bg-white dark:bg-gray-800 shadow-xl rounded-lg p-8 max-w-3xl w-full">
         <div className="flex flex-col items-center">
           <CheckCircleIcon className="h-20 w-20 text-green-500 mb-4" />
           <h1 className="text-3xl font-bold mb-2">¡Pedido Confirmado!</h1>
           <p className="text-lg text-gray-700 dark:text-gray-300 mb-6 text-center">
-            Gracias por tu compra, {order ? order.receiver_name : "usuario"}. Hemos recibido tu pedido y se encuentra en estado <span className="capitalize">{spanishStatus[order?.status as keyof typeof spanishStatus]}</span>.
+            Gracias por tu compra, {order ? order.receiver_name : "usuario"}. Hemos recibido tu pedido y se encuentra en estado <span className="capitalize">{spanishStatus[order?.status as keyof typeof spanishStatus]}. Recibira un correo cuando este sea revisado por la administracion para proceder al pago.</span>.
           </p>
         </div>
 

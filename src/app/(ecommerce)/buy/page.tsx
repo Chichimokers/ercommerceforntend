@@ -15,6 +15,7 @@ import { AddressForm } from "@components/AddressForm";
 import Image from "next/image";
 import { useSession } from "next-auth/react";
 import { FormField } from "@components/forms/form-field";
+import InputField from "@components/forms/input";
 
 // Esquema de validación con Zod
 const formSchema = z.object({
@@ -142,10 +143,10 @@ export default function BuyPage() {
   };
 
   return (
-    <section className="flex flex-col items-center justify-center gap-8 py-12 md:py-16 px-4 xl:px-0">
+    <section className="flex flex-col items-center justify-center gap-8 py-12 md:py-16 px-4 xl:px-0 mt-16">
       <Toaster
         toastOptions={{
-          className: "dark:bg-zinc-800 dark:text-white",
+          className: "dark:bg-gray-900/50 dark:text-white",
           success: {
             className: "border border-green-500"
           },
@@ -161,7 +162,7 @@ export default function BuyPage() {
         </h1>
         <div className="grid lg:grid-cols-2 gap-8">
           {/* Sección del Formulario */}
-          <div className="p-6 rounded-2xl bg-white dark:bg-zinc-900 shadow-md border border-default-200 transition-all duration-300 hover:shadow-2xl">
+          <div className="p-6 rounded-2xl bg-white dark:bg-gray-800 shadow-md border border-default-200 transition-all duration-300 hover:shadow-2xl">
             <div className="flex items-center gap-2 mb-6 pb-4 border-b border-default-200">
               <UserCircleIcon className="h-6 w-6 text-primary" />
               <h2 className="text-xl font-semibold">Datos Personales (Destinatario)</h2>
@@ -174,43 +175,39 @@ export default function BuyPage() {
                       label="Nombre"
                       error={methods.formState.errors.firstName?.message}
                     >
-                      <Input
+                      <InputField
                         {...methods.register("firstName")}
                         startContent={
                           <UserCircleIcon className="h-5 w-5 text-default-400" />
                         }
                         placeholder="Ej: Juan"
-                        className="group rounded-xl dark:bg-zinc-800 bg-zinc-50"
-                        classNames={{
-                          input:
-                            "group-hover:bg-zinc-100 dark:group-hover:bg-zinc-700 transition-colors"
-                        }}
+                        className="group rounded-xl dark:bg-gray-900/50 bg-gray-100"
                       />
                     </FormField>
                     <FormField
                       label="Apellidos"
                       error={methods.formState.errors.lastName?.message}
                     >
-                      <Input
+                      <InputField
                         {...methods.register("lastName")}
                         startContent={
                           <UserCircleIcon className="h-5 w-5 text-default-400" />
                         }
                         placeholder="Ej: Pérez García"
-                        className="rounded-xl dark:bg-zinc-800 bg-zinc-50"
+                        className="rounded-xl dark:bg-gray-900/50 bg-gray-100"
                       />
                     </FormField>
                     <FormField
                       label="Teléfono"
                       error={methods.formState.errors.phone?.message}
                     >
-                      <Input
+                      <InputField
                         {...methods.register("phone")}
                         startContent={<span className="text-default-400">+53</span>}
                         placeholder="59009301"
-                        className="rounded-xl dark:bg-zinc-800 bg-zinc-50"
+                        className="rounded-xl dark:bg-gray-900/50 bg-gray-100"
                         onChange={(e) => {
-                          methods.setValue("phone", `+53${e.target.value}`);
+                          methods.setValue("phone", e.target.value);
                         }}
                       />
                     </FormField>
@@ -218,7 +215,7 @@ export default function BuyPage() {
                       label="Carnet de Identidad"
                       error={methods.formState.errors.idCard?.message}
                     >
-                      <Input
+                      <InputField
                         {...methods.register("idCard")}
                         startContent={
                           <span className="text-default-400">
@@ -226,7 +223,7 @@ export default function BuyPage() {
                           </span>
                         }
                         placeholder="03030355697"
-                        className="rounded-xl dark:bg-zinc-800 bg-zinc-50"
+                        className="rounded-xl dark:bg-gray-900/50 bg-gray-50"
                       />
                     </FormField>
                   </div>
@@ -240,7 +237,7 @@ export default function BuyPage() {
                 <div className="mt-8 w-full">
                   <button
                     type="submit"
-                    className="w-full py-6 text-lg font-semibold bg-gradient-to-r from-primary to-blue-600 hover:from-blue-600 hover:to-primary transition-all"
+                    className="w-full py-6 text-lg font-semibold bg-gradient-to-r from-primary to-blue-600 hover:from-blue-600 hover:to-primary transition-all rounded-xl"
                     disabled={isSubmitting}
                   >
                     {isSubmitting
@@ -252,7 +249,7 @@ export default function BuyPage() {
             </FormProvider>
           </div>
           {/* Resumen del Pedido */}
-          <div className="p-6 rounded-2xl bg-white dark:bg-zinc-900 shadow-md border border-default-200">
+          <div className="p-6 rounded-2xl bg-white dark:bg-gray-800 shadow-md border border-default-200">
             <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
               <ShoppingCartIcon className="h-6 w-6 text-primary" />
               Resumen del Pedido
@@ -263,10 +260,10 @@ export default function BuyPage() {
                 return (
                   <div
                     key={item.id}
-                    className="flex items-center justify-between p-3 rounded-xl bg-zinc-50 dark:bg-zinc-800"
+                    className="flex items-center justify-between p-3 rounded-xl bg-gray-50 dark:bg-gray-900/50"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="h-12 w-12 rounded-xl bg-zinc-200 dark:bg-zinc-700 overflow-hidden relative">
+                      <div className="h-12 w-12 rounded-xl bg-gray-200 dark:bg-gray-700 overflow-hidden relative">
                         <Image
                           alt={product?.name || "producto"}
                           src={product?.image || "/nophoto.jpeg"}

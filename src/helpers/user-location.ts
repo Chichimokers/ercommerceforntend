@@ -1,5 +1,5 @@
-import { publicIpv4 } from 'public-ip';
-import { currencies } from './currency-codes-list';
+import {publicIpv4} from 'public-ip';
+import {currencies} from './currency-codes-list';
 
 function formatDate(date: Date): string {
 
@@ -29,8 +29,7 @@ async function getExchangeRate(targetCurrency: string) {
     if (data) {
         data.trim()
         const cleanedData = data.replace(',', '').replace('.', '.');
-        const exchangeRateNumeric = parseFloat(cleanedData);
-        return exchangeRateNumeric ; 
+        return parseFloat(cleanedData) ;
     } else {
         throw new Error('Error al obtener la tasa de cambio');
     }

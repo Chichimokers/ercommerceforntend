@@ -50,7 +50,7 @@ const ProductCard = React.memo(({ product, prefetch = "none", className, imgClas
 
   return (
     <Card
-      className={`${className} group w-full flex-1 min-h-[330px] flex flex-col rounded-3xl border border-default-200 hover:border-deafult-300 transition-all hover:shadow-lg overflow-hidden bg-default-50/50`}
+      className={`${className} group w-full flex-1 min-h-[330px] flex flex-col rounded-3xl border border-gray-200 dark:border-gray-700 transition-all hover:shadow-xl overflow-hidden bg-white dark:bg-gray-800/50`}
       shadow="none"
       as={Link}
       href={`/products/${product.id}`}
@@ -60,12 +60,10 @@ const ProductCard = React.memo(({ product, prefetch = "none", className, imgClas
       aria-labelledby={`product-title-${product.id}`}
     >
       <CardBody className="overflow-hidden p-0 flex-none aspect-square w-full">
-        <div className="relative w-full h-full bg-default-100 aspect-square">
+        <div className="relative w-full h-full bg-gray-100 dark:bg-gray-700">
           <OptimizedImage
             imgClassName={`${imgClassName} object-cover w-full h-full transition-transform duration-300 group-hover:scale-105`}
             product={product}
-            mediaState={mediaState}
-            setMediaState={setMediaState}
             aria-label={`Imagen de ${product.name}`}
           />
         </div>
@@ -79,7 +77,13 @@ const ProductCard = React.memo(({ product, prefetch = "none", className, imgClas
           />
 
           <div className="flex flex-col justify-between gap-2">
-            <PriceDisplay price={product.price} rateExchange={rateExchange || undefined} />
+            <PriceDisplay
+              price={product.price}
+              rateExchange={rateExchange || undefined}
+              discountRules={product.discount ? [product.discount] : undefined}
+              quantity={cartActions.quantity}
+            />
+
             <RatingContainer rating={product.averageRating} />
           </div>
 
@@ -90,23 +94,16 @@ const ProductCard = React.memo(({ product, prefetch = "none", className, imgClas
   )
 })
 
-const OptimizedImage = React.memo(
-  ({
-    product,
-    mediaState,
-    setMediaState,
-    imgClassName,
-  }: {
-    product: ProductBase
-    mediaState: MediaState
-    setMediaState: React.Dispatch<React.SetStateAction<MediaState>>
-    imgClassName?: string
-  }) => (
+const OptimizedImage = React.memo(({ product, imgClassName }: { product: ProductBase; imgClassName?: string }) => {
+  const [src, setSrc] = useState(product.image || "/nophoto.jpeg")
+  const [loaded, setLoaded] = useState(false)
+
+  return (
     <>
-      {!mediaState.loaded && (
+      {!loaded && (
         <motion.div
           layoutId={`skeleton-${product.id}`}
-          className="absolute inset-0 bg-gradient-to-br from-default-200 to-default-300"
+          className="absolute inset-0 bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600"
           initial={{ opacity: 1 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -116,18 +113,16 @@ const OptimizedImage = React.memo(
 
       <Image
         alt={product.name}
-        className={`${imgClassName} absolute inset-0 w-full h-full object-cover transition-all duration-300 ${mediaState.loaded ? "opacity-100" : "opacity-0"
-          }`}
-        src={mediaState.error ? "/nophoto.jpeg" : product.image || "/nophoto.jpeg"}
-        onLoad={() => setMediaState((prev) => ({ ...prev, loaded: true }))}
-        onError={() => setMediaState((prev) => ({ ...prev, error: true }))}
+        className={`${imgClassName} absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${loaded ? "opacity-100" : "opacity-0"}`}
+        src={src}
+        onLoad={() => setLoaded(true)}
+        onError={() => setSrc("/nophoto.jpeg")}
         fill
-        quality={Number(process.env.IMAGE_QUALITY)}
         loading="lazy"
       />
     </>
-  ),
-)
+  )
+})
 
 OptimizedImage.displayName = "OptimizedImage"
 
@@ -147,17 +142,63 @@ const PriceDisplay = React.memo(
   ({
     price,
     rateExchange,
-  }: { price: number; rateExchange?: { symbol: string; exchangeRate: number; currency: string } }) => (
-    <p
-      className="text-default-600 whitespace-nowrap text-sm xs:text-md text-start font-bold"
-      aria-label={`Precio: ${price} USD`}
-    >
-      {rateExchange
-        ? `${rateExchange.symbol}${(price * rateExchange.exchangeRate).toFixed(2)} ${rateExchange.currency}`
-        : `$${price} USD`}
-    </p>
-  ),
-)
+    discountRules,
+    quantity,
+  }: {
+    price: number;
+    rateExchange?: { symbol: string; exchangeRate: number; currency: string };
+    discountRules?: { min: number; reduction: number }[];
+    quantity: number;
+  }) => {
+    // Encuentra el mayor descuento aplicable según la cantidad comprada
+    const applicableDiscount = discountRules
+      ?.filter(({ min }) => quantity >= min)
+      .reduce((max, curr) => (curr.reduction > max.reduction ? curr : max), { min: 0, reduction: 0 });
+
+    const discount = applicableDiscount?.reduction || 0;
+    const discountedPrice = price * (1 - discount / 100);
+
+    const formatPrice = (amount: number) => {
+      const formatted = (rateExchange ? amount * rateExchange.exchangeRate : amount).toFixed(2);
+      const [integerPart, decimalPart] = formatted.split(".");
+      return { integer: Number(integerPart).toLocaleString("es-ES"), decimal: decimalPart };
+    };
+
+    const original = formatPrice(price);
+    const final = formatPrice(discountedPrice);
+
+    return (
+      <div className="flex flex-col">
+        {discount > 0 ? (
+          <>
+            <p className="text-gray-500 text-xs sm:text-sm line-through">
+              {rateExchange ? `${rateExchange.symbol}${original.integer}` : `$${original.integer}`}
+              <sup>{original.decimal}</sup>
+            </p>
+            <p
+              className="text-red-600 font-bold text-sm sm:text-md md:text-lg"
+              aria-label={`Precio con descuento: ${discountedPrice} ${rateExchange?.currency || "USD"}`}
+            >
+              {rateExchange ? `${rateExchange.symbol}${final.integer}` : `$${final.integer}`}
+              <sup>{final.decimal}</sup> {rateExchange?.currency || "USD"}
+            </p>
+          </>
+        ) : (
+          <p
+            className="text-default-600 whitespace-nowrap text-sm xs:text-md md:text-xl font-semibold"
+            aria-label={`Precio: ${price} ${rateExchange?.currency || "USD"}`}
+          >
+            {rateExchange ? `${rateExchange.symbol}${original.integer}` : `$${original.integer}`}
+            <sup>{original.decimal}</sup> {rateExchange?.currency || "USD"}
+          </p>
+        )}
+      </div>
+    );
+  }
+);
+
+
+
 
 PriceDisplay.displayName = "PriceDisplay"
 
