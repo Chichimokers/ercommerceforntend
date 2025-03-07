@@ -86,7 +86,7 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({
     if (window.location.href !== newUrl) {
       router.replace(newUrl);
     }
-  }, [filters, page, pathname, isInitialLoad, router]);
+  }, [filters, page, pathname, isInitialLoad, router, location.province]);
 
   // Fetch de productos
   const {

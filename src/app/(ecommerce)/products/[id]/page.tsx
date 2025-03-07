@@ -54,6 +54,7 @@ const defaultProduct: ProductBase = {
   quantity: 0,
   short_description: "",
   averageRating: 0,
+  province: "",
 };
 
 const ProductDetailPage = () => {
