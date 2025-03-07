@@ -3,7 +3,7 @@ import useSWR from "swr";
 import { buildQueryParams } from "./buildQueryParams";
 import { Filters } from "@/types/types";
 
-export const useProducts = (baseUrl: string, filters: Filters, page: number) => {
+export const useProducts = (baseUrl: string, filters: Filters, page: number, location: any) => {
   const queryParams = useMemo(() => buildQueryParams(filters, page, 30, location), [filters, page]);
   const fetchUrl = `${baseUrl}/public/products?${queryParams}`;
 

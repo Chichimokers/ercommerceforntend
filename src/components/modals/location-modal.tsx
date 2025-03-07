@@ -1,72 +1,57 @@
 "use client";
-import { useState, useEffect, useContext } from "react";
+import useSWR from "swr";
+import { useState, useContext, ChangeEvent, useEffect } from "react";
 import { useLocation } from "@contexts/location-context";
 import { Select, SelectItem } from "@heroui/react";
 import { CustomButton } from "@components/buttons/custom-button";
 import { motion, AnimatePresence } from "framer-motion";
 import { CartContext } from "@contexts/cart-context";
 
-export default function LocationModal({ open, onClose }: { open: boolean; onClose: () => void }) {
+interface Option {
+  key: string;
+  label: string;
+}
+
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
+
+interface LocationModalProps {
+  open: boolean;
+  onClose: () => void;
+}
+
+export default function LocationModal({ open, onClose }: LocationModalProps) {
   const { location, setLocation } = useLocation();
-  const [province, setProvince] = useState(location?.province || "");
-  const [municipality, setMunicipality] = useState(location?.municipality || "");
-  const [provinces, setProvinces] = useState<{ key: string; label: string }[]>([]);
-  const [municipalities, setMunicipalities] = useState<{ key: string; label: string }[]>([]);
-  const [loadingProvinces, setLoadingProvinces] = useState(true);
-  const [loadingMunicipalities, setLoadingMunicipalities] = useState(false);
   const { clearCart } = useContext(CartContext) || {};
+  const [province, setProvince] = useState<string>(location?.province || "");
+  const [municipality, setMunicipality] = useState<string>(location?.municipality || "");
 
   useEffect(() => {
-    async function fetchProvinces() {
-      try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}public/provinces`);
-        if (!response.ok) throw new Error(`Error: ${response.status}`);
-        const data = await response.json();
-        const provinceList = data.map((prov: any) => ({ key: prov.id, label: prov.name }));
-        setProvinces(provinceList);
-
-        const foundProvince = provinceList.find((p: any) => p.key === location?.province);
-        if (foundProvince) setProvince(foundProvince.key);
-      } catch (error) {
-        console.error("Error al obtener las provincias", error);
-      } finally {
-        setLoadingProvinces(false);
-      }
+    if (open) {
+      setProvince(location?.province || "");
+      setMunicipality(location?.municipality || "");
     }
+  }, [open, location]);
 
-    if (open) fetchProvinces();
-  }, [open, location?.province]);
 
-  useEffect(() => {
-    async function fetchMunicipalities() {
-      if (!province) return;
-      setLoadingMunicipalities(true);
-      try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}public/municipalities/${province}`);
-        if (!response.ok) throw new Error(`Error: ${response.status}`);
-        const data = await response.json();
-        const municipalityList = data.map((mun: any) => ({ key: mun.id, label: mun.name }));
-        setMunicipalities(municipalityList);
+  const { data: provinces = [], isLoading: loadingProvinces } = useSWR<Option[]>(
+    open ? `${process.env.NEXT_PUBLIC_API_URL}public/provinces` : null,
+    fetcher
+  );
 
-        const foundMunicipality = municipalityList.find((m: any) => m.key === location?.municipality);
-        if (foundMunicipality) setMunicipality(foundMunicipality.key);
-      } catch (error) {
-        console.error("Error al obtener los municipios", error);
-      } finally {
-        setLoadingMunicipalities(false);
-      }
-    }
+  const { data: municipalities = [], isLoading: loadingMunicipalities } = useSWR<Option[]>(
+    province ? `${process.env.NEXT_PUBLIC_API_URL}public/municipalities/${province}` : null,
+    fetcher
+  );
 
-    fetchMunicipalities();
-  }, [province, location?.municipality]);
+  const provinceList: Option[] = provinces.map((prov: any) => ({ key: prov.id, label: prov.name }));
+  const municipalityList: Option[] = municipalities.map((mun: any) => ({ key: mun.id, label: mun.name }));
 
-  const handleProvinceChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleProvinceChange = (event: ChangeEvent<HTMLSelectElement>) => {
     setProvince(event.target.value);
     setMunicipality("");
-    setMunicipalities([]);
   };
 
-  const handleMunicipalityChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleMunicipalityChange = (event: ChangeEvent<HTMLSelectElement>) => {
     setMunicipality(event.target.value);
   };
 
@@ -75,10 +60,6 @@ export default function LocationModal({ open, onClose }: { open: boolean; onClos
     if (clearCart) clearCart();
     onClose();
   };
-
-  const selectedProvince = provinces.find((p) => p.key === location.province)?.key;
-  const selectedMunicipality = municipalities.find((m) => m.key === location.municipality)?.key;
-
 
   return (
     <AnimatePresence>
@@ -108,8 +89,8 @@ export default function LocationModal({ open, onClose }: { open: boolean; onClos
                 className="w-full"
                 value={province}
                 onChange={handleProvinceChange}
-                items={provinces}
-                defaultSelectedKeys={selectedProvince ? [selectedProvince] : []}
+                defaultSelectedKeys={[province]}
+                items={provinceList}
                 placeholder={loadingProvinces ? "Cargando..." : "Selecciona una provincia"}
                 disabled={loadingProvinces}
               >
@@ -121,8 +102,8 @@ export default function LocationModal({ open, onClose }: { open: boolean; onClos
                 className="w-full"
                 value={municipality}
                 onChange={handleMunicipalityChange}
-                items={municipalities}
-                defaultSelectedKeys={selectedMunicipality ? [selectedMunicipality] : []}
+                defaultSelectedKeys={[municipality]}
+                items={municipalityList}
                 placeholder={loadingMunicipalities ? "Cargando..." : "Selecciona un municipio"}
                 disabled={loadingMunicipalities || !province}
               >
