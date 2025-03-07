@@ -10,12 +10,10 @@ const OrderSummary = ({
   className,
   subtotal,
   shipping,
-  tax,
 }: {
   className?: string;
   subtotal: number;
   shipping: number;
-  tax: number;
 }) => {
   const router = useRouter();
   const { rateExchange } = useContext(CurrencyAndExchangeRateContext) || {};
@@ -64,7 +62,6 @@ const OrderSummary = ({
             <div className="space-y-2">
               <SummaryItem label="Subtotal" amount={subtotal} />
               <SummaryItem label="Envío" amount={shipping} hasTooltip />
-              <SummaryItem label="Impuestos" amount={tax} hasTooltip />
             </div>
 
             <div className="pt-3 mt-2 border-t border-default-200">
@@ -73,7 +70,7 @@ const OrderSummary = ({
                   Total
                 </span>
                 <Price
-                  amount={convertAmount(subtotal + shipping + tax)}
+                  amount={convertAmount(subtotal + shipping)}
                   currencyCode={currency || "USD"}
                   className="text-sm xs:text-base font-bold"
                 />

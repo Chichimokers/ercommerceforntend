@@ -138,7 +138,7 @@ export default function DrawerCart({ className }: { className?: string }) {
             <Button
               key={backdrop}
               isIconOnly
-              className={`flex flex-col min-w-10 !p-0 justify-center items-center !w-10 !h-10 !rounded-full !border border-default-600 bg-blue-50/50 dark:bg-gray-900/50 transition-none ${className}`}
+              className={`flex flex-col min-w-10 !p-0 justify-center items-center !w-10 !h-10 !rounded-full !border border-default-600 hover:border-default-400 bg-blue-50/50 dark:bg-gray-900/50 transition-none ${className}`}
               color="default"
               variant="bordered"
               onPress={() => handleBackdropChange(backdrop)}

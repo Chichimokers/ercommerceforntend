@@ -8,8 +8,7 @@ import AuthLayout from "@components/layout/auth-layout"
 import { ProductProvider } from "@contexts/product-context"
 import { CartProvider } from "@contexts/cart-context"
 import { ThemeProvider } from "next-themes"
-
-// tantos comentarios me marean
+import { LocationProvider } from "@contexts/location-context";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -21,18 +20,20 @@ export function Providers({ children }: { children: React.ReactNode }) {
     >
       <SessionProvider>
         <CurrencyAndExchangeRateProvider>
-          <ProductProvider>
-            <CartProvider>
-              <ModalProvider>
-                <HeroUIProvider>
-                  <ToastProvider />
-                  <AuthLayout>
-                    {children}
-                  </AuthLayout>
-                </HeroUIProvider>
-              </ModalProvider>
-            </CartProvider>
-          </ProductProvider>
+          <LocationProvider>
+            <ProductProvider>
+              <CartProvider>
+                <ModalProvider>
+                  <HeroUIProvider>
+                    <ToastProvider />
+                    <AuthLayout>
+                      {children}
+                    </AuthLayout>
+                  </HeroUIProvider>
+                </ModalProvider>
+              </CartProvider>
+            </ProductProvider>
+          </LocationProvider>
         </CurrencyAndExchangeRateProvider>
       </SessionProvider>
     </ThemeProvider >

@@ -15,14 +15,15 @@ import { usePathname, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { LoginButton } from "../buttons/login-button";
 import dynamic from "next/dynamic";
-import { useEffect, useRef, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import { useDebouncedCallback } from "use-debounce";
 import { SearchSuggestions } from "@/components/search-suggestions";
 import { ProductBase } from "../../types/types";
 import { motion } from "framer-motion";
 import { XIcon } from "lucide-react";
-import { createPortal } from "react-dom";
 import { CustomButton } from "@components/buttons/custom-button";
+import { Overlay } from "@components/overlay";
+import { LocationButton } from "@components/buttons/location-button";
 
 const IconButton = dynamic(() => import("@/components/buttons/cart-button"), {
   loading: () => (
@@ -42,20 +43,6 @@ const DrawerCart = dynamic(() => import("@/components/drawers/drawer-cart"), {
     <div className="w-10 h-10 bg-default-200 rounded-full animate-pulse" />
   )
 });
-
-const Overlay = ({ onClick }: { onClick: () => void }) => {
-  return createPortal(
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.3 }}
-      className="fixed inset-0 bg-black/30 backdrop-blur-sm z-40"
-      onClick={onClick}
-    />,
-    document.body
-  );
-};
 
 const MobileSearch = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -250,7 +237,7 @@ const SearchInput = () => {
   );
 };
 
-export const Header = ({ className }: { className?: string }) => {
+export const Header = ({ className, setModalOpen }: { className?: string, setModalOpen: Dispatch<SetStateAction<boolean>> }) => {
   const pathname = usePathname();
   const isCartOrBuyPage = pathname === "/shopping-cart" || pathname === "/buy";
   const { data: session, status } = useSession({ required: false });
@@ -259,13 +246,14 @@ export const Header = ({ className }: { className?: string }) => {
   return (
     <HerouiNavbar
       maxWidth="full"
-      className={`${className} z-50 top-0 left-0 right-0 h-16 backdrop-blur-3xl bg-blue-50/50 dark:bg-gray-900/50`}
+      isBlurred
+      className={`${className} z-40 top-0 left-0 right-0 h-16 bg-blue-50/50 dark:bg-gray-900/50`}
 
     >
       <NavbarContent className="sm:basis-full max-w-fit" justify="start">
-        <NavbarBrand className="gap-3 max-w-none">
+        <NavbarBrand className="gap-2">
           <Link
-            className="flex items-center gap-2 w-[160] h-[60]"
+            className="flex items-center gap-2 w-[140] h-[60]"
             color="foreground"
             href="/"
           >
@@ -288,7 +276,8 @@ export const Header = ({ className }: { className?: string }) => {
       </NavbarContent>
 
       <NavbarContent className="hidden xm:flex sm:basis-full w-full gap-2" justify="end">
-        <NavbarItem className="flex gap-4 items-end">
+        <NavbarItem className="flex gap-3 items-end">
+          <LocationButton setModalOpen={setModalOpen} />
           <ThemeSwitch />
           {!isCartOrBuyPage && <DrawerCart />}
           {status === "loading" ? (
@@ -303,22 +292,23 @@ export const Header = ({ className }: { className?: string }) => {
 
 
       <NavbarContent className="xm:hidden basis" justify="end">
-        <NavbarItem>
+        <NavbarItem className="flex gap-2 items-end">
           <MobileSearch />
+
+          <ThemeSwitch />
+          {!isCartOrBuyPage && (
+            <div className="hidden xm:flex">
+              <IconButton />
+            </div>
+          )}
+          {status === "loading" ? (
+            <div className="w-10 h-10 bg-default-200 rounded-full animate-pulse" />
+          ) : session ? (
+            <AccountButton />
+          ) : (
+            !isAuthPage && <LoginButton />
+          )}
         </NavbarItem>
-        <ThemeSwitch />
-        {!isCartOrBuyPage && (
-          <div className="hidden xm:flex">
-            <IconButton />
-          </div>
-        )}
-        {status === "loading" ? (
-          <div className="w-10 h-10 bg-default-200 rounded-full animate-pulse" />
-        ) : session ? (
-          <AccountButton />
-        ) : (
-          !isAuthPage && <LoginButton />
-        )}
       </NavbarContent>
     </HerouiNavbar>
   );
