@@ -8,7 +8,6 @@ import { Spinner } from "@heroui/react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import React from "react";
-import { useForceUpdate } from "@hooks/useForceUpdate"; // Hook para forzar re-render
 import { useIsMobile } from "@hooks/useMobile";
 
 const Summary = dynamic(() => import("@/components/cards/summary"));
@@ -18,13 +17,11 @@ export default function ShoppingCartPage() {
   const { cart } = useContext(CartContext) || {};
   const { cartProducts, mutateCartProducts, isLoadingCart } = useProductContext();
   const [imageLoaded, setImageLoaded] = useState(false);
-  const forceUpdate = useForceUpdate();
-  const isMobile = useIsMobile(); // Determina si es móvil
+  const isMobile = useIsMobile();
 
-  // Forzamos re-render cuando cambie el carrito
   useEffect(() => {
     mutateCartProducts();
-  }, [cart, forceUpdate]);
+  }, [cart]);
 
   const productMap = useMemo(
     () => new Map(cartProducts?.map((p) => [p.id, p]) || []),
@@ -47,7 +44,6 @@ export default function ShoppingCartPage() {
     return cart
       .map((item) => {
         const product = productMap.get(item.id);
-        // Si no existe, usa datos mínimos
         if (product) {
           return { ...product, quantity: item.cantidad };
         } else {
@@ -61,6 +57,7 @@ export default function ShoppingCartPage() {
             averageRating: 0,
             category: '',
             description: '',
+            province: '',
           };
         }
       })
@@ -134,7 +131,6 @@ export default function ShoppingCartPage() {
                 className="sticky top-24 rounded-xl shadow-sm"
                 shipping={1}
                 subtotal={subtotal}
-                tax={0.15}
               />
             </div>
           )}

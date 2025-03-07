@@ -91,6 +91,7 @@ const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   );
 
   const clearCart = useCallback(() => {
+    localStorage.removeItem("cart");
     setCart([]);
   }, []);
 

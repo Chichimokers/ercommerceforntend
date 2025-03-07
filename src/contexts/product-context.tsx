@@ -14,6 +14,7 @@ import { buildQueryParams } from "@/hooks/buildQueryParams";
 import { parseQueryToFilters } from "@/hooks/parseQuerys";
 import { useCategories } from "@/hooks/useCategories";
 import { useProducts, useCartProducts } from "@/hooks/useProducts";
+import { useLocation } from "./location-context";
 
 interface ProductContextType {
   products: any[];
@@ -52,6 +53,7 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const { location } = useLocation()
 
   const [filters, setFilters] = useState<Filters>({});
   const [page, setPage] = useState(1);
@@ -75,24 +77,23 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({
     setIsInitialLoad(false);
   }, [pathname, searchParams, getQueryParams]);
 
-  // Actualizar URL cuando cambian los filtros
   useEffect(() => {
     if (isInitialLoad || pathname !== "/products") return;
 
-    const queryParams = buildQueryParams(filters, page, 30);
+    const queryParams = buildQueryParams(filters, page, 30, location.province);
     const newUrl = `${pathname}?${queryParams}`;
 
     if (window.location.href !== newUrl) {
       router.replace(newUrl);
     }
-  }, [filters, page, pathname, isInitialLoad, router]);
+  }, [filters, page, pathname, isInitialLoad, router, location.province]);
 
   // Fetch de productos
   const {
     data: productsData,
     error: productsError,
     isLoading: isLoadingProducts,
-  } = useProducts(baseUrl, filters, page);
+  } = useProducts(baseUrl, filters, page, location);
 
   // Carrito y categorías
   const {

@@ -189,7 +189,7 @@ const OrdersPage = () => {
           <FaExclamationTriangle className="h-12 w-12 text-red-400" />
           {error.message === 'No orders found' ? (
             <>
-              <h2 className="text-2xl font-semibold text-gray-800">No hay pedidos registrados</h2>
+              <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-200">No hay pedidos registrados</h2>
               <p className="text-gray-500 max-w-md">
                 Parece que aún no has realizado ningún pedido. ¡Explora nuestros productos y haz tu primer compra!
               </p>

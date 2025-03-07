@@ -3,14 +3,15 @@ export type ProductBase = {
 	name: string;
 	price: number;
 	short_description: string;
-	description?: string;
+	description: string;
 	category?: string;
 	subcategory?: string;
 	image?: string;
 	quantity: number;
 	averageRating?: number;
-	
-	
+	province: string;
+
+
 	discount?: {
 		min: number;
 		reduction: number;
