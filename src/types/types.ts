@@ -9,6 +9,7 @@ export type ProductBase = {
 	image?: string;
 	quantity: number;
 	averageRating?: number;
+	weight?:number;
 	
 	
 	discount?: {
@@ -22,6 +23,10 @@ export interface BaseType {
 	created_at: string;
 	updated_at: string;
 	deleted_at: string | null;
+}
+export interface Province {
+	id:string;
+	name:string
 }
 
 export interface Filters {

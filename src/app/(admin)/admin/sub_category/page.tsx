@@ -2,7 +2,7 @@
 
 import { ColumnType } from "antd/es/table";
 import { BaseType, SubCategory } from "../../../../types/types";
-import GenericList from "@components/generic_admin_pages/genericListPage";
+import GenericList from "@components/admin/generic_admin_pages/genericListPage";
 
 const SubCategoryList: React.FC = () => {
   const columns: ColumnType<SubCategory & BaseType>[] = [

@@ -10,27 +10,31 @@ import { FaFilter } from "react-icons/fa6";
 import dynamic from "next/dynamic";
 import { CustomButton } from "../buttons/custom-button";
 import { useFilters } from "@/hooks/useFilters";
-import React from "react";
+import React, { useMemo, useCallback, useState } from "react";
 
 const Filters = dynamic(() => import("../filters/filters"));
 
-export default React.memo(function FilterDrawer({ className }: { className?: string }) {
+const FilterDrawer = React.memo(function FilterDrawer({ className }: { className?: string }) {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const { setFilters, applyFilters } = useFilters();
-  const [isInvalidFilters, setIsInvalidFilters] = React.useState(false);
+  const [isInvalidFilters, setIsInvalidFilters] = useState(false);
 
-  const buttonClasses = React.useMemo(() =>
-    "!fixed !h-12 !pr-12 !bottom-1/2 !right-4 !rounded-full !z-50 " +
-    "!shadow-xl !border !border-default-400 transition-transform duration-300 " +
-    "ease-in-out transform translate-x-12 bg-opacity-80 backdrop-blur-sm",
+  const buttonClasses = useMemo(
+    () =>
+      "!fixed !h-12 !pr-12 !bottom-1/2 !right-4 !rounded-full !z-40 " +
+      "!shadow-xl !border !border-default-400 transition-transform duration-300 " +
+      "ease-in-out transform translate-x-12 bg-opacity-80 backdrop-blur-sm",
     []
   );
 
-  const handleApplyFilters = React.useCallback((onClose: () => void) => {
-    if (isInvalidFilters) return;
-    applyFilters();
-    onClose();
-  }, [applyFilters, isInvalidFilters]);
+  const handleApplyFilters = useCallback(
+    (onClose: () => void) => {
+      if (isInvalidFilters) return;
+      applyFilters();
+      onClose();
+    },
+    [applyFilters, isInvalidFilters]
+  );
 
   return (
     <>
@@ -63,10 +67,7 @@ export default React.memo(function FilterDrawer({ className }: { className?: str
                 <h2 className="text-xl font-bold px-4 my-4">Filtros</h2>
               </DrawerHeader>
               <DrawerBody>
-                <Filters
-                  onFilterChange={setFilters}
-                  setIsInvalidFilters={setIsInvalidFilters}
-                />
+                <Filters onFilterChange={setFilters} setIsInvalidFilters={setIsInvalidFilters} />
               </DrawerBody>
               <DrawerFooter>
                 <CustomButton
@@ -85,3 +86,5 @@ export default React.memo(function FilterDrawer({ className }: { className?: str
     </>
   );
 });
+
+export default FilterDrawer;

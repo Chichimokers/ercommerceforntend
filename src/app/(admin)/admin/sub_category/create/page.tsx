@@ -1,7 +1,7 @@
 "use client";
 import { Form, Input } from "antd";
 import { BaseType, SubCategory } from "../../../../../types/types";
-import GenericCreatePage from "@components/generic_admin_pages/genericCreatePage";
+import GenericCreatePage from "@components/admin/generic_admin_pages/genericCreatePage";
 import { CategorySelector } from "@components/selects/category-selector";
 
 const SubCategoryCreate: React.FC = () => {

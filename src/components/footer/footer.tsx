@@ -44,7 +44,7 @@ const CustomerService = ({ href, value }: { href: string; value: string }) => {
 
 const Footer = () => {
   return (
-    <footer className="bg-gradient-to-b from-background to-default-50 border-t border-default-200">
+    <footer className="bg-gradient-to-b from-gray-50 dark:from-gray-900 to-default-50 border-t border-default-200">
       <div className="container mx-auto px-4 py-12 md:py-16">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
           <div className="space-y-4">
@@ -105,7 +105,7 @@ const Footer = () => {
             </h2>
             <div className="grid grid-cols-4">
               {['visa', 'mastercard', 'paypal'].map((icon) => (
-                <div key={icon} className="rounded-lg transition-colors w-[60] h-[40]">
+                <div key={icon} className="rounded-xl transition-colors w-[60] h-[40]">
                   <Image
                     src={`/icons/${icon}.svg`}
                     alt={icon}

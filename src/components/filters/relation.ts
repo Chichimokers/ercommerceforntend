@@ -1,12 +1,5 @@
-import { categories } from "./categories";
-import brands from "./brands";
 import { FilterList } from "@/types/types";
-
-const categoriesList: FilterList = {
-  values: categories,
-  key: "categories",
-  label: "Categorias",
-};
+import brands from "./brands";
 
 const brandsList: FilterList = {
   values: brands,
@@ -24,7 +17,6 @@ const ratingOptions = [
 
 const filtersList = new Map<string, FilterList>();
 
-filtersList.set("categories", categoriesList);
 filtersList.set("brands", brandsList);
 
 export { filtersList, ratingOptions };

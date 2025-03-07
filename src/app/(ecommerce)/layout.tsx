@@ -1,18 +1,20 @@
 "use client";
 
 import { Header } from "@/components/header/header";
-import Footer from "@/components/footer/footer";
+import dynamic from "next/dynamic";
 import React, { ReactNode } from "react";
 import { Navbar } from "@/components/navbar/nav";
+
+const Footer = dynamic(() => import("@components/footer/footer"));
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <>
-      <Header className="fixed top-0 left-0 right-0 z-50 h-16 border-b border-default-50" />
+
+      <Header className="fixed top-0 left-0 right-0 h-16" />
 
       <main
         className="flex-grow container mx-auto max-w-[1920px] min-h-[70vh]"
-        style={{ paddingTop: '4rem' }}
       >
         {children}
       </main>

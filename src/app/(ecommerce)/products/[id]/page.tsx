@@ -64,36 +64,36 @@ const ProductDetailPage = () => {
   const [productState, setProductState] = useState<{
     data: ProductBase;
     loading: boolean;
-    error: string | null;
+    error: string | null; // Ahora acepta strings además de null
   }>({
     data: defaultProduct,
     loading: true,
     error: null,
   });
 
-  const [imageState, setImageState] = useState({
-    loaded: false,
-    error: false,
-  });
 
-  const displayProduct = useMemo(() => (
-    productState.loading || productState.error || !productState.data
-      ? defaultProduct
-      : { ...defaultProduct, ...productState.data }
-  ), [productState]);
+  const [imageSrc, setImageSrc] = useState("/placeholder-image.jpg");
+
+  const displayProduct = useMemo(
+    () =>
+      productState.loading || productState.error || !productState.data
+        ? defaultProduct
+        : { ...defaultProduct, ...productState.data },
+    [productState]
+  );
 
   useEffect(() => {
     if (!id) return;
 
     const getProductData = async () => {
       try {
-        const foundProduct = products?.find(p => p.id.toString() === id);
+        const foundProduct = products?.find((p) => p.id.toString() === id);
         if (foundProduct) {
-          setProductState(prev => ({ ...prev, data: foundProduct, loading: false }));
+          setProductState({ data: foundProduct, loading: false, error: null });
           return;
         }
 
-        setProductState(prev => ({ ...prev, loading: true, error: null }));
+        setProductState((prev) => ({ ...prev, loading: true, error: null }));
 
         const response = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL}public/product-details?id=${id}`
@@ -102,19 +102,24 @@ const ProductDetailPage = () => {
         if (!response.ok) throw new Error(`Error: ${response.statusText}`);
 
         const data = await response.json();
-        setProductState(prev => ({ ...prev, data, loading: false }));
+        setProductState({ data, loading: false, error: null });
       } catch (err) {
-        setProductState(prev => ({
+        setProductState((prev) => ({
           ...prev,
-          error: "Hubo un problema al cargar el producto. Intenta nuevamente más tarde.",
-          loading: false
+          error: "Hubo un problema al cargar el producto.",
+          loading: false,
         }));
-        console.error("Error fetching product:", err);
       }
     };
 
     getProductData();
   }, [id, products]);
+
+  useEffect(() => {
+    if (displayProduct.image) {
+      setImageSrc(displayProduct.image);
+    }
+  }, [displayProduct.image]);
 
   const cartActions = useCartActions({
     id: displayProduct.id,
@@ -157,7 +162,7 @@ const ProductDetailPage = () => {
 
   if (productState.error && id && !productState.loading) {
     return (
-      <div className="w-full mx-auto py-10 rounded-lg">
+      <div className="w-full mx-auto py-10 rounded-xl mt-16">
         <div className="p-5 flex flex-col items-center justify-center">
           <h2 className="text-xl font-bold text-red-600">
             Error al cargar el producto
@@ -176,28 +181,20 @@ const ProductDetailPage = () => {
   }
 
   return (
-    <div className="w-full max-w-7xl mx-auto py-8 md:py-12 px-4 sm:px-6 lg:px-8">
-      <div className="bg-white dark:bg-gray-800 shadow-xl rounded-2xl p-6 md:p-8 lg:p-10">
+    <div className="w-full max-w-7xl mx-auto py-8 md:py-12 px-4 sm:px-6 lg:px-8 mt-16">
+      <div className="bg-white dark:bg-gray-800 shadow-sm rounded-2xl p-6 md:p-8 lg:p-10">
         <div className="flex flex-col md:flex-row gap-8 lg:gap-12">
           <div className="flex-shrink-0 md:w-1/2 lg:w-2/5">
-            <div className="relative group rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-700">
-              {!imageState.loaded && <Skeleton className="rounded-lg w-full h-96" />}
+            <div className="relative w-full aspect-square group rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-700">
 
               <Image
-                key={displayProduct.image}
+                key={imageSrc}
                 alt={displayProduct.name}
-                className={`w-full h-96 object-contain ${imageState.loaded ? 'block' : 'hidden'}`}
-                height={320}
-                width={320}
-                loading="eager"
-                priority
-                onLoadingComplete={() => setImageState({ loaded: true, error: false })}
-                onError={() => setImageState({ loaded: true, error: true })}
-                src={
-                  imageState.error || !displayProduct.image
-                    ? "/nophoto.jpeg"
-                    : `${displayProduct.image}?v=${Date.now()}`
-                }
+                className="w-full h-96 object-contain"
+                fill
+                loading="lazy"
+                src={imageSrc}
+                onError={() => setImageSrc("/nophoto.jpeg")}
               />
             </div>
 
@@ -228,7 +225,7 @@ const ProductDetailPage = () => {
           </div>
 
           <div className="flex-1 mt-6 md:mt-0">
-            <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+            <h1 className="text-3xl lg:text-4xl font-bold text-zinc-900 dark:text-white mb-4">
               {displayProduct.name}
             </h1>
             <div className="prose dark:prose-invert max-w-none text-lg leading-relaxed">
@@ -249,7 +246,7 @@ const ProductDetailPage = () => {
 
         {!productState.loading && !productState.error && (
           <section className="mt-16">
-            <h3 className="text-2xl font-bold mb-6 text-gray-800 dark:text-white">
+            <h3 className="text-2xl font-bold mb-6 text-zinc-800 dark:text-white">
               Productos relacionados
             </h3>
             <RelationedProductSection id={displayProduct.id} />

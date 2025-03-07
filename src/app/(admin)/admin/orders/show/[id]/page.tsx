@@ -3,11 +3,12 @@ import React from "react";
 import { useShow } from "@refinedev/core";
 import { BaseType, Order } from "../../../../../../types/types";
 import { Descriptions, Tag } from "antd";
-import GenericShow from "@components/generic_admin_pages/genericShowPage";
+import GenericShow from "@components/admin/generic_admin_pages/genericShowPage";
 
 const getStatusColor = (status: string) => {
   const colors: { [key: string]: string } = {
     pending: "orange",
+    retired: "red",
     accepted: "blue",
     paid: "green",
     cancelled: "red"

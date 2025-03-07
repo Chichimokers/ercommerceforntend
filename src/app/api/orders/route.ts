@@ -16,6 +16,7 @@ export async function GET(req: NextRequest) {
           Authorization: `Bearer ${token?.access_token}`,
           "Content-Type": "application/json",
         },
+        credentials: "include",
       },
     );
 

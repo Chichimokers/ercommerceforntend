@@ -1,7 +1,7 @@
 "use client";
 
 import { BaseType } from "@/types/types";
-import GenericList from "@components/generic_admin_pages/genericListPage";
+import GenericList from "@components/admin/generic_admin_pages/genericListPage";
 import { Tag } from "antd";
 import { ColumnType } from "antd/es/table";
 

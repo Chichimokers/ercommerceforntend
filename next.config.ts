@@ -1,19 +1,20 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: "standalone",
+
   reactStrictMode: true,
 
   async headers() {
     return [
       {
-        source: '/(.*)',
+        source: "/(.*)",
         headers: [
           // Configuraciones de CORS o seguridad estricta
-          { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
-          { key: 'X-Content-Type-Options', value: 'nosniff' }
-        ]
-      }
-    ]
+          { key: "X-Frame-Options", value: "SAMEORIGIN" },
+          { key: "X-Content-Type-Options", value: "nosniff" },
+        ],
+      },
+    ];
   },
 
   // Configuración de redirects o rewrites
@@ -21,11 +22,11 @@ const nextConfig = {
     return [
       // Redirecciones que pueden interferir
       {
-        source: '/old-path',
-        destination: '/new-path',
-        permanent: true
-      }
-    ]
+        source: "/old-path",
+        destination: "/new-path",
+        permanent: true,
+      },
+    ];
   },
 
   // Optimización de imágenes
@@ -59,40 +60,54 @@ const nextConfig = {
         protocol: "https",
         hostname: "via.placeholder.com",
       },
+      {
+        protocol: "http",
+        hostname: "localhost",
+      },
+      {
+        protocol: "https",
+        hostname: "esaki-jrr.com",
+      },
     ],
-    formats: ["image/avif", "image/webp"], // Formatos modernos
+    formats: ["image/avif", "image/webp"],
     minimumCacheTTL: 86400, // 1 día de caché
   },
 
-  // Mejor manejo de MDX
+  // Se comenta la configuración experimental de Turbopack
   experimental: {
     turbo: {
       rules: {
         "*.mdx": ["@mdx-js/loader"],
       },
-      resolveExtensions: [".mdx", ".tsx", ".ts", ".jsx", ".js"], // Extensiones adicionales
+      resolveExtensions: [".mdx", ".tsx", ".ts", ".jsx", ".js"],
     },
   },
 
   // Compresión avanzada
   compress: true,
-  webpack: (config) => {
-    config.plugins.push(new (require("compression-webpack-plugin"))({
-      algorithm: "gzip",
-      test: /\.(js|css|html|svg|json)$/,
-    }));
-    config.plugins.push(new (require("compression-webpack-plugin"))({
-      algorithm: "brotliCompress",
-      filename: "[path][base].br",
-      test: /\.(js|css|html|svg|json)$/,
-    }));
+  webpack: (config: any) => {
+    const CompressionPlugin = require("compression-webpack-plugin");
+
+    config.plugins.push(
+      new CompressionPlugin({
+        algorithm: "gzip",
+        test: /\.(js|css|html|svg|json)$/,
+      })
+    );
+    config.plugins.push(
+      new CompressionPlugin({
+        algorithm: "brotliCompress",
+        filename: "[path][base].br",
+        test: /\.(js|css|html|svg|json)$/,
+      })
+    );
     return config;
   },
 };
 
-// Corrección usando import dinámico
-const withBundleAnalyzer = (await import("@next/bundle-analyzer")).default({
+// Corregir la importación del bundle analyzer
+const withBundleAnalyzer = require("@next/bundle-analyzer")({
   enabled: process.env.ANALYZE === "true",
 });
 
-export default withBundleAnalyzer(nextConfig);
+module.exports = withBundleAnalyzer(nextConfig);

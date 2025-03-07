@@ -1,10 +1,8 @@
-
 on:
   push:
     branches: [master]
   pull_request:
     branches: [master]
-
 
 jobs:
   deploy-frontend:
@@ -19,7 +17,7 @@ jobs:
   
         uses: actions/setup-node@v3
         with:
-              node-version: 22.9.0
+              node-version: 22.13.1
 
       # Instalar herramientas globales
       - name: Instalar dependencias globales
@@ -33,8 +31,11 @@ jobs:
         run: |
           npm install
 
+      - name: Borrar  frontend
+        working-directory: ./frontend
+        run: |
+           pm2 delete "frontend" || true
       - name: Desplegar frontend
         working-directory: ./frontend
         run: |
-          pm2 delete frontend || true
-          pm2 start npm --name "frontend" -- run pre -- -p 3001
+           pm2 start npm --name "frontend" -- run pre -- -p 3001

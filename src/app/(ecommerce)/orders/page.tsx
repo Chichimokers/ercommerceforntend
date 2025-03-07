@@ -7,6 +7,9 @@ import { Order } from "@/types/types";
 import { FaExclamationTriangle, FaShoppingCart } from "react-icons/fa";
 import { CustomButton } from "@components/buttons/custom-button";
 import Link from "next/link";
+import { useState } from "react";
+import Modal from "@components/modals/cancel-order-modal.tsx";
+import { useSession } from "next-auth/react";
 
 const OrderList = dynamic(() => import("@/components/order-list"), {
   ssr: false,
@@ -28,7 +31,7 @@ const OrderList = dynamic(() => import("@/components/order-list"), {
               <div className="space-y-4 p-2">
                 <Skeleton className="h-4 w-full rounded-md" />
                 <Skeleton className="h-4 w-3/4 rounded-md" />
-                <Skeleton className="h-10 w-full rounded-lg" />
+                <Skeleton className="h-10 w-full rounded-xl" />
               </div>
             </AccordionItem>
           ))}
@@ -74,7 +77,7 @@ const OrderList = dynamic(() => import("@/components/order-list"), {
                   <Skeleton className="h-4 w-12 rounded-md" />
                   <Skeleton className="h-6 w-20 rounded-md" />
                 </div>
-                <Skeleton className="h-10 w-full rounded-lg" />
+                <Skeleton className="h-10 w-full rounded-xl" />
               </div>
             </div>
           </div>
@@ -86,6 +89,41 @@ const OrderList = dynamic(() => import("@/components/order-list"), {
 
 const OrdersPage = () => {
   const API_URL = "/api/orders";
+  const { data: session } = useSession({ required: false });
+
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState<string | null>(null);
+
+  const handleCancelClick = (orderId: string) => {
+    setSelectedOrder(orderId);
+    setShowCancelModal(true);
+  };
+
+  async function onCancelOrder(orderId: string) {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}userpublic/retire-order`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${session?.access_token}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ orderId: orderId }),
+      });
+
+      if (!response.ok) throw new Error(`Error: ${response.status}`);
+      mutate(API_URL)
+    } catch (error) {
+      console.error("Error al eliminar la orden", error)
+    }
+  }
+
+  const confirmCancelOrder = async () => {
+    if (selectedOrder) {
+      await onCancelOrder(selectedOrder);
+      setShowCancelModal(false);
+      setSelectedOrder(null);
+    }
+  };
 
   function mapOrder(orders: any[]): Order[] {
     return orders.map((order) => ({
@@ -146,7 +184,7 @@ const OrdersPage = () => {
 
   if (error) {
     return (
-      <section className="flex flex-col items-center justify-center min-h-[400px] py-8 px-4">
+      <section className="flex flex-col items-center justify-center min-h-[400px] py-8 px-4 mt-16">
         <div className="flex flex-col items-center gap-4 text-center">
           <FaExclamationTriangle className="h-12 w-12 text-red-400" />
           {error.message === 'No orders found' ? (
@@ -161,11 +199,11 @@ const OrdersPage = () => {
             </>
           ) : (
             <>
-              <h2 className="text-2xl font-semibold text-gray-800">Error de conexión</h2>
+              <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-100">Error de conexión</h2>
               <p className="text-gray-500 max-w-md">
                 Ocurrió un problema al cargar tus pedidos. Por favor intenta nuevamente más tarde.
               </p>
-              <CustomButton className="mt-4" variant="outlined" onClick={() => mutate(API_URL)}>
+              <CustomButton className="mt-4" variant="filled" onClick={() => mutate(API_URL)}>
                 Reintentar
               </CustomButton>
             </>
@@ -177,15 +215,15 @@ const OrdersPage = () => {
 
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
+      <div className="flex flex-col items-center justify-center min-h-[400px] gap-4 mt-16">
         <Spinner color="primary" className="h-12 w-12" />
-        <p className="text-lg text-gray-600 animate-pulse">Buscando tus pedidos...</p>
+        <p className="text-lg text-gray-600 dark:text-gray-400 animate-pulse">Buscando tus pedidos...</p>
       </div>
     );
   }
 
   return (
-    <div className="mx-auto py-8 md:py-12 px-4">
+    <div className="mx-auto py-8 md:py-12 px-4 mt-16">
       <div className="mb-8 text-center">
         <h1 className="text-3xl md:text-4xl font-bold text-primary-600 mb-2">
           Historial de Pedidos
@@ -194,7 +232,15 @@ const OrdersPage = () => {
       </div>
 
       {orders?.length ? (
-        <OrderList orders={mapOrder(orders)} />
+        <div>
+          <OrderList orders={mapOrder(orders)} onCancelOrder={handleCancelClick} />
+          <Modal
+            isOpen={showCancelModal}
+            onClose={() => setShowCancelModal(false)}
+            onConfirm={confirmCancelOrder}
+          />
+        </div>
+
       ) : (
         <div className="flex flex-col items-center justify-center min-h-[400px] text-center gap-4">
           <FaShoppingCart className="h-16 w-16 text-gray-300" />

@@ -1,5 +1,6 @@
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import React from "react";
 
 export default function ProtectedRoute({ children }: { children: React.ReactNode }) {
     const { data: session, status } = useSession();
@@ -8,13 +9,13 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
     if (status === "loading") return <div>Loading...</div>;
 
     if (status === "unauthenticated" || session?.error) {
-        router.push("/?modal=login");
+        router.push("/login");
         return null;
     }
 
     // Verificar expiración del token
     if (session?.accessTokenExpires && Date.now() >= session.accessTokenExpires) {
-        router.push("/?modal=login");
+        router.push("/?login");
         return null;
     }
 

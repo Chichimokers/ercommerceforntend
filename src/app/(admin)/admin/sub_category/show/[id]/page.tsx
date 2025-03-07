@@ -1,13 +1,13 @@
 "use client";
 
-import { useShow, IResourceComponentsProps, useParsed } from "@refinedev/core";
+import { useShow, useParsed } from "@refinedev/core";
 import { Show, EditButton, ListButton } from "@refinedev/antd";
 import { SubCategory } from "../../../../../../types/types"; // Ajusta la ruta según tu proyecto
 import { Typography, Descriptions } from "antd";
 
 const { Title } = Typography;
 
-const SubCategoryShow: React.FC<IResourceComponentsProps> = () => {
+const SubCategoryShow = () => {
 	const { id } = useParsed();
 	const { queryResult } = useShow<SubCategory>({
 		resource: "sub_category",

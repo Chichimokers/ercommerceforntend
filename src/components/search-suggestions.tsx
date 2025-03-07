@@ -10,13 +10,13 @@ export const SearchSuggestions = ({
   onSelect: () => void;
 }) => {
   return (
-    <div className="absolute top-full left-0 right-0 z-50 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-xl max-h-96 overflow-y-auto">
+    <div className="absolute top-full left-0 right-0 z-50 mt-2 bg-blue-50 dark:bg-gray-800 rounded-xl shadow-xl max-h-96 overflow-y-auto">
       <div className="p-2 space-y-2">
         {suggestions.map((product) => (
           <Link
             key={product.id}
             href={`/products/${product.id}`}
-            className="flex items-center p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+            className="flex items-center p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors"
             onClick={onSelect}
           >
             <Image

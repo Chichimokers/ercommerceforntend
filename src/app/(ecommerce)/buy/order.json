@@ -1,0 +1,28 @@
+{
+  "receiver_name": "Juan Perez Garcia",
+  "phone": "54064811",
+  "province": "Ciego de Avila",
+  "address": "Ciego de Avila, Reparto Canaleta, 14 J/K 35",
+  "CI": "03072582821",
+  "subtotal": 3497.0399999999995,
+  "user": {
+    "id": "5b9ad19c-541b-4cac-9060-e70962db5a93",
+    "created_at": "2025-02-26T13:37:46.069Z",
+    "updated_at": "2025-02-27T04:07:33.833Z",
+    "deleted_at": null,
+    "name": "Adriano Gonzalez Reyes",
+    "email": "gonzalezreyesadriano@gmail.com",
+    "rol": 1,
+    "password": "$2b$10$J2ZVE1Bm/NxLTMXKhU2Ny.TmC5Ye6ZOBlhCQ.Qjik2ImqVYFuYY/S",
+    "enabled": true,
+    "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1YjlhZDE5Yy01NDFiLTRjYWMtOTA2MC1lNzA5NjJkYjVhOTMiLCJuYW1lIjoiQWRyaWFubyBHb256YWxleiBSZXllcyIsImVtYWlsIjoiZ29uemFsZXpyZXllc2Fkcmlhbm9AZ21haWwuY29tIiwicm9sZSI6MSwiaWF0IjoxNzQwNjI5MjUzLCJleHAiOjE3NDEyMzQwNTN9.gDe0cts99qE0CD15loiZJdKuJX6W43RQgNpt-kQOFkw",
+    "last_login": null,
+    "locked": false
+  },
+  "stripe_id": null,
+  "id": "45d7774b-a67c-4faf-94af-07ef23c46f5e",
+  "created_at": "2025-02-27T04:13:30.385Z",
+  "updated_at": "2025-02-27T04:13:30.385Z",
+  "deleted_at": null,
+  "status": "pending"
+}

@@ -7,54 +7,88 @@ import { useProductContext } from "@/contexts/product-context";
 import { PromisesPanel } from "@/components/panels/promises-panel";
 import CategoryPanel from "@/components/panels/category-panel";
 import EmptyState from "@components/empty-state";
-import { ProductBase } from "../../types/types";
+import { ProductBase } from "@/types/types";
 import React from "react";
 import { useRouter } from "next/navigation";
 import { ArrowRight } from "lucide-react";
+import { useSession } from "next-auth/react";
 
-const ProductCard = dynamic(() => import("@/components/cards/product-card"));
+// Nuevos componentes de diseño
+import HeroSection from "@components/hero-section";
+//import NewsletterSubscription from "@components/newsletter-subscription";
+import ReadyToStart from "@components/ready-to-start";
+
+// Carga dinámica de ProductCard con placeholder mientras carga
+const ProductCard = dynamic(() => import("@/components/cards/product-card"), {
+  loading: () => (
+    <div className="h-[330px] w-full bg-gray-200 dark:bg-gray-600 rounded-3xl animate-pulse" />
+  ),
+});
+
+// Slider publicitario con placeholder
 const PublicityBannerSlider = dynamic(
   () => import("@/components/sliders/publicity-banner-slider"),
-  { loading: () => <div className="h-[300] bg-gray-100 dark:bg-gray-700 animate-pulse rounded-lg" /> }
-);
-
-const SecondaryBannerSlider = dynamic(
-  () => import("@/components/sliders/publicity-banner-slider"),
-  { ssr: false }
+  {
+    loading: () => (
+      <div className="h-[300px] bg-gray-100 dark:bg-gray-700 animate-pulse rounded-xl" />
+    ),
+  }
 );
 
 export default function IndexPage() {
   const { products } = useProductContext();
+  // Seleccionamos los primeros 4 productos destacados, por ejemplo
   const rating_products = useMemo(() => products.slice(0, 4), [products]);
 
-  return (
-    <div>
-      <div className="flex-1 space-y-6 mx-auto mb-8">
-        <PublicityBannerSlider banners={banners} />
-        <CategoryPanel />
-        <PromisesPanel />
-        <LazyFeaturedProducts products={rating_products} />
+  const { data: session, status } = useSession({ required: false });
 
-        <SecondaryBannerSlider
-          className="rounded-xl border-4 border-default-50/50 shadow-lg"
-          banners={banners}
-        />
-      </div>
+  return (
+    <div className="bg-default-50">
+
+      <HeroSection />
+
+      <PromisesPanel />
+
+      <CategoryPanel />
+
+      <LazyFeaturedProducts products={rating_products} />
+
+      <PublicityBannerSlider banners={banners} />
+
+      {status === 'loading' ? (
+        <div className="relative z-10 container mx-auto px-4 py-20 flex flex-col items-center text-center space-y-6 animate-pulse">
+        </div>
+      )
+        :
+        session ? (
+          null
+        ) : (
+          <ReadyToStart />
+        )}
+
+
     </div>
   );
 }
 
 const FeaturedProducts = ({ products }: { products: ProductBase[] }) => {
-  const router = useRouter()
+  const router = useRouter();
 
   return (
-    <div className="mb-8 px-4 py-8">
-      <div className="mb-6">
-        <h2 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-blue-600 mb-2 pb-2 border-b-4 border-blue-100 w-max">
+    <div className="px-4 py-20 bg-white dark:bg-gray-800">
+      <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-default-200 pb-2">
+        <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white">
           Productos Destacados
         </h2>
+        <button
+          className="mt-4 sm:mt-0 text-blue-600 dark:text-blue-400 flex items-center gap-2 hover:underline transition-colors"
+          onClick={() => router.push("/products")}
+        >
+          Explora nuestros productos
+          <ArrowRight className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-2" />
+        </button>
       </div>
-      <div className="grid grid-cols-2 gap-2 xm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 ">
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
         {products.map((product) => (
           <ProductCard
             key={product.id}
@@ -69,27 +103,18 @@ const FeaturedProducts = ({ products }: { products: ProductBase[] }) => {
             iconSize={80}
           >
             <div className="flex gap-4 mt-6">
-              <button className="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-all transform hover:-translate-y-1">
+              <button className="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-transform transform hover:-translate-y-1">
                 Explorar categorías
               </button>
-              <button className="px-8 py-3 bg-gray-900 hover:bg-gray-800 text-white rounded-xl transition-all transform hover:-translate-y-1">
+              <button className="px-8 py-3 bg-gray-800 hover:bg-gray-800 text-white rounded-xl transition-transform transform hover:-translate-y-1">
                 Ver ofertas
               </button>
             </div>
           </EmptyState>
         )}
       </div>
-      <div className="mt-8 text-center justify-items-center w-full">
-        <button
-          className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-full transition-colors duration-300 flex items-center gap-2 mx-auto group"
-          onClick={() => router.push('/products')}
-        >
-          Explora el Universo Es Aki
-          <ArrowRight className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-2" />
-        </button>
-      </div>
     </div>
-  )
+  );
 };
 
 const LazyFeaturedProducts = dynamic(
@@ -97,13 +122,16 @@ const LazyFeaturedProducts = dynamic(
   {
     loading: () => (
       <>
-        <div className="h-8 bg-gray-200 dark:bg-gray-600 rounded w-64 mb-4 mx-4"></div>
-        <div className="grid grid-cols-2 gap-2 px-4 xm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7">
+        <div className="h-8 bg-gray-200 dark:bg-gray-600 rounded w-64 mx-4"></div>
+        <div className="grid grid-cols-2 gap-4 px-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
           {[...Array(6)].map((_, i) => (
-            <div key={i} className="h-64 bg-gray-50 dark:bg-gray-800 rounded-xl animate-pulse"></div>
+            <div
+              key={i}
+              className="h-64 bg-gray-50 dark:bg-gray-800 rounded-xl animate-pulse"
+            ></div>
           ))}
         </div>
       </>
-    )
+    ),
   }
 );

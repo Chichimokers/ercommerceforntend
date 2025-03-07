@@ -5,7 +5,7 @@ import { Edit, useForm, SaveButton } from "@refinedev/antd";
 import { BaseType, Category } from "../../../../../../types/types";
 import { useParams } from "next/navigation";
 
-const CategoryEdit: React.FC = () => {
+export default function CategoryEdit() {
 	const { id } = useParams();
 	const { formProps, saveButtonProps, queryResult } = useForm<
 		Category & BaseType
@@ -30,6 +30,4 @@ const CategoryEdit: React.FC = () => {
 			</Form>
 		</Edit>
 	);
-};
-
-export default CategoryEdit;
+}

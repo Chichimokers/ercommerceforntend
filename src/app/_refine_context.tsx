@@ -30,7 +30,7 @@ const App = (props: React.PropsWithChildren<AppProps>) => {
 
 	if (status === "loading") {
 		return (
-			<div className="h-screen flex flex-col justify-center items-center dark:bg-black gap-4">
+			<div className="h-screen flex flex-col justify-center items-center gap-4">
 				<div className="w-[300px] h-[100px] relative aspect-[3/1]">
 					<Image
 						src={"/logonav.png"}

@@ -36,7 +36,7 @@ export default function ProductPage() {
   );
 
   return (
-    <div>
+    <div className="mt-16">
       <div className="flex flex-col md:flex-row w-full min-h-screen">
         <FilterPanel />
         <div className="block md:hidden">
@@ -69,8 +69,8 @@ export default function ProductPage() {
                         <div className="h-5 bg-default-200 rounded-full w-1/2" />
                         <div className="h-5 bg-default-200 rounded-full w-1/2" />
                         <div className="flex justify-between items-center gap-2 mt-2">
-                          <div className="h-9 bg-default-200 rounded-lg w-3/5" />
-                          <div className="h-9 w-16 bg-default-200 rounded-lg" />
+                          <div className="h-9 bg-default-200 rounded-xl w-3/5" />
+                          <div className="h-9 w-16 bg-default-200 rounded-xl" />
                         </div>
                       </div>
                     </div>
@@ -120,7 +120,7 @@ export default function ProductPage() {
                     onChange={handlePageChange}
                     isCompact
                     showControls
-                    size="md"
+                    size="lg"
                   />
                 </div>
               )}

@@ -1,33 +1,36 @@
-import { authProvider } from "@providers/auth-provider";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
-export async function middleware(request: NextRequest) {
-  const { authenticated } = await authProvider.check();
+export default async function middleware(request: NextRequest) {
+  const cookiesHeader = request.headers.get("cookie") || "";
+  console.log("Encabezado de cookies recibido:", cookiesHeader);
 
-  // Verificar si existe la sesión del usuario
-  const isAuthenticated = request.cookies.get("session");
-  // Verificar si el carrito tiene items
-  const hasCartItems = request.cookies.get("cartItems");
-  // Verificar si el email está validado
-  const isEmailValidated = request.cookies.get("emailValidated");
+  const isAuthenticated =
+    cookiesHeader.includes("next-auth.session-token") ||
+    cookiesHeader.includes("__Secure-next-auth.session-token");
 
-  // Si intenta acceder a /buy sin cumplir los requisitos
-  /*if (request.nextUrl.pathname === "/buy") {
-    if (!isAuthenticated || !hasCartItems || !isEmailValidated) {
-      return NextResponse.redirect(new URL("/", request.url));
-    }
-  }*/
+  const hasCartItems = cookiesHeader.includes("cart");
+  const isEmailValidated = cookiesHeader.includes("emailValidated");
 
-  if (request.nextUrl.pathname.startsWith("/admin")) {
-    if (!authenticated) {
-      return NextResponse.redirect(
-        new URL(`/login?to=${request.nextUrl.pathname}`, request.url)
-      );
-    }
+  const pathname = request.nextUrl.pathname;
+
+  // 🔒 Bloquear acceso a rutas protegidas
+  if (["/buy", "/orders"].includes(pathname) && !isAuthenticated) {
+    return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  if (authenticated && request.nextUrl.pathname === "/login") {
+  // 🛒 Requerir sesión + carrito lleno + email validado en /buy
+  if (pathname === "/buy" && (!isAuthenticated || !hasCartItems || !isEmailValidated)) {
+    return NextResponse.redirect(new URL("/login", request.url));
+  }
+
+  // 🔐 Bloquear acceso no autorizado a /admin/*
+  if (pathname.startsWith("/admin") && !isAuthenticated) {
+    return NextResponse.redirect(new URL(`/login?to=${pathname}`, request.url));
+  }
+
+  // 🔄 Redirigir a /admin si el usuario ya está autenticado e intenta ir a /login
+  if (isAuthenticated && pathname === "/login") {
     return NextResponse.redirect(new URL("/admin", request.url));
   }
 
@@ -35,5 +38,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: "/buy",
+  matcher: ["/buy", "/admin/:path*", "/orders"],
 };

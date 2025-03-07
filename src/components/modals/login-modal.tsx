@@ -144,81 +144,87 @@ export default function Login({
               </ModalHeader>
 
               <ModalBody className="flex flex-col gap-4">
-                <Input
-                  errorMessage={errors.email}
-                  isInvalid={!!errors.email}
-                  label="Correo electrónico"
-                  labelPlacement="outside"
-                  placeholder="you@example.com"
-                  startContent={
-                    <FaMailBulk className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />
-                  }
-                  type="email"
-                  value={formData.email}
-                  variant="bordered"
-                  onValueChange={(value) => handleChange("email", value)}
-                />
-
-                <Input
-                  errorMessage={errors.password}
-                  isInvalid={!!errors.password}
-                  label="Contraseña"
-                  labelPlacement="outside"
-                  placeholder="Ingrese su contraseña"
-                  startContent={
-                    <FaLock className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />
-                  }
-                  value={formData.password}
-                  variant="bordered"
-                  onValueChange={(value) => handleChange("password", value)}
-                  type={isVisible ? "text" : "password"}
-                  endContent={
-                    <button
-                      aria-label="toggle password visibility"
-                      className="focus:outline-none"
-                      type="button"
-                      onClick={toggleVisibility}
-                    >
-                      {isVisible ? (
-                        <EyeSlashFilledIcon className="text-2xl text-default-400 pointer-events-none" />
-                      ) : (
-                        <EyeFilledIcon className="text-2xl text-default-400 pointer-events-none" />
-                      )}
-                    </button>
-                  }
-                />
-
-                <div className="text-center">
-                  <Link href="#" className="text-xs">
-                    ¿Has olvidado tu contraseña?
-                  </Link>
-                </div>
-
-                <div className="text-center text-xs">
-                  <p className="mb-2 ">O continuar con</p>
-                  {renderSocialButtons()}
-                </div>
-
-                {SubmitErrorModal ? (
-                  <UnSuccessModal
-                    isOpen={SubmitErrorModal}
-                    onClose={(val: boolean) => setSubmitErrorModal(val)}
-                    message={SubmitError}
+                <form onSubmit={(e) => {
+                  e.preventDefault();
+                  handleSubmit();
+                }}>
+                  <Input
+                    errorMessage={errors.email}
+                    isInvalid={!!errors.email}
+                    label="Correo electrónico"
+                    labelPlacement="outside"
+                    placeholder="you@example.com"
+                    startContent={
+                      <FaMailBulk className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />
+                    }
+                    type="email"
+                    value={formData.email}
+                    variant="bordered"
+                    onValueChange={(value) => handleChange("email", value)}
                   />
-                ) : undefined}
+
+                  <Input
+                    errorMessage={errors.password}
+                    isInvalid={!!errors.password}
+                    label="Contraseña"
+                    labelPlacement="outside"
+                    placeholder="Ingrese su contraseña"
+                    startContent={
+                      <FaLock className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />
+                    }
+                    value={formData.password}
+                    variant="bordered"
+                    onValueChange={(value) => handleChange("password", value)}
+                    type={isVisible ? "text" : "password"}
+                    endContent={
+                      <button
+                        aria-label="toggle password visibility"
+                        className="focus:outline-none"
+                        type="button"
+                        onClick={toggleVisibility}
+                      >
+                        {isVisible ? (
+                          <EyeSlashFilledIcon className="text-2xl text-default-400 pointer-events-none" />
+                        ) : (
+                          <EyeFilledIcon className="text-2xl text-default-400 pointer-events-none" />
+                        )}
+                      </button>
+                    }
+                  />
+
+                  <div className="text-center">
+                    <Link href="#" className="text-xs">
+                      ¿Has olvidado tu contraseña?
+                    </Link>
+                  </div>
+
+                  <div className="text-center text-xs">
+                    <p className="mb-2 ">O continuar con</p>
+                    {renderSocialButtons()}
+                  </div>
+
+                  {SubmitErrorModal ? (
+                    <UnSuccessModal
+                      isOpen={SubmitErrorModal}
+                      onClose={(val: boolean) => setSubmitErrorModal(val)}
+                      message={SubmitError}
+                    />
+                  ) : undefined}
+
+                  <Button
+                    fullWidth
+                    type="submit"
+                    className="bg-blue-600"
+                    color="primary"
+                    isLoading={isLoading}
+                    variant="solid"
+                  >
+                    {isLoading ? "Logging in..." : "Iniciar sesión"}
+                  </Button>
+                </form>
               </ModalBody>
 
               <ModalFooter className="flex flex-col gap-4">
-                <Button
-                  fullWidth
-                  className="bg-blue-600"
-                  color="primary"
-                  isLoading={isLoading}
-                  variant="solid"
-                  onPress={handleSubmit}
-                >
-                  {isLoading ? "Logging in..." : "Iniciar sesión"}
-                </Button>
                 <hr />
                 <p className="text-center text-xs w-full">
                   ¿No tienes una cuenta?{" "}

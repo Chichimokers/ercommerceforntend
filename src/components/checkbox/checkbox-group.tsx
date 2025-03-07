@@ -18,8 +18,8 @@ interface CheckboxGroupProps {
 const StyledGroupWrapper = styled.div<{ isInvalid: boolean }>`
   display: flex;
   flex-direction: column;
-  ${(props) =>
-    props.isInvalid &&
+  ${({ isInvalid }) =>
+    isInvalid &&
     `
     color: red;
   `}

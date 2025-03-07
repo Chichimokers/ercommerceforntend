@@ -4,27 +4,23 @@ import React, { useState } from "react";
 import {
   Button,
   Input,
-  Link,
+  addToast,
+  Checkbox
 } from "@heroui/react";
 import Image from "next/image";
 import {
   FaGoogle,
-  FaLink,
   FaLock,
   FaMailBulk,
   FaUser,
 } from "react-icons/fa";
-import Checkbox from "@components/checkbox/checkbox";
 
 import { useFormValidation } from "@/hooks/useFormValidation";
 import { useWindowWidth } from "@/hooks/useWindowWidth";
-import { SignUpProps } from "@/types/signup-props";
 import { signUp } from "@/services/authService";
 import { UserData } from "@/types/types";
 import VerificationModal from "@components/modals/verification-modal";
-import SuccessModal from "@components/modals/succes-modal";
 import { useModal } from "@/contexts/modal-context";
-import UnSuccessModal from "@components/modals/unsucces-modal";
 import { EyeSlashFilledIcon } from "@components/images/eye-slash-icon";
 import { EyeFilledIcon } from "@components/images/eye-filled";
 import { usePathname, useRouter } from "next/navigation";
@@ -32,6 +28,7 @@ import { CustomButton } from "@components/buttons/custom-button";
 import { signIn } from "next-auth/react";
 import { motion } from "framer-motion";
 import { FormField } from "@components/forms/form-field";
+import { TermsModal } from "@components/modals/terms-modal";
 
 interface FormData {
   fullName: string;
@@ -60,8 +57,6 @@ export default function SignUp() {
     setData,
   } = useModal();
   const [submitError, setSubmitError] = useState("");
-  const [successModalOpen, setSuccessModalOpen] = useState(false);
-  const [UnSuccessModalOpen, setUnSuccessModalOpen] = useState(false);
   const [isVisibleP, setIsVisibleP] = React.useState(false);
   const toggleVisibilityP = () => setIsVisibleP(!isVisibleP);
   const [isVisibleCP, setIsVisibleCP] = React.useState(false);
@@ -138,11 +133,30 @@ export default function SignUp() {
       await signUp(user);
       setData(user);
       openVerify();
+
+      addToast({
+        title: "Registro exitoso",
+        description: "Hemos enviado un código de verificación a tu correo",
+        color: "success",
+        classNames: {
+          base: "bg-gradient-to-br from-green-50 to-green-100 dark:from-green-800 dark:to-green-900",
+          title: "text-green-800 dark:text-green-100",
+          description: "text-green-600 dark:text-green-200",
+        }
+      });
     } catch (error) {
-      setSubmitError(
-        error instanceof Error ? error.message : "Error al registrarse"
-      );
-      setUnSuccessModalOpen(true);
+      const errorMessage = error instanceof Error ? error.message : "Error al registrarse";
+
+      addToast({
+        title: "Error en registro",
+        description: errorMessage,
+        color: "danger",
+        classNames: {
+          base: "bg-gradient-to-br from-red-50 to-red-100 dark:from-red-800 dark:to-red-900",
+          title: "text-red-800 dark:text-red-100",
+          description: "text-red-600 dark:text-red-200",
+        }
+      });
     } finally {
       setIsLoading(false);
     }
@@ -162,234 +176,167 @@ export default function SignUp() {
     }
   };
 
-  const renderSocialButtons = () => (
-    <div className="flex justify-center gap-4 w-full">
-      <CustomButton
-        variant="bordered"
-        className="bg-white/90 dark:bg-zinc-800/90 hover:bg-zinc-100 dark:hover:bg-zinc-700 backdrop-blur-sm transition-all"
-        color="primary"
-        onClick={() => handleSocialSignUp('google')}
-        startContent={
-          <div className="p-1.5 bg-white dark:bg-zinc-900 rounded-full shadow-sm">
-            <FaGoogle className="text-lg text-[#4285F4] dark:text-[#669df6]" />
-          </div>
-        }
-      >
-        <span className="text-zinc-700 dark:text-zinc-200 font-medium">
-          Registrarse con Google
-        </span>
-      </CustomButton>
-    </div>
-  );
-
   return (
     <motion.div
-      initial={{ scale: 0.95, opacity: 0 }}
-      animate={{ scale: 1, opacity: 1 }}
-      className="w-full max-w-2xl bg-white dark:bg-zinc-900 p-8 rounded-2xl shadow-md relative overflow-hidden bg-opacity-70 dark:bg-opacity-70"
+      className="w-full max-w-2xl rounded-2xl shadow-md relative overflow-hidden bg-opacity-70 dark:bg-opacity-70"
     >
 
-      <div className="flex flex-col items-center gap-4 mb-8 relative z-10">
-        <Image
-          alt="Company Logo"
-          className="w-32 h-auto transition-transform hover:scale-105"
-          src="/logo.png"
-          width={128}
-          height={128}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className="w-full p-8 rounded-2xl shadow-xl bg-transparent"
+      >
+        <div className="flex flex-col items-center gap-4 mb-6">
+          <Image
+            alt="Company Logo"
+            className="w-24 h-auto rounded-lg"
+            src="/logo.png"
+            width={96}
+            height={96}
+          />
+          <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
+            Crea tu cuenta
+          </h1>
+        </div>
+
+        <div className="flex flex-col gap-4">
+          <form onSubmit={(e) => {
+            e.preventDefault();
+            handleSubmit();
+          }}>
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+            >
+              <FormField label="Nombre completo" error={errors.fullName} className="mb-4">
+                <Input
+                  startContent={<FaUser className="h-5 w-5 text-gray-500" />}
+                  placeholder="Nombre completo"
+                  className="rounded-lg dark:bg-gray-800 bg-gray-50"
+                  value={formData.fullName}
+                  onValueChange={(value) => handleInputChange("fullName", value)}
+                />
+              </FormField>
+
+              <FormField label="Correo electrónico" error={errors.email} className="mb-4">
+                <Input
+                  startContent={<FaMailBulk className="h-5 w-5 text-gray-500" />}
+                  placeholder="you@example.com"
+                  className="rounded-lg dark:bg-gray-800 bg-gray-50"
+                  value={formData.email}
+                  onValueChange={(value) => handleInputChange("email", value)}
+                />
+              </FormField>
+
+              <FormField label="Contraseña" error={errors.password} className="mb-4">
+                <Input
+                  startContent={<FaLock className="h-5 w-5 text-gray-500" />}
+                  placeholder="••••••••"
+                  type={isVisibleP ? "text" : "password"}
+                  endContent={
+                    <button onClick={toggleVisibilityP} className="p-1">
+                      {isVisibleP ? (
+                        <EyeSlashFilledIcon className="text-2xl text-gray-500" />
+                      ) : (
+                        <EyeFilledIcon className="text-2xl text-gray-500" />
+                      )}
+                    </button>
+                  }
+                  className="rounded-lg dark:bg-gray-800 bg-gray-50"
+                  value={formData.password}
+                  onValueChange={(value) => handleInputChange("password", value)}
+                />
+              </FormField>
+
+              <FormField label="Confirmar contraseña" error={errors.confirmPassword} className="mb-4">
+                <Input
+                  startContent={<FaLock className="h-5 w-5 text-gray-500" />}
+                  placeholder="••••••••"
+                  type={isVisibleCP ? "text" : "password"}
+                  endContent={
+                    <button onClick={toggleVisibilityCP} className="p-1">
+                      {isVisibleCP ? (
+                        <EyeSlashFilledIcon className="text-2xl text-gray-500" />
+                      ) : (
+                        <EyeFilledIcon className="text-2xl text-gray-500" />
+                      )}
+                    </button>
+                  }
+                  className="rounded-lg dark:bg-gray-800 bg-gray-50"
+                  value={formData.confirmPassword}
+                  onValueChange={(value) => handleInputChange("confirmPassword", value)}
+                />
+              </FormField>
+
+              <div className="mb-4">
+                <Checkbox
+                  className={`text-sm mr-[1px] ${errors.acceptTerms ? "text-danger" : "text-gray-600 dark:text-gray-300"}`}
+                  checked={formData.acceptTerms}
+                  onChange={(e) => handleInputChange("acceptTerms", e.target.checked)}
+                >
+                  Acepto los
+                </Checkbox>
+                <TermsModal />
+                {errors.acceptTerms && (
+                  <div className="text-danger text-xs mt-1">
+                    {errors.acceptTerms}
+                  </div>
+                )}
+              </div>
+
+              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                <Button
+                  fullWidth
+                  type="submit"
+                  className="bg-blue-700 text-white font-medium py-2 rounded-lg shadow-lg"
+                  isLoading={isLoading}
+                >
+                  {isLoading ? "Creando cuenta..." : "Registrarse ahora"}
+                </Button>
+              </motion.div>
+
+              <div className="flex items-center my-4">
+                <hr className="flex-1 border-gray-300" />
+                <span className="px-3 text-gray-500">O</span>
+                <hr className="flex-1 border-gray-300" />
+              </div>
+
+              <CustomButton
+                variant="bordered"
+                className="w-full bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700"
+                onClick={() => handleSocialSignUp('google')}
+                startContent={<FaGoogle className="text-lg text-red-500" />}
+              >
+                <span className="text-gray-800 dark:text-gray-200">
+                  Continuar con Google
+                </span>
+              </CustomButton>
+            </motion.div>
+          </form>
+        </div>
+
+        <VerificationModal
+          isOpen={isVerifyOpen}
+          onClose={closeVerify}
+          onVerifyCode={() => {
+            addToast({
+              title: "Verificación exitosa",
+              description: "¡Tu cuenta ha sido activada correctamente!",
+              color: "success",
+              classNames: {
+                base: "bg-gradient-to-br from-green-50 to-green-100 dark:from-green-800 dark:to-green-900",
+                title: "text-green-800 dark:text-green-100",
+                description: "text-green-600 dark:text-green-200",
+              }
+            });
+            closeVerify();
+            router.push("/");
+          }}
+          userData={data}
         />
-        <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-          Crea tu cuenta
-        </h1>
-      </div>
-
-      <div className="flex flex-col gap-4 relative z-10">
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-        >
-          <FormField label="Nombre completo" error={errors.fullName}>
-            <Input
-              startContent={<FaUser className="h-5 w-5 text-default-400" />}
-              placeholder="Nombre completo"
-              className="group rounded-xl dark:bg-zinc-800 bg-zinc-50"
-              classNames={{
-                input: "group-hover:bg-zinc-100 dark:group-hover:bg-zinc-700"
-              }}
-              value={formData.fullName}
-              onValueChange={(value) => handleInputChange("fullName", value)}
-            />
-          </FormField>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-        >
-          <FormField label="Correo electrónico" error={errors.email}>
-            <Input
-              startContent={<FaMailBulk className="h-5 w-5 text-default-400" />}
-              placeholder="you@example.com"
-              className="group rounded-xl dark:bg-zinc-800 bg-zinc-50"
-              classNames={{
-                input: "group-hover:bg-zinc-100 dark:group-hover:bg-zinc-700"
-              }}
-              value={formData.email}
-              onValueChange={(value) => handleInputChange("email", value)}
-            />
-          </FormField>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-        >
-          <FormField label="Contraseña" error={errors.password}>
-            <Input
-              startContent={<FaLock className="h-5 w-5 text-default-400" />}
-              placeholder="••••••••"
-              type={isVisibleP ? "text" : "password"}
-              endContent={
-                <button onClick={toggleVisibilityP} className="p-1">
-                  {isVisibleP ? (
-                    <EyeSlashFilledIcon className="text-2xl text-default-400" />
-                  ) : (
-                    <EyeFilledIcon className="text-2xl text-default-400" />
-                  )}
-                </button>
-              }
-              className="group rounded-xl dark:bg-zinc-800 bg-zinc-50"
-              classNames={{
-                input: "group-hover:bg-zinc-100 dark:group-hover:bg-zinc-700"
-              }}
-              value={formData.password}
-              onValueChange={(value) => handleInputChange("password", value)}
-            />
-          </FormField>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-        >
-          <FormField label="Confirmar contraseña" error={errors.confirmPassword}>
-            <Input
-              startContent={<FaLock className="h-5 w-5 text-default-400" />}
-              placeholder="••••••••"
-              type={isVisibleCP ? "text" : "password"}
-              endContent={
-                <button onClick={toggleVisibilityCP} className="p-1">
-                  {isVisibleCP ? (
-                    <EyeSlashFilledIcon className="text-2xl text-default-400" />
-                  ) : (
-                    <EyeFilledIcon className="text-2xl text-default-400" />
-                  )}
-                </button>
-              }
-              className="group rounded-xl dark:bg-zinc-800 bg-zinc-50"
-              classNames={{
-                input: "group-hover:bg-zinc-100 dark:group-hover:bg-zinc-700"
-              }}
-              value={formData.confirmPassword}
-              onValueChange={(value) => handleInputChange("confirmPassword", value)}
-            />
-          </FormField>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6 }}
-        >
-          <Checkbox
-            className={`w-max text-xs sm:text-sm ${errors.acceptTerms ? "text-danger" : ""
-              }`}
-            checked={formData.acceptTerms}
-            onChange={(value) => handleInputChange("acceptTerms", value)}
-            label="Acepto los términos y condiciones"
-          ></Checkbox>
-        </motion.div>
-        {errors.acceptTerms && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.7 }}
-            className="text-danger text-xs"
-          >
-            {errors.acceptTerms}
-          </motion.div>
-        )}
-
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.8 }}
-        >
-          <Link className="text-xs select-none cursor-pointer">
-            <FaLink className="mx-1"></FaLink>
-            Terminos y condiciones
-          </Link>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.9 }}
-        >
-          <div className="text-center text-xs">
-            <div className="flex flex-row mb-4 w-full items-center justify-center text-center">
-              <hr className="w-full" />
-              <p className="text-medium mx-2">O</p>
-              <hr className="w-full" />
-            </div>
-            {renderSocialButtons()}
-          </div>
-        </motion.div>
-
-        <motion.div
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          className="mt-4"
-        >
-          <Button
-            fullWidth
-            className="bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg hover:shadow-xl hover:shadow-purple-500/20 transition-all"
-            isLoading={isLoading}
-            variant="solid"
-            onPress={handleSubmit}
-          >
-            {isLoading ? "Creando cuenta..." : "Registrarse ahora"}
-          </Button>
-        </motion.div>
-      </div>
-      <VerificationModal
-        isOpen={isVerifyOpen}
-        onClose={() => {
-          closeVerify();
-        }}
-        onVerifyCode={() => {
-          setSuccessModalOpen(true);
-        }}
-        userData={data}
-      />
-      <SuccessModal
-        message={"¡Verificación Exitosa!"}
-        isOpen={successModalOpen}
-        onClose={() => {
-          setSuccessModalOpen(false);
-          setIsAuthorizationInProgress(false);
-
-          router.replace(pathname, { scroll: false });
-        }}
-      />
-      <UnSuccessModal
-        isOpen={UnSuccessModalOpen}
-        onClose={(val: boolean) => setUnSuccessModalOpen(val)}
-        message={submitError}
-      />
+      </motion.div>
     </motion.div>
   );
 }

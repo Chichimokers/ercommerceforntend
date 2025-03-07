@@ -1,4 +1,4 @@
-import { Slider } from "@heroui-org/react";
+import { Slider } from "@heroui/react";
 
 export default function PriceSlider({
   minValue,
