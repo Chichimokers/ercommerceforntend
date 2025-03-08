@@ -13,7 +13,7 @@ export const FilterPanel = () => {
   const [isInvalidFilters, setIsInvalidFilters] = useState<boolean>(false);
 
   return (
-    <div className="relative px-4 filter-panel hidden md:block md:w-64 h-[calc(100vh-64px)] overflow-y-auto hover:overflow-y-scroll z-30 shadow-sm scrollbar-hide border-r border-default-50 transition-all duration-300">
+    <div className="relative px-4 filter-panel hidden md:block md:w-64 h-[calc(100vh-64px)] overflow-y-auto hover:overflow-y-scroll z-20 shadow-sm scrollbar-hide border-r border-default-50 transition-all duration-300">
       <div className="absolute inset-x-0 top-0 px-4 z-30 border-b border-default-50">
         <h2 className="text-xl font-bold my-4">Filtros</h2>
       </div>

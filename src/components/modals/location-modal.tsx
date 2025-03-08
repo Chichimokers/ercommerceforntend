@@ -2,10 +2,11 @@
 import useSWR from "swr";
 import { useState, useContext, ChangeEvent, useEffect } from "react";
 import { useLocation } from "@contexts/location-context";
-import { Select, SelectItem } from "@heroui/react";
+import { Alert, Select, SelectItem } from "@heroui/react";
 import { CustomButton } from "@components/buttons/custom-button";
 import { motion, AnimatePresence } from "framer-motion";
 import { CartContext } from "@contexts/cart-context";
+import Image from "next/image";
 
 interface Option {
   key: string;
@@ -24,6 +25,7 @@ export default function LocationModal({ open, onClose }: LocationModalProps) {
   const { clearCart } = useContext(CartContext) || {};
   const [province, setProvince] = useState<string>(location?.province || "");
   const [municipality, setMunicipality] = useState<string>(location?.municipality || "");
+  const [changeLocation, setChangeLocation] = useState<boolean>(false);
 
   useEffect(() => {
     if (open) {
@@ -57,7 +59,8 @@ export default function LocationModal({ open, onClose }: LocationModalProps) {
 
   const handleConfirm = () => {
     setLocation({ province, municipality });
-    if (clearCart) clearCart();
+    if (clearCart && changeLocation) clearCart();
+    setChangeLocation(false);
     onClose();
   };
 
@@ -82,13 +85,19 @@ export default function LocationModal({ open, onClose }: LocationModalProps) {
             className="fixed inset-0 flex items-center justify-center z-50"
           >
             <div className="bg-white dark:bg-default-50 rounded-lg shadow-lg p-6 w-[90%] max-w-md relative">
-              <h2 className="text-xl font-bold text-gray-800 dark:text-gray-200 mb-4">Selecciona tu ubicación</h2>
+              <div className="flex items-center justify-center mb-4">
+                <Image alt={"Mapa de Cuba"} src="/cuba.png" width={300} height={100} />
+              </div>
+              <h2 className="text-medium font-light text-gray-800 dark:text-gray-200 mb-4">Serán mostrados los productos que puedan ser entregados en la provincia que seleccione.</h2>
 
               <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Provincia</label>
               <Select
                 className="w-full"
                 value={province}
-                onChange={handleProvinceChange}
+                onChange={(e) => {
+                  handleProvinceChange(e);
+                  setChangeLocation(true);
+                }}
                 defaultSelectedKeys={[province]}
                 items={provinceList}
                 placeholder={loadingProvinces ? "Cargando..." : "Selecciona una provincia"}
@@ -101,7 +110,10 @@ export default function LocationModal({ open, onClose }: LocationModalProps) {
               <Select
                 className="w-full"
                 value={municipality}
-                onChange={handleMunicipalityChange}
+                onChange={(e) => {
+                  handleMunicipalityChange(e);
+                  setChangeLocation(true);
+                }}
                 defaultSelectedKeys={[municipality]}
                 items={municipalityList}
                 placeholder={loadingMunicipalities ? "Cargando..." : "Selecciona un municipio"}
@@ -109,6 +121,10 @@ export default function LocationModal({ open, onClose }: LocationModalProps) {
               >
                 {(municipality) => <SelectItem>{municipality.label}</SelectItem>}
               </Select>
+
+              {changeLocation &&
+                <Alert variant="faded" color="danger" className="mt-4">Al cambiar la ubicacion se eliminaran todos los productos del carrito</Alert>
+              }
 
               <div className="mt-6 flex justify-end gap-2">
                 <CustomButton onClick={onClose} className="bg-transparent hover:bg-default-100 !text-default-600">

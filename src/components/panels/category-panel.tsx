@@ -5,12 +5,6 @@ import dynamic from "next/dynamic";
 import { getCategoryIcon } from "../filters/categories";
 import useSWR from "swr";
 
-type Info = {
-  products: string;
-  provinces: string;
-  category: string;
-}
-
 const CategoryCard = dynamic(() => import("@/components/cards/category-cards"), {
   loading: () => (
     <div className="flex-shrink-0 snap-center w-36 md:w-40 h-36 md:h-40 animate-pulse bg-gray-100 dark:bg-gray-800 rounded-xl" />
@@ -34,8 +28,8 @@ const CategoryPanel = () => {
   const { data, error, isLoading } = useSWR(fetchUrl, fetcher);
 
   return (
-    <div className="relative group">
-      <div className="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-gray-900 dark:to-gray-800 py-12 px-6 transition-colors duration-300">
+    <div className="relative group bg-gradient-to-b from-blue-50 dark:from-gray-900 to-white dark:to-gray-800">
+      <div className="py-12 px-6 transition-colors duration-300">
         <div className="mx-auto max-w-6xl flex flex-col md:flex-row items-center justify-between gap-8 text-center md:text-left">
           <div className="space-y-4 w-full max-w-lg">
             <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-800 dark:text-gray-100">
@@ -122,23 +116,7 @@ const CategoryPanel = () => {
         </div>
       </div>
 
-
-      <div className="relative">
-        <svg
-          className="w-full h-16 text-white dark:text-gray-800"
-          viewBox="0 0 1440 320"
-          preserveAspectRatio="none"
-        >
-          <path
-            fill="currentColor"
-            fillOpacity="1"
-            d="M0,224L60,197.3C120,171,240,117,360,117.3C480,117,600,171,720,192C840,213,960,203,1080,186.7C1200,171,1320,149,1380,138.7L1440,128L1440,320L1380,320C1320,320,1200,320,1080,320C960,320,840,320,720,320C600,320,480,320,360,320C240,320,120,320,60,320L0,320Z"
-          ></path>
-        </svg>
-      </div>
-
-      {/* Panel de categorías */}
-      <div className="relative flex overflow-x-auto gap-6 snap-x snap-mandatory scrollbar-hide px-4 py-16 bg-white dark:bg-gray-800">
+      <div className="relative flex overflow-x-auto gap-6 snap-x snap-mandatory scrollbar-hide px-4 py-16">
         {/* Tarjeta "Todos" */}
         <div key="all" className="flex-shrink-0 snap-center animate-fade-in-left">
           <CategoryCard

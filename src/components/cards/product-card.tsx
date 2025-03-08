@@ -1,302 +1,218 @@
 "use client"
 
-import { useContext, useEffect, useState, useCallback } from "react"
-import { Card, CardBody, CardFooter, Skeleton } from "@heroui/react"
+import { useContext, useMemo } from "react"
+import { Card, CardBody, CardFooter, Chip } from "@heroui/react"
 import React from "react"
 import { FaShoppingCart } from "react-icons/fa"
 import Link from "next/link"
 import { FaBucket } from "react-icons/fa6"
 import type { ProductBase } from "@/types/types"
 import StarRating from "../star-rating"
-import QuantityAdjuster from "../buttons/quantity-selector"
 import useCartActions from "../actions"
 import Image from "next/image"
 import { CurrencyAndExchangeRateContext } from "@/contexts/exchange-rate-currency-context"
 import { CustomButton } from "../buttons/custom-button"
-import { CardSkeleton } from "@components/skeletons/card-skeleton"
-import { useRouter } from "next/navigation"
-import { motion } from "framer-motion"
-
-interface MediaState {
-  loaded: boolean
-  error: boolean
-}
+import QuantityAdjuster from "@components/buttons/quantity-selector"
 
 interface ProductCardProps {
   product: ProductBase
-  prefetch?: "hover" | "click" | "none"
+  prefetch?: "hover" | "viewport" | "none"
   className?: string
   imgClassName?: string
 }
 
-const ProductCard = React.memo(({ product, prefetch = "none", className, imgClassName }: ProductCardProps) => {
-  const [mediaState, setMediaState] = useState<MediaState>({ loaded: false, error: false })
-  const { rateExchange } = useContext(CurrencyAndExchangeRateContext) || {}
-  const cartActions = useCartActions(product)
-  const [isMounted, setIsMounted] = useState(false)
-  const router = useRouter()
+const ProductCard = React.memo(({ product, prefetch = "none", className = "", imgClassName = "" }: ProductCardProps) => {
+  const { rateExchange } = useContext(CurrencyAndExchangeRateContext) || {};
+  const {
+    handleQuantityInc,
+    handleQuantityDec,
+    getLocalStorageData,
+    findInCartLocalStorage,
+    handleAddToCart,
+    handleRemoveFromCart,
+    isInCart,
+    quantity
+  } = useCartActions(product);
 
-  useEffect(() => {
-    setIsMounted(true)
-  }, [])
+  const displayPrice = useMemo(() => {
+    return product.price * (rateExchange?.exchangeRate || 1);
+  }, [product.price, rateExchange]);
 
-  const handlePrefetch = useCallback(() => {
-    if (prefetch === "hover") {
-      router.prefetch(`/product/${product.id}`)
+  const discountedPrice = useMemo(() => {
+    if (product.discount && quantity >= product.discount.min) {
+      return displayPrice - (product.discount.reduction * (rateExchange?.exchangeRate || 1));
     }
-  }, [prefetch, product.id, router])
+    return null;
+  }, [displayPrice, product.discount, quantity, rateExchange]);
 
-  if (!isMounted) return <CardSkeleton />
+  const productUrl = useMemo(() => `/products/${product.id}`, [product.id]);
+
+  const linkProps = useMemo(() => {
+    return {
+      href: productUrl,
+      prefetch: prefetch === "none" ? false : undefined,
+    };
+  }, [productUrl, prefetch]);
 
   return (
-    <Card
-      className={`${className} group w-full flex-1 min-h-[330px] flex flex-col rounded-3xl border border-gray-200 dark:border-gray-700 transition-all hover:shadow-xl overflow-hidden bg-white dark:bg-gray-800/50`}
-      shadow="none"
-      as={Link}
-      href={`/products/${product.id}`}
-      onMouseEnter={prefetch === "hover" ? handlePrefetch : undefined}
-      onPress={prefetch === "click" ? handlePrefetch : undefined}
-      role="article"
-      aria-labelledby={`product-title-${product.id}`}
-    >
-      <CardBody className="overflow-hidden p-0 flex-none aspect-square w-full">
-        <div className="relative w-full h-full bg-gray-100 dark:bg-gray-700">
-          <OptimizedImage
-            imgClassName={`${imgClassName} object-cover w-full h-full transition-transform duration-300 group-hover:scale-105`}
-            product={product}
-            aria-label={`Imagen de ${product.name}`}
-          />
-        </div>
-      </CardBody>
-
-      <CardFooter className="text-small px-2 sm:px-3 flex flex-col w-full py-3">
-        <div className="flex flex-col h-full justify-between gap-2 w-full">
-          <ProductHeader
-            name={product.name}
-            id={product.id}
-          />
-
-          <div className="flex flex-col justify-between gap-2">
-            <PriceDisplay
-              price={product.price}
-              rateExchange={rateExchange || undefined}
-              discountRules={product.discount ? [product.discount] : undefined}
-              quantity={cartActions.quantity}
+    <Link {...linkProps}>
+      <Card className={`cursor-pointer hover:shadow-md transition-shadow bg-blue/50 dark:bg-gray-800/50 ${className}`}>
+        <CardBody className="p-0 overflow-hidden">
+          <div className="relative w-full aspect-square">
+            <Image
+              src={product.image || "/placeholder.jpg"}
+              alt={product.name}
+              fill
+              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+              className={`object-cover transition-transform duration-300 hover:scale-105 ${imgClassName}`}
+              loading="lazy"
+              priority={false}
+              quality={80}
             />
 
-            <RatingContainer rating={product.averageRating} />
+            {product.quantity < 5 && product.quantity > 1 && (
+              <Chip
+                className="absolute bottom-2 left-2 text-xs z-10 bg-opacity-80"
+                color="danger"
+                size="sm"
+                variant="solid"
+              >
+                Quedan {product.quantity} unidades en stock
+              </Chip>
+            )}
+            {product.quantity == 1 && (
+              <Chip
+                className="absolute bottom-2 left-2 text-xs z-10 bg-opacity-80"
+                color="danger"
+                size="sm"
+                variant="solid"
+              >
+                Queda 1 unidad en stock
+              </Chip>
+            )}
+            {product.quantity == 0 && (
+              <Chip
+                className="absolute bottom-2 left-2 text-xs z-10 bg-opacity-80"
+                color="danger"
+                size="sm"
+                variant="solid"
+              >
+                No hay unidades en stock
+              </Chip>
+            )}
+
+            {product.discount && (
+              <Chip
+                className="absolute top-2 right-2 text-xs z-10 bg-opacity-80"
+                color="warning"
+                size="sm"
+                variant="solid"
+              >
+                -{rateExchange?.symbol || "$"}{(product.discount.reduction * (rateExchange?.exchangeRate || 1)).toFixed(2)} desde {product.discount.min} unid.
+              </Chip>
+            )}
           </div>
 
-          <CartControls product={product} cartActions={cartActions} />
-        </div>
-      </CardFooter>
-    </Card>
-  )
-})
+          <div className="p-3">
+            <h3 className="text-medium font-medium line-clamp-1">{product.name}</h3>
 
-const OptimizedImage = React.memo(({ product, imgClassName }: { product: ProductBase; imgClassName?: string }) => {
-  const [src, setSrc] = useState(product.image || "/nophoto.jpeg")
-  const [loaded, setLoaded] = useState(false)
+            {/*product.averageRating !== undefined && (
+              <StarRating rating={product.averageRating} />
+            )*/}
+            <div className="h-[36]">
+              <p className="text-small text-default-500 line-clamp-2">
+                {product.short_description}
+              </p>
+            </div>
+          </div>
 
-  return (
-    <>
-      {!loaded && (
-        <motion.div
-          layoutId={`skeleton-${product.id}`}
-          className="absolute inset-0 bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600"
-          initial={{ opacity: 1 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.3 }}
-        />
-      )}
-
-      <Image
-        alt={product.name}
-        className={`${imgClassName} absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${loaded ? "opacity-100" : "opacity-0"}`}
-        src={src}
-        onLoad={() => setLoaded(true)}
-        onError={() => setSrc("/nophoto.jpeg")}
-        fill
-        loading="lazy"
-      />
-    </>
-  )
-})
-
-OptimizedImage.displayName = "OptimizedImage"
-
-const ProductHeader = React.memo(({ name, id }: { name: string; id: string }) => (
-  <b
-    id={`product-title-${id}`}
-    className="text-sm xs:text-md line-clamp-2 h-[2.6em] leading-tight font-semibold text-default-700"
-    aria-label={name}
-  >
-    {name}
-  </b>
-))
-
-ProductHeader.displayName = "ProductHeader"
-
-const PriceDisplay = React.memo(
-  ({
-    price,
-    rateExchange,
-    discountRules,
-    quantity,
-  }: {
-    price: number;
-    rateExchange?: { symbol: string; exchangeRate: number; currency: string };
-    discountRules?: { min: number; reduction: number }[];
-    quantity: number;
-  }) => {
-    // Encuentra el mayor descuento aplicable según la cantidad comprada
-    const applicableDiscount = discountRules
-      ?.filter(({ min }) => quantity >= min)
-      .reduce((max, curr) => (curr.reduction > max.reduction ? curr : max), { min: 0, reduction: 0 });
-
-    const discount = applicableDiscount?.reduction || 0;
-    const discountedPrice = price * (1 - discount / 100);
-
-    const formatPrice = (amount: number) => {
-      const formatted = (rateExchange ? amount * rateExchange.exchangeRate : amount).toFixed(2);
-      const [integerPart, decimalPart] = formatted.split(".");
-      return { integer: Number(integerPart).toLocaleString("es-ES"), decimal: decimalPart };
-    };
-
-    const original = formatPrice(price);
-    const final = formatPrice(discountedPrice);
-
-    return (
-      <div className="flex flex-col">
-        {discount > 0 ? (
-          <>
-            <p className="text-gray-500 text-xs sm:text-sm line-through">
-              {rateExchange ? `${rateExchange.symbol}${original.integer}` : `$${original.integer}`}
-              <sup>{original.decimal}</sup>
+          <div className="px-3 flex flex-col justify-between h-8">
+            <p className="font-bold text-small">
+              {new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: rateExchange?.currency || "USD"
+              }).format(discountedPrice || displayPrice)}
             </p>
-            <p
-              className="text-red-600 font-bold text-sm sm:text-md md:text-lg"
-              aria-label={`Precio con descuento: ${discountedPrice} ${rateExchange?.currency || "USD"}`}
-            >
-              {rateExchange ? `${rateExchange.symbol}${final.integer}` : `$${final.integer}`}
-              <sup>{final.decimal}</sup> {rateExchange?.currency || "USD"}
-            </p>
-          </>
-        ) : (
-          <p
-            className="text-default-600 whitespace-nowrap text-sm xs:text-md md:text-xl font-semibold"
-            aria-label={`Precio: ${price} ${rateExchange?.currency || "USD"}`}
-          >
-            {rateExchange ? `${rateExchange.symbol}${original.integer}` : `$${original.integer}`}
-            <sup>{original.decimal}</sup> {rateExchange?.currency || "USD"}
-          </p>
-        )}
-      </div>
-    );
-  }
-);
 
+            {discountedPrice && (
+              <span className="text-xs text-gray-400 line-through">
+                {new Intl.NumberFormat('en-US', {
+                  style: 'currency',
+                  currency: rateExchange?.currency || "USD"
+                }).format(displayPrice)}
+              </span>
+            )}
+          </div>
+        </CardBody>
 
-
-
-PriceDisplay.displayName = "PriceDisplay"
-
-const RatingContainer = React.memo(({ rating }: { rating?: number }) => (
-  <div className="flex items-center gap-1">
-    <StarRating rating={rating} />
-  </div>
-))
-
-RatingContainer.displayName = "RatingContainer"
-
-const CartControls = React.memo(
-  ({ product, cartActions }: { product: ProductBase; cartActions: ReturnType<typeof useCartActions> }) => (
-    <div className="flex justify-between items-center gap-2 w-full min-w-0 mt-1">
-      <div className="flex items-center">
-        <Skeleton isLoaded={!!product}>
+        <CardFooter className="flex justify-between items-center gap-2">
           <QuantityAdjuster
-            quantity={cartActions.quantity}
-            isInCart={cartActions.isInCart}
-            handleQuantityInc={cartActions.handleQuantityInc}
-            handleQuantityDec={cartActions.handleQuantityDec}
-            findInCartLocalStorage={cartActions.findInCartLocalStorage}
-            getLocalStorageData={cartActions.getLocalStorageData}
+            quantity={quantity}
+            isInCart={isInCart}
+            handleQuantityInc={handleQuantityInc}
+            handleQuantityDec={handleQuantityDec}
+            findInCartLocalStorage={findInCartLocalStorage}
+            getLocalStorageData={getLocalStorageData}
             productId={product.id}
-            maxLimit={product.quantity || 100}
+            maxLimit={product.quantity || 0}
+            className="bg-white dark:bg-gray-800 shadow-sm hover:shadow-md transition-shadow"
           />
-        </Skeleton>
-      </div>
-      <Skeleton isLoaded={!!product} className="w-full max-w-16">
-        {!cartActions.isInCart && !cartActions.findInCartLocalStorage() ? (
-          <AddToCartButton
-            onClick={(e) => {
-              e.preventDefault()
-              cartActions.handleAddToCart()
-            }}
-            product={product}
-          />
-        ) : (
-          <RemoveFromCartButton
-            onClick={(e) => {
-              e.preventDefault()
-              cartActions.handleRemoveFromCart()
-            }}
-            product={product}
-          />
-        )}
-      </Skeleton>
-    </div>
-  ),
-)
 
-CartControls.displayName = "CartControls"
+          {isInCart ? (
+            <RemoveFromCartButton
+              onClick={(e) => {
+                handleRemoveFromCart()
+                e.preventDefault()
+              }}
+              product={product}
+            />
+          ) : (
+            <AddToCartButton
+              onClick={(e) => {
+                handleAddToCart()
+                e.preventDefault()
+              }}
+            />
+          )}
+        </CardFooter>
+      </Card>
+    </Link>
+  );
+});
 
-const AddToCartButton = React.memo(
-  ({
-    onClick,
-    product,
-  }: {
-    onClick: (e: React.MouseEvent<HTMLButtonElement>) => void;
-    product: ProductBase;
-  }) => (
-    <CustomButton
-      className="h-9 w-10 !p-0 xs:w-full shrink-0 hover:shadow-lg 
-                active:scale-95 transition-all duration-200"
-      color="primary"
-      onClick={onClick}
-      aria-label={`Añadir ${product.name} al carrito`}
-    >
-      <FaShoppingCart className="h-4 w-4 sm:h-5 sm:w-5 animate-[bounce_300ms]" />
-      <span className="sr-only">Añadir al carrito</span>
-    </CustomButton>
-  ),
-)
+const AddToCartButton = React.memo(({
+  onClick
+}: {
+  onClick: (event: React.MouseEvent<HTMLButtonElement>) => void
+}) => (
+  <CustomButton
+    className="h-9 !min-w-10 !max-w-20 !p-0 xs:w-auto shrink-0 hover:shadow-lg active:scale-95 transition-all duration-200 rounded-xl"
+    onClick={onClick}
+    aria-label="Añadir al carrito"
+  >
+    <FaShoppingCart className="h-4 w-4" />
+  </CustomButton>
+));
 
-const RemoveFromCartButton = React.memo(
-  ({
-    onClick,
-    product,
-  }: {
-    onClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
-    product: ProductBase;
-  }) => (
-    <CustomButton
-      className="h-9 w-10 !p-0 xs:w-full shrink-0 hover:shadow-lg 
-                active:scale-95 transition-all duration-200"
-      color="danger"
-      onClick={onClick}
-      aria-label={`Eliminar ${product.name} del carrito`}
-    >
-      <FaBucket className="h-4 w-4 sm:h-5 sm:w-5 animate-[shake_400ms]" />
-      <span className="sr-only">Eliminar del carrito</span>
-    </CustomButton>
-  ),
-)
+const RemoveFromCartButton = React.memo(({
+  onClick,
+  product
+}: {
+  onClick: (event: React.MouseEvent<HTMLButtonElement>) => void
+  product: ProductBase
+}) => (
+  <CustomButton
+    className="h-9 !min-w-10 !max-w-20 !p-0 xs:w-auto shrink-0 hover:shadow-lg active:scale-95 transition-all duration-200 rounded-xl bg-red-500 hover:bg-red-600"
+    color="danger"
+    onClick={onClick}
+    aria-label={`Eliminar ${product.name} del carrito`}
+  >
+    <FaBucket className="h-4 w-4" />
+  </CustomButton>
+));
 
-ProductCard.displayName = "ProductCard"
-AddToCartButton.displayName = "AddToCartButton"
-RemoveFromCartButton.displayName = "RemoveFromCartButton"
+ProductCard.displayName = "ProductCard";
+AddToCartButton.displayName = "AddToCartButton";
+RemoveFromCartButton.displayName = "RemoveFromCartButton";
 
-export default ProductCard
-
+export default ProductCard;

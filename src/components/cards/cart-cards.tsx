@@ -1,5 +1,4 @@
 import React, { useMemo, useContext, useState } from "react";
-import { Skeleton } from "@heroui/react";
 import Image from "next/image";
 import { DeleteItemButton } from "../buttons/delete-product-button";
 import { ProductBase } from "@/types/types";
@@ -10,8 +9,7 @@ import { CurrencyAndExchangeRateContext } from "@/contexts/exchange-rate-currenc
 import QuantityAdjuster from "../buttons/quantity-selector";
 import Price from "../price";
 import { useProductContext } from "@/contexts/product-context";
-//hay que cambiar no considero necesario buscarlo otraves en los productos cuando ya se hace en el otro componente
-//solo no quise ser tan intrusivo  (no mas intrusivo de lo que fui :) sorry de antemano por to lo que cambie )
+
 const CartCard = React.memo(
   ({
     productCart,

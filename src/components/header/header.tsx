@@ -247,7 +247,7 @@ export const Header = ({ className, setModalOpen }: { className?: string, setMod
     <HerouiNavbar
       maxWidth="full"
       isBlurred
-      className={`${className} z-40 top-0 left-0 right-0 h-16 bg-blue-50/50 dark:bg-gray-900/50`}
+      className={`${className} z-40 top-0 left-0 right-0 h-16 bg-blue-50 dark:bg-gray-900`}
 
     >
       <NavbarContent className="sm:basis-full max-w-fit" justify="start">

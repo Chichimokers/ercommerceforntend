@@ -10,6 +10,7 @@ export type ProductBase = {
 	quantity: number;
 	averageRating?: number;
 	province: string;
+	weight: number;
 
 
 	discount?: {
