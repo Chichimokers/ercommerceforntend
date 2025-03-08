@@ -13,6 +13,7 @@ import Image from "next/image"
 import { CurrencyAndExchangeRateContext } from "@/contexts/exchange-rate-currency-context"
 import { CustomButton } from "../buttons/custom-button"
 import QuantityAdjuster from "@components/buttons/quantity-selector"
+import { formatCurrency } from "@components/format-currency"
 
 interface ProductCardProps {
   product: ProductBase
@@ -108,7 +109,7 @@ const ProductCard = React.memo(({ product, prefetch = "none", className = "", im
                 size="sm"
                 variant="solid"
               >
-                -{rateExchange?.symbol || "$"}{(product.discount.reduction * (rateExchange?.exchangeRate || 1)).toFixed(2)} desde {product.discount.min} unid.
+                -{formatCurrency((product.discount.reduction * (rateExchange?.exchangeRate || 1)), rateExchange?.currency, rateExchange?.symbol)} desde {product.discount.min} unid.
               </Chip>
             )}
           </div>
@@ -135,11 +136,16 @@ const ProductCard = React.memo(({ product, prefetch = "none", className = "", im
             </p>
 
             {discountedPrice && (
-              <span className="text-xs text-gray-400 line-through">
-                {new Intl.NumberFormat('en-US', {
-                  style: 'currency',
-                  currency: rateExchange?.currency || "USD"
-                }).format(displayPrice)}
+              <span className="text-xs">
+                <span className="text-gray-400 line-through mr-2">
+                  {new Intl.NumberFormat('en-US', {
+                    style: 'currency',
+                    currency: rateExchange?.currency || "USD"
+                  }).format(displayPrice)}
+                </span>
+                <span className="text-green-600 dark:text-green-500">
+                  (-{product.discount && (((product.discount.reduction) * 100) / product.price).toFixed(2)}%)
+                </span>
               </span>
             )}
           </div>

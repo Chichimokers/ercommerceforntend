@@ -23,6 +23,7 @@ import dynamic from "next/dynamic";
 import { CustomButton } from "../buttons/custom-button";
 import { useProductContext } from "@/contexts/product-context";
 import Image from "next/image";
+import { formatCurrency } from "@components/format-currency";
 
 const CartCard = dynamic(() => import("../cards/cart-cards"));
 const Price = dynamic(() => import("../price"));
@@ -111,8 +112,7 @@ export default function DrawerCart({ className }: { className?: string }) {
             <span className="text-sm font-medium">
               Subtotal:{" "}
               <strong>
-                {(exchangeRate ? subtotal * exchangeRate : subtotal).toFixed(2)}{" "}
-                {currency || "USD"}
+                {formatCurrency((exchangeRate ? subtotal * exchangeRate : subtotal), currency, rateExchange?.symbol)}
               </strong>
             </span>
             :
@@ -167,12 +167,8 @@ export default function DrawerCart({ className }: { className?: string }) {
                   <h1>Carro de Compras</h1>
                   <Chip color="success" variant="flat">
                     <div className="flex flex-row text-xs xs:text-sm">
-                      <span className="text-foreground">Subtotal: </span>
-                      <Price
-                        amount={(exchangeRate ? subtotal * exchangeRate : subtotal).toFixed(2)}
-                        currencyCode={currency || "USD"}
-                        className="font-medium ml-1"
-                      />
+                      <span className="text-foreground mr-1">Subtotal: </span>
+                      {formatCurrency((exchangeRate ? subtotal * exchangeRate : subtotal), currency, rateExchange?.symbol)}
                     </div>
                   </Chip>
                 </div>

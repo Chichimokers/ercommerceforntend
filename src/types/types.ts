@@ -19,6 +19,13 @@ export type ProductBase = {
 	};
 };
 
+export type CurrencyData = {
+	country?: string;
+	currency: string;
+	symbol: string;
+	exchangeRate: number;
+}
+
 export interface BaseType {
 	id: string;
 	created_at: string;

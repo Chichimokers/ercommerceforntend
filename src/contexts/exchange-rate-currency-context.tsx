@@ -2,14 +2,8 @@
 
 import { createContext, useState, useEffect, useCallback, ReactNode, useContext } from "react";
 import { getCachedUserCurrencyAndRate } from "@/helpers/user-location";
+import { CurrencyData } from "../types/types";
 
-// Define proper types
-interface CurrencyData {
-  country?: string;
-  currency: string;
-  symbol: string;
-  exchangeRate: number;
-}
 
 interface CurrencyContextValue {
   rateExchange: CurrencyData | null;
@@ -20,7 +14,6 @@ interface CurrencyContextValue {
   fetchCurrencyData: () => Promise<void>;
 }
 
-// Create context with default values
 const defaultContextValue: CurrencyContextValue = {
   rateExchange: null,
   selectedCurrency: null,

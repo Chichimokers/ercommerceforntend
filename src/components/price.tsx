@@ -1,22 +1,41 @@
+import { CurrencyData } from "../types/types";
 import clsx from "clsx";
 
 const Price = ({
   amount,
   className,
-  currencyCode = "USD",
+  quantity,
+  discount,
+  rateExchange = {
+    country: "United States",
+    currency: "USD",
+    symbol: "$",
+    exchangeRate: 1,
+  },
   currencyCodeClassName,
 }: {
   amount: string;
   className?: string;
-  currencyCode: string;
+  quantity: number;
+  discount?: { min: number; reduction: number; };
+  rateExchange?: CurrencyData;
   currencyCodeClassName?: string;
 } & React.ComponentProps<"p">) => (
-  <p className={className}>
-    {`${new Intl.NumberFormat("en-US", {
+  <p className={clsx("flex items-center", className)}>
+    {`${discount && quantity >= discount.min ? new Intl.NumberFormat("en-US", {
       style: "currency",
-      currency: currencyCode,
-    }).format(parseFloat(amount))}`}
+      currency: rateExchange.currency,
+    }).format(parseFloat(amount) - (discount.reduction * rateExchange.exchangeRate))
+      :
+      new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: rateExchange.currency,
+      }).format(parseFloat
+        (amount))
+      }`}
   </p>
+
+
 );
 
 export default Price;
