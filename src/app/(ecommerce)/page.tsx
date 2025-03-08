@@ -115,3 +115,8 @@ export default function IndexPage() {
     </div>
   );
 }
+
+FeaturedProducts.displayName = "FeaturedProducts";
+ProductCardSkeleton.displayName = "ProductCardSkeleton";
+BannerSkeleton.displayName = "BannerSkeleton";
+IndexPage.displayName = "IndexPage";

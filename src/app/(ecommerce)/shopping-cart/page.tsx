@@ -21,11 +21,11 @@ export default function ShoppingCartPage() {
 
   useEffect(() => {
     mutateCartProducts();
-  }, [cart]);
+  }, [mutateCartProducts, cart]);
 
   const productMap = useMemo(
     () => new Map(cartProducts?.map((p) => [p.id, p]) || []),
-    [cartProducts, cart]
+    [cartProducts]
   );
 
   const calculateSubtotal = useCallback(
@@ -58,6 +58,7 @@ export default function ShoppingCartPage() {
             category: '',
             description: '',
             province: '',
+            weight: 0,
           };
         }
       })

@@ -172,3 +172,7 @@ export default function ProductPage() {
     </div>
   );
 }
+
+EmptyState.displayName = "EmptyState";
+ErrorState.displayName = "ErrorState";
+ProductItem.displayName = "ProductItem";
