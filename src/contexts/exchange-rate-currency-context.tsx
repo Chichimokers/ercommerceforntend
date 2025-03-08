@@ -1,120 +1,144 @@
 "use client";
 
-import { getUserCurrencyAndRate } from "@/helpers/user-location";
-import React, {
-  createContext,
-  useState,
-  useEffect,
-  ReactNode,
-  useCallback,
-} from "react";
-import debounce from "lodash.debounce";
+import { createContext, useState, useEffect, useCallback, ReactNode, useContext } from "react";
+import { getCachedUserCurrencyAndRate } from "@/helpers/user-location";
 
-interface RateExchange {
-  country: string;
+// Define proper types
+interface CurrencyData {
+  country?: string;
   currency: string;
-  exchangeRate: number;
   symbol: string;
+  exchangeRate: number;
 }
 
-interface caerState {
-  SelectedCurrency: string | undefined;
-  rateExchange: RateExchange | null;
-  setSelectedCurrency: React.Dispatch<React.SetStateAction<string | undefined>>;
+interface CurrencyContextValue {
+  rateExchange: CurrencyData | null;
+  selectedCurrency: string | null;
   isDataChanging: boolean;
-  setIsDataChanging: React.Dispatch<React.SetStateAction<boolean>>;
+  updateExchangeRate: (newRate: number) => void;
+  handleCurrencyChange: (newCurrency: string) => void;
+  fetchCurrencyData: () => Promise<void>;
 }
 
-const CurrencyAndExchangeRateContext = createContext<caerState | undefined>(
-  undefined
-);
+// Create context with default values
+const defaultContextValue: CurrencyContextValue = {
+  rateExchange: null,
+  selectedCurrency: null,
+  isDataChanging: false,
+  updateExchangeRate: () => { },
+  handleCurrencyChange: () => { },
+  fetchCurrencyData: async () => { }
+};
 
-const CurrencyAndExchangeRateProvider: React.FC<{ children: ReactNode }> = ({
-  children,
-}) => {
-  const [rateExchange, setRateExchange] = useState<RateExchange | null>(null);
-  const [SelectedCurrency, setSelectedCurrency] = useState<string>();
+export const CurrencyAndExchangeRateContext = createContext<CurrencyContextValue>(defaultContextValue);
+
+export const useCurrency = () => {
+  const context = useContext(CurrencyAndExchangeRateContext);
+  if (!context) {
+    throw new Error("useCurrency must be used within a CurrencyAndExchangeRateProvider");
+  }
+  return context;
+};
+
+export const CurrencyAndExchangeRateProvider = ({ children }: { children: ReactNode }) => {
+  const [rateExchange, setRateExchange] = useState<CurrencyData | null>(null);
+  const [selectedCurrency, setSelectedCurrency] = useState<string | null>(null);
   const [isDataChanging, setIsDataChanging] = useState(false);
 
-  // Memoizar la persistencia en localStorage
-  const persistData = useCallback(
-    debounce((rate: RateExchange | null, currency: string | undefined) => {
-      if (rate) localStorage.setItem("rateExchange", JSON.stringify(rate));
-      if (currency) localStorage.setItem("SelectedCurrency", currency);
-    }, 500),
-    []
-  );
-
-  // Carga inicial desde localStorage
+  // Load initial values from localStorage
   useEffect(() => {
-    const storedRate = localStorage.getItem("rateExchange");
-    const storedCurrency = localStorage.getItem("SelectedCurrency");
+    const savedCurrency = localStorage.getItem("selectedCurrency");
+    if (savedCurrency) {
+      setSelectedCurrency(savedCurrency);
+    }
 
-    if (storedRate) setRateExchange(JSON.parse(storedRate));
-    if (storedCurrency) setSelectedCurrency(storedCurrency);
+    const savedExchangeData = localStorage.getItem("exchangeRateData");
+    if (savedExchangeData) {
+      try {
+        const parsedData = JSON.parse(savedExchangeData);
+        setRateExchange(parsedData);
+      } catch (error) {
+        console.error("Failed to parse saved exchange rate data:", error);
+      }
+    }
   }, []);
 
-  // Fetch optimizado con manejo de estado actual
-  const fetchCurrencyData = useCallback(
-    debounce(async (currency?: string) => {
-      try {
-        const data = await getUserCurrencyAndRate(currency || SelectedCurrency);
+  // Fetch currency data from API
+  const fetchCurrencyData = useCallback(async () => {
+    try {
+      setIsDataChanging(true);
 
-        if (data) {
-          setRateExchange(prev =>
-            prev?.exchangeRate === data.exchangeRate ? prev : data
-          );
+      const data = await getCachedUserCurrencyAndRate(selectedCurrency || undefined);
+
+      if (data) {
+        setRateExchange(data);
+
+        if (!selectedCurrency) {
           setSelectedCurrency(data.currency);
+          localStorage.setItem('selectedCurrency', data.currency);
         }
-      } catch (error) {
-        console.error("Error al obtener la tasa de cambio:", error);
-      } finally {
-        setIsDataChanging(false);
+
+        // Save full data object to localStorage
+        localStorage.setItem('exchangeRateData', JSON.stringify(data));
       }
-    }, 500),
-    [SelectedCurrency]
-  );
+    } catch (error) {
+      console.error('Error fetching currency data:', error);
+    } finally {
+      setIsDataChanging(false);
+    }
+  }, [selectedCurrency]);
 
-  // Persistencia automática al cambiar datos
+  // Initialize data if needed
   useEffect(() => {
-    persistData(rateExchange, SelectedCurrency);
-    return () => persistData.cancel();
-  }, [rateExchange, SelectedCurrency, persistData]);
-
-  // Fetch condicional optimizado
-  useEffect(() => {
-    if (!SelectedCurrency && !localStorage.getItem("SelectedCurrency")) {
+    if (!rateExchange) {
       fetchCurrencyData();
     }
-  }, [SelectedCurrency, fetchCurrencyData]);
+  }, [fetchCurrencyData, rateExchange]);
 
-  // Definir funciones inline con dependencias explícitas
+  // Update rate when selectedCurrency changes
+  useEffect(() => {
+    if (selectedCurrency && (!rateExchange || rateExchange.currency !== selectedCurrency)) {
+      fetchCurrencyData();
+    }
+  }, [selectedCurrency, rateExchange, fetchCurrencyData]);
+
+  // Handle rate updates
   const updateExchangeRate = useCallback((newRate: number) => {
-    setRateExchange(prev => ({
-      ...(prev || { country: '', currency: 'USD', symbol: '$' }),
-      exchangeRate: newRate
-    }));
-    localStorage.setItem('exchangeRate', newRate.toString());
-  }, [setRateExchange]);
+    setRateExchange(prev => {
+      if (!prev) return {
+        currency: 'USD',
+        symbol: '$',
+        exchangeRate: newRate
+      };
 
+      const updated = {
+        ...prev,
+        exchangeRate: newRate
+      };
+
+      localStorage.setItem('exchangeRateData', JSON.stringify(updated));
+      return updated;
+    });
+  }, []);
+
+  // Handle currency changes
   const handleCurrencyChange = useCallback((newCurrency: string) => {
     setSelectedCurrency(newCurrency);
     localStorage.setItem('selectedCurrency', newCurrency);
-  }, [setSelectedCurrency]); // Dependencia explícita
+  }, []);
 
   return (
     <CurrencyAndExchangeRateContext.Provider
       value={{
         rateExchange,
-        SelectedCurrency,
-        setSelectedCurrency,
+        selectedCurrency,
         isDataChanging,
-        setIsDataChanging,
+        updateExchangeRate,
+        handleCurrencyChange,
+        fetchCurrencyData
       }}
     >
       {children}
     </CurrencyAndExchangeRateContext.Provider>
   );
 };
-
-export { CurrencyAndExchangeRateContext, CurrencyAndExchangeRateProvider };

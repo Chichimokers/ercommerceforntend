@@ -1,18 +1,18 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useContext } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { FaArrowLeft, FaShoppingCart, FaMoneyBill } from "react-icons/fa";
 import Image from "next/image";
 import useCartActions from "@/components/actions";
-import { Skeleton } from "@heroui/react";
 import React from "react";
 import { CustomButton } from "@/components/buttons/custom-button";
 import { FaTrash } from "react-icons/fa6";
 import { useProductContext } from "@/contexts/product-context";
 import { ProductBase } from "@/types/types";
+import { CurrencyAndExchangeRateContext } from "@contexts/exchange-rate-currency-context";
 
 const RelationedProductSection = dynamic(
   () => import("@/components/sections/relationed-products"),
@@ -55,12 +55,14 @@ const defaultProduct: ProductBase = {
   short_description: "",
   averageRating: 0,
   province: "",
+  weight: 0,
 };
 
 const ProductDetailPage = () => {
   const params = useParams();
   const id = params?.id as string;
   const { products } = useProductContext();
+  const { rateExchange } = useContext(CurrencyAndExchangeRateContext) || {};
 
   const [productState, setProductState] = useState<{
     data: ProductBase;
@@ -202,7 +204,11 @@ const ProductDetailPage = () => {
             <div className="mt-6 space-y-4">
               <div className="flex items-center justify-between bg-gray-100 dark:bg-gray-700 p-4 rounded-xl">
                 <p className="text-3xl font-bold text-green-600 dark:text-green-400">
-                  ${displayProduct.price}
+                  {new Intl.NumberFormat('en-US', {
+                    style: 'currency',
+                    currency: rateExchange?.currency || "USD"
+                  }).format(displayProduct.price * (rateExchange?.exchangeRate || 1))}
+
                 </p>
                 {!productState.loading && (
                   <div className="flex items-center space-x-3">

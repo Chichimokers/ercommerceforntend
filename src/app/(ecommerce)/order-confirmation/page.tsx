@@ -34,7 +34,7 @@ export default function OrderConfirmationPage() {
   }, []);
 
   const formattedDate = order
-    ? new Date(order.created_at).toLocaleString("es-ES", {
+    ? new Date(order.created_at).toLocaleString("en-US", {
       dateStyle: "long",
       timeStyle: "short"
     })

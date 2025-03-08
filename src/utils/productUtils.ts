@@ -12,6 +12,7 @@ export const convertCartItemToProductBase = (item: CartItem, products: ProductBa
     quantity: item.cantidad,
     short_description: product.short_description,
     description: product.description,
-    province: product.province
+    province: product.province,
+    weight: product.weight,
   };
 }; 

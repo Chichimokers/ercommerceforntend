@@ -148,7 +148,7 @@ const Filters = ({ onFilterChange, setIsInvalidFilters, className }: FiltersProp
       setIsInvalidFilters(
         isDefaultPrice &&
         isDefaultRating &&
-        (isDefaultCategories || filterState.categories.names.length === 0)
+        (filterState.categories.names.length === 0)
       );
     }
   }, [filterState, isLoading, onFilterChange, setIsInvalidFilters]);
