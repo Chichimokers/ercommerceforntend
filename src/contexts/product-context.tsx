@@ -17,7 +17,7 @@ import { useProducts, useCartProducts } from "@/hooks/useProducts";
 import { useLocation } from "./location-context";
 
 interface ProductContextType {
-  products: any[];
+  products: ProductBase[];
   cartProducts: ProductBase[];
   isLoading: boolean;
   categories: Category[];

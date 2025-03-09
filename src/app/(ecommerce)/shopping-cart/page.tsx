@@ -1,27 +1,55 @@
 "use client";
 
-import { useContext, useState, useMemo, useCallback, useEffect } from "react";
-import { ProductGrid } from "@/components/cards/sm-cart-card";
+import React, { useContext, useMemo, useState, useEffect, useCallback } from "react";
 import { CartContext } from "@/contexts/cart-context";
-import { useProductContext } from "@/contexts/product-context";
 import { Spinner } from "@heroui/react";
-import dynamic from "next/dynamic";
-import Image from "next/image";
-import React from "react";
-import { useIsMobile } from "@hooks/useMobile";
-
-const Summary = dynamic(() => import("@/components/cards/summary"));
-const CartCard = dynamic(() => import("@/components/cards/cart-cards"));
+import { useProductContext } from "@/contexts/product-context";
+import CartCard from "@/components/cards/cart-cards";
+import SmCartCard from "@/components/cards/sm-cart-card";
+import OrderSummary from "@components/cards/summary";
+import EmptyCart from "@components/empty/empty-cart";
+import { useLocation } from "@contexts/location-context";
+import useSWR from "swr";
+import { useShipping } from "@/contexts/shipping-context";
 
 export default function ShoppingCartPage() {
   const { cart } = useContext(CartContext) || {};
-  const { cartProducts, mutateCartProducts, isLoadingCart } = useProductContext();
-  const [imageLoaded, setImageLoaded] = useState(false);
-  const isMobile = useIsMobile();
+  const { cartProducts, isLoading } = useProductContext();
+  const [isMounted, setIsMounted] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const fetchUrl = `${process.env.NEXT_PUBLIC_API_URL}public/shipping-price`;
+  const { location } = useLocation();
+  const { setShippingPrice, setTotalWeight } = useShipping()
+
+  const fetcher = async (url: string) => {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ total_weight: calculateWeight(), municipality: location.municipality })
+    })
+    if (!response.ok) {
+      const errorResponse = await response.json();
+      throw new Error(errorResponse?.message || response.statusText);
+    }
+    return response.json()
+  }
+
+  const { data: price, error, isLoading: isLoadingPrice } = useSWR(fetchUrl, fetcher, {
+    revalidateOnFocus: false,
+    shouldRetryOnError: false,
+    dedupingInterval: 60000,
+  });
 
   useEffect(() => {
-    mutateCartProducts();
-  }, [mutateCartProducts, cart]);
+    setIsMounted(true);
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const productMap = useMemo(
     () => new Map(cartProducts?.map((p) => [p.id, p]) || []),
@@ -33,42 +61,54 @@ export default function ShoppingCartPage() {
       cart
         ? cart.reduce((total, item) => {
           const product = productMap.get(item.id);
-          return total + item.cantidad * (product?.price ?? 0);
+          if (!product) return total;
+
+          let itemPrice = product.price;
+
+          if (product.discount && item.cantidad >= product.discount.min) {
+            itemPrice = itemPrice - product.discount.reduction;
+          }
+          return total + (itemPrice * item.cantidad);
         }, 0)
         : 0,
     [cart, productMap]
   );
 
+  const calculateWeight = useCallback(
+    () =>
+      cart
+        ? cart.reduce((total, item) => {
+          const product = productMap.get(item.id);
+          if (!product) return total;
+          return total + (product.weight * item.cantidad);
+        }, 0)
+        : 0,
+    [cart, productMap]
+  );
+
+  useEffect(() => {
+    if (price && !isLoadingPrice) {
+      setShippingPrice(price);
+    }
+
+    const weight = calculateWeight();
+    setTotalWeight(weight);
+  }, [price, isLoadingPrice, calculateWeight, setShippingPrice, setTotalWeight]);
+
   const cartProductsWithQuantity = useMemo(() => {
-    if (!cart) return [];
-    return cart
-      .map((item) => {
-        const product = productMap.get(item.id);
-        if (product) {
-          return { ...product, quantity: item.cantidad };
-        } else {
-          return {
-            id: item.id,
-            quantity: item.cantidad,
-            name: "Producto",
-            image: "/nophoto.jpeg",
-            price: 0,
-            short_description: '',
-            averageRating: 0,
-            category: '',
-            description: '',
-            province: '',
-            weight: 0,
-          };
-        }
-      })
-      .filter((p) => p !== null);
-  }, [cart, productMap]);
+    if (!cart || !cartProducts.length) return [];
 
-  const subtotal = useMemo(() => calculateSubtotal(), [calculateSubtotal]);
-  const hasCartProducts = cartProductsWithQuantity.length > 0;
+    return cartProducts.filter(product =>
+      cart.some(item => item.id === product.id)
+    );
+  }, [cart, cartProducts]);
 
-  if (isLoadingCart || !cart) {
+  const hasCartProducts = useMemo(() =>
+    cartProductsWithQuantity.length > 0,
+    [cartProductsWithQuantity]
+  );
+
+  if (!isMounted || isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Spinner label="Cargando Productos..." />
@@ -77,8 +117,8 @@ export default function ShoppingCartPage() {
   }
 
   return (
-    <section className="py-12 mt-16">
-      <div className="container mx-auto px-4">
+    <section className="py-12 mt-16 sm:px-4">
+      <div className="container mx-auto">
         <header className="mb-8">
           <h1 className="text-4xl font-extrabold text-gray-800 dark:text-white inline-block border-b-4 border-blue-300 pb-2">
             Tu Carrito de Compras
@@ -87,11 +127,10 @@ export default function ShoppingCartPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-6">
-            {hasCartProducts && (
+            {hasCartProducts ? (
               <>
-                {/* Vista desktop */}
-                <div className="hidden md:grid grid-cols-6 gap-4 bg-gray-100 dark:bg-gray-800 px-6 py-4 rounded-xl shadow-sm items-center">
-                  <div className="col-span-3 font-semibold text-gray-700 dark:text-gray-300">
+                <div className="hidden md:grid grid-cols-[2fr,1fr,1fr,1fr] gap-4 bg-gray-100 dark:bg-gray-800 px-6 py-4 rounded-xl shadow-sm items-center">
+                  <div className="font-semibold text-gray-700 dark:text-gray-300">
                     Producto
                   </div>
                   <div className="font-semibold text-center text-gray-700 dark:text-gray-300">
@@ -105,62 +144,37 @@ export default function ShoppingCartPage() {
                   </div>
                 </div>
 
-                {/* Renderiza ProductGrid en desktop y CartCard en móvil */}
-                <div className="space-y-4">
+                <div className="space-y-4 bg-white dark:bg-gray-900 rounded-xl shadow-md p-4">
                   {cartProductsWithQuantity.map((product) =>
                     isMobile ? (
                       <CartCard
-                        key={`${product.id}-${cart?.length}`}
+                        key={`${product.id}-mobile-${cart?.length}`}
                         productCart={product}
                       />
                     ) : (
-                      <ProductGrid
-                        key={product.id}
-                        productCart={product}
-                        className="hover:shadow-lg transition-shadow"
+                      <SmCartCard
+                        key={`${product.id}-desktop-${cart?.length}`}
+                        product={product}
+                        className="hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg px-4"
                       />
                     )
                   )}
                 </div>
               </>
+            ) : (
+              <EmptyCart />
             )}
           </div>
 
-          {hasCartProducts && (
-            <div className="lg:col-span-1">
-              <Summary
-                className="sticky top-24 rounded-xl shadow-sm"
-                shipping={1}
-                subtotal={subtotal}
-              />
-            </div>
-          )}
-        </div>
+          <div className="lg:col-span-1">
+            {isLoadingPrice ?
+              <div className="w-full h-full rounded-xl bg-white dark:bg-gray-800 shadow-md animate-pulse"></div>
+              :
+              <OrderSummary subtotal={calculateSubtotal()} shipping={price} weight={calculateWeight()} />
+            }
 
-        {!hasCartProducts && (
-          <div className="w-full flex flex-col items-center justify-center py-12 space-y-8">
-            <div className="relative w-full max-w-sm aspect-square">
-              <Image
-                alt="Carrito Vacío"
-                className={`object-contain transition-opacity duration-500 ${imageLoaded ? "opacity-100" : "opacity-0"
-                  }`}
-                src="/Empty_Cart.svg"
-                onLoad={() => setImageLoaded(true)}
-                fill
-                quality={100}
-                loading="eager"
-              />
-            </div>
-            <div className="text-center space-y-2">
-              <h2 className="text-2xl font-bold text-gray-800 dark:text-white">
-                Tu carrito está esperando
-              </h2>
-              <p className="text-gray-500 dark:text-gray-400 max-w-md">
-                Explora nuestros productos y descubre increíbles ofertas para llenar tu carrito.
-              </p>
-            </div>
           </div>
-        )}
+        </div>
       </div>
     </section>
   );

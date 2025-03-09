@@ -235,7 +235,6 @@ export const authOptions: NextAuthOptions = {
         }
       }
 
-      // Primera vez que se ejecuta (durante el login)
       if (account && user) {
         console.log("Nueva autenticación detectada", {
           provider: account.provider,
@@ -308,7 +307,7 @@ export const authOptions: NextAuthOptions = {
       name: process.env.NODE_ENV === "production" ? "__Secure-next-auth.session-token" : "next-auth.session-token",
       options: {
         httpOnly: true,
-        sameSite: "lax", // Prueba esto si la API está en otro dominio
+        sameSite: "lax",
         secure: process.env.NODE_ENV !== "development",
         path: "/",
       },
@@ -316,26 +315,8 @@ export const authOptions: NextAuthOptions = {
   },
   session: {
     strategy: "jwt",
+    maxAge: 24 * 60 * 60,
   },
-
-  /*cookies: {
-    sessionToken: {
-      name:
-        process.env.NODE_ENV === "production"
-          ? "__Secure-authjs.session-token"
-          : "authjs.session-token",
-      options: {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        path: "/",
-      },
-    },
-  },
-  session: {
-    strategy: "jwt",
-    maxAge: 4 * 60 * 60,
-  },*/
   secret: process.env.NEXTAUTH_SECRET,
 };
 

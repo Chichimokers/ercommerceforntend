@@ -9,6 +9,8 @@ import { ProductProvider } from "@contexts/product-context"
 import { CartProvider } from "@contexts/cart-context"
 import { ThemeProvider } from "next-themes"
 import { LocationProvider } from "@contexts/location-context";
+import { ShippingProvider } from "@contexts/shipping-context";
+import React from "react";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -21,18 +23,20 @@ export function Providers({ children }: { children: React.ReactNode }) {
       <SessionProvider>
         <CurrencyAndExchangeRateProvider>
           <LocationProvider>
-            <ProductProvider>
-              <CartProvider>
-                <ModalProvider>
-                  <HeroUIProvider>
-                    <ToastProvider />
-                    <AuthLayout>
-                      {children}
-                    </AuthLayout>
-                  </HeroUIProvider>
-                </ModalProvider>
-              </CartProvider>
-            </ProductProvider>
+            <ShippingProvider>
+              <ProductProvider>
+                <CartProvider>
+                  <ModalProvider>
+                    <HeroUIProvider>
+                      <ToastProvider />
+                      <AuthLayout>
+                        {children}
+                      </AuthLayout>
+                    </HeroUIProvider>
+                  </ModalProvider>
+                </CartProvider>
+              </ProductProvider>
+            </ShippingProvider>
           </LocationProvider>
         </CurrencyAndExchangeRateProvider>
       </SessionProvider>

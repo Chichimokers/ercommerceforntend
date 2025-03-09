@@ -17,7 +17,7 @@ export const useProducts = (baseUrl: string, filters: Filters, page: number, loc
   };
 
   useSWR(fetchUrl, fetcher, {
-    revalidateOnFocus: true,
+    revalidateOnFocus: false,
     revalidateOnReconnect: true,
   });
 

@@ -5,24 +5,23 @@ import { FaQuestionCircle } from "react-icons/fa";
 import React, { useContext } from "react";
 import { CurrencyAndExchangeRateContext } from "@/contexts/exchange-rate-currency-context";
 import { CustomButton } from "../buttons/custom-button";
+import { formatCurrency } from "@components/format-currency";
 
 const OrderSummary = ({
   className,
   subtotal,
+  weight,
   shipping,
 }: {
   className?: string;
   subtotal: number;
+  weight: number;
   shipping: number;
 }) => {
   const router = useRouter();
   const { rateExchange } = useContext(CurrencyAndExchangeRateContext) || {};
   const { currency, exchangeRate = 1 } = rateExchange || {};
 
-  // Función helper para cálculos de conversión
-  const convertAmount = (amount: number) => (amount * exchangeRate).toFixed(2);
-
-  // Componente reutilizable para ítems del resumen
   const SummaryItem = ({ label, amount, hasTooltip }: {
     label: string;
     amount: number;
@@ -33,11 +32,7 @@ const OrderSummary = ({
         {label}
         {hasTooltip && <FaQuestionCircle className="text-default-400 text-[10px] xs:text-xs" />}
       </span>
-      <Price
-        amount={convertAmount(amount)}
-        currencyCode={currency || "USD"}
-        className="font-medium"
-      />
+      <span>{formatCurrency((amount * exchangeRate), currency, rateExchange?.symbol)}</span>
     </div>
   );
 
@@ -60,6 +55,12 @@ const OrderSummary = ({
             </h2>
 
             <div className="space-y-2">
+              <div className="flex justify-between items-center">
+                <span className="text-xs xs:text-sm text-foreground">
+                  Peso total
+                </span>
+                <span className="text-xs xs:text-sm text-foreground">{weight.toFixed(2)} KG</span>
+              </div>
               <SummaryItem label="Subtotal" amount={subtotal} />
               <SummaryItem label="Envío" amount={shipping} hasTooltip />
             </div>
@@ -69,11 +70,7 @@ const OrderSummary = ({
                 <span className="text-sm xs:text-base font-bold text-foreground">
                   Total
                 </span>
-                <Price
-                  amount={convertAmount(subtotal + shipping)}
-                  currencyCode={currency || "USD"}
-                  className="text-sm xs:text-base font-bold"
-                />
+                <span><span>{formatCurrency(((subtotal + shipping) * exchangeRate), currency, rateExchange?.symbol)}</span></span>
               </div>
             </div>
 
