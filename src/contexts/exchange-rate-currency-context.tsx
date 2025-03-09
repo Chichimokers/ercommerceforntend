@@ -2,8 +2,7 @@
 
 import { createContext, useState, useEffect, useCallback, ReactNode, useContext } from "react";
 import { getCachedUserCurrencyAndRate } from "@/helpers/user-location";
-import { CurrencyData } from "../types/types";
-
+import { CurrencyData } from "@/types/types";
 
 interface CurrencyContextValue {
   rateExchange: CurrencyData | null;
@@ -13,6 +12,28 @@ interface CurrencyContextValue {
   handleCurrencyChange: (newCurrency: string) => void;
   fetchCurrencyData: () => Promise<void>;
 }
+
+// Default values from localStorage to prevent initial null state
+const getInitialState = () => {
+  if (typeof window === 'undefined') return { rateExchange: null, selectedCurrency: null };
+
+  const savedCurrency = localStorage.getItem("selectedCurrency") || null;
+  let savedRateExchange = null;
+
+  try {
+    const savedData = localStorage.getItem("exchangeRateData");
+    if (savedData) {
+      savedRateExchange = JSON.parse(savedData);
+    }
+  } catch (e) {
+    console.error("Failed to parse saved exchange rate data");
+  }
+
+  return {
+    rateExchange: savedRateExchange,
+    selectedCurrency: savedCurrency
+  };
+};
 
 const defaultContextValue: CurrencyContextValue = {
   rateExchange: null,
@@ -34,68 +55,66 @@ export const useCurrency = () => {
 };
 
 export const CurrencyAndExchangeRateProvider = ({ children }: { children: ReactNode }) => {
-  const [rateExchange, setRateExchange] = useState<CurrencyData | null>(null);
-  const [selectedCurrency, setSelectedCurrency] = useState<string | null>(null);
+
+  const initialState = getInitialState();
+  const [rateExchange, setRateExchange] = useState<CurrencyData | null>(initialState.rateExchange);
+  const [selectedCurrency, setSelectedCurrency] = useState<string | null>(initialState.selectedCurrency);
   const [isDataChanging, setIsDataChanging] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(!!initialState.rateExchange);
 
-  // Load initial values from localStorage
-  useEffect(() => {
-    const savedCurrency = localStorage.getItem("selectedCurrency");
-    if (savedCurrency) {
-      setSelectedCurrency(savedCurrency);
-    }
-
-    const savedExchangeData = localStorage.getItem("exchangeRateData");
-    if (savedExchangeData) {
-      try {
-        const parsedData = JSON.parse(savedExchangeData);
-        setRateExchange(parsedData);
-      } catch (error) {
-        console.error("Failed to parse saved exchange rate data:", error);
-      }
-    }
-  }, []);
-
-  // Fetch currency data from API
-  const fetchCurrencyData = useCallback(async () => {
+  const fetchCurrencyData = useCallback(async (showLoading = true) => {
     try {
-      setIsDataChanging(true);
+      if (showLoading) {
+        setIsDataChanging(true);
+      }
 
       const data = await getCachedUserCurrencyAndRate(selectedCurrency || undefined);
 
       if (data) {
         setRateExchange(data);
+        setIsInitialized(true);
 
         if (!selectedCurrency) {
           setSelectedCurrency(data.currency);
           localStorage.setItem('selectedCurrency', data.currency);
         }
 
-        // Save full data object to localStorage
         localStorage.setItem('exchangeRateData', JSON.stringify(data));
       }
     } catch (error) {
       console.error('Error fetching currency data:', error);
     } finally {
-      setIsDataChanging(false);
+      if (showLoading) {
+        setIsDataChanging(false);
+      }
     }
   }, [selectedCurrency]);
 
-  // Initialize data if needed
+  const backgroundRefresh = useCallback(() => {
+    fetchCurrencyData(false);
+  }, [fetchCurrencyData]);
+
   useEffect(() => {
-    if (!rateExchange) {
+
+    if (rateExchange) {
+
+      const timer = setTimeout(() => {
+        backgroundRefresh();
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+
+    else {
       fetchCurrencyData();
     }
-  }, [fetchCurrencyData, rateExchange]);
+  }, [fetchCurrencyData, backgroundRefresh, rateExchange]);
 
-  // Update rate when selectedCurrency changes
   useEffect(() => {
     if (selectedCurrency && (!rateExchange || rateExchange.currency !== selectedCurrency)) {
       fetchCurrencyData();
     }
   }, [selectedCurrency, rateExchange, fetchCurrencyData]);
 
-  // Handle rate updates
   const updateExchangeRate = useCallback((newRate: number) => {
     setRateExchange(prev => {
       if (!prev) return {
@@ -114,7 +133,6 @@ export const CurrencyAndExchangeRateProvider = ({ children }: { children: ReactN
     });
   }, []);
 
-  // Handle currency changes
   const handleCurrencyChange = useCallback((newCurrency: string) => {
     setSelectedCurrency(newCurrency);
     localStorage.setItem('selectedCurrency', newCurrency);

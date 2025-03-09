@@ -1,10 +1,10 @@
 "use client";
 
-import { QRCodeCanvas } from "qrcode.react"; // Asegúrate de instalar qrcode.react
+import { QRCodeCanvas } from "qrcode.react";
 import { useTheme } from "next-themes";
 
 const CustomQRCode = ({ value }: { value: string }) => {
-  const { theme } = useTheme(); // Detecta el tema actual
+  const { theme } = useTheme();
   const isDark = theme === "dark";
 
   return (

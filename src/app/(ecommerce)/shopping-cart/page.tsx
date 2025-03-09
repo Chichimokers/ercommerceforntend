@@ -8,12 +8,37 @@ import CartCard from "@/components/cards/cart-cards";
 import SmCartCard from "@/components/cards/sm-cart-card";
 import OrderSummary from "@components/cards/summary";
 import EmptyCart from "@components/empty/empty-cart";
+import { useLocation } from "@contexts/location-context";
+import useSWR from "swr";
+import { useShipping } from "@/contexts/shipping-context";
 
 export default function ShoppingCartPage() {
   const { cart } = useContext(CartContext) || {};
   const { cartProducts, isLoading } = useProductContext();
   const [isMounted, setIsMounted] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const fetchUrl = `${process.env.NEXT_PUBLIC_API_URL}public/shipping-price`;
+  const { location } = useLocation();
+  const { setShippingPrice, setTotalWeight } = useShipping()
+
+  const fetcher = async (url: string) => {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ total_weight: calculateWeight(), municipality: location.municipality })
+    })
+    if (!response.ok) {
+      const errorResponse = await response.json();
+      throw new Error(errorResponse?.message || response.statusText);
+    }
+    return response.json()
+  }
+
+  const { data: price, error, isLoading: isLoadingPrice } = useSWR(fetchUrl, fetcher, {
+    revalidateOnFocus: false,
+    shouldRetryOnError: false,
+    dedupingInterval: 60000,
+  });
 
   useEffect(() => {
     setIsMounted(true);
@@ -48,6 +73,27 @@ export default function ShoppingCartPage() {
         : 0,
     [cart, productMap]
   );
+
+  const calculateWeight = useCallback(
+    () =>
+      cart
+        ? cart.reduce((total, item) => {
+          const product = productMap.get(item.id);
+          if (!product) return total;
+          return total + (product.weight * item.cantidad);
+        }, 0)
+        : 0,
+    [cart, productMap]
+  );
+
+  useEffect(() => {
+    if (price && !isLoadingPrice) {
+      setShippingPrice(price);
+    }
+
+    const weight = calculateWeight();
+    setTotalWeight(weight);
+  }, [price, isLoadingPrice, calculateWeight, setShippingPrice, setTotalWeight]);
 
   const cartProductsWithQuantity = useMemo(() => {
     if (!cart || !cartProducts.length) return [];
@@ -121,7 +167,12 @@ export default function ShoppingCartPage() {
           </div>
 
           <div className="lg:col-span-1">
-            <OrderSummary subtotal={calculateSubtotal()} shipping={1} />
+            {isLoadingPrice ?
+              <div className="w-full h-full rounded-xl bg-white dark:bg-gray-800 shadow-md animate-pulse"></div>
+              :
+              <OrderSummary subtotal={calculateSubtotal()} shipping={price} weight={calculateWeight()} />
+            }
+
           </div>
         </div>
       </div>

@@ -94,15 +94,14 @@ const Filters = ({ onFilterChange, setIsInvalidFilters, className }: FiltersProp
   }, [searchParams, categories]);
 
   useEffect(() => {
-    // Verificamos si existe el parámetro "category" en la URL
+
     const categoryParam = searchParams.get("category");
     if (!categoryParam || categoryParam.trim() === "") {
-      // Si no hay parámetro o viene vacío, se mantiene el estado por defecto (con "Todos")
+
       setFilterState(DEFAULT_FILTER_STATE);
       return;
     }
 
-    // Función auxiliar para mapear IDs a nombres según el tipo (categoría o subcategoría)
     const getMappedIds = (param: string | null, type: 'category' | 'subcategory') => {
       const items = param?.split(",") || [];
       return items.map((id) => {

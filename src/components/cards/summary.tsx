@@ -10,10 +10,12 @@ import { formatCurrency } from "@components/format-currency";
 const OrderSummary = ({
   className,
   subtotal,
+  weight,
   shipping,
 }: {
   className?: string;
   subtotal: number;
+  weight: number;
   shipping: number;
 }) => {
   const router = useRouter();
@@ -53,6 +55,12 @@ const OrderSummary = ({
             </h2>
 
             <div className="space-y-2">
+              <div className="flex justify-between items-center">
+                <span className="text-xs xs:text-sm text-foreground">
+                  Peso total
+                </span>
+                <span className="text-xs xs:text-sm text-foreground">{weight.toFixed(2)} KG</span>
+              </div>
               <SummaryItem label="Subtotal" amount={subtotal} />
               <SummaryItem label="Envío" amount={shipping} hasTooltip />
             </div>

@@ -18,7 +18,7 @@ interface CurrencySelectorProps {
 }
 
 export default function CurrencySelector({ selectlabel }: CurrencySelectorProps) {
-  // Use the improved hook instead of direct context
+
   const {
     selectedCurrency,
     handleCurrencyChange,
@@ -27,27 +27,32 @@ export default function CurrencySelector({ selectlabel }: CurrencySelectorProps)
 
   const [showModal, setShowModal] = useState(false);
 
-  // Set a timer to delay the modal visibility for better UX
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
+
   useEffect(() => {
     let timer: NodeJS.Timeout;
+
+    if (isInitialLoad) {
+      setIsInitialLoad(false);
+      return;
+    }
+
     if (isDataChanging) {
       timer = setTimeout(() => {
-        setShowModal(true); // Show the modal after 1 second
+        setShowModal(true);
       }, 1000);
     } else {
-      setShowModal(false); // Hide modal when isDataChanging becomes false
+      setShowModal(false);
     }
-    return () => clearTimeout(timer); // Cleanup timer on unmount or when isDataChanging changes
-  }, [isDataChanging]);
+    return () => clearTimeout(timer);
+  }, [isDataChanging, isInitialLoad]);
 
-  // Memoize the loading spinner to prevent unnecessary re-renders
   const ModalFallback = useCallback(() => (
     <div className="flex justify-center items-center w-full h-full">
       <Spinner size="lg" color="primary" className="bg-transparent" />
     </div>
   ), []);
 
-  // Memoize currency items for performance
   const currencyItems = useMemo(() => {
     return Object.entries(currencies).map(([code, currency]) => ({
       key: code,
@@ -82,13 +87,11 @@ export default function CurrencySelector({ selectlabel }: CurrencySelectorProps)
     }));
   }, []);
 
-  // Handle currency selection
   const handleSelectionChange = useCallback((selected: React.Key) => {
     const newCurrency = selected.toString().toUpperCase();
     handleCurrencyChange(newCurrency);
   }, [handleCurrencyChange]);
 
-  // Don't render anything if we don't have a currency yet
   if (!selectedCurrency) return null;
 
   return (

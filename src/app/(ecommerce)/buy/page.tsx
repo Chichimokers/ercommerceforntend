@@ -1,7 +1,7 @@
 "use client";
 
-import { useContext, useEffect, useMemo, useState } from "react";
-import { Input } from "@heroui/react";
+import { useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { Input, Spinner } from "@heroui/react";
 import React from "react";
 import { useProductContext } from "@contexts/product-context";
 import { CartContext } from "@/contexts/cart-context";
@@ -16,8 +16,11 @@ import Image from "next/image";
 import { useSession } from "next-auth/react";
 import { FormField } from "@components/forms/form-field";
 import InputField from "@components/forms/input";
+import { formatCurrency } from "@components/format-currency";
+import { CurrencyAndExchangeRateContext } from "@/contexts/exchange-rate-currency-context";
+import { useShipping } from "@contexts/shipping-context";
 
-// Esquema de validación con Zod
+
 const formSchema = z.object({
   firstName: z.string().min(2, "Mínimo 2 caracteres"),
   lastName: z.string().min(2, "Mínimo 2 caracteres"),
@@ -43,8 +46,34 @@ type FormValues = z.infer<typeof formSchema>;
 export default function BuyPage() {
   const { cart } = useContext(CartContext) || {};
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { products } = useProductContext();
+  const { products, isLoading } = useProductContext();
   const { data: session } = useSession();
+  const { rateExchange } = useContext(CurrencyAndExchangeRateContext) || {};
+  const { shippingPrice, totalWeight } = useShipping();
+  const rateShippingPrice = (shippingPrice! * (rateExchange?.exchangeRate || 1))
+
+  const productMap = useMemo(
+    () => new Map(products?.map((p) => [p.id, p]) || []),
+    [products]
+  );
+
+  const calculateSubtotal = useCallback(
+    () =>
+      cart
+        ? cart.reduce((total, item) => {
+          const product = productMap.get(item.id);
+          if (!product) return total;
+
+          let itemPrice = product.price;
+
+          if (product.discount && item.cantidad >= product.discount.min) {
+            itemPrice = itemPrice - product.discount.reduction;
+          }
+          return total + (itemPrice * item.cantidad);
+        }, 0)
+        : 0,
+    [cart, productMap]
+  );
 
   const methods = useForm<FormValues>({
     resolver: zodResolver(formSchema)
@@ -54,7 +83,6 @@ export default function BuyPage() {
     console.log("Errores actuales:", methods.formState.errors);
   }, [methods.formState.errors]);
 
-  // Calculo optimizado del subtotal
   const subtotal = useMemo(() => {
     return (
       cart?.reduce((total, item) => {
@@ -142,6 +170,14 @@ export default function BuyPage() {
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Spinner label="Cargando Productos..." />
+      </div>
+    );
+  }
+
   return (
     <section className="flex flex-col items-center justify-center gap-8 py-12 md:py-16 px-4 xl:px-0 mt-16">
       <Toaster
@@ -161,7 +197,6 @@ export default function BuyPage() {
           Finalizar Compra
         </h1>
         <div className="grid lg:grid-cols-2 gap-8">
-          {/* Sección del Formulario */}
           <div className="p-6 rounded-2xl bg-white dark:bg-gray-800 shadow-md border border-default-200 transition-all duration-300 hover:shadow-2xl">
             <div className="flex items-center gap-2 mb-6 pb-4 border-b border-default-200">
               <UserCircleIcon className="h-6 w-6 text-primary" />
@@ -231,7 +266,6 @@ export default function BuyPage() {
                     <MapPinIcon className="h-6 w-6 text-primary" />
                     <h2 className="text-xl font-semibold">Dirección de Envío</h2>
                   </div>
-                  {/* El AddressForm se encarga de renderizar los campos relacionados a la dirección */}
                   <AddressForm />
                 </div>
                 <div className="mt-8 w-full">
@@ -248,7 +282,6 @@ export default function BuyPage() {
               </form>
             </FormProvider>
           </div>
-          {/* Resumen del Pedido */}
           <div className="p-6 rounded-2xl bg-white dark:bg-gray-800 shadow-md border border-default-200">
             <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
               <ShoppingCartIcon className="h-6 w-6 text-primary" />
@@ -257,6 +290,7 @@ export default function BuyPage() {
             <div className="space-y-4">
               {cart?.map((item) => {
                 const product = products.find((p) => p.id === item.id);
+                //TODO
                 return (
                   <div
                     key={item.id}
@@ -279,7 +313,11 @@ export default function BuyPage() {
                       </div>
                     </div>
                     <p className="font-medium">
-                      {(product?.price || 0) * item.cantidad}€
+                      {product?.discount && item.cantidad >= product.discount.min ?
+                        (formatCurrency((((product?.price - product.discount.reduction) * item.cantidad) * (rateExchange?.exchangeRate || 1)), rateExchange?.currency, rateExchange?.symbol))
+                        :
+                        formatCurrency((((product?.price || 0) * item.cantidad) * (rateExchange?.exchangeRate || 1)), rateExchange?.currency, rateExchange?.symbol)
+                      }
                     </p>
                   </div>
                 );
@@ -288,15 +326,15 @@ export default function BuyPage() {
             <div className="mt-8 pt-6 border-t border-default-200">
               <div className="flex justify-between items-center mb-4">
                 <span className="text-default-600">Subtotal:</span>
-                <span className="font-semibold">{subtotal}€</span>
+                <span className="font-semibold">{formatCurrency((calculateSubtotal() * (rateExchange?.exchangeRate || 1)), rateExchange?.currency, rateExchange?.symbol)}</span>
               </div>
               <div className="flex justify-between items-center mb-4">
                 <span className="text-default-600">Envío:</span>
-                <span className="font-semibold">Gratis</span>
+                <span className="font-semibold">{formatCurrency(rateShippingPrice, rateExchange?.currency, rateExchange?.symbol)}</span>
               </div>
               <div className="flex justify-between items-center text-xl font-bold">
                 <span>Total:</span>
-                <span className="text-primary">{subtotal}€</span>
+                <span className="text-primary">{formatCurrency(((calculateSubtotal() + shippingPrice!) * (rateExchange?.exchangeRate || 1)), rateExchange?.currency, rateExchange?.symbol)}</span>
               </div>
             </div>
           </div>

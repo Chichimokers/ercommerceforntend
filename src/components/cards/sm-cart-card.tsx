@@ -33,7 +33,7 @@ const SmCartCard = React.memo(({ product, className = "" }: SmCartCardProps) => 
 
   const discountPercentage = useMemo(() => {
     if (!product.discount || cartQuantity < product.discount.min) return 0;
-    return (product.discount.reduction * 100) / unitPrice;
+    return ((product.discount.reduction * 100) * (rateExchange?.exchangeRate || 1)) / unitPrice;
   }, [product.discount, cartQuantity]);
 
   const totalPrice = useMemo(() => {
@@ -71,7 +71,7 @@ const SmCartCard = React.memo(({ product, className = "" }: SmCartCardProps) => 
 
           {product.discount && (
             <Tooltip
-              content={`Compra ${product.discount.min} o más para obtener un descuento del ${product.discount.reduction}%`}
+              content={`Compra ${product.discount.min} o más para obtener un descuento del ${((product.discount.reduction * 100) / unitPrice).toFixed(2)}%`}
               placement="bottom"
             >
               <span className="text-xs text-default-600 cursor-help hover:text-blue-700 dark:hover:text-blue-400 transition-colors">
