@@ -102,7 +102,7 @@ const ProductCard = React.memo(({ product, prefetch = "none", className = "", im
               </Chip>
             )}
 
-            {product.discount && (
+            {product.discount && product.quantity > product.discount.min && (
               <Chip
                 className="absolute top-2 right-2 text-xs z-10 bg-opacity-80"
                 color="warning"

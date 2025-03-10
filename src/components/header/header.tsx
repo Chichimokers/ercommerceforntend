@@ -247,7 +247,7 @@ export const Header = ({ className, setModalOpen }: { className?: string, setMod
     <HerouiNavbar
       maxWidth="full"
       isBlurred
-      className={`${className} z-40 top-0 left-0 right-0 h-16 bg-blue-50 dark:bg-gray-900`}
+      className={`${className} z-50 top-0 left-0 right-0 h-16 bg-blue-50 dark:bg-gray-900`}
 
     >
       <NavbarContent className="sm:basis-full max-w-fit" justify="start">
@@ -294,7 +294,7 @@ export const Header = ({ className, setModalOpen }: { className?: string, setMod
       <NavbarContent className="xm:hidden basis" justify="end">
         <NavbarItem className="flex gap-2 items-end">
           <MobileSearch />
-
+          <LocationButton setModalOpen={setModalOpen} />
           <ThemeSwitch />
           {!isCartOrBuyPage && (
             <div className="hidden xm:flex">

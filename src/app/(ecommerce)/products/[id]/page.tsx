@@ -4,11 +4,11 @@ import React, { Suspense, useCallback, useEffect, useMemo, useState } from "reac
 import { useParams } from "next/navigation";
 import useSWR from "swr";
 import { motion } from "framer-motion";
-import { Button, Card, CardBody, Spinner, Tab, Tabs, Tooltip } from "@heroui/react";
+import { Card, CardBody, Spinner, Tab, Tabs } from "@heroui/react";
 import { Breadcrumbs } from "@components/breadcrumb/breadcrumbs";
-import { FaExchangeAlt, FaHeart, FaShoppingCart, FaStar, FaTruck } from "react-icons/fa";
-import { FaBagShopping, FaShield } from "react-icons/fa6";
-import { Zoom } from "react-awesome-reveal";
+import { FaShoppingCart, FaTruck } from "react-icons/fa";
+import { FaBagShopping } from "react-icons/fa6";
+import Zoom from "@components/animations/zoom";
 
 import { useProductContext } from "@/contexts/product-context";
 import { useCurrency } from "@/contexts/exchange-rate-currency-context";
@@ -224,7 +224,7 @@ export default function ProductDetailPage() {
 
                 {product.discount && quantity < product.discount.min && (
                   <div className="mt-2 text-sm text-blue-600">
-                    Compra {product.discount.min} o más para obtener un {product.discount.reduction}% de descuento
+                    Compra {product.discount.min} o más para obtener un {((product.discount.reduction * 100) / product.price).toFixed(2)}% de descuento
                   </div>
                 )}
               </div>
