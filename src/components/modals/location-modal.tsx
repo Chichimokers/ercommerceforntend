@@ -16,17 +16,42 @@ interface Option {
 const fetcher = async (url: string) => {
   try {
     console.log("Fetching:", url);
-    const res = await fetch(url);
 
-    if (!res.ok) {
-      throw new Error(`API error: ${res.status}`);
+    // Implementar un sistema de reintentos
+    let attempts = 0;
+    const maxAttempts = 3;
+
+    while (attempts < maxAttempts) {
+      try {
+        const res = await fetch(url, {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          cache: 'no-store'
+        });
+
+        if (!res.ok) {
+          const errorText = await res.text();
+          console.error(`API error (${res.status}):`, errorText);
+          throw new Error(`API error: ${res.status}`);
+        }
+
+        const data = await res.json();
+        console.log("API response success:", data);
+        return data;
+      } catch (fetchError) {
+        attempts++;
+        console.warn(`Fetch attempt ${attempts} failed:`, fetchError);
+
+        if (attempts < maxAttempts) {
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        } else {
+          throw fetchError;
+        }
+      }
     }
-
-    const data = await res.json();
-    console.log("API response:", data);
-    return data;
   } catch (error) {
-    console.error("Error fetching data:", error);
+    console.error("All fetch attempts failed:", error);
     throw error;
   }
 };
@@ -153,14 +178,15 @@ export default function LocationModal({ open, onClose, initialProvince = '', ini
               </div>
               <h2 className="text-medium font-light text-gray-800 dark:text-gray-200 mb-4">Serán mostrados los productos que puedan ser entregados en la provincia que seleccione.</h2>
 
-              {fetchError && (
+              {/*fetchError && (
                 <Alert variant="solid" color="danger" className="mb-4">
                   {fetchError}
                 </Alert>
-              )}
+              )*/}
 
               <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Provincia</label>
               <Select
+                aria-label="Provinces"
                 className="w-full"
                 value={province}
                 onChange={(e) => {
@@ -179,6 +205,7 @@ export default function LocationModal({ open, onClose, initialProvince = '', ini
 
               <label className="block mt-4 text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Municipio</label>
               <Select
+                aria-label="Municipalities"
                 className="w-full"
                 value={municipality}
                 onChange={(e) => {
