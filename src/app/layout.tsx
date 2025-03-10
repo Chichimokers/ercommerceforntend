@@ -1,6 +1,6 @@
 import "@styles/global.css";
 import { Head } from "./head";
-import { Metadata } from "next";
+import { Metadata, Viewport } from "next";
 import { Providers } from "./providers";
 import { ClientLayout } from "./client-layout";
 import { Inter } from 'next/font/google';
@@ -29,14 +29,15 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
+};
+
+export const viewport: Viewport = {
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#ffffff" },
     { media: "(prefers-color-scheme: dark)", color: "#000000" },
   ],
-  viewport: {
-    width: "device-width",
-    initialScale: 1,
-  },
+  width: "device-width",
+  initialScale: 1,
 };
 
 export const dynamic = 'auto';
