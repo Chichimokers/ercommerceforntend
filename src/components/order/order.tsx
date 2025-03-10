@@ -14,7 +14,7 @@ const OrderItem = React.memo(({ item, rateExchange }: { item: Item, rateExchange
     if (item.product.discount && item.quantity >= item.product.discount.min) {
       return (item.quantity * (item.product.price - item.product.discount.reduction) * (rateExchange?.exchangeRate || 1));
     }
-    return item.product.price;
+    return (item.product.price * item.quantity * (rateExchange?.exchangeRate || 1));
   }
 
   return (
