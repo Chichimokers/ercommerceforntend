@@ -156,7 +156,7 @@ export default function BuyPage() {
 
       setTimeout(() => {
         window.location.href = "/order-confirmation";
-      }, 2000);
+      }, 1000);
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : "Error desconocido";
