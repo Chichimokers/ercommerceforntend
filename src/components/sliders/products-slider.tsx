@@ -1,10 +1,7 @@
 import React, { useEffect, useState } from "react";
-// Import Swiper React components
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination, Navigation } from "swiper/modules";
 import ProductCard from "../cards/product-card";
-
-// Import Swiper styles
 import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/navigation";
@@ -29,7 +26,7 @@ export default function ProductsSlider({
   }, []);
 
   return (
-    <div className={`xs:p-0 xl:px-16`}>
+    <div className={`relative`}>
       <Swiper
         navigation={
           isXLScreen
@@ -40,43 +37,57 @@ export default function ProductsSlider({
             : false
         }
         slidesPerView={1}
-        spaceBetween={5}
+        spaceBetween={16}
         pagination={{
           clickable: true,
         }}
         breakpoints={{
           320: {
             slidesPerView: 1,
-            spaceBetween: 5,
+            spaceBetween: 24,
           },
           540: {
             slidesPerView: 2,
-            spaceBetween: 5,
+            spaceBetween: 16,
           },
           768: {
             slidesPerView: 3,
-            spaceBetween: 5,
+            spaceBetween: 16,
           },
           1024: {
             slidesPerView: 4,
-            spaceBetween: 5,
+            spaceBetween: 16,
+          },
+          1280: {
+            slidesPerView: 5,
+            spaceBetween: 16,
+          },
+          1536: {
+            slidesPerView: 6,
+            spaceBetween: 16,
           },
         }}
         modules={[Navigation, Pagination]}
+        className="pb-12"
       >
         {products.map((product) => (
-          <SwiperSlide key={product.id} className="mt-2 mb-12 justify-items-center">
-            <ProductCard product={product} />
+          <SwiperSlide key={product.id} className="flex items-center justify-center justify-items-center mb-12">
+            <div className="w-full max-w-[280px]">
+              <ProductCard
+                product={product}
+                className="shadow-sm hover:shadow-md transition-shadow border border-default-300"
+              />
+            </div>
           </SwiperSlide>
         ))}
       </Swiper>
 
-      <div
-        className={`swiper-button-prev ${isXLScreen ? "flex" : "!hidden"}`}
-      ></div>
-      <div
-        className={`swiper-button-next ${isXLScreen ? "flex" : "!hidden"}`}
-      ></div>
+      {isXLScreen && (
+        <>
+          <div className="swiper-button-prev !text-primary-500 !bg-white/80 hover:!bg-white !w-10 !h-10 !rounded-full !shadow-md after:!text-lg"></div>
+          <div className="swiper-button-next !text-primary-500 !bg-white/80 hover:!bg-white !w-10 !h-10 !rounded-full !shadow-md after:!text-lg"></div>
+        </>
+      )}
     </div>
   );
 }

@@ -10,14 +10,14 @@ const useCartActions = (product: { id: string; price: number }) => {
   const [quantity, setQuantity] = useState(1);
 
   const isInCart = useMemo(
-    () => cart?.some((item: { id: string }) => item.id === product.id) || false,
-    [cart, product.id]
+    () => cart?.some((item: { id: string }) => item.id === product?.id) || false,
+    [cart, product?.id]
   );
 
   useEffect(() => {
-    const productInCart = cart?.find((item) => item.id === product.id);
+    const productInCart = cart?.find((item) => item.id === product?.id);
     setQuantity(productInCart?.cantidad || 1);
-  }, [cart, product.id]);
+  }, [cart, product?.id]);
 
   const handleMutation = useCallback((action: () => void) => {
     action();
@@ -32,9 +32,9 @@ const useCartActions = (product: { id: string; price: number }) => {
   const handleRemoveFromCart = useCallback(() => {
     handleMutation(() => {
       setQuantity(1);
-      DelCartItem?.({ id: product.id });
+      DelCartItem?.({ id: product?.id });
     });
-  }, [DelCartItem, product.id, handleMutation]);
+  }, [DelCartItem, product?.id, handleMutation]);
 
   const handleQuantityChange = useCallback((operation: 'inc' | 'dec') => {
     console.log(operation)
@@ -47,8 +47,8 @@ const useCartActions = (product: { id: string; price: number }) => {
   }, [isInCart, product, increaseQuantity, decreaseQuantity]);
 
   const findInCartLocalStorage = useCallback(() => {
-    return cart?.some((item: { id: string }) => item.id === product.id) || false;
-  }, [cart, product.id]);
+    return cart?.some((item: { id: string }) => item.id === product?.id) || false;
+  }, [cart, product?.id]);
 
   const getLocalStorageData = useCallback(
     (id: string) => {

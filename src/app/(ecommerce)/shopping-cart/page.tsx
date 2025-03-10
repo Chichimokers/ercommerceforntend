@@ -31,12 +31,15 @@ export default function ShoppingCartPage() {
       const errorResponse = await response.json();
       throw new Error(errorResponse?.message || response.statusText);
     }
+    if (calculateWeight() === 0) {
+      return 0;
+    }
     return response.json()
   }
 
   const { data: price, error, isLoading: isLoadingPrice } = useSWR(fetchUrl, fetcher, {
-    revalidateOnFocus: false,
-    shouldRetryOnError: false,
+    revalidateOnFocus: true,
+    shouldRetryOnError: true,
     dedupingInterval: 60000,
   });
 
