@@ -137,6 +137,7 @@ const OrdersPage = () => {
       province: order.province,
       receiver_name: order.receiver_name,
       stripe_id: order.stripe_id || undefined,
+      created_at: order.created_at,
       orderItems: order.orderItems.map((item: any) => ({
         id: item.id,
         product: {

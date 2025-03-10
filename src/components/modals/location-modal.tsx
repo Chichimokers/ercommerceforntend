@@ -18,13 +18,15 @@ const fetcher = (url: string) => fetch(url).then((res) => res.json());
 interface LocationModalProps {
   open: boolean;
   onClose: () => void;
+  initialProvince?: string;
+  initialMunicipality?: string;
 }
 
-export default function LocationModal({ open, onClose }: LocationModalProps) {
+export default function LocationModal({ open, onClose, initialProvince = '', initialMunicipality = '' }: LocationModalProps) {
   const { location, setLocation } = useLocation();
-  const { clearCart } = useContext(CartContext) || {};
-  const [province, setProvince] = useState<string>(location?.province || "");
-  const [municipality, setMunicipality] = useState<string>(location?.municipality || "");
+  const { clearCart, cart } = useContext(CartContext) || {};
+  const [province, setProvince] = useState<string>(location?.province || initialProvince);
+  const [municipality, setMunicipality] = useState<string>(location?.municipality || initialMunicipality);
   const [changeLocation, setChangeLocation] = useState<boolean>(false);
 
   useEffect(() => {
@@ -45,8 +47,13 @@ export default function LocationModal({ open, onClose }: LocationModalProps) {
     fetcher
   );
 
-  const provinceList: Option[] = provinces.map((prov: any) => ({ key: prov.id, label: prov.name }));
-  const municipalityList: Option[] = municipalities.map((mun: any) => ({ key: mun.id, label: mun.name }));
+  const provinceList: Option[] = Array.isArray(provinces)
+    ? provinces.map((prov: any) => ({ key: prov.id, label: prov.name }))
+    : [];
+
+  const municipalityList: Option[] = Array.isArray(municipalities)
+    ? municipalities.map((mun: any) => ({ key: mun.id, label: mun.name }))
+    : [];
 
   const handleProvinceChange = (event: ChangeEvent<HTMLSelectElement>) => {
     setProvince(event.target.value);
@@ -59,7 +66,7 @@ export default function LocationModal({ open, onClose }: LocationModalProps) {
 
   const handleConfirm = () => {
     setLocation({ province, municipality });
-    if (clearCart && changeLocation) clearCart();
+    if (clearCart && changeLocation && cart?.length) clearCart();
     setChangeLocation(false);
     onClose();
   };
@@ -95,8 +102,10 @@ export default function LocationModal({ open, onClose }: LocationModalProps) {
                 className="w-full"
                 value={province}
                 onChange={(e) => {
+                  if (location.province) {
+                    setChangeLocation(true);
+                  }
                   handleProvinceChange(e);
-                  setChangeLocation(true);
                 }}
                 defaultSelectedKeys={[province]}
                 items={provinceList}
@@ -111,8 +120,10 @@ export default function LocationModal({ open, onClose }: LocationModalProps) {
                 className="w-full"
                 value={municipality}
                 onChange={(e) => {
+                  if (location.municipality) {
+                    setChangeLocation(true);
+                  }
                   handleMunicipalityChange(e);
-                  setChangeLocation(true);
                 }}
                 defaultSelectedKeys={[municipality]}
                 items={municipalityList}
@@ -122,8 +133,10 @@ export default function LocationModal({ open, onClose }: LocationModalProps) {
                 {(municipality) => <SelectItem>{municipality.label}</SelectItem>}
               </Select>
 
-              {changeLocation &&
+              {(changeLocation && cart?.length) ?
                 <Alert variant="faded" color="danger" className="mt-4">Al cambiar la ubicacion se eliminaran todos los productos del carrito</Alert>
+                :
+                null
               }
 
               <div className="mt-6 flex justify-end gap-2">

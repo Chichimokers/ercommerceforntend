@@ -1,96 +1,76 @@
 "use client";
 
-import { useEffect, useState, useMemo, useContext } from "react";
-import dynamic from "next/dynamic";
-import Link from "next/link";
+import React, { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
-import { FaArrowLeft, FaShoppingCart, FaMoneyBill } from "react-icons/fa";
-import Image from "next/image";
-import useCartActions from "@/components/actions";
-import React from "react";
-import { CustomButton } from "@/components/buttons/custom-button";
-import { FaTrash } from "react-icons/fa6";
+import useSWR from "swr";
+import { motion } from "framer-motion";
+import { Button, Card, CardBody, Spinner, Tab, Tabs, Tooltip } from "@heroui/react";
+import { Breadcrumbs } from "@components/breadcrumb/breadcrumbs";
+import { FaExchangeAlt, FaHeart, FaShoppingCart, FaStar, FaTruck } from "react-icons/fa";
+import { FaBagShopping, FaShield } from "react-icons/fa6";
+import { Zoom } from "react-awesome-reveal";
+
 import { useProductContext } from "@/contexts/product-context";
-import { ProductBase } from "@/types/types";
-import { CurrencyAndExchangeRateContext } from "@contexts/exchange-rate-currency-context";
+import { useCurrency } from "@/contexts/exchange-rate-currency-context";
+import useCartActions from "@/components/actions";
 
-const RelationedProductSection = dynamic(
-  () => import("@/components/sections/relationed-products"),
-  {
-    loading: () => (
-      <div className="flex gap-4 overflow-hidden px-4 py-2 rounded-3xl">
-        {[...Array(4)].map((_, i) => (
-          <div key={i} className="flex-1 min-w-[240px] max-w-[240px]">
-            <div className="animate-pulse bg-default-50/80 rounded-3xl border border-default-100">
-              <div className="relative aspect-square w-full bg-default-100 rounded-t-3xl">
-                <div className="absolute inset-0 bg-gradient-to-br from-default-200 to-default-300 animate-pulse rounded-t-3xl" />
-              </div>
-              <div className="p-3 sm:p-4 space-y-3">
-                <div className="h-5 bg-default-200 rounded-full w-3/4" />
-                <div className="h-4 bg-default-200 rounded-full w-1/2" />
-                <div className="flex justify-between items-center gap-2">
-                  <div className="h-8 bg-default-200 rounded-full w-3/4" />
-                  <div className="h-9 w-10 bg-default-200 rounded-full" />
-                </div>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-    )
-  }
-);
-const QuantityAdjuster = dynamic(
-  () => import("@/components/buttons/quantity-selector")
-);
+import { CustomButton } from "@/components/buttons/custom-button";
+import QuantityAdjuster from "@/components/buttons/quantity-selector";
+import ProductImageGallery from "@components/product-image-gallery";
+import ErrorBoundary from "@components/error-boundary";
+import { SEO } from "@/components/seo";
 
-const defaultProduct: ProductBase = {
-  id: "",
-  name: "Cargando...",
-  price: 0,
-  image: "/placeholder-image.jpg",
-  description: "Cargando descripción...",
-  category: "",
-  quantity: 0,
-  short_description: "",
-  averageRating: 0,
-  province: "",
-  weight: 0,
+import { formatCurrency } from "@components/format-currency";
+import RelatedProductSection from "@components/sections/relationed-products";
+import { WeightIcon } from "lucide-react";
+
+export type ProductBase = {
+  id: string;
+  name: string;
+  price: number;
+  short_description: string;
+  description: string;
+  category?: string;
+  subcategory?: string;
+  image?: string;
+  quantity: number;
+  averageRating?: number;
+  province: string;
+  weight: number;
+  discount?: {
+    min: number;
+    reduction: number;
+  };
 };
 
-const ProductDetailPage = () => {
-  const params = useParams();
-  const id = params?.id as string;
+const ProductReviews = React.lazy(() => import("@/components/product-reviews"));
+
+export default function ProductDetailPage() {
+  const { id } = useParams();
+  const productId = Array.isArray(id) ? id[0] : id;
+
+  const [activeTab, setActiveTab] = useState("details");
+  const [selectedImage, setSelectedImage] = useState(0);
+
+  const { rateExchange } = useCurrency();
   const { products } = useProductContext();
-  const { rateExchange } = useContext(CurrencyAndExchangeRateContext) || {};
 
   const [productState, setProductState] = useState<{
-    data: ProductBase;
+    data: ProductBase | null;
     loading: boolean;
-    error: string | null; // Ahora acepta strings además de null
+    error: string | null;
   }>({
-    data: defaultProduct,
+    data: null,
     loading: true,
     error: null,
   });
 
-
-  const [imageSrc, setImageSrc] = useState("/placeholder-image.jpg");
-
-  const displayProduct = useMemo(
-    () =>
-      productState.loading || productState.error || !productState.data
-        ? defaultProduct
-        : { ...defaultProduct, ...productState.data },
-    [productState]
-  );
-
   useEffect(() => {
-    if (!id) return;
+    if (!productId) return;
 
     const getProductData = async () => {
       try {
-        const foundProduct = products?.find((p) => p.id.toString() === id);
+        const foundProduct = products?.find((p) => p.id.toString() === productId);
         if (foundProduct) {
           setProductState({ data: foundProduct, loading: false, error: null });
           return;
@@ -99,7 +79,7 @@ const ProductDetailPage = () => {
         setProductState((prev) => ({ ...prev, loading: true, error: null }));
 
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}public/product-details?id=${id}`
+          `${process.env.NEXT_PUBLIC_API_URL}public/product-details?id=${productId}`
         );
 
         if (!response.ok) throw new Error(`Error: ${response.statusText}`);
@@ -116,152 +96,284 @@ const ProductDetailPage = () => {
     };
 
     getProductData();
-  }, [id, products]);
+  }, [productId, products]);
 
-  useEffect(() => {
-    if (displayProduct.image) {
-      setImageSrc(displayProduct.image);
+  const product = productState.data;
+  const loading = productState.loading;
+  const error = productState.error;
+
+  const {
+    quantity,
+    isInCart,
+    findInCartLocalStorage,
+    getLocalStorageData,
+    handleAddToCart,
+    handleRemoveFromCart,
+    handleQuantityInc,
+    handleQuantityDec
+  } = useCartActions(product as ProductBase);
+
+  const breadcrumbItems = useMemo(() => {
+    return [
+      { label: 'Productos', href: '/products' },
+      { label: product?.name || 'Detalles del producto' }
+    ];
+  }, [product?.name]);
+
+  const displayPrice = useMemo(() => {
+    if (!product || !rateExchange) return 0;
+    return product.price * (rateExchange.exchangeRate || 1);
+  }, [product, rateExchange]);
+
+  const discountedPrice = useMemo(() => {
+    if (!product?.discount || !displayPrice) return null;
+    if (quantity >= product.discount.min) {
+      return displayPrice * (1 - product.discount.reduction / 100);
     }
-  }, [displayProduct.image]);
+    return null;
+  }, [displayPrice, product, quantity]);
 
-  const cartActions = useCartActions({
-    id: displayProduct.id,
-    price: displayProduct.price,
-  });
+  const handleTabChange = useCallback((key: React.Key) => {
+    setActiveTab(key.toString());
+  }, []);
 
-  const CartActions = useMemo(() => (
-    !productState.loading && (
-      <div className="grid grid-cols-2 gap-2 mt-4 w-full">
-        {!cartActions.isInCart && !cartActions.findInCartLocalStorage() ? (
-          <CustomButton className="w-full" onClick={cartActions.handleAddToCart}>
-            <FaShoppingCart />
-            Agregar
-          </CustomButton>
-        ) : (
-          <CustomButton
-            className="w-full"
-            color="danger"
-            onClick={cartActions.handleRemoveFromCart}
-          >
-            <FaTrash />
-            Eliminar
-          </CustomButton>
-        )}
-        <Link
-          className="w-full flex flex-row items-center justify-center gap-2 relative overflow-hidden rounded-xl focus:outline-none transition bg-green-500 text-white hover:bg-green-600 text-base py-2 px-6 disabled:opacity-50 disabled:cursor-not-allowed"
-          href="/shopping-cart"
-          onClick={
-            !cartActions.isInCart && !cartActions.findInCartLocalStorage()
-              ? cartActions.handleAddToCart
-              : undefined
-          }
-        >
-          <FaMoneyBill />
-          Comprar ahora
-        </Link>
-      </div>
-    )
-  ), [productState.loading, cartActions]);
-
-  if (productState.error && id && !productState.loading) {
+  if (error) {
     return (
-      <div className="w-full mx-auto py-10 rounded-xl mt-16">
-        <div className="p-5 flex flex-col items-center justify-center">
-          <h2 className="text-xl font-bold text-red-600">
-            Error al cargar el producto
-          </h2>
-          <p className="mt-2 text-gray-600">Prueba más tarde</p>
-          <Link
-            className="mt-4 text-blue-600 hover:underline flex items-center"
-            href="/products/"
-          >
-            <FaArrowLeft className="w-4 h-4 mr-2" />
-            Volver a todos los productos
-          </Link>
+      <div className="container mx-auto px-4 py-12">
+        <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded">
+          <h2 className="text-red-700 text-xl font-bold">Error loading product</h2>
+          <p className="text-red-600">Please try again later or contact support.</p>
         </div>
       </div>
     );
   }
 
+  if (loading || !product) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <Spinner size="lg" color="primary" />
+      </div>
+    );
+  }
+
   return (
-    <div className="w-full max-w-7xl mx-auto py-8 md:py-12 px-4 sm:px-6 lg:px-8 mt-16">
-      <div className="bg-white dark:bg-gray-800 shadow-sm rounded-2xl p-6 md:p-8 lg:p-10">
-        <div className="flex flex-col md:flex-row gap-8 lg:gap-12">
-          <div className="flex-shrink-0 md:w-1/2 lg:w-2/5">
-            <div className="relative w-full aspect-square group rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-700">
+    <>
+      <SEO
+        title={`${product.name} | Esaki`}
+        description={product.short_description}
+        image={product.image}
+      />
 
-              <Image
-                key={imageSrc}
-                alt={displayProduct.name}
-                className="w-full h-96 object-contain"
-                fill
-                loading="lazy"
-                src={imageSrc}
-                onError={() => setImageSrc("/nophoto.jpeg")}
+      <div className="container mx-auto px-4 py-8">
+        <Breadcrumbs items={breadcrumbItems} className="mb-6" />
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div>
+            <ErrorBoundary fallback={<div>Error loading images</div>}>
+              <ProductImageGallery
+                images={[product.image || '/placeholder.jpg']}
+                selectedIndex={selectedImage}
+                onSelect={setSelectedImage}
               />
-            </div>
+            </ErrorBoundary>
+          </div>
 
-            <div className="mt-6 space-y-4">
-              <div className="flex items-center justify-between bg-gray-100 dark:bg-gray-700 p-4 rounded-xl">
-                <p className="text-3xl font-bold text-green-600 dark:text-green-400">
-                  {new Intl.NumberFormat('en-US', {
-                    style: 'currency',
-                    currency: rateExchange?.currency || "USD"
-                  }).format(displayProduct.price * (rateExchange?.exchangeRate || 1))}
+          <div className="space-y-6">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <h1 className="text-3xl font-bold text-gray-800 dark:text-white">{product.name}</h1>
 
-                </p>
-                {!productState.loading && (
-                  <div className="flex items-center space-x-3">
-                    <QuantityAdjuster
-                      quantity={cartActions.quantity}
-                      isInCart={cartActions.isInCart}
-                      handleQuantityInc={cartActions.handleQuantityInc}
-                      handleQuantityDec={cartActions.handleQuantityDec}
-                      findInCartLocalStorage={cartActions.findInCartLocalStorage}
-                      getLocalStorageData={cartActions.getLocalStorageData}
-                      productId={displayProduct.id}
-                      maxLimit={displayProduct.quantity}
-                      className="bg-white dark:bg-gray-800 shadow-sm hover:shadow-md transition-shadow"
+              {/*product.averageRating !== undefined && (
+                <div className="flex items-center mt-2">
+                  {[...Array(5)].map((_, i) => (
+                    <FaStar
+                      key={i}
+                      className={`w-5 h-5 ${i < Math.floor(product.averageRating || 0)
+                        ? "text-yellow-400"
+                        : "text-gray-300"
+                        }`}
                     />
+                  ))}
+                  <span className="ml-2 text-gray-600">
+                    {product.averageRating.toFixed(1)} 0 reviews
+                  </span>
+                </div>
+              )*/}
+
+              <div className="mt-4">
+                {discountedPrice ? (
+                  <div className="flex items-center">
+                    <span className="text-3xl font-bold text-primary">
+                      {formatCurrency(discountedPrice, rateExchange?.currency, rateExchange?.symbol)}
+                    </span>
+                    <span className="ml-3 text-lg text-gray-500 line-through">
+                      {formatCurrency(displayPrice, rateExchange?.currency, rateExchange?.symbol)}
+                    </span>
+                    <span className="ml-2 px-2 py-1 text-xs bg-red-100 text-red-800 rounded-full">
+                      -{product.discount?.reduction}%
+                    </span>
+                  </div>
+                ) : (
+                  <span className="text-3xl font-bold text-primary">
+                    {formatCurrency(displayPrice, rateExchange?.currency, rateExchange?.symbol)}
+                  </span>
+                )}
+
+                {product.discount && quantity < product.discount.min && (
+                  <div className="mt-2 text-sm text-blue-600">
+                    Compra {product.discount.min} o más para obtener un {product.discount.reduction}% de descuento
                   </div>
                 )}
               </div>
 
-              {CartActions}
-            </div>
-          </div>
+              <p className="mt-4 text-gray-600 dark:text-gray-300">{product.short_description}</p>
 
-          <div className="flex-1 mt-6 md:mt-0">
-            <h1 className="text-3xl lg:text-4xl font-bold text-zinc-900 dark:text-white mb-4">
-              {displayProduct.name}
-            </h1>
-            <div className="prose dark:prose-invert max-w-none text-lg leading-relaxed">
-              <div className="space-y-4 border-l-4 border-blue-500 pl-4">
-                {displayProduct.description ? (
-                  displayProduct.description.split('\n').map((line, i) => (
-                    <p key={i} className="text-gray-700 dark:text-gray-300">
-                      {line}
-                    </p>
-                  ))
-                ) : (
-                  <p className="text-gray-700 dark:text-gray-300">No hay descripción disponible</p>
-                )}
+              <div className="mt-6 flex items-center space-x-3">
+                <QuantityAdjuster
+                  quantity={quantity}
+                  isInCart={isInCart}
+                  handleQuantityInc={handleQuantityInc}
+                  handleQuantityDec={handleQuantityDec}
+                  findInCartLocalStorage={findInCartLocalStorage}
+                  getLocalStorageData={getLocalStorageData}
+                  productId={product.id}
+                  maxLimit={product.quantity}
+                  className="bg-white dark:bg-gray-800 shadow-sm hover:shadow-md transition-shadow"
+                />
+
+                <CustomButton
+                  onClick={isInCart ? handleRemoveFromCart : handleAddToCart}
+                  className="flex-1 py-3"
+                  variant="filled"
+                  color={isInCart ? "danger" : "primary"}
+                >
+                  <FaShoppingCart className="mr-2" />
+                  {isInCart ? "Remover del carrito" : "Añadir al carrito"}
+                </CustomButton>
+
+                <CustomButton
+                  onClick={handleAddToCart}
+                  isDisabled={product.quantity === 0}
+                  className="flex-1 py-3"
+                  variant="filled"
+                  color="success"
+                >
+                  <FaBagShopping className="mr-2" />
+                  Comprar ahora
+                </CustomButton>
+
+                {/*<Tooltip content="Añadir a favoritos">
+                  <Button isIconOnly variant="flat" aria-label="Favorite">
+                    <FaHeart className="text-gray-500 hover:text-red-500 transition-colors" />
+                  </Button>
+                </Tooltip>*/}
+              </div>
+
+              {product.quantity === 0 && (
+                <div className="mt-3 text-red-500">Producto no disponible</div>
+              )}
+
+              {product.quantity > 0 && product.quantity <= 5 && (
+                <div className="mt-3 text-amber-500">¡Solo quedan {product.quantity} unidades!</div>
+              )}
+            </motion.div>
+
+            <div className="mt-6 border-t border-b border-gray-200 dark:border-gray-700 py-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/*<div className="flex items-center">
+                  <FaShield className="text-gray-500 mr-2" />
+                  <span>Garantía: 30 días</span>
+                </div>*/}
+                <div className="flex items-center">
+                  <FaTruck className="text-gray-500 mr-2" size={16} />
+                  <span>Envío: {product.province}</span>
+                </div>
+
+                <div className="flex items-center">
+                  <WeightIcon className="text-gray-500 mr-2" size={16} />
+                  <span>Peso: {product.weight} kg</span>
+                </div>
+                {/*<div className="flex items-center">
+                  <FaExchangeAlt className="text-gray-500 mr-2" />
+                  <span>Política de devolución</span>
+                </div>*/}
+
               </div>
             </div>
           </div>
         </div>
 
-        {!productState.loading && !productState.error && (
-          <section className="mt-16">
-            <h3 className="text-2xl font-bold mb-6 text-zinc-800 dark:text-white">
-              Productos relacionados
-            </h3>
-            <RelationedProductSection id={displayProduct.id} />
-          </section>
-        )}
-      </div>
-    </div>
-  );
-};
+        <div className="mt-12">
+          <Tabs
+            selectedKey={activeTab}
+            onSelectionChange={handleTabChange}
+            variant="underlined"
+            className="w-full"
+          >
+            <Tab key="details" title="Detalles">
+              <Card className="bg-gray-100 dark:bg-gray-800" shadow="none">
+                <CardBody>
+                  <div className="prose dark:prose-invert max-w-none">
+                    {product.description.split('\n').map((paragraph, idx) => (
+                      <p key={idx}>{paragraph}</p>
+                    ))}
+                  </div>
+                </CardBody>
+              </Card>
+            </Tab>
 
-export default React.memo(ProductDetailPage);
+            <Tab key="specs" title="Especificaciones">
+              <Card className="bg-gray-100 dark:bg-gray-800" shadow="none">
+                <CardBody>
+                  <table className="w-full border-collapse">
+                    <tbody>
+                      <tr className="border-b">
+                        <td className="py-2 font-medium">Categoría</td>
+                        <td>{product.category || '-'}</td>
+                      </tr>
+                      <tr className="border-b">
+                        <td className="py-2 font-medium">Subcategoría</td>
+                        <td>{product.subcategory || '-'}</td>
+                      </tr>
+                      <tr className="border-b">
+                        <td className="py-2 font-medium">Peso</td>
+                        <td>{product.weight} kg</td>
+                      </tr>
+                      <tr className="border-b">
+                        <td className="py-2 font-medium">Provincia</td>
+                        <td>{product.province}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </CardBody>
+              </Card>
+            </Tab>
+
+            {/*<Tab key="reviews" title="Reseñas">
+              <ErrorBoundary fallback={<div>Error loading reviews</div>}>
+                <Suspense fallback={<div className="p-8 flex justify-center"><Spinner /></div>}>
+                  <ProductReviews productId={product.id} />
+                </Suspense>
+              </ErrorBoundary>
+            </Tab>*/}
+          </Tabs>
+        </div>
+
+        <div className="mt-16">
+          <ErrorBoundary fallback={<div>Error loading related products</div>}>
+            <Zoom triggerOnce>
+              <Suspense fallback={<div className="h-60 flex justify-center items-center"><Spinner /></div>}>
+                <RelatedProductSection
+                  id={product.id}
+                />
+              </Suspense>
+            </Zoom>
+          </ErrorBoundary>
+        </div>
+      </div>
+    </>
+  );
+}

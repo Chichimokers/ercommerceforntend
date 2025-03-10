@@ -69,6 +69,7 @@ export type Order = {
 	receiver_name: string;
 	stripe_id?: string;
 	orderItems: Item[];
+	created_at: string;
 };
 
 export type Item = {

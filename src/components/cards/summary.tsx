@@ -59,7 +59,7 @@ const OrderSummary = ({
                 <span className="text-xs xs:text-sm text-foreground">
                   Peso total
                 </span>
-                <span className="text-xs xs:text-sm text-foreground">{weight.toFixed(2)} KG</span>
+                <span className="text-xs xs:text-sm text-foreground">{weight.toFixed(2)} kg</span>
               </div>
               <SummaryItem label="Subtotal" amount={subtotal} />
               <SummaryItem label="Envío" amount={shipping} hasTooltip />
