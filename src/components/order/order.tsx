@@ -154,14 +154,24 @@ const OrderFooter = ({ order, onCancelOrder, onProceedToPayment, rateExchange }:
     </div>
 
     {order.status === "pending" ? (
-      <CustomButton
-        color="danger"
-        variant="filled"
-        className="w-full shadow-md hover:shadow-lg font-semibold py-2.5"
-        onClick={() => onCancelOrder?.(order.id)}
-      >
-        Cancelar Orden
-      </CustomButton>
+      <div>
+        <CustomButton
+          color="danger"
+          variant="filled"
+          className="w-full shadow-md hover:shadow-lg font-semibold py-2.5"
+          onClick={() => onCancelOrder?.(order.id)}
+        >
+          Cancelar Orden
+        </CustomButton>
+        <CustomButton
+          color="primary"
+          variant="filled"
+          className="w-full shadow-md hover:shadow-lg font-semibold py-2.5"
+          onClick={() => onCancelOrder?.(order.id)}
+        >
+          Proceder al pago
+        </CustomButton>
+      </div>
     ) : order.status === "accepted" ? (
       <motion.div
         whileHover={{ scale: 1.01 }}

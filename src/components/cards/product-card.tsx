@@ -78,7 +78,7 @@ const ProductCard = React.memo(({ product, prefetch = "none", className = "", im
                 size="sm"
                 variant="solid"
               >
-                Quedan {product.quantity} unidades en stock
+                {product.quantity} unidades en stock
               </Chip>
             )}
             {product.quantity == 1 && (
@@ -186,7 +186,7 @@ const ProductCard = React.memo(({ product, prefetch = "none", className = "", im
   );
 });
 
-const AddToCartButton = React.memo(({
+export const AddToCartButton = React.memo(({
   onClick
 }: {
   onClick: (event: React.MouseEvent<HTMLButtonElement>) => void
@@ -200,7 +200,7 @@ const AddToCartButton = React.memo(({
   </CustomButton>
 ));
 
-const RemoveFromCartButton = React.memo(({
+export const RemoveFromCartButton = React.memo(({
   onClick,
   product
 }: {

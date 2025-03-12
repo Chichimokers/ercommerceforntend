@@ -48,7 +48,7 @@ const FilterDrawer = React.memo(function FilterDrawer({ className }: { className
       </CustomButton>
 
       <Drawer
-        className={`rounded-none ${className}`}
+        className={`rounded-none ${className} bg-white dark:bg-gray-900`}
         classNames={{
           closeButton: "absolute top-1 right-1 bg-default-100 border border-default-200",
         }}
@@ -69,16 +69,6 @@ const FilterDrawer = React.memo(function FilterDrawer({ className }: { className
               <DrawerBody>
                 <Filters onFilterChange={setFilters} setIsInvalidFilters={setIsInvalidFilters} />
               </DrawerBody>
-              <DrawerFooter>
-                <CustomButton
-                  className="w-full mx-4 my-4"
-                  onClick={() => handleApplyFilters(onClose)}
-                  isDisabled={isInvalidFilters}
-                  aria-disabled={isInvalidFilters}
-                >
-                  Aplicar filtros
-                </CustomButton>
-              </DrawerFooter>
             </>
           )}
         </DrawerContent>
