@@ -198,7 +198,7 @@ export default function DrawerCart({ className }: { className?: string }) {
       </Tooltip>
 
       <Drawer
-        className="h-full bg-gray-100 dark:bg-gray-800"
+        className="h-full bg-white dark:bg-gray-800"
         classNames={{
           closeButton: "absolute top-1 right-1",
         }}

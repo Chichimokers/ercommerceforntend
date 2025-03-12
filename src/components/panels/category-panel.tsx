@@ -262,11 +262,7 @@ const CategoryPanel = () => {
       </div>
 
       <div className="px-6 pt-4 pb-8 relative z-10">
-        <div className="mx-auto max-w-6xl flex justify-between items-center">
-          <h3 className="text-xl font-bold text-gray-800 dark:text-white">
-            Categorías populares
-          </h3>
-
+        <div className="mx-auto flex justify-between items-center">
           <div className="flex items-center gap-2 md:hidden">
             <button
               onClick={scrollLeft}
@@ -288,14 +284,14 @@ const CategoryPanel = () => {
 
       <div
         ref={scrollRef}
-        className="relative flex overflow-x-auto gap-6 py-4 px-6 pb-12 snap-x snap-mandatory scrollbar-hide"
+        className="relative flex overflow-x-auto gap-6 py-4 px-6 pb-12 snap-x snap-mandatory scrollbar-hide items-center justify-center"
         onScroll={checkForScrollPosition}
       >
         <div key="all" className="flex-shrink-0 snap-center">
           <CategoryCard
             className="w-40 h-40 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200 dark:border-gray-700 rounded-2xl"
             icon={<FaTh size={26} />}
-            size="lg"
+            size="md"
             text="Todos"
             url="/products/"
             onLocationNeeded={handleOpenLocationModal}
@@ -313,7 +309,7 @@ const CategoryPanel = () => {
             >
               <CategoryCard
                 className="w-40 h-40 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200 dark:border-gray-700 rounded-2xl"
-                icon={React.createElement(Icon, { size: 26 } as React.ComponentProps<typeof Icon>)}
+                icon={React.createElement(Icon, { size: 40 } as React.ComponentProps<typeof Icon>)}
                 size="lg"
                 text={category.name}
                 url={url}

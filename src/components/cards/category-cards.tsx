@@ -63,7 +63,7 @@ const CategoryCard = ({
           <div className="flex flex-col justify-center items-center h-full gap-3">
             {/* Icono con animación */}
             <div
-              className={`relative ${size === "lg" ? "h-16 w-16" : "h-12 w-12"} flex items-center justify-center group-hover:scale-110 transition-all duration-500`}
+              className={`relative h-16 w-16 flex items-center justify-center group-hover:scale-110 transition-all duration-500`}
             >
               <div className="absolute inset-0 bg-blue-100 dark:bg-blue-900/30 rounded-full opacity-0 group-hover:opacity-100 scale-90 group-hover:scale-110 transition-all duration-500" />
               <div className="relative z-10 text-blue-600 dark:text-blue-400">
