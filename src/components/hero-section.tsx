@@ -14,7 +14,7 @@ export default function HeroSection() {
   }, []);
 
   return (
-    <section className="relative w-full min-h-[600px] h-auto md:h-[700px] lg:h-[800px] flex flex-col items-center justify-center text-center overflow-hidden bg-gradient-to-b from-black/70 via-black/50 to-black/70 py-8 md:py-0">
+    <section className="relative w-full min-h-[600px] h-auto md:h-[700px] lg:h-[800px] flex flex-col items-center justify-center text-center overflow-hidden bg-gradient-to-b from-black/70 via-black/50 to-blue-50 dark:to-black/70 py-8 md:py-0">
 
       <div className="absolute inset-0 w-full h-full">
         <Image
@@ -32,8 +32,8 @@ export default function HeroSection() {
           onLoadingComplete={() => setIsLoaded(true)}
         />
 
-        <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-black/80" />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-transparent to-black/60" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black to-black/50" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-black/50" />
 
         <div
           className="absolute inset-0 opacity-10"
@@ -48,31 +48,22 @@ export default function HeroSection() {
       <div className="absolute bottom-0 -right-20 w-[30rem] h-[30rem] rounded-full bg-indigo-600/10 blur-3xl z-0"></div>
 
       <div className="relative z-20 px-6 sm:px-10 py-10 sm:py-16 w-full max-w-7xl mx-auto flex flex-col items-center">
-        <motion.h1
+        <h1
           className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white tracking-tight leading-[1.1] mb-4 sm:mb-6"
-          initial={{ y: 30, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.2, duration: 0.8, ease: "easeOut" }}
         >
           ¡Bienvenido a <span className="bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">Es Aki!</span>
-        </motion.h1>
+        </h1>
 
-        <motion.div
-          initial={{ y: 30, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.4, duration: 0.8, ease: "easeOut" }}
+        <div
           className="max-w-2xl mx-auto"
         >
           <p className="text-lg sm:text-xl md:text-2xl text-gray-100 mb-6 sm:mb-8 drop-shadow-lg leading-relaxed">
             Descubre los mejores productos con entrega rápida en Cuba.
             <span className="hidden md:inline"> Conectando familias a través del comercio digital.</span>
           </p>
-        </motion.div>
+        </div>
 
-        <motion.div
-          initial={{ y: 40, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.6, duration: 0.8, ease: "easeOut" }}
+        <div
           className="w-full max-w-4xl mx-auto pb-4 sm:pb-8 px-2 sm:px-0"
         >
           <div className="bg-white/10 backdrop-blur-md p-4 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl border border-white/20 shadow-xl">
@@ -135,7 +126,7 @@ export default function HeroSection() {
               </Button>
             </div>
           </div>
-        </motion.div>
+        </div>
       </div>
 
       <div className="absolute bottom-0 left-0 w-full h-16 bg-gradient-to-t from-gray-900 to-transparent z-10"></div>

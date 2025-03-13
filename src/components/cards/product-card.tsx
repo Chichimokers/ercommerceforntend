@@ -20,9 +20,16 @@ interface ProductCardProps {
   prefetch?: "hover" | "viewport" | "none"
   className?: string
   imgClassName?: string
+  lazyLoad?: boolean // Nueva prop para controlar la carga de imágenes
 }
 
-const ProductCard = React.memo(({ product, prefetch = "none", className = "", imgClassName = "" }: ProductCardProps) => {
+const ProductCard = React.memo(({
+  product,
+  prefetch = "none",
+  className = "",
+  imgClassName = "",
+  lazyLoad = true // Por defecto, carga diferida activada
+}: ProductCardProps) => {
   const { rateExchange } = useContext(CurrencyAndExchangeRateContext) || {};
   const {
     handleQuantityInc,
@@ -55,6 +62,20 @@ const ProductCard = React.memo(({ product, prefetch = "none", className = "", im
     };
   }, [productUrl, prefetch]);
 
+  const imageLoadingProps = useMemo(() => {
+    if (lazyLoad) {
+      return {
+        loading: "lazy" as const,
+        priority: false
+      };
+    } else {
+      return {
+        loading: "eager" as const,
+        priority: true
+      };
+    }
+  }, [lazyLoad]);
+
   return (
     <Link {...linkProps}>
       <Card className={`cursor-pointer hover:shadow-md transition-shadow bg-blue/50 dark:bg-gray-800/50 ${className}`}>
@@ -66,9 +87,8 @@ const ProductCard = React.memo(({ product, prefetch = "none", className = "", im
               fill
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
               className={`object-cover transition-transform duration-300 hover:scale-105 ${imgClassName}`}
-              loading="lazy"
-              priority={false}
               quality={80}
+              {...imageLoadingProps}
             />
 
             {product.quantity < 5 && product.quantity > 1 && (
@@ -81,7 +101,7 @@ const ProductCard = React.memo(({ product, prefetch = "none", className = "", im
                 {product.quantity} unidades en stock
               </Chip>
             )}
-            {product.quantity == 1 && (
+            {product.quantity === 1 && (
               <Chip
                 className="absolute bottom-2 left-2 text-xs z-10 bg-opacity-80"
                 color="danger"
@@ -91,7 +111,7 @@ const ProductCard = React.memo(({ product, prefetch = "none", className = "", im
                 Queda 1 unidad en stock
               </Chip>
             )}
-            {product.quantity == 0 && (
+            {product.quantity === 0 && (
               <Chip
                 className="absolute bottom-2 left-2 text-xs z-10 bg-opacity-80"
                 color="danger"
@@ -120,7 +140,7 @@ const ProductCard = React.memo(({ product, prefetch = "none", className = "", im
             {/*product.averageRating !== undefined && (
               <StarRating rating={product.averageRating} />
             )*/}
-            <div className="h-[36]">
+            <div className="h-[40px]">
               <p className="text-small text-default-500 line-clamp-2">
                 {product.short_description}
               </p>

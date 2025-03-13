@@ -2,7 +2,6 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -30,26 +29,6 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       {/* Logo y nav superior */}
       <header className="relative z-10 pt-8 pb-4 px-4">
         <div className="container mx-auto flex flex-col items-center">
-          <Link href="/" className="mb-6 group">
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="flex items-center"
-            >
-              <div className="relative h-10 w-10 mr-2">
-                <Image
-                  src="/logo.png"
-                  alt="EsAki Logo"
-                  fill
-                  className="object-contain transition-all duration-300 group-hover:scale-110"
-                />
-              </div>
-              <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent dark:from-blue-400 dark:to-indigo-300">
-                EsAki
-              </span>
-            </motion.div>
-          </Link>
-
           <nav className="w-full max-w-md">
             <motion.div
               initial={{ opacity: 0, y: -10 }}

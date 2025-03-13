@@ -23,13 +23,16 @@ interface ShippingPriceRequest {
 
 export default function ShoppingCartPage() {
   const { cart, clearCart } = useContext(CartContext) || {};
-  const { cartProducts, isLoading } = useProductContext();
+  const { cartProducts, isLoading, mutateCartProducts } = useProductContext();
   const [isMounted, setIsMounted] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const { location } = useLocation();
   const { setShippingPrice, setTotalWeight } = useShipping();
 
-  // Calcular peso total - Memoizado para mejor rendimiento
+  useEffect(() => {
+    mutateCartProducts();
+  }, [mutateCartProducts]);
+
   const totalWeight = useMemo(() => {
     if (!cart || !cartProducts.length) return 0;
 

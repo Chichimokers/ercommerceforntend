@@ -6,7 +6,6 @@ import { Accordion, AccordionItem, Divider, Spinner, Select, SelectItem, Badge, 
 import { Order } from "@/types/types";
 import { useSession } from "next-auth/react";
 import { useState, useMemo } from "react";
-import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ShoppingBag,
@@ -198,41 +197,6 @@ const LoadingState = () => (
   </div>
 );
 
-// Añade este nuevo componente para filtros sin resultados
-const FilteredEmptyState = ({ onClearFilters }: { onClearFilters: () => void }) => (
-  <motion.div
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ duration: 0.5 }}
-    className="flex flex-col items-center justify-center min-h-[40vh] text-center gap-6 p-4"
-  >
-    <div className="relative">
-      <div className="absolute inset-0 bg-amber-100 dark:bg-amber-900/30 rounded-full scale-150 blur-xl opacity-70" />
-      <div className="relative bg-white dark:bg-gray-800 rounded-full p-6 shadow-md">
-        <Search className="h-16 w-16 text-amber-500" />
-      </div>
-    </div>
-    <div className="space-y-3 max-w-md">
-      <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-100">
-        No se encontraron pedidos
-      </h2>
-      <p className="text-gray-500 dark:text-gray-400">
-        No hay pedidos que coincidan con los filtros aplicados. Prueba con otros criterios de búsqueda o limpia los filtros.
-      </p>
-    </div>
-    <Button
-      color="warning"
-      size="lg"
-      startContent={<RefreshCcw size={18} />}
-      onClick={onClearFilters}
-      className="font-medium shadow-sm mt-2"
-    >
-      Limpiar filtros
-    </Button>
-  </motion.div>
-);
-
-// Mapeo del estado de la orden a color y badge
 type ChipColorType = "default" | "warning" | "primary" | "success" | "danger" | "secondary" | undefined;
 
 const getOrderStatusDetails = (status: string): { color: ChipColorType, label: string, icon: React.ReactNode } => {
