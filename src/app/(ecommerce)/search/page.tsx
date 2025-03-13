@@ -561,7 +561,7 @@ export default function SearchPage() {
                 // Resultados encontrados
                 <>
                   <div className={viewMode === "grid" ?
-                    "grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" :
+                    "grid grid-cols-2 xm:grid-cols-3 md:grid-cols-2 xg:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-2" :
                     "flex flex-col gap-4"
                   }>
                     {paginatedResults.map((product) => (
