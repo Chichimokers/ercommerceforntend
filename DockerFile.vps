@@ -12,5 +12,7 @@ RUN npm install --force --verbose
 EXPOSE 3000
 # RUN -> Durante la construcción de la imagen
 RUN npm run build
+
 # CMD -> Al iniciar el contenedor
+
 CMD ["npm", "run", "prod"]
