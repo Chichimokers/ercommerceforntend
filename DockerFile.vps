@@ -9,7 +9,6 @@ COPY . .
 
 # Instala las dependencias
 RUN npm install --force --verbose
-
 # Expone el puerto en el que tu aplicación escuchará
 EXPOSE 3000
 # RUN -> Durante la construcción de la imagen
