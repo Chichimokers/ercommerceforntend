@@ -25,13 +25,6 @@ import { CustomButton } from "@components/buttons/custom-button";
 import { Overlay } from "@components/overlay";
 import { LocationButton } from "@components/buttons/location-button";
 
-// Componentes cargados dinámicamente para mejor rendimiento
-const IconButton = dynamic(() => import("@/components/buttons/cart-button"), {
-  loading: () => (
-    <div className="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse" />
-  )
-});
-
 const AccountButton = dynamic(
   () => import("@/components/buttons/account-button"), {
   loading: () => (

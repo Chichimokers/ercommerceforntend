@@ -139,7 +139,6 @@ const CategoryPanel = () => {
         initialMunicipality=""
       />
 
-      {/* Fondo optimizado - menos blur y elementos */}
       <div className="absolute inset-0 pointer-events-none">
         <div
           className="absolute -top-40 -right-40 w-80 h-80 rounded-full bg-blue-100/20 dark:bg-blue-900/5"
