@@ -6,12 +6,11 @@ WORKDIR /usr/src/app
 
 # Copia los archivos del proyecto al contenedor
 COPY . .
-
 # Instala las dependencias
 RUN npm install --force --verbose
-
 # Expone el puerto en el que tu aplicación escuchará
 EXPOSE 3000
-
-# Comando para iniciar la aplicación en producción
-CMD ["npm", "run", "pre"]
+# RUN -> Durante la construcción de la imagen
+RUN npm run build
+# CMD -> Al iniciar el contenedor
+CMD ["npm", "run", "prod"]
