@@ -4,10 +4,11 @@ import {
     FaCamera, FaCar, FaPaw, FaGamepad, FaPlane, FaBriefcase, FaDragon
 } from "react-icons/fa";
 import React from "react";
+import { IconType } from "react-icons/lib";
 
 type IconMap = {
-    [key: string]: React.ComponentType;
-    default: React.ComponentType;
+    [key: string]: IconType;
+    default: IconType;
 }
 
 // Mapa de palabras clave a iconos

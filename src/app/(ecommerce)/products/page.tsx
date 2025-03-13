@@ -165,7 +165,6 @@ const ProductItem = memo(({ product, index, viewMode }: { product: ProductBase; 
       ) : (
         <Link href={`/products/${product.id}`}>
           <div className="flex flex-row items-stretch p-3">
-            {/* Imagen con indicadores de estado */}
             <div className="relative flex-shrink-0 w-24 h-24 sm:w-32 sm:h-32 rounded-lg overflow-hidden">
               <Image
                 src={product.image || "/placeholder.jpg"}
@@ -176,8 +175,6 @@ const ProductItem = memo(({ product, index, viewMode }: { product: ProductBase; 
                 loading="lazy"
                 quality={80}
               />
-
-              {/* Indicador de stock */}
               {product.quantity < 5 && product.quantity > 1 && (
                 <Chip
                   className="absolute bottom-1 left-1 text-xs z-10 bg-opacity-80"
@@ -208,8 +205,6 @@ const ProductItem = memo(({ product, index, viewMode }: { product: ProductBase; 
                   Agotado
                 </Chip>
               )}
-
-              {/* Indicador de descuento */}
               {product.discount && product.quantity > product.discount.min && (
                 <Chip
                   className="absolute top-1 right-1 text-xs z-10 bg-opacity-80"
@@ -221,8 +216,6 @@ const ProductItem = memo(({ product, index, viewMode }: { product: ProductBase; 
                 </Chip>
               )}
             </div>
-
-            {/* Contenido del producto */}
             <div className="flex-grow flex flex-col justify-between ml-3 py-1">
               <div>
                 <h3 className="text-sm sm:text-base font-medium text-gray-900 dark:text-white line-clamp-1">
@@ -231,8 +224,6 @@ const ProductItem = memo(({ product, index, viewMode }: { product: ProductBase; 
                 <p className="mt-1 text-xs sm:text-sm text-gray-500 dark:text-gray-400 line-clamp-2">
                   {product.short_description || "Sin descripción"}
                 </p>
-
-                {/* Precios */}
                 <div className="mt-2 flex items-center gap-2">
                   <span className="font-bold text-blue-600 dark:text-blue-400">
                     {formatCurrency(discountedPrice || displayPrice, rateExchange?.currency, rateExchange?.symbol)}
@@ -245,8 +236,6 @@ const ProductItem = memo(({ product, index, viewMode }: { product: ProductBase; 
                       </span>
                     </span>
                   )}
-
-                  {/* Descuento adicional condicional */}
                   {product.discount && product.quantity >= product.discount.min && (
                     <span className="text-xs px-1.5 py-0.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded">
                       Ahorro: {formatCurrency(product.discount.reduction * (rateExchange?.exchangeRate || 1),
@@ -255,8 +244,6 @@ const ProductItem = memo(({ product, index, viewMode }: { product: ProductBase; 
                   )}
                 </div>
               </div>
-
-              {/* Acciones */}
               <div className="mt-3 flex items-center justify-between gap-2 flex-wrap">
                 <div className="flex items-center">
                   <div onClick={e => e.preventDefault()} className="flex-shrink-0 mr-2">
@@ -292,18 +279,6 @@ const ProductItem = memo(({ product, index, viewMode }: { product: ProductBase; 
                     )}
                   </div>
                 </div>
-
-                <Button
-                  size="sm"
-                  variant="light"
-                  color="primary"
-                  as={Link}
-                  href={`/products/${product.id}`}
-                  className="ml-auto px-3"
-                  onClick={e => e.stopPropagation()}
-                >
-                  Ver detalle
-                </Button>
               </div>
             </div>
           </div>
@@ -470,7 +445,7 @@ export default function ProductPage() {
         {/* Cuadrícula de productos */}
         <div className={
           viewMode === "grid"
-            ? "grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 w-full"
+            ? "grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-2 w-full"
             : "grid grid-cols-1 gap-3 w-full"
         }>
           {products.map((product, index) => (
