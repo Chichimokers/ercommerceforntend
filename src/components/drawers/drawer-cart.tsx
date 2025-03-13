@@ -14,8 +14,9 @@ import {
   Button
 } from "@heroui/react";
 import { CartContext } from "@/contexts/cart-context";
-import { FaShoppingCart, FaTag } from "react-icons/fa";
+import { FaTag } from "react-icons/fa";
 import { CartItem } from "@/types/interfaces";
+import { ShoppingCartIcon } from "lucide-react";
 
 import Link from "next/link";
 import { CurrencyAndExchangeRateContext } from "@/contexts/exchange-rate-currency-context";
@@ -191,7 +192,7 @@ export default function DrawerCart({ className }: { className?: string }) {
               variant="bordered"
               onPress={() => handleBackdropChange(backdrop)}
             >
-              <FaShoppingCart opacity={0.8} size={22} />
+              <ShoppingCartIcon opacity={0.8} size={22} />
             </Button>
           </Badge>
         </div>

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { FaShoppingCart } from "react-icons/fa";
+import { ShoppingCartIcon } from "lucide-react";
 import { Badge } from "@heroui/react";
 import { useContext } from "react";
 import React from "react";
@@ -22,7 +22,7 @@ const IconButton = React.memo(({ className }: { className?: string }) => {
         className={`${className} flex-col justify-center gap-4 items-center hover:border-default-400 w-10 h-10 rounded-full border border-default-600`}
         href="/shopping-cart"
       >
-        <FaShoppingCart opacity={0.7} size={22} />
+        <ShoppingCartIcon opacity={0.7} size={22} />
       </Link>
     </Badge>
   );
