@@ -398,7 +398,6 @@ export default function ProductPage() {
 
     return (
       <>
-        {/* Header con información de productos y controles de vista */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 px-2">
           <div className="mb-3 sm:mb-0">
             <div className="flex items-center gap-2">
@@ -472,53 +471,51 @@ export default function ProductPage() {
   }, [isLoading, error, products, totalPages, currentPage, handlePageChange, handleReset, categoryName, filtersApplied, viewMode, toggleViewMode]);
 
   return (
-    <div className="mt-16">
-      <div className="flex flex-col md:flex-row w-full min-h-screen">
-        {/* Panel de filtros para escritorio */}
-        <FilterPanel />
+    <div className="flex flex-col md:flex-row w-full min-h-screen">
+      {/* Panel de filtros para escritorio */}
+      <FilterPanel />
 
-        {/* Drawer de filtros para móvil */}
-        <div className="block md:hidden sticky top-16 z-20 px-2 py-2 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
-          <FilterDrawer className="w-full" />
-        </div>
-
-        {/* Sección principal de productos */}
-        <motion.section
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-          className="flex-1 flex flex-col p-3 sm:p-4 overflow-y-auto relative"
-        >
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={`products-${currentPage}-${filtersApplied}`}
-              variants={containerVariants}
-              initial="hidden"
-              animate="visible"
-              exit="exit"
-              className="w-full"
-            >
-              {renderContent()}
-            </motion.div>
-          </AnimatePresence>
-
-          {/* Enlaces rápidos flotantes */}
-          <div className="hidden md:block fixed bottom-6 right-6 z-30">
-            <Tooltip content="Volver arriba">
-              <Button
-                isIconOnly
-                color="primary"
-                size="lg"
-                className="shadow-lg"
-                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                aria-label="Volver arriba"
-              >
-                <ArrowUpRight />
-              </Button>
-            </Tooltip>
-          </div>
-        </motion.section>
+      {/* Drawer de filtros para móvil */}
+      <div className="block md:hidden sticky top-16 z-20 px-2 py-2 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
+        <FilterDrawer className="w-full" />
       </div>
+
+      {/* Sección principal de productos */}
+      <motion.section
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        className="flex-1 flex flex-col p-3 sm:p-4 overflow-y-auto relative"
+      >
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={`products-${currentPage}-${filtersApplied}`}
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            className="w-full"
+          >
+            {renderContent()}
+          </motion.div>
+        </AnimatePresence>
+
+        {/* Enlaces rápidos flotantes */}
+        <div className="hidden md:block fixed bottom-6 right-6 z-30">
+          <Tooltip content="Volver arriba">
+            <Button
+              isIconOnly
+              color="primary"
+              size="lg"
+              className="shadow-lg"
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              aria-label="Volver arriba"
+            >
+              <ArrowUpRight />
+            </Button>
+          </Tooltip>
+        </div>
+      </motion.section>
     </div>
   );
 }
