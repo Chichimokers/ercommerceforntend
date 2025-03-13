@@ -10,7 +10,6 @@ COPY . .
 RUN npm install --force --verbose
 RUN npm install ajv-keywords schema-utils compression-webpack-plugin next
 
-
 # Expone el puerto en el que tu aplicación escuchará
 EXPOSE 3000
 # RUN -> Durante la construcción de la imagen
