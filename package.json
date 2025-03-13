@@ -9,7 +9,7 @@
     "dev": "NODE_OPTIONS='--inspect' next dev --turbo",
     "build": "next build",
     "start": "next start",
-    "prod": " npx dotenv -e environments/preprod.env -- next start",
+    "prod": "next start",
     "pre": " npx dotenv -e environments/preprod.env -- next dev --turbo",
     "lint": "eslint . --ext .ts,.tsx -c .eslintrc.json --fix",
     "test": "next test",
