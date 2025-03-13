@@ -8,7 +8,7 @@ WORKDIR /usr/src/app
 COPY . .
 # Instala las dependencias
 RUN npm install --force --verbose
-RUN npm install ajv-keywords schema-utils compression-webpack-plugin next
+RUN npm install ajv@latest ajv-keywords@latest
 
 # Expone el puerto en el que tu aplicación escuchará
 EXPOSE 3000
