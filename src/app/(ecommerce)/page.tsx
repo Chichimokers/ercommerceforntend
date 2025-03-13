@@ -187,7 +187,7 @@ const FeaturedProducts = memo(({ products }: { products: any[] }) => {
   if (products.length === 0) return null;
 
   return (
-    <AnimatedSection className="py-12 sm:py-16" priority={true}>
+    <div className="py-12 sm:py-16">
       <SectionHeader
         title="Productos Destacados"
         linkText="Ver todos"
@@ -195,7 +195,7 @@ const FeaturedProducts = memo(({ products }: { products: any[] }) => {
         icon={Star}
       />
       <VirtualizedProductGrid products={products.slice(0, 8)} />
-    </AnimatedSection>
+    </div>
   );
 });
 
@@ -203,7 +203,7 @@ const FlashDeals = memo(({ products }: { products: any[] }) => {
   if (products.length === 0) return null;
 
   return (
-    <AnimatedSection className="px-2 sm:px-4 py-12">
+    <div className="px-2 sm:px-4 py-12">
       <SectionHeader
         title="Ofertas Flash"
         linkText="Ver todas"
@@ -251,7 +251,7 @@ const FlashDeals = memo(({ products }: { products: any[] }) => {
           </div>
         ))}
       </div>
-    </AnimatedSection>
+    </div>
   );
 });
 

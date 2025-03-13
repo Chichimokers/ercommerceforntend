@@ -122,7 +122,7 @@ const ProductPrice = ({
             {formatCurrency(displayPrice, rateExchange?.currency, rateExchange?.symbol)}
           </span>
           <Badge color="danger" className="text-xs font-medium px-2">
-            -{discount?.reduction}%
+            (-{discount && discount?.reduction && ((discount.reduction * 100 * (rateExchange?.exchangeRate || 1)) / displayPrice).toFixed(2)}%)
           </Badge>
         </div>
       ) : (
@@ -133,7 +133,7 @@ const ProductPrice = ({
 
       {discount && minForDiscount && quantity < minForDiscount && (
         <div className="mt-2 text-sm text-blue-600 dark:text-blue-400">
-          Compra {minForDiscount} o más para obtener un {discount.reduction}% de descuento
+          Compra {minForDiscount} o más para obtener un {((discount.reduction * 100 * rateExchange?.exchangeRate) / displayPrice).toFixed(2)}% de descuento
         </div>
       )}
     </div>
@@ -322,7 +322,7 @@ export default function ProductDetailPage() {
   const discountedPrice = useMemo(() => {
     if (!product?.discount || !displayPrice) return null;
     if (quantity >= product.discount.min) {
-      return displayPrice - (displayPrice * product.discount.reduction / 100);
+      return displayPrice - product.discount.reduction * (rateExchange?.exchangeRate || 1);
     }
     return null;
   }, [displayPrice, product, quantity]);

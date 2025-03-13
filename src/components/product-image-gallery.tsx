@@ -80,14 +80,11 @@ const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
     }
   }, [currentIndex, images]);
 
-  // Manejar zoom con mejor comprobación de errores
   const handleZoom = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
 
-    // Solo permitir zoom si la imagen está cargada y el zoom está habilitado
     if (!enableZoom || !imageLoaded) return;
 
-    // Obtener posición inicial del zoom (posición del clic)
     if (!isZoomed) {
       const container = imageContainerRef.current;
       if (container) {

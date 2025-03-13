@@ -1,9 +1,44 @@
+"use client";
+
+import React, { useCallback, useEffect, useState } from "react";
 import { Card, CardBody } from "@heroui/react";
-import React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useLocation } from "@contexts/location-context";
-import { motion } from "framer-motion";
+
+const useDeviceOptimization = () => {
+  const [isLowPerformance, setIsLowPerformance] = useState(false);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    setPrefersReducedMotion(mediaQuery.matches);
+
+    setIsTouchDevice('ontouchstart' in window || navigator.maxTouchPoints > 0);
+
+    const isLowEnd =
+      navigator.hardwareConcurrency && navigator.hardwareConcurrency < 4 ||
+      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) &&
+      (window.devicePixelRatio < 2 || !window.requestAnimationFrame);
+
+    const hasLowBandwidth =
+      'connection' in navigator &&
+      // @ts-ignore - Connection API no está completamente tipada
+      (navigator.connection?.saveData || ['slow-2g', '2g'].includes(navigator.connection?.effectiveType));
+
+    setIsLowPerformance(isLowEnd || hasLowBandwidth);
+
+    const handleChange = (e: MediaQueryListEvent) => {
+      setPrefersReducedMotion(e.matches);
+    };
+
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, []);
+
+  return { isLowPerformance, prefersReducedMotion, isTouchDevice };
+};
 
 interface CategoryCardProps {
   className?: string;
@@ -12,11 +47,11 @@ interface CategoryCardProps {
   text: string;
   url: string;
   onLocationNeeded?: () => void;
-  itemsCount?: number; // Nueva propiedad opcional para mostrar cantidad de items
+  itemsCount?: number;
 }
 
 const CategoryCard = ({
-  className,
+  className = "",
   size,
   icon,
   text,
@@ -26,67 +61,134 @@ const CategoryCard = ({
 }: CategoryCardProps) => {
   const { location } = useLocation();
   const router = useRouter();
+  const { isLowPerformance, prefersReducedMotion, isTouchDevice } = useDeviceOptimization();
+  const [isPressed, setIsPressed] = useState(false);
 
-  const handleCardClick = (e: React.MouseEvent) => {
+  // Determinar si debemos deshabilitar animaciones
+  const disableAnimations = isLowPerformance || prefersReducedMotion;
+
+  // Manejar clics de manera eficiente
+  const handleCardClick = useCallback((e: React.MouseEvent) => {
     if (!location || !location.province || !location.municipality) {
       e.preventDefault();
       if (onLocationNeeded) {
         onLocationNeeded();
       }
-    } else {
-      router.push(url);
+      return;
     }
-  };
+  }, [location, onLocationNeeded]);
+
+  // Manejadores de eventos táctiles optimizados
+  const handleTouchStart = useCallback(() => setIsPressed(true), []);
+  const handleTouchEnd = useCallback(() => setIsPressed(false), []);
+
+  // Clases CSS condicionales basadas en capacidades del dispositivo
+  const cardClasses = `
+    relative overflow-hidden h-full 
+    ${className}
+    ${disableAnimations
+      ? 'transition-none'
+      : 'transition-transform duration-300 hover:scale-[1.02]'}
+    ${isPressed ? 'scale-[0.98]' : ''}
+  `;
+
+  // Clases para el contenedor principal que reemplaza a motion.div
+  const containerClasses = `
+    h-full 
+    ${!disableAnimations && 'transform-gpu'} 
+    ${disableAnimations ? '' : 'hover-lift'}
+  `;
+
+  // Clases para el fondo con efectos
+  const bgEffectClasses = `
+    absolute inset-0 bg-gradient-to-br from-blue-50/40 via-white/80 to-blue-50/40 
+    dark:from-blue-900/20 dark:via-gray-800/80 dark:to-blue-900/20
+    ${disableAnimations ? '' : 'opacity-0 group-hover:opacity-100 transition-opacity duration-300'}
+  `;
+
+  // Clases para el brillo (solo en dispositivos de alto rendimiento)
+  const glowEffectClasses = `
+    absolute -inset-full h-[400%] w-[400%] opacity-0 
+    ${!disableAnimations && 'group-hover:opacity-20 blur-xl'}
+    ${isLowPerformance ? 'hidden' : 'bg-gradient-conic from-blue-600 via-transparent to-blue-600'}
+  `;
+
+  // Clases para el icono
+  const iconClasses = `
+    relative h-14 w-14 flex items-center justify-center
+    ${disableAnimations ? '' : 'group-hover:scale-110 transition-all duration-300'}
+  `;
+
+  // Clases para el fondo del icono
+  const iconBgClasses = `
+    absolute inset-0 bg-blue-100 dark:bg-blue-900/30 rounded-full
+    ${disableAnimations ? 'opacity-30' : 'opacity-0 group-hover:opacity-100 scale-90 group-hover:scale-110 transition-all duration-300'}
+  `;
 
   return (
-    <motion.div
-      whileHover={{ scale: 1.05, y: -5 }}
-      transition={{ type: "spring", stiffness: 400, damping: 17 }}
-      className="h-full"
-    >
+    <div className={containerClasses}>
       <Card
-        isHoverable
         isPressable
         as={Link}
         href={url}
         onClick={handleCardClick}
-        className={`relative overflow-hidden h-full group ${className}`}
-        shadow="none"
+        onTouchStart={isTouchDevice ? handleTouchStart : undefined}
+        onTouchEnd={isTouchDevice ? handleTouchEnd : undefined}
+        onTouchCancel={isTouchDevice ? handleTouchEnd : undefined}
+        shadow={disableAnimations ? "sm" : "none"}
+        className={`${cardClasses} group`}
       >
-        {/* Fondo con gradiente interactivo */}
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-50/40 via-white/80 to-blue-50/40 dark:from-blue-900/20 dark:via-gray-800/80 dark:to-blue-900/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+        {/* Fondo con gradiente - optimizado */}
+        <div className={bgEffectClasses} />
 
-        {/* Brillo en hover */}
-        <div className="absolute -inset-full h-[400%] w-[400%] opacity-0 group-hover:opacity-30 group-hover:animate-[spin_5s_linear_infinite] bg-gradient-conic from-blue-600 via-transparent to-blue-600 blur-xl" />
+        {/* Brillo en hover - solo para dispositivos de alto rendimiento */}
+        {!isLowPerformance && (
+          <div className={glowEffectClasses} />
+        )}
 
-        <CardBody className="p-5 relative z-10">
-          <div className="flex flex-col justify-center items-center h-full gap-3">
-            {/* Icono con animación */}
-            <div
-              className={`relative h-16 w-16 flex items-center justify-center group-hover:scale-110 transition-all duration-500`}
-            >
-              <div className="absolute inset-0 bg-blue-100 dark:bg-blue-900/30 rounded-full opacity-0 group-hover:opacity-100 scale-90 group-hover:scale-110 transition-all duration-500" />
-              <div className="relative z-10 text-blue-600 dark:text-blue-400">
+        <CardBody className="p-4 sm:p-5 relative z-10">
+          <div className="flex flex-col justify-center items-center h-full gap-2 sm:gap-3">
+            {/* Icono con animación condicional */}
+            <div className={iconClasses}>
+              <div className={iconBgClasses} />
+              <div className="relative z-10 text-blue-600 dark:text-blue-400 text-2xl sm:text-3xl">
                 {icon}
               </div>
             </div>
 
-            {/* Texto de categoría */}
-            <h4 className="text-sm font-semibold text-gray-800 dark:text-gray-200 transition-colors duration-300 group-hover:text-blue-600 dark:group-hover:text-blue-400">
+            {/* Texto de categoría - optimizado */}
+            <h3 className={`
+              text-xs sm:text-sm font-semibold text-gray-800 dark:text-gray-200 
+              ${disableAnimations ? '' : 'transition-colors duration-300 group-hover:text-blue-600 dark:group-hover:text-blue-400'}
+              line-clamp-2 text-center
+            `}>
               {text}
-            </h4>
+            </h3>
 
-            {/* Badge con contador de items (opcional) */}
+            {/* Badge con contador - optimizado */}
             {itemsCount !== undefined && (
-              <span className="absolute top-3 right-3 bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300 text-xs font-medium px-2 py-0.5 rounded-full">
-                {itemsCount}
+              <span className="absolute top-2 right-2 bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300 text-xs font-medium px-1.5 py-0.5 rounded-full">
+                {itemsCount > 999 ? '999+' : itemsCount}
               </span>
             )}
           </div>
         </CardBody>
       </Card>
-    </motion.div>
+    </div>
   );
 };
 
 export default CategoryCard;
+
+// Añade estos estilos a tu archivo global de CSS:
+/*
+@media (prefers-reduced-motion: no-preference) {
+  .hover-lift {
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  
+  .hover-lift:hover {
+    transform: translateY(-5px);
+  }
+}
+*/
