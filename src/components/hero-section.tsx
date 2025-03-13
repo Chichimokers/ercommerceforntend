@@ -57,7 +57,7 @@ export default function HeroSection() {
             alt="Es Aki - E-commerce cubano"
             fill
             sizes="100vw"
-            quality={85}
+            quality={50}
             priority
             className="object-cover opacity-60 dark:opacity-50 scale-[1.03] transform-gpu"
             style={{
