@@ -1,6 +1,12 @@
 name: Deploy to Docker
 
 on:
+  pull:
+    branches:
+        - master
+  merge:
+    branches:
+      - master
   push:
     branches:
       - master
