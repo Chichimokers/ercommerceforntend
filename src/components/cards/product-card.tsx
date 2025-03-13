@@ -140,7 +140,7 @@ const ProductCard = React.memo(({
             {/*product.averageRating !== undefined && (
               <StarRating rating={product.averageRating} />
             )*/}
-            <div className="h-[36]">
+            <div className="h-[40px]">
               <p className="text-small text-default-500 line-clamp-2">
                 {product.short_description}
               </p>

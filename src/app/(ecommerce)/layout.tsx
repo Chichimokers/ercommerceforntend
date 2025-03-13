@@ -59,7 +59,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       </div>
 
       <main
-        className="flex-grow container mx-auto max-w-[1920px] min-h-[70vh] mt-[114]"
+        className="flex-grow container mx-auto max-w-[1920px] min-h-[70vh] pt-[114]"
       >
         {children}
         {modalOpen && <Overlay onClick={() => setModalOpen(false)} />}
