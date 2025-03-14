@@ -78,13 +78,13 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     if (isInitialLoad || pathname !== "/products") return;
 
-    const queryParams = buildQueryParams(filters, page, 30, location.province);
+    const queryParams = buildQueryParams(filters, page, 30, location);
     const newUrl = `${pathname}?${queryParams}`;
 
     if (window.location.href !== newUrl) {
       router.replace(newUrl);
     }
-  }, [filters, page, pathname, isInitialLoad, router, location.province]);
+  }, [filters, page, pathname, isInitialLoad, router, location]);
 
   const {
     data: productsData,
