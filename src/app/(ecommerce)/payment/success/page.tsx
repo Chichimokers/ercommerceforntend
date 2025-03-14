@@ -12,14 +12,12 @@ export default function ThankYouPage() {
   const searchParams = useSearchParams();
   const [mounted, setMounted] = useState(false);
 
-  // Información del pedido desde parámetros URL
   const orderId = searchParams?.get('order_id') || 'N/A';
   const total = searchParams?.get('total') || '0';
 
   useEffect(() => {
     setMounted(true);
 
-    // Lanzar confeti al cargar la página
     const launchConfetti = () => {
       const duration = 3 * 1000;
       const end = Date.now() + duration;
@@ -46,25 +44,21 @@ export default function ThankYouPage() {
     };
 
     if (typeof window !== 'undefined') {
-      // Pequeño retraso para mejor efecto visual
       setTimeout(launchConfetti, 500);
     }
   }, []);
 
-  // Evitar renderizado en servidor
   if (!mounted) return null;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-blue-50 dark:from-gray-900 dark:to-gray-800 py-12 px-4">
       <div className="max-w-3xl mx-auto">
-        {/* Cabecera con animación */}
         <motion.div
           className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          {/* Banner superior */}
           <div className="bg-gradient-to-r from-blue-500 to-indigo-600 p-6 text-center">
             <motion.div
               initial={{ scale: 0 }}
@@ -79,9 +73,7 @@ export default function ThankYouPage() {
             <p className="text-blue-100 mt-2">Tu pedido ha sido procesado correctamente</p>
           </div>
 
-          {/* Contenido principal */}
           <div className="p-6">
-            {/* Detalles del pedido */}
             <div className="border border-gray-200 dark:border-gray-700 rounded-xl p-5 mb-6 bg-gray-50 dark:bg-gray-800/50">
               <h3 className="font-semibold text-lg text-gray-800 dark:text-gray-200 mb-3">Detalles del pedido</h3>
               <div className="space-y-3">
@@ -105,15 +97,12 @@ export default function ThankYouPage() {
                 </div>
               </div>
             </div>
-
-            {/* Estado y próximos pasos */}
             <div className="mb-6">
               <h3 className="font-semibold text-lg text-gray-800 dark:text-gray-200 mb-3">
                 ¿Qué sucede ahora?
               </h3>
 
               <div className="space-y-4">
-                {/* Paso 1 */}
                 <motion.div
                   className="flex items-start gap-3"
                   initial={{ opacity: 0, x: -20 }}
@@ -131,7 +120,6 @@ export default function ThankYouPage() {
                   </div>
                 </motion.div>
 
-                {/* Paso 2 */}
                 <motion.div
                   className="flex items-start gap-3"
                   initial={{ opacity: 0, x: -20 }}
@@ -151,7 +139,6 @@ export default function ThankYouPage() {
               </div>
             </div>
 
-            {/* Botones de acción */}
             <div className="flex flex-col sm:flex-row gap-4 mt-8">
               <Link
                 href="/pedidos"
@@ -163,7 +150,7 @@ export default function ThankYouPage() {
               </Link>
 
               <Link
-                href="/"
+                href="/products"
                 className="flex items-center justify-center gap-2 border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200 font-medium py-3 px-6 rounded-lg transition-colors flex-1"
               >
                 <ArrowLeft size={18} />
@@ -172,11 +159,10 @@ export default function ThankYouPage() {
             </div>
           </div>
 
-          {/* Pie de página */}
           <div className="text-center border-t border-gray-200 dark:border-gray-700 p-6">
             <p className="text-gray-500 dark:text-gray-400 text-sm">
               Si tienes alguna duda sobre tu pedido, no dudes en{' '}
-              <Link href="/contacto" className="text-blue-600 dark:text-blue-400 hover:underline">
+              <Link href={`/mailto: ${process.env.EMAIL}`} className="text-blue-600 dark:text-blue-400 hover:underline">
                 contactarnos
               </Link>.
             </p>

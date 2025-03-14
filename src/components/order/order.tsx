@@ -132,16 +132,15 @@ const OrderProductList = ({
   isMobile: boolean;
 }) => {
   return (
-    <div className={`pl-4 py-2 ${!isMobile && "bg-gray-100/50 dark:bg-gray-900/30"}`}>
+    <div className={`px-4 py-2 ${!isMobile && "bg-gray-100/50 dark:bg-gray-900/30"}`}>
       <div className="flex justify-between items-center">
         <h4 className="font-medium text-sm sm:text-base text-gray-800 dark:text-gray-200">
           Productos ({items.length})
         </h4>
 
-        {/* Botón para mostrar/ocultar productos (consistente en todos los dispositivos) */}
         <button
           onClick={onToggle}
-          className="flex items-center gap-1 py-2 px-1 text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors mr-4"
+          className="flex items-center gap-1 py-2 px-1 text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors"
           aria-expanded={expanded}
         >
           {expanded ? (
@@ -158,7 +157,6 @@ const OrderProductList = ({
         </button>
       </div>
 
-      {/* Contenido colapsable - comportamiento consistente en todos los dispositivos */}
       <Collapse open={expanded}>
         <div className="space-y-2 mt-3 mb-1 max-h-72 overflow-y-auto pr-1">
           {items.map((item) => (
@@ -170,7 +168,6 @@ const OrderProductList = ({
   );
 };
 
-// Componente para detalles de pago y acciones
 const OrderFooter = ({
   order,
   onCancelOrder,

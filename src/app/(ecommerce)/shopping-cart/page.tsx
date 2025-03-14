@@ -156,7 +156,7 @@ export default function ShoppingCartPage() {
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0 }}
         transition={{ duration: 0.4 }}
-        className="py-8 sm:py-12 sm:px-4"
+        className="py-8 px-2 sm:py-12 sm:px-4"
       >
         <div className="container mx-auto">
           {/* Header con animación y navegación */}

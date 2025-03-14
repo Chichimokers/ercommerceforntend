@@ -37,8 +37,8 @@ const InfoBar = ({ className = "" }: { className?: string }) => {
     >
       <div className="container mx-auto flex justify-between items-center text-sm">
         <div className="flex items-center gap-4 overflow-x-auto scrollbar-hide">
-          <InfoItem icon={<FaPhoneAlt size={14} />} href="tel:+34900123456">
-            +34 900 123 456
+          <InfoItem icon={<FaPhoneAlt size={14} />} href={`tel:${process.env.PHONE}`}>
+            {process.env.PHONE}
           </InfoItem>
 
           <div className="h-4 w-px bg-gray-300 dark:bg-gray-700 mx-1 hidden sm:block" />

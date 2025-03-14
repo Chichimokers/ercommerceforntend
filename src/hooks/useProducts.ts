@@ -1,55 +1,109 @@
-import { useMemo } from "react";
-import useSWR from "swr";
+import { useMemo, useCallback } from "react";
+import useSWR, { SWRConfiguration } from "swr";
 import { buildQueryParams } from "./buildQueryParams";
-import { Filters } from "@/types/types";
+import { Filters, ProductBase } from "@/types/types";
 
-export const useProducts = (baseUrl: string, filters: Filters, page: number, location: any) => {
-  const queryParams = useMemo(() => buildQueryParams(filters, page, 30, location), [filters, page, location]);
-  const fetchUrl = `${baseUrl}/public/products?${queryParams}`;
-
-  const fetcher = async (url: string) => {
-    const response = await fetch(url);
-    if (!response.ok) {
-      const errorResponse = await response.json();
-      throw new Error(errorResponse?.message || response.statusText);
-    }
-    return response.json();
-  };
-
-  useSWR(fetchUrl, fetcher, {
-    revalidateOnFocus: false,
-    revalidateOnReconnect: true,
-  });
-
-  return useSWR(fetchUrl, fetcher);
+const defaultSWRConfig: SWRConfiguration = {
+  revalidateOnFocus: false,
+  revalidateOnReconnect: true,
+  errorRetryCount: 3,
+  dedupingInterval: 5000,
 };
 
+const fetcher = async (url: string) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData?.message || `Error: ${response.statusText}`);
+    }
+    return response.json();
+  } catch (error) {
+    console.error(`Error fetching data from ${url}:`, error);
+    throw error;
+  }
+};
 
-export const useCartProducts = (baseUrl: string, availableProducts?: any[]) => {
-  const getCartIds = () => {
+export const useProducts = (
+  baseUrl: string,
+  filters: Filters,
+  page: number,
+  location: { pathname?: string; search?: string } | Record<string, unknown>
+) => {
+  const locationKey = useMemo(() => {
+    if (!location) return "";
+    return typeof location === 'object' && 'pathname' in location
+      ? `${location.pathname || ""}${location.search || ""}`
+      : JSON.stringify(location);
+  }, [location]);
+
+  const queryParams = useMemo(
+    () => {
+      buildQueryParams(filters, page, 30, locationKey)
+    },
+    [filters, page, locationKey]
+  );
+
+  const fetchUrl = useMemo(
+    () => `${baseUrl}/public/products?${queryParams}`,
+    [baseUrl, queryParams]
+  );
+
+  return useSWR<{ products: ProductBase[]; total: number; totalPages: number }>(
+    fetchUrl,
+    fetcher,
+    {
+      ...defaultSWRConfig,
+      keepPreviousData: true,
+    }
+  );
+};
+
+interface CartItem {
+  id: string;
+  quantity: number;
+}
+
+export const useCartProducts = (
+  baseUrl: string,
+  availableProducts: ProductBase[] = []
+) => {
+  const getCartItems = useCallback((): CartItem[] => {
     try {
       const cartData = localStorage.getItem("cart");
       if (!cartData) return [];
+
       const cart = JSON.parse(cartData);
-      return Array.isArray(cart) ? cart.map(item => item.id) : [];
-    } catch {
+      if (!Array.isArray(cart)) return [];
+
+      return cart.map(item => ({
+        id: item.id,
+        quantity: typeof item.quantity === 'number' ? item.quantity :
+          typeof item.cantidad === 'number' ? item.cantidad : 1
+      }));
+    } catch (error) {
+      console.error("Error parsing cart data:", error);
       return [];
     }
-  };
+  }, []);
 
-  const fetcher = async () => {
-    const ids = getCartIds();
-    if (!ids.length) return [];
+  const cartFetcher = useCallback(async () => {
+    const cartItems = getCartItems();
+    if (!cartItems.length) return [];
 
-    const finalProducts: any[] = [];
+    const finalProducts: (ProductBase & { cartQuantity?: number })[] = [];
     const idsToFetch: string[] = [];
 
-    ids.forEach(id => {
-      const foundProduct = availableProducts?.find(product => product.id === id);
+    cartItems.forEach(item => {
+      const foundProduct = availableProducts?.find(product => product.id === item.id);
+
       if (foundProduct) {
-        finalProducts.push(foundProduct);
+        finalProducts.push({
+          ...foundProduct,
+          cartQuantity: item.quantity
+        });
       } else {
-        idsToFetch.push(id);
+        idsToFetch.push(item.id);
       }
     });
 
@@ -57,20 +111,45 @@ export const useCartProducts = (baseUrl: string, availableProducts?: any[]) => {
       return finalProducts;
     }
 
-    const promises = idsToFetch.map(id =>
-      fetch(`${baseUrl}/public/product-details?id=${id}`)
-        .then(res => res.ok ? res.json() : null)
-        .catch(() => null)
-    );
+    try {
+      const promises = idsToFetch.map(async id => {
+        try {
+          const cartItem = cartItems.find(item => item.id === id);
+          const quantity = cartItem?.quantity || 1;
 
-    const fetchedProducts = await Promise.all(promises);
-    const validFetchedProducts = fetchedProducts.filter(Boolean);
+          const response = await fetch(`${baseUrl}/public/product-details?id=${id}`);
+          if (!response.ok) return null;
 
-    return [...finalProducts, ...validFetchedProducts];
-  };
+          const product = await response.json();
 
-  return useSWR('cart-products', fetcher, {
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-  });
+          return product ? {
+            ...product,
+            cartQuantity: quantity
+          } : null;
+        } catch (error) {
+          console.error(`Error fetching product ${id}:`, error);
+          return null;
+        }
+      });
+
+      const fetchedProducts = await Promise.all(promises);
+      const validFetchedProducts = fetchedProducts.filter(Boolean) as (ProductBase & { cartQuantity?: number })[];
+
+      return [...finalProducts, ...validFetchedProducts];
+    } catch (error) {
+      console.error("Error fetching cart products:", error);
+      return finalProducts;
+    }
+  }, [baseUrl, availableProducts, getCartItems]);
+
+  return useSWR<(ProductBase & { cartQuantity?: number })[]>(
+    'cart-products',
+    cartFetcher,
+    {
+      ...defaultSWRConfig,
+      revalidateIfStale: true,
+      dedupingInterval: 2000,
+      refreshWhenHidden: true,
+    }
+  );
 };
