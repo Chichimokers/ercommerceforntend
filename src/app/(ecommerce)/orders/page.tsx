@@ -256,7 +256,6 @@ const OrdersPage = () => {
     }
   };
 
-  // Datos con SWR y configuración mejorada
   const { data: orders, error, isLoading, mutate: refreshOrders } = useSWR(
     session ? API_URL : null,
     fetcher,

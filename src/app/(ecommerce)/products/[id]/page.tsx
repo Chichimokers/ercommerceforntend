@@ -3,7 +3,6 @@
 import React, { useState, useCallback, useEffect, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Card, CardBody, Spinner, Tab, Tabs, Tooltip, Badge } from "@heroui/react";
-import Image from "next/image";
 import { Breadcrumbs } from "@components/breadcrumb/breadcrumbs";
 import {
   FaShoppingCart,

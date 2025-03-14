@@ -142,10 +142,6 @@ const ErrorState = memo(({ error, onReset }: { error: unknown, onReset: () => vo
   </div>
 ));
 
-/**
- * ProductItem optimizado - sin dependencia de Framer Motion
- * Usando CSS nativo para animaciones cuando es posible
- */
 const ProductItem = memo(({
   product,
   index,
