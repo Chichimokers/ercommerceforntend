@@ -90,7 +90,7 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({
     data: productsData,
     error: productsError,
     isLoading: isLoadingProducts,
-  } = useProducts(baseUrl, filters, page, location.province);
+  } = useProducts(baseUrl, filters, page, location);
 
   const {
     data: cartProducts = [],
