@@ -62,7 +62,6 @@ const CategoryCard = ({
   const { location } = useLocation();
   const router = useRouter();
   const { isLowPerformance, prefersReducedMotion, isTouchDevice } = useDeviceOptimization();
-  const [isPressed, setIsPressed] = useState(false);
 
   // Determinar si debemos deshabilitar animaciones
   const disableAnimations = isLowPerformance || prefersReducedMotion;
@@ -71,15 +70,12 @@ const CategoryCard = ({
   const handleCardClick = useCallback((e: React.MouseEvent) => {
     if (!location || !location.province || !location.municipality) {
       if (onLocationNeeded) {
+        e.preventDefault();
         onLocationNeeded();
       }
       return;
     }
   }, [location, onLocationNeeded]);
-
-  // Manejadores de eventos táctiles optimizados
-  const handleTouchStart = useCallback(() => setIsPressed(true), []);
-  const handleTouchEnd = useCallback(() => setIsPressed(false), []);
 
   // Clases CSS condicionales basadas en capacidades del dispositivo
   const cardClasses = `
@@ -87,8 +83,8 @@ const CategoryCard = ({
     ${className}
     ${disableAnimations
       ? 'transition-none'
-      : 'transition-transform duration-300 hover:scale-[1.02]'}
-    ${isPressed ? 'scale-[0.98]' : ''}
+      : 'transition-transform duration-300 hover:scale-[1.02] active:scale-[0.98]'}
+    touch-action-safe
   `;
 
   // Clases para el contenedor principal que reemplaza a motion.div
@@ -131,9 +127,6 @@ const CategoryCard = ({
         as={Link}
         href={url}
         onClick={handleCardClick}
-        onTouchStart={isTouchDevice ? handleTouchStart : undefined}
-        onTouchEnd={isTouchDevice ? handleTouchEnd : undefined}
-        onTouchCancel={isTouchDevice ? handleTouchEnd : undefined}
         shadow={disableAnimations ? "sm" : "none"}
         className={`${cardClasses} group`}
       >

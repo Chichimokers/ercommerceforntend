@@ -287,10 +287,14 @@ const CategoryPanel = () => {
           relative flex overflow-x-auto gap-4 py-4 px-6 pb-12 
           snap-x snap-mandatory scrollbar-hide 
           ${shouldCenterItems ? 'justify-center' : 'justify-start'}
-          content-visibility-auto
+          touch-action-pan-y
         `}
         onScroll={checkForScrollPosition}
-        style={{ willChange: "scroll-position", overscrollBehavior: "contain" }}
+        style={{
+          willChange: "scroll-position",
+          overscrollBehavior: "auto", // Cambiar de "contain" a "auto"
+          touchAction: "pan-y pan-x" // Permitir explícitamente desplazamiento vertical y horizontal
+        }}
       >
         <div key="all" className="flex-shrink-0 snap-center">
           <CategoryCard
