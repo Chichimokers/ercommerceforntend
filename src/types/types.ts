@@ -19,6 +19,11 @@ export type ProductBase = {
 	};
 };
 
+export type Location = {
+	province: string;
+	municipality: string;
+}
+
 export type CurrencyData = {
 	country?: string;
 	currency: string;
