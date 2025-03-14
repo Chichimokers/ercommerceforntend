@@ -2,11 +2,12 @@
 
 import React, { useMemo, useState, useCallback } from "react";
 import { List, useTable, ExportButton, DeleteButton, EditButton, ShowButton } from "@refinedev/antd";
-import { Space, Table, Slider, Input, Button, Form } from "antd";
+import { Space, Table, Slider, Input, Button, Form, Select } from "antd";
 import type { ColumnType, TablePaginationConfig } from "antd/es/table";
 import { BaseType } from "../../../types/types";
 import { LogicalFilter } from "@refinedev/core";
 import { FilterValue, SorterResult } from "antd/es/table/interface";
+import { SearchOutlined } from "@ant-design/icons";
 
 // Interfaces y tipos
 export interface ExtendedColumnType<T> extends ColumnType<T> {
@@ -19,14 +20,30 @@ interface RangeFilter {
   value: [number, number];
 }
 
-type CustomFilter = LogicalFilter | RangeFilter;
+interface SearchFilter {
+  field: string;
+  type: 'search';
+  value: string;
+}
+
+type CustomFilter = LogicalFilter | RangeFilter | SearchFilter;
+
+// Configuración de botones de acción
+interface ActionButtonsConfig {
+  show?: boolean;
+  edit?: boolean;
+  delete?: boolean;
+}
 
 // Funciones auxiliares
 const isLogicalFilter = (filter: CustomFilter): filter is LogicalFilter => 
-  !('type' in filter) || filter.type !== 'range';
+  !('type' in filter) || filter.type !== 'range' && filter.type !== 'search';
 
 const isRangeFilter = (filter: CustomFilter): filter is RangeFilter => 
   'type' in filter && filter.type === 'range';
+
+const isSearchFilter = (filter: CustomFilter): filter is SearchFilter => 
+  'type' in filter && filter.type === 'search';
 
 // Componente de filtro de rango
 interface RangeFilterProps {
@@ -133,6 +150,7 @@ interface GenericListProps<T extends BaseType> {
   canCreate?: boolean;
   pageSize?: number;
   showActions?: boolean;
+  actionButtons?: ActionButtonsConfig; 
 }
 
 // Componente principal
@@ -143,30 +161,44 @@ const GenericList = <T extends BaseType>({
   canCreate = true,
   pageSize = 10,
   showActions = true,
+  actionButtons = { show: true, edit: true, delete: true },
 }: GenericListProps<T>) => {
-  // Estado para filtros, ordenamiento y paginación
+  
   const [activeFilters, setActiveFilters] = useState<CustomFilter[]>([]);
   const [activeSorter, setActiveSorter] = useState<{field: string, order: 'ascend' | 'descend'} | null>(null);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [pageSize_, setPageSize] = useState<number>(pageSize);
+  
+  // Estados para la barra de búsqueda
+  const [searchField, setSearchField] = useState<string>("");
+  const [searchText, setSearchText] = useState<string>("");
 
-  // Obtener datos mediante useTable sin paginación en servidor
   const { tableProps } = useTable<T>({
     resource,
     pagination: {
-      mode: "off",
+      mode: "server",
     },
     filters: { mode: "off" },
     sorters: { mode: "off" },
   });
 
-  // Filtrar y ordenar datos
+  // Obtener campos disponibles para búsqueda
+  const searchableFields = useMemo(() => {
+    return columns
+      .filter(col => col.dataIndex && typeof col.dataIndex === 'string')
+      .map(col => ({
+        value: col.dataIndex as string,
+        label: col.title as string,
+      }));
+  }, [columns]);
+
+  
   const processedData = useMemo(() => {
     if (!tableProps.dataSource || tableProps.dataSource.length === 0) {
       return [];
     }
 
-    // Aplicar filtros
+  
     let result = [...tableProps.dataSource];
     
     if (activeFilters.length > 0) {
@@ -175,6 +207,11 @@ const GenericList = <T extends BaseType>({
           if (isRangeFilter(filter)) {
             const value = Number(item[filter.field as keyof T]);
             return value >= filter.value[0] && value <= filter.value[1];
+          }
+          
+          if (isSearchFilter(filter)) {
+            const itemValue = String(item[filter.field as keyof T] || '').toLowerCase();
+            return itemValue.includes(filter.value.toLowerCase());
           }
           
           if (isLogicalFilter(filter)) {
@@ -190,7 +227,7 @@ const GenericList = <T extends BaseType>({
       );
     }
 
-    // Aplicar ordenamiento
+  
     if (activeSorter) {
       const { field, order } = activeSorter;
       const isAscending = order === 'ascend';
@@ -199,7 +236,7 @@ const GenericList = <T extends BaseType>({
         const aValue = a[field as keyof T];
         const bValue = b[field as keyof T];
         
-        // Ordenar según el tipo de datos
+  
         if (typeof aValue === 'number' && typeof bValue === 'number') {
           return isAscending ? aValue - bValue : bValue - aValue;
         }
@@ -212,7 +249,7 @@ const GenericList = <T extends BaseType>({
           return isAscending ? aValue.getTime() - bValue.getTime() : bValue.getTime() - aValue.getTime();
         }
         
-        // Fallback a comparación de strings
+  
         const aStr = String(aValue ?? '');
         const bStr = String(bValue ?? '');
         return isAscending ? aStr.localeCompare(bStr) : bStr.localeCompare(aStr);
@@ -222,26 +259,52 @@ const GenericList = <T extends BaseType>({
     return result;
   }, [tableProps.dataSource, activeFilters, activeSorter]);
 
-  // Calcular datos paginados - Importante para la navegación
+  
   const paginatedData = useMemo(() => {
     const startIndex = (currentPage - 1) * pageSize_;
     const endIndex = startIndex + pageSize_;
     return processedData.slice(startIndex, endIndex);
   }, [processedData, currentPage, pageSize_]);
 
-  // Cuando cambian los filtros o el ordenamiento, volver a la primera página
+  
   const resetPagination = useCallback(() => {
     setCurrentPage(1);
   }, []);
 
-  // Crear columnas con filtros y ordenamiento
+  
+  const handleSearch = useCallback(() => {
+    if (!searchField || !searchText.trim()) return;
+    
+    const newFilters = activeFilters.filter(f => !isSearchFilter(f));
+    
+    newFilters.push({
+      field: searchField,
+      type: 'search',
+      value: searchText.trim()
+    });
+    
+    setActiveFilters(newFilters);
+    resetPagination();
+  }, [searchField, searchText, activeFilters, resetPagination]);
+
+  const clearSearch = useCallback(() => {
+    setSearchText("");
+    setActiveFilters(prev => prev.filter(f => !isSearchFilter(f)));
+    resetPagination();
+  }, [resetPagination]);
+
+  const handleSearchKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  };
+
   const getFinalColumns = useCallback(() => {
-    // Crear columnas con filtros
+
     const enhancedColumns = columns.map(column => {
       const dataIndex = column.dataIndex as string;
       
       if (column.rangeFilter) {
-        // Configurar filtro de rango
         const isFiltered = activeFilters.some(
           f => isRangeFilter(f) && f.field === dataIndex
         );
@@ -277,7 +340,7 @@ const GenericList = <T extends BaseType>({
         };
       }
       
-      // Filtros estándar
+
       const standardFilter = activeFilters.find(
         f => isLogicalFilter(f) && f.field === dataIndex
       ) as LogicalFilter | undefined;
@@ -301,25 +364,31 @@ const GenericList = <T extends BaseType>({
         fixed: 'right',
         render: (_, record) => (
           <Space>
-            <ShowButton 
-              hideText 
-              recordItemId={record.id} 
-              resource={resource}
-            />
-            <EditButton 
-              hideText 
-              recordItemId={record.id} 
-              resource={resource}
-            />
-            <DeleteButton
-            
-              recordItemId={record.id}
-              resource={resource}
-              meta={{
-                mutationMode: "pessimistic",
-                dataProviderName: "customDataProvider",
-              }}
-            />
+            {actionButtons.show && (
+              <ShowButton 
+                hideText 
+                recordItemId={record.id} 
+                resource={resource}
+              />
+            )}
+            {actionButtons.edit && (
+              <EditButton 
+                hideText 
+                recordItemId={record.id} 
+                resource={resource}
+              />
+            )}
+            {actionButtons.delete && (
+              <DeleteButton
+                hideText
+                recordItemId={record.id}
+                resource={resource}
+                meta={{
+                  mutationMode: "pessimistic",
+                  dataProviderName: "customDataProvider",
+                }}
+              />
+            )}
           </Space>
         ),
       };
@@ -328,9 +397,9 @@ const GenericList = <T extends BaseType>({
     }
     
     return enhancedColumns;
-  }, [columns, activeFilters, activeSorter, tableProps.dataSource, showActions, resource, resetPagination]);
+  }, [columns, activeFilters, activeSorter, tableProps.dataSource, showActions, resource, resetPagination, actionButtons]);
 
-  // Manejador para cambios en la tabla (filtros, ordenamiento, paginación)
+
   const handleTableChange = useCallback((
     pagination: TablePaginationConfig,
     filters: Record<string, FilterValue | null>,
@@ -338,7 +407,6 @@ const GenericList = <T extends BaseType>({
   ) => {
     console.log('Table change:', { pagination, filters, sorter });
     
-    // Actualizar filtros estándar
     const standardFilters: LogicalFilter[] = [];
     Object.entries(filters).forEach(([field, value]) => {
       if (value && value.length > 0) {
@@ -350,19 +418,24 @@ const GenericList = <T extends BaseType>({
       }
     });
 
-    // Combinar con filtros de rango existentes
+    
+    const searchAndRangeFilters = activeFilters.filter(f => 
+      isRangeFilter(f) || isSearchFilter(f)
+    );
+
+    
     const newFilters = [
       ...standardFilters,
-      ...activeFilters.filter(isRangeFilter)
+      ...searchAndRangeFilters
     ];
     
-    // Actualizar solo si cambian los filtros
+    
     if (JSON.stringify(newFilters) !== JSON.stringify(activeFilters)) {
       setActiveFilters(newFilters);
       resetPagination();
     }
 
-    // Manejar sorter
+    
     let newSorter = null;
     if (!Array.isArray(sorter) && sorter.column) {
       if (sorter.order) {
@@ -393,7 +466,7 @@ const GenericList = <T extends BaseType>({
     
     if (pagination.pageSize && pagination.pageSize !== pageSize_) {
       setPageSize(pagination.pageSize);
-      setCurrentPage(1); // Resetear a página 1 cuando cambia el tamaño de página
+      setCurrentPage(1);
     }
   }, [activeFilters, activeSorter, currentPage, pageSize_, resetPagination]);
 
@@ -431,13 +504,45 @@ const GenericList = <T extends BaseType>({
     <List
       title={title}
       canCreate={canCreate}
+      
       headerButtons={({ defaultButtons }) => (
         <>
           {defaultButtons}
           <ExportButton onClick={handleExport} />
         </>
       )}
+      
+      createButtonProps={{variant:"solid",color:"blue"}}
     >
+      {/* Barra de búsqueda */}
+      <div style={{ marginBottom: 16, display: 'flex', gap: 8 }}>
+        <Select
+          placeholder="Seleccionar campo"
+          style={{ width: 200 }}
+          value={searchField || undefined}
+          onChange={setSearchField}
+          options={searchableFields}
+        />
+        <Input
+          placeholder="Buscar..."
+          value={searchText}
+          onChange={e => setSearchText(e.target.value)}
+          onKeyPress={handleSearchKeyPress}
+          style={{ width: 300 }}
+          suffix={
+            <Button
+              type="text"
+              icon={<SearchOutlined />}
+              onClick={handleSearch}
+              size="small"
+            />
+          }
+        />
+        <Button onClick={clearSearch} disabled={!activeFilters.some(isSearchFilter)}>
+          Limpiar
+        </Button>
+      </div>
+      
       {/* Debug */}
       {/* <div style={{marginBottom: '10px'}}>
         <p>Página actual: {currentPage}</p>

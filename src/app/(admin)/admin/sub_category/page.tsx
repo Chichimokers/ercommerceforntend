@@ -6,20 +6,21 @@ import GenericList from "@components/admin/generic_admin_pages/genericListPage";
 
 const SubCategoryList: React.FC = () => {
   const columns: ColumnType<SubCategory & BaseType>[] = [
-    {
-      title: "Id",
-      dataIndex: "id",
-    },
+   
     {
       title: "Nombre",
       dataIndex: "name",
       sorter: true,
-    },
+    }, 
     {
       title: "Categoría",
       dataIndex: "categoryId",
-      render: (categoryId: string) => `Id: ${categoryId}`,
+      render: (categoryId: string) => `${categoryId}`,
       sorter: true,
+    },
+    {
+      title: "Id",
+      dataIndex: "id",
     },
   ];
 

@@ -1,5 +1,6 @@
 "use client";
 
+import { useCustom } from "@refinedev/core";
 import { Grid, Card, Typography, Row, Col, Statistic, Space, Divider } from "antd";
 import Link from "next/link";
 import {
@@ -8,9 +9,7 @@ import {
   UserOutlined,
   FolderOutlined,
   FolderOpenOutlined,
-  CreditCardOutlined,
-  TagOutlined,
-  StarOutlined,
+  CreditCardOutlined, 
   ArrowRightOutlined,
   EnvironmentOutlined,
   HomeOutlined,
@@ -64,24 +63,11 @@ const resources: ResourceCard[] = [
     color: "#13c2c2",
   },
   {
-    path: "/admin/discounts",
-    label: "Descuentos",
-    icon: <TagOutlined />,
-    color: "#eb2f96",
-  },
-  {
-    path: "/admin/ratings",
-    label: "Ratings",
-    icon: <StarOutlined />,
-    color: "#fadb14",
-  },
-  {
     path: "/admin/province",
     label: "Provincias",
     icon: <EnvironmentOutlined />,
     color: "#1DA57A",
   },
-  // Nueva entrada para Municipios
   {
     path: "/admin/municipality",
     label: "Municipios",
@@ -92,7 +78,16 @@ const resources: ResourceCard[] = [
 
 export default function AdminDashboard() {
   const screens = useBreakpoint();
-  
+
+  // Obtenemos las estadísticas desde /public/main
+  const { data, isLoading, error } = useCustom({
+    url: "/public/main",
+    method: "get",
+  });
+
+  // Extraemos los datos. Se espera que el endpoint retorne un objeto con keys: provinces, products y category.
+  const stats = data?.data || {};
+
   return (
     <div style={{ padding: screens.xs ? "16px" : "24px" }}>
       <Row gutter={[0, 24]}>
@@ -101,12 +96,40 @@ export default function AdminDashboard() {
             Panel de Administración
           </Title>
         </Col>
-        
         <Col span={24}>
-          <Divider style={{ margin: '12px 0 24px' }} />
+          <Divider style={{ margin: "12px 0 24px" }} />
         </Col>
       </Row>
 
+      {/* Sección de estadísticas (tarjetas en 3 columnas) */}
+      <Row gutter={[24, 24]} style={{ marginBottom: 24 }}>
+        <Col xs={24} sm={8}>
+          <Card>
+            <Statistic
+              title="Provincias"
+              value={isLoading ? "Cargando..." : stats.provinces || 0}
+            />
+          </Card>
+        </Col>
+        <Col xs={24} sm={8}>
+          <Card>
+            <Statistic
+              title="Productos"
+              value={isLoading ? "Cargando..." : stats.products || 0}
+            />
+          </Card>
+        </Col>
+        <Col xs={24} sm={8}>
+          <Card>
+            <Statistic
+              title="Categorías"
+              value={isLoading ? "Cargando..." : stats.category || 0}
+            />
+          </Card>
+        </Col>
+      </Row>
+
+      {/* Sección de recursos */}
       <Row gutter={[24, 24]}>
         {resources.map((resource) => (
           <Col 
@@ -119,9 +142,11 @@ export default function AdminDashboard() {
             <Link href={resource.path} legacyBehavior>
               <Card
                 hoverable
-                styles={{body:{ 
-                  padding: "20px",
-                  height: "100%",}
+                styles={{
+                  body: { 
+                    padding: "20px",
+                    height: "100%",
+                  },
                 }}
                 style={{
                   borderRadius: "8px",

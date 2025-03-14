@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Authenticated, Refine } from "@refinedev/core";
@@ -13,35 +12,32 @@ import {
   UserOutlined,
   FolderOutlined,
   FolderOpenOutlined,
-  CreditCardOutlined,
-  TagOutlined,
-  StarOutlined,
   AppstoreOutlined,
-  MenuUnfoldOutlined,
-  MenuFoldOutlined,
   SunOutlined,
   MoonOutlined,
   EnvironmentOutlined,
-  HomeOutlined
+  HomeOutlined,
+  ToolOutlined
 } from "@ant-design/icons";
 import { ConfigProvider, App, Layout as AntLayout, Button, Space, Typography, Switch } from "antd";
 import { theme } from "antd";
 import { useTheme } from "next-themes";
 import { customDataProvider } from "@providers/data-provider";
-import { RefineContext } from "@app/_refine_context";
-import { getSession } from "next-auth/react";
-
-import { useEffect, useState } from "react";
+import esES from "antd/locale/es_ES";
 import dynamic from "next/dynamic";
-
+import "@refinedev/antd/dist/reset.css";
+import { i18nProvider } from '@providers/i18n-refine-provider';
+import { SessionProvider } from "next-auth/react";
+import { useSession } from "next-auth/react";
+import { useEffect } from "react";
+import Image from 'next/image';
 
 const AccountButton = dynamic(
   () => import("@/components/buttons/account-button"), {
   loading: () => (
     <div className="w-10 h-10 bg-default-200 rounded-full animate-pulse" />
   )
-}
-);
+});
 const { Header } = AntLayout;
 const { Title,Text } = Typography;
 
@@ -79,6 +75,7 @@ const CustomHeader = () => {
 
 function Layout({ children }: { children: React.ReactNode }) {
   const { resolvedTheme } = useTheme();
+  const { data: session } = useSession();
   
   const themeConfig = {
     algorithm: resolvedTheme === "dark" ? theme.darkAlgorithm : theme.defaultAlgorithm,
@@ -117,6 +114,11 @@ function Layout({ children }: { children: React.ReactNode }) {
       }
     },
   };
+
+  
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', resolvedTheme === 'dark');
+  }, [resolvedTheme]);
 
   const getIconStyle = () => ({
     fontSize: '18px',
@@ -186,32 +188,9 @@ function Layout({ children }: { children: React.ReactNode }) {
         icon: <FolderOpenOutlined style={getIconStyle()} /> 
       },
     },
-    {
-      name: "payments",
-      list: "/admin/payments",
-      meta: { 
-        label: "Pagos", 
-        icon: <CreditCardOutlined style={getIconStyle()} /> 
-      },
-    },
-    {
-      name: "discounts",
-      list: "/admin/discounts",
-      create: "/admin/discounts/create",
-      edit: "/admin/discounts/edit/:id",
-      meta: { 
-        label: "Descuentos", 
-        icon: <TagOutlined style={getIconStyle()} /> 
-      },
-    },
-    {
-      name: "ratings",
-      list: "/admin/ratings",
-      meta: { 
-        label: "Ratings", 
-        icon: <StarOutlined style={getIconStyle()} /> 
-      },
-    },
+   
+  
+ 
     {
       name: "province",
       list: "/admin/province",
@@ -234,31 +213,64 @@ function Layout({ children }: { children: React.ReactNode }) {
         icon: <HomeOutlined style={getIconStyle()} /> //noceque iconos ponerle 
       },
     }
+    ,
+    {
+      name: "utils",
+      list: "/admin/utils",
+      meta: { 
+        label: "Herramientas", 
+        icon: <ToolOutlined style={getIconStyle()} /> 
+      },
+    },
   ];
-  
-  return (
-    <RefineContext>
-      <AntdRegistry>
-        <ConfigProvider theme={themeConfig}>
-          <Refine
-            routerProvider={NextRouterProvider}
-            dataProvider={customDataProvider}
-            authProvider={authProvider}
-            notificationProvider={useNotificationProvider}
-            resources={resources}
-            options={{ 
-              syncWithLocation: true, 
-              warnWhenUnsavedChanges: true,
-              disableTelemetry: true,
-            }}
-          >
-            <Authenticated
-              key="admin-auth"
-             redirectOnFail="/api/auth/signin?callbackUrl=/admin"
 
+  return (
+    <SessionProvider>
+      <AntdRegistry>
+        <ConfigProvider 
+          locale={esES} 
+          theme={themeConfig}
+        >
+          <App className="ant-app">
+            <Refine
+              routerProvider={NextRouterProvider}
+              dataProvider={customDataProvider}
+              authProvider={{
+                ...authProvider,
+                onError: async (error) => {
+                  if (error.response?.status === 401) {
+                    return {
+                      logout: true,
+                    };
+                  }
+                  return {
+                    error,
+                  };
+                },
+                getIdentity: async () => {
+                  if (session?.user) {
+                    return {
+                      name: session.user.name,
+                    };
+                  }
+                  return null;
+                },
+              }}
+              notificationProvider={useNotificationProvider}
+              resources={resources}
+              i18nProvider={i18nProvider}
+              options={{ 
+                syncWithLocation: true, 
+                warnWhenUnsavedChanges: true,
+                disableTelemetry: true,
+              }}
             >
-              <App>
-                <ThemedLayoutV2 initialSiderCollapsed
+              <Authenticated
+                key="admin-auth"
+                redirectOnFail={`/login?to=${encodeURIComponent('/admin')}`}
+              >
+                <ThemedLayoutV2 
+                  initialSiderCollapsed
                   dashboard
                   Header={() => <CustomHeader />}
                   Title={({ collapsed }) => (
@@ -266,21 +278,27 @@ function Layout({ children }: { children: React.ReactNode }) {
                       {collapsed ? (
                         <AppstoreOutlined style={{ fontSize: '24px', color: '#3b82f6' }} />
                       ) : (
-                        <Title level={4} style={{ margin: 0, color: '#3b82f6' }}>
-                          Esaki Shop
-                        </Title>
+                        <Image
+                        alt="Company Logo"
+                        loading="lazy"
+                        width={160}
+                        height={60}
+                        quality={50}
+                        src="/logonav.png"
+                        className="w-auto object-contain flex-shrink-0"
+                      />
                       )}
                     </div>
                   )}
                 >
                   {children}
                 </ThemedLayoutV2>
-              </App>
-            </Authenticated>
-          </Refine>
+              </Authenticated>
+            </Refine>
+          </App>
         </ConfigProvider>
       </AntdRegistry>
-    </RefineContext>
+    </SessionProvider>
   );
 }
 

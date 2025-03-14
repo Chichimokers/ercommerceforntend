@@ -2,7 +2,8 @@
 
 import { useShow, useParsed } from "@refinedev/core";
 import { Show, EditButton, ListButton } from "@refinedev/antd";
-import { SubCategory } from "../../../../../../types/types"; // Ajusta la ruta según tu proyecto
+import { SubCategory } from "../../../../../../types/types"; 
+
 import { Typography, Descriptions } from "antd";
 
 const { Title } = Typography;
@@ -16,8 +17,6 @@ const SubCategoryShow = () => {
 
 	const { data, isLoading } = queryResult;
 	const record = data?.data;
-
-	if (isLoading) return <div>Cargando...</div>;
 
 	return (
 		<Show

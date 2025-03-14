@@ -1,23 +1,29 @@
 "use client";
 
-import { Input, Form } from "antd";
+import React from "react";
+import { Form, Input } from "antd";
+import { Create } from "@refinedev/antd";
+import { useForm } from "@refinedev/antd";
 import { BaseType, Category } from "../../../../../types/types";
-import GenericCreatePage from "@components/admin/generic_admin_pages/genericCreatePage";
 
 export default function CategoryCreate() {
-  return (
-    <GenericCreatePage<Category & BaseType>
-      resource="category"
-      title="Crear Categoría"
-    >
+    const { form, formProps, saveButtonProps } = useForm<Category & BaseType>({
+        resource: "category",
+        redirect: "show",
+        action: "create",
+    });
 
-      <Form.Item
-        name="name"
-        label="Nombre"
-        rules={[{ required: true, message: "El nombre es obligatorio" }]}
-      >
-        <Input placeholder="Nombre de la categoría" />
-      </Form.Item>
-    </GenericCreatePage>
-  );
+    return (
+        <Create title="Crear Categoría" saveButtonProps={saveButtonProps}>
+            <Form {...formProps} form={form} layout="vertical">
+                <Form.Item
+                    name="name"
+                    label="Nombre"
+                    rules={[{ required: true, message: "El nombre es obligatorio" }]}
+                >
+                    <Input placeholder="Nombre de la categoría" />
+                </Form.Item>
+            </Form>
+        </Create>
+    );
 }

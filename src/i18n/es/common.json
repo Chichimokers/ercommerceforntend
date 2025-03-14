@@ -1,0 +1,325 @@
+{
+  "pages": {
+    "login": {
+      "title": "Iniciar sesión en tu cuenta",
+      "signin": "Iniciar sesión",
+      "signup": "Registrarse",
+      "divider": "o",
+      "fields": {
+        "email": "Correo electrónico",
+        "password": "Contraseña"
+      },
+      "errors": {
+        "validEmail": "Correo electrónico inválido",
+        "requiredEmail": "El correo electrónico es requerido",
+        "requiredPassword": "La contraseña es requerida"
+      },
+      "buttons": {
+        "submit": "Iniciar sesión",
+        "forgotPassword": "¿Olvidaste tu contraseña?",
+        "noAccount": "¿No tienes una cuenta?",
+        "rememberMe": "Recordarme"
+      }
+    },
+    "forgotPassword": {
+      "title": "¿Olvidaste tu contraseña?",
+      "fields": {
+        "email": "Correo electrónico"
+      },
+      "errors": {
+        "validEmail": "Correo electrónico inválido",
+        "requiredEmail": "El correo electrónico es requerido"
+      },
+      "buttons": {
+        "submit": "Enviar instrucciones de restablecimiento"
+      }
+    },
+    "register": {
+      "title": "Registra tu cuenta",
+      "fields": {
+        "email": "Correo electrónico",
+        "password": "Contraseña"
+      },
+      "errors": {
+        "validEmail": "Correo electrónico inválido",
+        "requiredEmail": "El correo electrónico es requerido",
+        "requiredPassword": "La contraseña es requerida"
+      },
+      "buttons": {
+        "submit": "Registrarse",
+        "haveAccount": "¿Ya tienes una cuenta?"
+      }
+    },
+    "updatePassword": {
+      "title": "Actualizar contraseña",
+      "fields": {
+        "password": "Nueva contraseña",
+        "confirmPassword": "Confirmar nueva contraseña"
+      },
+      "errors": {
+        "confirmPasswordNotMatch": "Las contraseñas no coinciden",
+        "requiredPassword": "La contraseña es requerida",
+        "requiredConfirmPassword": "La confirmación de contraseña es requerida"
+      },
+      "buttons": {
+        "submit": "Actualizar"
+      }
+    },
+    "error": {
+      "info": "Es posible que hayas olvidado agregar el componente {{action}} al recurso {{resource}}.",
+      "404": "Lo sentimos, la página que buscas no existe.",
+      "resource404": "¿Estás seguro de que has creado el recurso {{resource}}?",
+      "backHome": "Volver al inicio"
+    }
+  },
+  "actions": {
+    "list": "Listar",
+    "create": "Crear",
+    "edit": "Editar",
+    "show": "Ver"
+  },
+  "buttons": {
+    "export":"Exportar",
+    "create": "Crear",
+    "save": "Guardar",
+    "logout": "Cerrar sesión",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "cancel": "Cancelar",
+    "confirm": "¿Estás seguro?",
+    "filter": "Filtrar",
+    "clear": "Limpiar",
+    "refresh": "Actualizar",
+    "show": "Ver",
+    "undo": "Deshacer",
+    "import": "Importar",
+    "clone": "Clonar",
+    "notAccessTitle": "No tienes permiso para acceder"
+  },
+  "warnWhenUnsavedChanges": "¿Estás seguro de que quieres salir? Tienes cambios sin guardar.",
+  "notifications": {
+    "success": "Operación exitosa",
+    "error": "Error (código de estado: {{statusCode}})",
+    "undoable": "Tienes {{seconds}} segundos para deshacer",
+    "createSuccess": "{{resource}} creado exitosamente",
+    "createError": "Hubo un error al crear {{resource}} (código de estado: {{statusCode}})",
+    "deleteSuccess": "{{resource}} eliminado exitosamente",
+    "deleteError": "Error al eliminar {{resource}} (código de estado: {{statusCode}})",
+    "editSuccess": "{{resource}} actualizado exitosamente",
+    "editError": "Error al actualizar {{resource}} (código de estado: {{statusCode}})",
+    "importProgress": "Importando: {{processed}}/{{total}}"
+  },
+  "loading": "Cargando...",
+  "tags": {
+    "clone": "Clonar"
+  },
+  "dashboard": {
+    "dashboard": "Panel de Control",
+    "titles": {
+      "list": "Panel de Control"
+    }
+  },
+  "products": {
+    "products": "Productos",
+    "fields": {
+      "id": "Id",
+      "name": "Nombre",
+      "price": "Precio",
+      "category": "Categoría",
+      "status": {
+        "title": "Estado",
+        "published": "Publicado",
+        "draft": "Borrador",
+        "rejected": "Rechazado"
+      },
+      "description": "Descripción",
+      "weight": "Peso",
+      "quantity": "Cantidad",
+      "province": "Provincia",
+      "createdAt": "Creado el"
+    },
+    "titles": {
+      "create": "Crear Producto",
+      "edit": "Editar Producto",
+      "list": "Productos",
+      "show": "Ver Producto"
+    }
+  },
+  "user": {
+    "user": "Usuarios",
+    "fields": {
+      "id": "Id",
+      "name": "Nombre",
+      "email": "Correo electrónico",
+      "role": "Rol",
+      "isActive": "Estado",
+      "createdAt": "Creado el"
+    },
+    "titles": {
+      "create": "Crear Usuario",
+      "edit": "Editar Usuario",
+      "list": "Usuarios",
+      "show": "Ver Usuario"
+    }
+  },
+  "category": {
+    "category": "Categorías",
+    "fields": {
+      "id": "Id",
+      "name": "Nombre",
+      "description": "Descripción",
+      "subCategories": "Subcategorías",
+      "createdAt": "Creado el"
+    },
+    "titles": {
+      "create": "Crear Categoría",
+      "edit": "Editar Categoría",
+      "list": "Categorías",
+      "show": "Ver Categoría"
+    }
+  },
+  "sub_category": {
+    "sub_category": "Subcategorías",
+    "fields": {
+      "id": "Id",
+      "name": "Nombre",
+      "description": "Descripción",
+      "category": "Categoría",
+      "createdAt": "Creado el"
+    },
+    "titles": {
+      "create": "Crear Subcategoría",
+      "edit": "Editar Subcategoría",
+      "list": "Subcategorías",
+      "show": "Ver Subcategoría"
+    }
+  },
+  "orders": {
+    "orders": "Pedidos",
+    "fields": {
+      "id": "Id",
+      "status": "Estado",
+      "total": "Total",
+      "user": "Usuario",
+      "products": "Productos",
+      "createdAt": "Fecha de creación"
+    },
+    "titles": {
+      "create": "Crear Pedido",
+      "edit": "Editar Pedido",
+      "list": "Pedidos",
+      "show": "Ver Pedido"
+    }
+  },
+  "payments": {
+    "payments": "Pagos",
+    "fields": {
+      "id": "Id",
+      "amount": "Monto",
+      "status": "Estado",
+      "order": "Pedido",
+      "method": "Método de pago",
+      "createdAt": "Fecha"
+    },
+    "titles": {
+      "list": "Pagos",
+      "show": "Ver Pago"
+    }
+  },
+  "discounts": {
+    "discounts": "Descuentos",
+    "fields": {
+      "id": "Id",
+      "code": "Código",
+      "amount": "Monto",
+      "type": "Tipo",
+      "startDate": "Fecha de inicio",
+      "endDate": "Fecha de fin",
+      "isActive": "Estado"
+    },
+    "titles": {
+      "create": "Crear Descuento",
+      "edit": "Editar Descuento",
+      "list": "Descuentos",
+      "show": "Ver Descuento"
+    }
+  },
+  "ratings": {
+    "ratings": "Calificaciones",
+    "fields": {
+      "id": "Id",
+      "rating": "Calificación",
+      "comment": "Comentario",
+      "user": "Usuario",
+      "product": "Producto",
+      "createdAt": "Fecha"
+    },
+    "titles": {
+      "list": "Calificaciones",
+      "show": "Ver Calificación"
+    }
+  },
+  "province": {
+    "province": "Provincias",
+    "fields": {
+      "id": "Id",
+      "name": "Nombre",
+      "municipalities": "Municipios"
+    },
+    "titles": {
+      "create": "Crear Provincia",
+      "edit": "Editar Provincia",
+      "list": "Provincias",
+      "show": "Ver Provincia"
+    }
+  },
+  "municipality": {
+    "municipality": "Municipios",
+    "fields": {
+      "id": "Id",
+      "name": "Nombre",
+      "basePrice": "Precio Base",
+      "minHours": "Horas Mínimas",
+      "maxHours": "Horas Máximas",
+      "province": "Provincia"
+    },
+    "titles": {
+      "create": "Crear Municipio",
+      "edit": "Editar Municipio",
+      "list": "Municipios",
+      "show": "Ver Municipio"
+    }
+  },
+  "table": {
+    "actions": "Acciones"
+  },
+  "documentTitle": {
+    "default": "Esaki Shop",
+    "suffix": " | Esaki Shop",
+    "products": {
+      "list": "Productos | Esaki Shop",
+      "show": "#{{id}} Ver Producto | Esaki Shop",
+      "edit": "#{{id}} Editar Producto | Esaki Shop",
+      "create": "Crear nuevo Producto | Esaki Shop",
+      "clone": "#{{id}} Clonar Producto | Esaki Shop"
+    },
+    "users": {
+      "list": "Usuarios | Esaki Shop",
+      "show": "#{{id}} Ver Usuario | Esaki Shop",
+      "edit": "#{{id}} Editar Usuario | Esaki Shop",
+      "create": "Crear nuevo Usuario | Esaki Shop"
+    },
+    "categories": {
+      "list": "Categorías | Esaki Shop",
+      "show": "#{{id}} Ver Categoría | Esaki Shop",
+      "edit": "#{{id}} Editar Categoría | Esaki Shop",
+      "create": "Crear nueva Categoría | Esaki Shop"
+    }
+  },
+  "autoSave": {
+    "success": "guardado",
+    "error": "error al guardar automáticamente",
+    "loading": "guardando...",
+    "idle": "esperando cambios"
+  }
+}

@@ -5,12 +5,12 @@ export type ProductBase = {
 	short_description: string;
 	description?: string;
 	category?: string;
-	subcategory?: string;
+	subCategory?: string;
 	image?: string;
 	quantity: number;
 	averageRating?: number;
 	weight?:number;
-	
+	province?:string;
 	
 	discount?: {
 		min: number;
@@ -45,6 +45,7 @@ export interface FilterState {
 export interface SubCategory {
 	id: string;
 	name: string;
+	categoryId:string;
 }
 
 export interface Category {
