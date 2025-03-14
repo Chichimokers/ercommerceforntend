@@ -12,6 +12,7 @@ export async function GET(request: NextRequest) {
     });
 
     console.log("🔍 Token obtenido:", token ? "Sí" : "No");
+    console.log(token)
 
     if (!token || !token.access_token) {
       console.error("❌ No hay token disponible para sincronizar");
@@ -24,7 +25,8 @@ export async function GET(request: NextRequest) {
     console.log("💾 Guardando access_token en cookie");
     createAccessTokenCookie(
       token.access_token as string,
-      token.accessTokenExpires as number
+      token.accessTokenExpires as number,
+      token.user?.role as string
     );
 
     console.log("✅ Token sincronizado exitosamente");

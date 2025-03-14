@@ -1,146 +1,114 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { decodeJWT } from "@/helpers/jwt-decode";
+import { getToken } from "next-auth/jwt";
 
 export async function middleware(request: NextRequest) {
-  console.log("🔒 Middleware ejecutándose para:", request.nextUrl.pathname);
+  const pathname = request.nextUrl.pathname;
+  console.log("\n🚀 Middleware ejecutándose para:", pathname);
 
-  // 1. Verificación de autenticación mejorada
+  if (pathname.startsWith('/api/')) {
+    return NextResponse.next();
+  }
+
+  // VERIFICACIÓN DE AUTENTICACIÓN
   const sessionToken = request.cookies.get("next-auth.session-token")?.value ||
     request.cookies.get("__Secure-next-auth.session-token")?.value;
 
-  // 2. Verificar access token explícitamente
-  const accessToken = request.cookies.get("next-auth.access-token")?.value ||
-    request.cookies.get("__Secure-next-auth.access-token")?.value;
-
-  console.log("📝 Session token:", sessionToken ? "Presente" : "Ausente");
-  console.log("📝 Access token:", accessToken ? "Presente" : "Ausente");
-
   const isAuthenticated = !!sessionToken;
 
-  // 3. Decodificar token para verificar rol
+  let role = null;
   let isAdmin = false;
-  if (accessToken) {
-    try {
-      const payload = await decodeJWT(accessToken);
-      console.log("🔑 Token decodificado:", JSON.stringify({
-        sub: payload.sub,
-        role: payload.role
-      }));
 
-      // Verifica todas las posibles ubicaciones del rol en el payload
-      isAdmin =
-        payload.role === 'admin' ||
-        payload.role === 1 || // Si el rol es numérico
-        payload.user?.role === 'admin' ||
-        payload.profile?.role === 'admin';
+  // VERIFICACIÓN DEL CARRITO - usando la cookie 'cart'
+  const cartCookie = request.cookies.get("cart")?.value;
 
-      console.log("👑 ¿Es admin?:", isAdmin);
-    } catch (error) {
-      console.error("❌ Error al decodificar token:", error);
+  // Intentar parsear el carrito para verificar si está vacío
+  let cartItems = [];
+  let hasCart = false;
+
+  try {
+    if (cartCookie) {
+      cartItems = JSON.parse(cartCookie);
+      hasCart = Array.isArray(cartItems) && cartItems.length > 0;
     }
-  } else if (sessionToken) {
-    console.warn("⚠️ No hay access_token disponible, intentando usar session token...");
-    // Intento de fallback con session token
-    try {
-      const payload = await decodeJWT(sessionToken);
-      isAdmin =
-        payload.role === 'admin' ||
-        payload.role === 1 ||
-        payload.user?.role === 'admin';
-    } catch (error) {
-      console.error("❌ Error al decodificar session token:", error);
-    }
+  } catch (error) {
+    console.error("Error parsing cart cookie:", error);
+    hasCart = false;
   }
 
-  // Procesamiento del carrito (mantener tu código existente)
-  const getCartItems = () => {
-    try {
-      // Obtener la cookie cart
-      const cartCookie = request.cookies.get("cart")?.value;
+  console.log("🛒 Estado del carrito:", hasCart ? `Tiene ${cartItems.length} productos` : "Vacío o no existe");
 
-      if (!cartCookie) {
-        return null;
-      }
+  try {
+    const token = await getToken({
+      req: request,
+      secret: process.env.NEXTAUTH_SECRET
+    });
 
-      // Decodificar si está codificada como URL
-      const decodedCart = decodeURIComponent(cartCookie);
+    role = token?.user?.role;
+    isAdmin = String(role) === "2";
 
-      // Intentar parsearlo como JSON
-      const cartData = JSON.parse(decodedCart);
+    console.log(`🔑 Rol del usuario: ${role} (¿Es admin?: ${isAdmin})`);
+  } catch (error) {
+    console.error("❌ Error al verificar role:", error);
+  }
 
-      // Verificar si es un array no vacío
-      if (Array.isArray(cartData) && cartData.length > 0) {
-        console.log(`Carrito tiene ${cartData.length} elementos`);
-        return cartData;
-      }
-
-      console.log("Carrito está vacío (array sin elementos)");
-      return null;
-    } catch (error) {
-      console.error("Error al analizar datos del carrito:", error);
-      return null;
-    }
-  };
-
-  // Usamos la función para determinar si hay items en el carrito
-  const cartItems = getCartItems();
-  const hasCartItems = cartItems !== null && cartItems.length > 0;
-
-  const pathname = request.nextUrl.pathname;
-
-  // 4. Protección de rutas administrativas
-  /*if (pathname.startsWith("/admin")) {
-
+  if (pathname.startsWith("/admin")) {
     if (!isAuthenticated) {
       return NextResponse.redirect(
-        new URL(`/login?to=${encodeURIComponent(pathname)}`, request.url)
+        new URL(`/login?to=${encodeURIComponent(pathname)}`, request.url),
+        302
       );
     }
 
-    // Si está autenticado pero no es admin, acceso denegado
     if (!isAdmin) {
+      const accessDeniedUrl = new URL("/access-denied", request.url).toString();
+
+      return new Response(null, {
+        status: 302,
+        headers: {
+          "Location": accessDeniedUrl,
+          "Cache-Control": "no-store, no-cache, must-revalidate",
+          "X-Redirect-Reason": "not-admin"
+        }
+      });
+    }
+  }
+
+  // PROTECCIÓN DE CHECKOUT
+  if (pathname.startsWith("/checkout")) {
+    if (!isAuthenticated) {
+      console.log("❌ Redirigiendo a login - no autenticado");
       return NextResponse.redirect(
-        new URL("/acceso-denegado?reason=admin_required", request.url)
+        new URL(`/login?to=${encodeURIComponent(pathname)}`, request.url),
+        302
       );
     }
 
-    console.log("✅ Acceso permitido a área admin");
-  }*/
+    if (!hasCart) {
+      console.log("⛔ REDIRIGIENDO a shopping-cart - carrito vacío");
+      const cartUrl = new URL("/shopping-cart", request.url).toString();
 
-  // El resto de tu middleware para otras rutas se mantiene igual
-  if (pathname === "/orders" || pathname.startsWith("/orders/")) {
-    if (!isAuthenticated) {
-      const redirectUrl = new URL(
-        `/login?to=${encodeURIComponent(request.nextUrl.pathname + request.nextUrl.search)}`,
-        request.url
-      );
-      return NextResponse.redirect(redirectUrl);
+      return new Response(null, {
+        status: 302,
+        headers: {
+          "Location": cartUrl,
+          "Cache-Control": "no-store, no-cache, must-revalidate",
+          "X-Redirect-Reason": "empty-cart"
+        }
+      });
     }
-  }
-
-  if (pathname === "/buy") {
-    if (!isAuthenticated) {
-      return NextResponse.redirect(new URL("/login", request.url));
-    }
-
-    if (!hasCartItems) {
-      return NextResponse.redirect(new URL("/cart", request.url));
-    }
-  }
-
-  if (isAuthenticated && pathname === "/login") {
-    console.log("Usuario ya autenticado, redirigiendo desde /login");
-    // Si es admin, enviar a /admin, de lo contrario a home
-    const redirectTo = request.nextUrl.searchParams.get("to") ||
-      (isAdmin ? "/admin" : "/");
-    return NextResponse.redirect(new URL(redirectTo, request.url));
   }
 
   return NextResponse.next();
 }
 
-// Configuración del matcher
 export const config = {
-  matcher: ["/admin/:path*", "/orders", "/orders/:path*", "/buy"],
+  matcher: [
+    "/admin",
+    "/admin/:path*",
+    "/orders",
+    "/orders/:path*",
+    "/checkout",
+    "/access-denied"
+  ],
 };

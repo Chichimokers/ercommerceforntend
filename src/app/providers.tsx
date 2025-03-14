@@ -12,6 +12,7 @@ import { LocationProvider } from "@contexts/location-context";
 import { ShippingProvider } from "@contexts/shipping-context";
 import React from "react";
 import AccessTokenSynchronizer from "@services/access-token-synchronizer";
+import CartSyncBackup from "@components/cart/cart-sync-backup";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -28,6 +29,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
               <ShippingProvider>
                 <ProductProvider>
                   <CartProvider>
+                    <CartSyncBackup />
                     <ModalProvider>
                       <HeroUIProvider>
                         <ToastProvider />
