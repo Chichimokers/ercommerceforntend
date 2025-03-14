@@ -31,6 +31,10 @@ export default {
       animation: {
         "spin-slow": "spin 3s linear infinite",
         "fade-in": "fade-in 0.3s ease-out forwards",
+        'wave': 'wave 10s ease-in-out infinite',
+        'wave-slow': 'wave-slow 8s ease-in-out infinite',
+        'float': 'float 10s ease-in-out infinite',
+        'float-reverse': 'float-reverse 12s ease-in-out infinite',
       },
       screens: {
         xs: "320px",

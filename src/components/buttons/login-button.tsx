@@ -1,5 +1,5 @@
 import { Button, cn, Tooltip } from "@heroui/react";
-import { LogInIcon } from "lucide-react";
+import { UserIcon } from "lucide-react";
 import Link from "next/link";
 
 export const LoginButton = ({ className }: { className?: string }) => {
@@ -22,7 +22,7 @@ export const LoginButton = ({ className }: { className?: string }) => {
         as={Link}
         href="/login"
       >
-        <LogInIcon
+        <UserIcon
           size={20}
           opacity={0.7}
           className="mx-auto text-default-800"

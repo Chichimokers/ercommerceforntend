@@ -1,17 +1,14 @@
 import React, { useMemo, useContext, useState } from "react";
-import { Skeleton } from "@heroui/react";
 import Image from "next/image";
 import { DeleteItemButton } from "../buttons/delete-product-button";
 import { ProductBase } from "@/types/types";
 import { CartContext } from "@/contexts/cart-context";
 import useCartActions from "../actions";
-
 import { CurrencyAndExchangeRateContext } from "@/contexts/exchange-rate-currency-context";
 import QuantityAdjuster from "../buttons/quantity-selector";
-import Price from "../price";
-import { useProductContext } from "@/contexts/product-context";
-//hay que cambiar no considero necesario buscarlo otraves en los productos cuando ya se hace en el otro componente
-//solo no quise ser tan intrusivo  (no mas intrusivo de lo que fui :) sorry de antemano por to lo que cambie )
+import { formatCurrency } from "@components/format-currency";
+import { useProductContext } from "@contexts/product-context";
+
 const CartCard = React.memo(
   ({
     productCart,
@@ -27,9 +24,26 @@ const CartCard = React.memo(
     const [imageStatus, setImageStatus] = useState<'loading' | 'error' | 'loaded'>('loading');
 
     const cartQuantity = useMemo(() => {
-      return cart?.find((item: { id: string }) => item.id === product?.id)?.cantidad;
+      return cart?.find((item: { id: string }) => item.id === product?.id)?.cantidad || 0;
     }, [cart, product]);
+
     const { rateExchange } = useContext(CurrencyAndExchangeRateContext) || {};
+
+    const unitPrice = useMemo(() => {
+      if (!product || !rateExchange) return 0;
+      return product.price * (rateExchange.exchangeRate || 1);
+    }, [product, rateExchange]);
+
+    const discountPercentage = useMemo(() => {
+      if (!product?.discount || cartQuantity < product.discount.min) return 0;
+      return ((product.discount.reduction * (rateExchange?.exchangeRate || 1)) * 100) / unitPrice;
+    }, [product, cartQuantity]);
+
+    const totalPrice = useMemo(() => {
+      if (!unitPrice || cartQuantity <= 0) return 0;
+      const discountMultiplier = discountPercentage > 0 ? (100 - discountPercentage) / 100 : 1;
+      return unitPrice * cartQuantity * discountMultiplier;
+    }, [unitPrice, cartQuantity, discountPercentage]);
 
     if (!product) {
       return (
@@ -64,15 +78,25 @@ const CartCard = React.memo(
           <div className="flex flex-col flex-1 gap-2">
             <h3 className="font-medium line-clamp-2">{productCart.name}</h3>
 
-            <div className="flex items-center justify-between">
-              <Price
-                amount={(productCart.price * (rateExchange?.exchangeRate || 1)).toFixed(2)}
-                currencyCode={rateExchange?.currency || "USD"}
-                className="text-sm font-semibold"
-              />
+            <div className="flex flex-row items-center justify-between gap-2">
+              <div className="flex flex-col">
+                <div className="text-sm text-neutral-600 dark:text-neutral-400">
+                  <span className="font-medium">{formatCurrency(unitPrice, rateExchange?.currency || "USD", rateExchange?.symbol)}</span>
+
+                  {discountPercentage > 0 && (
+                    <span className="ml-2 text-green-600 dark:text-green-500">
+                      (-{discountPercentage.toFixed(2)}%)
+                    </span>
+                  )}
+                </div>
+
+                <div className="text-sm font-semibold">
+                  Total: <span className="text-blue-600 dark:text-blue-500">{formatCurrency(totalPrice, rateExchange?.currency || "USD", rateExchange?.symbol)}</span>
+                </div>
+              </div>
 
               <QuantityAdjuster
-                quantity={cartQuantity || 1}
+                quantity={cartQuantity}
                 isInCart={isInCart}
                 handleQuantityInc={handleQuantityInc}
                 handleQuantityDec={handleQuantityDec}
@@ -82,6 +106,12 @@ const CartCard = React.memo(
                 maxLimit={product.quantity || 100}
               />
             </div>
+
+            {product.discount && cartQuantity < product.discount.min && (
+              <div className="text-xs text-amber-600 dark:text-amber-500 mt-1">
+                Compra {product.discount.min} unidades o más para obtener un {(((product.discount.reduction * (rateExchange?.exchangeRate || 1)) * 100) / unitPrice).toFixed(2)}% de descuento
+              </div>
+            )}
           </div>
         </div>
       </li>

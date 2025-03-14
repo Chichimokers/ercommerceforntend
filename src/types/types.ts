@@ -3,20 +3,33 @@ export type ProductBase = {
 	name: string;
 	price: number;
 	short_description: string;
-	description?: string;
+	description: string;
 	category?: string;
 	subCategory?: string;
 	image?: string;
 	quantity: number;
 	averageRating?: number;
-	weight?:number;
-	province?:string;
-	
+	province: string;
+	weight: number;
+
+
 	discount?: {
 		min: number;
 		reduction: number;
 	};
 };
+
+export type Location = {
+	province: string;
+	municipality: string;
+}
+
+export type CurrencyData = {
+	country?: string;
+	currency: string;
+	symbol: string;
+	exchangeRate: number;
+}
 
 export interface BaseType {
 	id: string;
@@ -66,6 +79,8 @@ export type Order = {
 	receiver_name: string;
 	stripe_id?: string;
 	orderItems: Item[];
+	created_at: string;
+	shipping_cost?: number;
 };
 
 export type Item = {

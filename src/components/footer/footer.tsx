@@ -1,136 +1,133 @@
-import { FaFacebook } from "react-icons/fa";
-import { FaInstagram, FaLinkedinIn, FaTwitter } from "react-icons/fa";
 import Link from "next/link";
-
-import React from "react";
 import Image from "next/image";
-
-const SocialMedia = ({
-  href,
-  icon,
-  profile,
-}: {
-  href: string;
-  icon: React.ReactNode;
-  profile: string;
-}) => {
-  return (
-    <Link
-      href={href}
-      className="text-default-700 hover:text-primary-600 transition-all duration-200 flex items-center gap-2 group"
-    >
-      <span className="transform group-hover:scale-110 group-hover:-translate-y-0.5 transition-transform duration-200 text-primary">
-        {icon}
-      </span>
-      <span className="text-sm font-medium group-hover:underline decoration-wavy decoration-primary/40 underline-offset-4">
-        {profile}
-      </span>
-    </Link>
-  );
-};
-
-const CustomerService = ({ href, value }: { href: string; value: string }) => {
-  return (
-    <li className="mb-2">
-      <a
-        href={href}
-        className="text-default-700 hover:text-primary-600 transition-all duration-200 text-sm font-medium hover:translate-x-1 inline-block"
-      >
-        {value}
-      </a>
-    </li>
-  );
-};
+import { useState } from "react";
+import { TermsModal } from "@components/modals/terms-modal";
+import { PrivacyPolicyModal } from "@components/modals/privacy-policy-modal";
 
 const Footer = () => {
+  const currentYear = new Date().getFullYear();
+
   return (
-    <footer className="bg-gradient-to-b from-gray-50 dark:from-gray-900 to-default-50 border-t border-default-200">
-      <div className="container mx-auto px-4 py-12 md:py-16">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
-          <div className="space-y-4">
-            <h2 className="text-lg font-bold text-foreground/90 pb-2 border-b-2 border-primary/20 inline-block relative after:absolute after:bottom-0 after:left-0 after:w-1/3 after:h-0.5 after:bg-gradient-to-r after:from-primary/70 after:to-transparent">
-              Sobre nosotros
-            </h2>
-            <p className="text-default-600 text-sm leading-relaxed prose dark:prose-invert mb-4">
-              Somos una plataforma líder de comercio electrónico que proporciona
-              una amplia gama de productos para satisfacer todas sus
-              necesidades. Nuestra misión es entregar productos de calidad a los
-              mejores precios.
+    <footer className="bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800">
+      <div className="container mx-auto px-4 py-8">
+        {/* Main footer content */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+          {/* Logo and about */}
+          <div>
+            <div className="mb-4">
+              <Image
+                src="/logonav.png"
+                alt="EsAki Logo"
+                width={120}
+                height={36}
+                className="object-contain"
+              />
+            </div>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              Plataforma de comercio electrónico que conecta a las familias con sus seres queridos en Cuba.
             </p>
           </div>
 
-          <div className="space-y-4">
-            <h2 className="text-lg font-bold text-foreground/90 pb-2 border-b-2 border-primary/20 inline-block relative after:absolute after:bottom-0 after:left-0 after:w-1/3 after:h-0.5 after:bg-gradient-to-r after:from-primary/70 after:to-transparent">
-              Servicio al cliente
-            </h2>
-            <ul className="space-y-3">
-              <CustomerService href={"/contacto"} value={"Contacto 24/7"} />
-              <CustomerService href={"/devoluciones"} value={"Devoluciones rápidas"} />
-              <CustomerService href={"/envios"} value={"Envío express"} />
-              <CustomerService href={"/faq"} value={"Preguntas frecuentes"} />
+          {/* Quick links */}
+          <div>
+            <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">Explorar</h3>
+            <ul className="space-y-2">
+              <li>
+                <Link href="/products" className="text-sm text-gray-500 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400">
+                  Productos
+                </Link>
+              </li>
+              <li>
+                <Link href="/about" className="text-sm text-gray-500 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400">
+                  Sobre nosotros
+                </Link>
+              </li>
+              <li>
+                <Link href="/faq" className="text-sm text-gray-500 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400">
+                  Preguntas frecuentes
+                </Link>
+              </li>
+              <li>
+                <Link href="/contact" className="text-sm text-gray-500 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400">
+                  Contacto
+                </Link>
+              </li>
             </ul>
           </div>
 
-          <div className="space-y-4">
-            <h2 className="text-lg font-bold text-foreground/90 pb-2 border-b-2 border-primary/20 inline-block relative after:absolute after:bottom-0 after:left-0 after:w-1/3 after:h-0.5 after:bg-gradient-to-r after:from-primary/70 after:to-transparent">
-              Síguenos
-            </h2>
-            <div className="flex flex-col space-y-3">
-              <SocialMedia
-                href={"https://facebook.com/esaki"}
-                icon={<FaFacebook size={20} />}
-                profile={"@esaki_ok"}
-              />
-              <SocialMedia
-                href={"https://twitter.com/esaki"}
-                icon={<FaTwitter size={20} />}
-                profile={"@esaki_tweets"}
-              />
-              <SocialMedia
-                href={"https://instagram.com/esaki"}
-                icon={<FaInstagram size={20} />}
-                profile={"@esaki_style"}
-              />
-              <SocialMedia
-                href={"https://linkedin.com/esaki"}
-                icon={<FaLinkedinIn size={20} />}
-                profile={"Esaki Careers"}
-              />
-            </div>
+          {/* Legal */}
+          <div>
+            <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">Legal</h3>
+            <ul className="space-y-2">
+              <li>
+                <span className="text-sm text-gray-500 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 cursor-pointer">
+                  <TermsModal />
+                </span>
+              </li>
+              <li>
+                <span className="text-sm text-gray-500 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 cursor-pointer">
+                  <PrivacyPolicyModal />
+                </span>
+              </li>
+            </ul>
           </div>
 
-          <div className="space-y-4">
-            <h2 className="text-lg font-bold text-foreground/90 pb-2 border-b-2 border-primary/20 inline-block relative after:absolute after:bottom-0 after:left-0 after:w-1/3 after:from-primary/70 after:to-transparent">
-              Aceptamos
-            </h2>
-            <div className="grid grid-cols-4">
-              {['visa', 'mastercard', 'paypal'].map((icon) => (
-                <div key={icon} className="rounded-xl transition-colors w-[60] h-[40]">
-                  <Image
-                    src={`/icons/${icon}.svg`}
-                    alt={icon}
-                    width={60}
-                    height={40}
-                    className="opacity-90 hover:opacity-100 transition-all duration-200 hover:scale-105"
-                    loading="lazy"
-                  />
-                </div>
-              ))}
+          {/* Contact */}
+          <div>
+            <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">Contacto</h3>
+            <ul className="space-y-2">
+              <li className="text-sm text-gray-500 dark:text-gray-400">
+                contacto@esaki-jrr.com
+              </li>
+              <li className="text-sm text-gray-500 dark:text-gray-400">
+                +52 (555) 123-4567
+              </li>
+            </ul>
+
+            {/* Social media */}
+            <div className="mt-4 flex space-x-4">
+              <a href="https://facebook.com/esaki" target="_blank" rel="noreferrer" aria-label="Facebook"
+                className="text-gray-400 hover:text-blue-500">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
+                </svg>
+              </a>
+              <a href="https://twitter.com/esaki" target="_blank" rel="noreferrer" aria-label="Twitter"
+                className="text-gray-400 hover:text-blue-400">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"></path>
+                </svg>
+              </a>
+              <a href="https://instagram.com/esaki" target="_blank" rel="noreferrer" aria-label="Instagram"
+                className="text-gray-400 hover:text-pink-500">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                  <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                  <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                </svg>
+              </a>
+              <a href="https://linkedin.com/company/esaki" target="_blank" rel="noreferrer" aria-label="LinkedIn"
+                className="text-gray-400 hover:text-blue-700">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
+                  <rect x="2" y="9" width="4" height="12"></rect>
+                  <circle cx="4" cy="4" r="2"></circle>
+                </svg>
+              </a>
             </div>
           </div>
         </div>
 
-        <div className="mt-12 pt-8 border-t border-default-200">
-          <div className="text-center space-y-4">
-            <p className="text-default-500 text-sm">
-              &copy; {new Date().getFullYear()} EsAki. Todos los derechos reservados.
-              <a href="/terminos" className="ml-2 hover:text-primary-600 transition-colors">Términos y condiciones</a>
-            </p>
-            <div className="text-xs text-default-400 flex items-center justify-center space-x-2">
-              <span>Diseñado con</span>
-              <span className="text-red-500 animate-pulse">❤️</span>
-              <span>para una mejor experiencia de compra</span>
-            </div>
+        {/* Bottom section with payment methods and copyright */}
+        <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-800 flex flex-col md:flex-row justify-between items-center">
+          <div className="flex items-center space-x-4">
+            <Image src="/icons/visa.svg" alt="Visa" width={32} height={20} className="object-contain" />
+            <Image src="/icons/mastercard.svg" alt="Mastercard" width={32} height={20} className="object-contain" />
+            <Image src="/icons/paypal.svg" alt="PayPal" width={32} height={20} className="object-contain" />
+          </div>
+
+          <div className="mt-4 md:mt-0 text-sm text-gray-500 dark:text-gray-400">
+            &copy; {currentYear} EsAki. Todos los derechos reservados.
           </div>
         </div>
       </div>

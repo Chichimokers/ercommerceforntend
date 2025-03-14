@@ -235,7 +235,6 @@ export const authOptions: NextAuthOptions = {
         }
       }
 
-      // Primera vez que se ejecuta (durante el login)
       if (account && user) {
         console.log("Nueva autenticación detectada", {
           provider: account.provider,
@@ -299,8 +298,38 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
   },
-  pages: {
-    error: "/auth/error",
+
+  // Agregar evento personalizado para establecer cookies
+  events: {
+    async signIn({ user, account, profile }) {
+      // Evento disparado al iniciar sesión
+    },
+    async session({ session, token }) {
+      // Usar esta función para sincronizar el access token con una cookie
+      if (token.access_token) {
+        const secureCookie = process.env.NODE_ENV === "production";
+        const cookieName = secureCookie ? "__Secure-next-auth.access-token" : "next-auth.access-token";
+
+        // Configuración de la cookie
+        const cookieOptions = {
+          httpOnly: true,
+          secure: secureCookie,
+          sameSite: "lax" as const,
+          path: "/",
+          maxAge: token.accessTokenExpires ?
+            Math.floor((token.accessTokenExpires - Date.now()) / 1000) :
+            24 * 60 * 60, // 1 día por defecto
+        };
+
+        // Esta cookie será establecida en la respuesta
+        // @ts-ignore - Este campo existe pero no está tipado correctamente
+        session.cookie = {
+          name: cookieName,
+          value: token.access_token,
+          options: cookieOptions
+        };
+      }
+    }
   },
 
   cookies: {
@@ -308,34 +337,17 @@ export const authOptions: NextAuthOptions = {
       name: process.env.NODE_ENV === "production" ? "__Secure-next-auth.session-token" : "next-auth.session-token",
       options: {
         httpOnly: true,
-        sameSite: "lax", // Prueba esto si la API está en otro dominio
+        sameSite: "lax",
         secure: process.env.NODE_ENV !== "development",
         path: "/",
       },
     },
   },
-  session: {
-    strategy: "jwt",
-  },
 
-  /*cookies: {
-    sessionToken: {
-      name:
-        process.env.NODE_ENV === "production"
-          ? "__Secure-authjs.session-token"
-          : "authjs.session-token",
-      options: {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        path: "/",
-      },
-    },
-  },
   session: {
     strategy: "jwt",
-    maxAge: 4 * 60 * 60,
-  },*/
+    maxAge: 24 * 60 * 60,
+  },
   secret: process.env.NEXTAUTH_SECRET,
 };
 

@@ -8,8 +8,11 @@ import AuthLayout from "@components/layout/auth-layout"
 import { ProductProvider } from "@contexts/product-context"
 import { CartProvider } from "@contexts/cart-context"
 import { ThemeProvider } from "next-themes"
-
-// tantos comentarios me marean
+import { LocationProvider } from "@contexts/location-context";
+import { ShippingProvider } from "@contexts/shipping-context";
+import React from "react";
+import AccessTokenSynchronizer from "@services/access-token-synchronizer";
+import CartSyncBackup from "@components/cart/cart-sync-backup";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -20,20 +23,27 @@ export function Providers({ children }: { children: React.ReactNode }) {
       defaultTheme="system"
     >
       <SessionProvider>
-        <CurrencyAndExchangeRateProvider>
-          <ProductProvider>
-            <CartProvider>
-              <ModalProvider>
-                <HeroUIProvider>
-                  <ToastProvider />
-                  <AuthLayout>
-                    {children}
-                  </AuthLayout>
-                </HeroUIProvider>
-              </ModalProvider>
-            </CartProvider>
-          </ProductProvider>
-        </CurrencyAndExchangeRateProvider>
+        <AccessTokenSynchronizer>
+          <CurrencyAndExchangeRateProvider>
+            <LocationProvider>
+              <ShippingProvider>
+                <ProductProvider>
+                  <CartProvider>
+                    <CartSyncBackup />
+                    <ModalProvider>
+                      <HeroUIProvider>
+                        <ToastProvider />
+                        <AuthLayout>
+                          {children}
+                        </AuthLayout>
+                      </HeroUIProvider>
+                    </ModalProvider>
+                  </CartProvider>
+                </ProductProvider>
+              </ShippingProvider>
+            </LocationProvider>
+          </CurrencyAndExchangeRateProvider>
+        </AccessTokenSynchronizer >
       </SessionProvider>
     </ThemeProvider >
   )

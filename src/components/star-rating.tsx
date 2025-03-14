@@ -1,22 +1,24 @@
 import { FaStar, FaStarHalfAlt, FaRegStar } from "react-icons/fa";
 
 interface StarRatingProps {
-  rating?: number; // número entre 0 y 5
+  value?: number; // número entre 0 y 5
+  onChange?: (value: number) => void;
   size?: number; // tamaño opcional de las estrellas
   className?: string;
 }
 
 const StarRating = ({
-  rating = 0,
+  value = 0,
   size = 20,
+  onChange,
   className = "",
 }: StarRatingProps) => {
-  if (typeof rating !== "number") {
+  if (typeof value !== "number") {
     return null;
   }
 
   const stars = [];
-  const roundedRating = Math.round(rating * 2) / 2; // Redondea a 0.5 más cercano
+  const roundedRating = Math.round(value * 2) / 2; // Redondea a 0.5 más cercano
 
   for (let i = 1; i <= 5; i++) {
     if (i <= roundedRating) {

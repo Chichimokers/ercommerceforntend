@@ -1,0 +1,21 @@
+# Usa una imagen base oficial de Node.js
+FROM node:22.2.0
+
+# Establece el directorio de trabajo en el contenedor
+WORKDIR /usr/src/app
+
+# Copia los archivos del proyecto al contenedor
+COPY . .
+# Instala las dependencias
+RUN npm install --force --verbose
+RUN npm install ajv@latest ajv-keywords@latest
+
+# Expone el puerto en el que tu aplicación escuchará
+EXPOSE 3000
+# RUN -> Durante la construcción de la imagen
+
+RUN npm run build
+
+# CMD -> Al iniciar el contenedor
+
+CMD ["npm", "run", "prod"]

@@ -1,7 +1,7 @@
 "use client";
 
-import { useContext, useMemo, useState, useEffect } from "react";
-import { CurrencyAndExchangeRateContext } from "@/contexts/exchange-rate-currency-context";
+import React, { useMemo, useState, useEffect, useCallback } from "react";
+import { useCurrency } from "@/contexts/exchange-rate-currency-context";
 import { currencies } from "@/helpers/currency-codes-list";
 import {
   Modal,
@@ -11,40 +11,47 @@ import {
   Spinner,
   Tooltip,
 } from "@heroui/react";
+import { FaMoneyBill } from "react-icons/fa";
 
-export default function CurrencySelector({
-  selectlabel,
-}: {
+interface CurrencySelectorProps {
   selectlabel?: string;
-}) {
-  const currencyContext = useContext(CurrencyAndExchangeRateContext);
+}
+
+export default function CurrencySelector({ selectlabel }: CurrencySelectorProps) {
+
   const {
-    setSelectedCurrency,
-    SelectedCurrency,
-    isDataChanging,
-    setIsDataChanging,
-  } = currencyContext || {};
+    selectedCurrency,
+    handleCurrencyChange,
+    isDataChanging
+  } = useCurrency();
 
   const [showModal, setShowModal] = useState(false);
 
-  // Set a timer to delay the modal visibility
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
+
   useEffect(() => {
     let timer: NodeJS.Timeout;
+
+    if (isInitialLoad) {
+      setIsInitialLoad(false);
+      return;
+    }
+
     if (isDataChanging) {
       timer = setTimeout(() => {
-        setShowModal(true); // Show the modal after 1 second
+        setShowModal(true);
       }, 1000);
     } else {
-      setShowModal(false); // Hide modal when isDataChanging becomes false
+      setShowModal(false);
     }
-    return () => clearTimeout(timer); // Cleanup timer on unmount or when isDataChanging changes
-  }, [isDataChanging]);
+    return () => clearTimeout(timer);
+  }, [isDataChanging, isInitialLoad]);
 
-  const ModalFallback = () => (
+  const ModalFallback = useCallback(() => (
     <div className="flex justify-center items-center w-full h-full">
       <Spinner size="lg" color="primary" className="bg-transparent" />
     </div>
-  );
+  ), []);
 
   const currencyItems = useMemo(() => {
     return Object.entries(currencies).map(([code, currency]) => ({
@@ -80,35 +87,33 @@ export default function CurrencySelector({
     }));
   }, []);
 
-  const handleSelectionChange = (selected: React.Key) => {
-    const selectedCurrency = selected.toString().toUpperCase();
+  const handleSelectionChange = useCallback((selected: React.Key) => {
+    const newCurrency = selected.toString().toUpperCase();
+    handleCurrencyChange(newCurrency);
+  }, [handleCurrencyChange]);
 
-    if (setSelectedCurrency) {
-      setIsDataChanging?.(true);
-      setSelectedCurrency(selectedCurrency);
-    }
-  };
-
-  if (!SelectedCurrency) return null;
+  if (!selectedCurrency) return null;
 
   return (
     <>
       <div className="flex w-full flex-wrap md:flex-nowrap gap-4">
         <Select
+          startContent={<FaMoneyBill className="text-blue-600" />}
           aria-label="Seleccione una moneda"
-          className="max-w-xs"
+          className="max-w-xs rounded-lg border border-default-200"
           labelPlacement="outside-left"
           label={selectlabel}
-          size="lg"
+          size="sm"
           variant="flat"
           items={currencyItems}
           inputMode="text"
-          selectedKeys={new Set([SelectedCurrency])}
+          selectedKeys={new Set([selectedCurrency])}
           onSelectionChange={(keys) => {
             const selected = Array.from(keys).pop();
             if (selected) handleSelectionChange(selected);
           }}
           fullWidth
+          isDisabled={isDataChanging}
         >
           {(item) => (
             <SelectItem
@@ -124,7 +129,7 @@ export default function CurrencySelector({
       </div>
 
       <Modal
-        hideCloseButton={true}
+        hideCloseButton
         isOpen={showModal}
         backdrop="blur"
         classNames={{

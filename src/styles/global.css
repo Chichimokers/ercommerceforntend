@@ -7,9 +7,12 @@
 /* Ocultar la barra de desplazamiento en dispositivos móviles */
 @media (max-width: 768px) {
   body {
-    -ms-overflow-style: none; /* IE y Edge */
-    scrollbar-width: none; /* Firefox */
-    overflow: -moz-scrollbars-none; /* Firefox legacy */
+    -ms-overflow-style: none;
+    /* IE y Edge */
+    scrollbar-width: none;
+    /* Firefox */
+    overflow: -moz-scrollbars-none;
+    /* Firefox legacy */
   }
 
   body::-webkit-scrollbar {
@@ -18,25 +21,33 @@
   }
 }
 
+.filter-panel {
+  background-color: var(--panel-background-color);
+}
+
 /* Estilizar la barra de desplazamiento en pantallas grandes */
 @media (min-width: 769px) {
   body::-webkit-scrollbar {
-    width: 8px; /* Grosor de la barra */
+    width: 8px;
+    /* Grosor de la barra */
   }
 
   body::-webkit-scrollbar-track {
-    background: #f5f5f5; /* Color de fondo */
+    background: #f5f5f5;
+    /* Color de fondo */
     border-radius: 10px;
   }
 
   body::-webkit-scrollbar-thumb {
-    background: #b3b3b3; /* Color del thumb (deslizador) */
+    background: #b3b3b3;
+    /* Color del thumb (deslizador) */
     border-radius: 10px;
     transition: background 0.3s;
   }
 
   body::-webkit-scrollbar-thumb:hover {
-    background: #888; /* Cambio de color al pasar el cursor */
+    background: #888;
+    /* Cambio de color al pasar el cursor */
   }
 }
 
@@ -47,8 +58,10 @@
 
 /* globals.css */
 :root {
-  --background-light: f9fafb; /* Color de fondo en modo claro */
-  --background-dark: #111827; /* Color de fondo en modo oscuro */
+  --background-light: f9fafb;
+  /* Color de fondo en modo claro */
+  --background-dark: #111827;
+  /* Color de fondo en modo oscuro */
 }
 
 html.light {
@@ -74,6 +87,7 @@ body {
     opacity: 0;
     filter: blur(100%);
   }
+
   to {
     transform: translateY(0);
     opacity: 1;
@@ -87,6 +101,7 @@ body {
     opacity: 0;
     filter: blur(100%);
   }
+
   to {
     transform: translateX(0);
     opacity: 1;
@@ -100,6 +115,7 @@ body {
     opacity: 0;
     filter: blur(100%);
   }
+
   to {
     transform: translateX(0);
     opacity: 1;
@@ -113,6 +129,7 @@ body {
     opacity: 1;
     filter: blur(0%);
   }
+
   to {
     transform: translateX(-100%);
     opacity: 0;
@@ -126,6 +143,7 @@ body {
     opacity: 1;
     filter: blur(0%);
   }
+
   to {
     transform: translateX(100%);
     opacity: 0;
@@ -134,10 +152,12 @@ body {
 }
 
 @keyframes bounce {
+
   0%,
   100% {
     transform: translateY(0);
   }
+
   50% {
     transform: translateY(-4px);
   }
@@ -147,25 +167,31 @@ body {
   0% {
     transform: translateX(0);
   }
+
   25% {
     transform: translateX(3px);
   }
+
   50% {
     transform: translateX(-3px);
   }
+
   75% {
     transform: translateX(3px);
   }
+
   100% {
     transform: translateX(0);
   }
 }
 
 @keyframes pulse {
+
   0%,
   100% {
     transform: scale(1);
   }
+
   50% {
     transform: scale(1.1);
   }
@@ -193,8 +219,10 @@ body {
 
 .filter-panel {
   position: sticky;
-  top: 64px; /* Empieza justo debajo del navbar */
-  transition: top 0.3s ease-in-out; /* Mueve suavemente el panel */
+  top: 64px;
+  /* Empieza justo debajo del navbar */
+  transition: top 0.3s ease-in-out;
+  /* Mueve suavemente el panel */
 }
 
 .order-card-container {
@@ -215,14 +243,17 @@ body {
 }
 
 @keyframes float {
+
   0%,
   100% {
     transform: translateY(0);
   }
+
   50% {
     transform: translateY(-6px);
   }
 }
+
 .animate-float {
   animation: float 3s ease-in-out infinite;
 }
@@ -231,4 +262,180 @@ body {
   background: url("data:image/svg+xml,%3Csvg width='100%' height='100%' viewBox='0 0 500 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3Cpattern id='waveGrid' patternUnits='userSpaceOnUse' width='40' height='40'%3E%3Cpath d='M 0 20 Q 10 40, 20 20 T 40 20' stroke='%23007BFF' stroke-width='1.5' fill='none'/%3E%3C/path%3E%3C/pattern%3E%3C/defs%3E%3Crect width='100%' height='100%' fill='url(%23waveGrid)'/%3E%3C/svg%3E");
   background-size: cover;
   opacity: 0.5;
+}
+
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translate(0px, 0px);
+  }
+
+  50% {
+    transform: translate(20px, 15px);
+  }
+}
+
+@keyframes float-reverse {
+
+  0%,
+  100% {
+    transform: translate(0px, 0px);
+  }
+
+  50% {
+    transform: translate(-20px, -10px);
+  }
+}
+
+@keyframes wave {
+
+  0%,
+  100% {
+    d: path('M0,192L48,181.3C96,171,192,149,288,154.7C384,160,480,192,576,186.7C672,181,768,139,864,128C960,117,1056,139,1152,144L1200,144L1200,320L0,320Z');
+  }
+
+  50% {
+    d: path('M0,160L48,165.3C96,171,192,181,288,181.3C384,181,480,171,576,154.7C672,139,768,117,864,112C960,107,1056,117,1152,128L1200,133L1200,320L0,320Z');
+  }
+}
+
+@keyframes wave-slow {
+
+  0%,
+  100% {
+    d: path('M0,32L48,37.3C96,43,192,53,288,80C384,107,480,149,576,154.7C672,160,768,128,864,112C960,96,1056,96,1152,101.3L1200,107L1200,320L0,320Z');
+  }
+
+  50% {
+    d: path('M0,64L48,64C96,64,192,64,288,85.3C384,107,480,149,576,149.3C672,149,768,107,864,90.7C960,75,1056,85,1152,90.7L1200,96L1200,320L0,320Z');
+  }
+}
+
+.delay-100 {
+  animation-delay: 0.1s;
+}
+
+.delay-200 {
+  animation-delay: 0.2s;
+}
+
+.delay-300 {
+  animation-delay: 0.3s;
+}
+
+.delay-400 {
+  animation-delay: 0.4s;
+}
+
+.delay-500 {
+  animation-delay: 0.5s;
+}
+
+.delay-600 {
+  animation-delay: 0.6s;
+}
+
+.delay-700 {
+  animation-delay: 0.7s;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+.animate-fadeInUp {
+  animation: fadeInUp 0.4s ease-out forwards;
+}
+
+.animate-fadeInDown {
+  animation: fadeInDown 0.4s ease-out forwards;
+}
+
+.animate-scaleIn {
+  animation: scaleIn 0.5s ease-out forwards;
+}
+
+.animate-slideDown {
+  animation: slideDown 0.3s ease-out forwards;
+}
+
+@keyframes bounce-subtle {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+.animate-bounce-subtle {
+  animation: bounce-subtle 2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-bounce-subtle {
+    animation: none;
+  }
 }

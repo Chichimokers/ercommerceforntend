@@ -2,115 +2,126 @@
 
 import React, { useMemo, useContext, useState } from "react";
 import Image from "next/image";
-import { DeleteItemButton } from "../buttons/delete-product-button";
 import { ProductBase } from "@/types/types";
 import { CartContext } from "@/contexts/cart-context";
-import useCartActions from "../actions";
 import { CurrencyAndExchangeRateContext } from "@/contexts/exchange-rate-currency-context";
-import { useProductContext } from "@/contexts/product-context";
-import dynamic from "next/dynamic";
+import { formatCurrency } from "@components/format-currency";
+import { Badge, Chip, Tooltip } from "@heroui/react";
+import { DeleteItemButton } from "../buttons/delete-product-button";
+import useCartActions from "../actions";
+import QuantityAdjuster from "../buttons/quantity-selector";
 
-const QuantityAdjuster = dynamic(() => import("../buttons/quantity-selector"));
+interface SmCartCardProps {
+  product: ProductBase;
+  className?: string;
+}
 
-export const ProductGrid = React.memo(
-  ({ productCart, className }: { productCart: ProductBase; className?: string }) => {
-    const { cart } = useContext(CartContext) || {};
-    const { isInCart, handleRemoveFromCart, handleQuantityInc, handleQuantityDec } = useCartActions(productCart);
-    const { cartProducts } = useProductContext();
-    const product = useMemo(() => cartProducts.find((p) => p.id === productCart.id), [cartProducts, productCart.id]);
-    const [imageStatus, setImageStatus] = useState<'loading' | 'error' | 'loaded'>('loading');
+const SmCartCard = React.memo(({ product, className = "" }: SmCartCardProps) => {
+  const { cart } = useContext(CartContext) || {};
+  const { rateExchange } = useContext(CurrencyAndExchangeRateContext) || {};
+  const [imageStatus, setImageStatus] = useState<'loading' | 'error' | 'loaded'>('loading');
+  const { isInCart, handleRemoveFromCart, handleQuantityInc, handleQuantityDec } = useCartActions(product);
 
-    const cartQuantity = useMemo(() => {
-      return cart?.find((item: { id: string }) => item.id === product?.id)?.cantidad;
-    }, [cart, product]);
-    const { rateExchange } = useContext(CurrencyAndExchangeRateContext) || {};
+  const cartQuantity = useMemo(() => {
+    return cart?.find((item) => item.id === product.id)?.cantidad || 0;
+  }, [cart, product.id]);
 
-    if (!product) {
-      return (
-        <div className="flex flex-col items-center justify-center">
-          Tu carrito está vacío
-        </div>
-      );
-    }
+  const unitPrice = useMemo(() => {
+    if (!rateExchange) return product.price;
+    return product.price * (rateExchange.exchangeRate || 1);
+  }, [product.price, rateExchange]);
 
-    return (
-      <div
-        className={`hidden md:grid grid-cols-5 lg:grid-cols-6 gap-6 border-b border-gray-200 dark:border-gray-700 px-4 ${className} hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors`}
-      >
-        <div className="py-6 flex items-center col-span-2 lg:col-span-3">
-          <div className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-xl border-2 border-gray-100 dark:border-gray-800 mr-4 shadow-sm transition-all group hover:shadow-md">
-            {imageStatus !== 'loaded' && (
-              <div className="absolute inset-0 animate-pulse bg-gray-200 dark:bg-gray-700" />
-            )}
-            <Image
-              alt={product.name}
-              fill
-              loading="lazy"
-              className="object-cover"
-              onLoad={() => setImageStatus('loaded')}
-              onError={() => setImageStatus('error')}
-              src={imageStatus === 'error' ? '/nophoto.jpeg' : product.image || '/nophoto.jpeg'}
-            />
-          </div>
-          <div className="flex-1 space-y-1.5">
-            <div className="font-medium text-lg text-gray-800 dark:text-white">{product.name}</div>
-            <div className="text-sm text-gray-500">ID: {product.id}</div>
-            <button
-              onClick={handleRemoveFromCart}
-              className="text-red-500 hover:opacity-80 transition-opacity text-sm font-medium"
-            >
-              Eliminar artículo
-            </button>
-          </div>
-        </div>
+  const discountPercentage = useMemo(() => {
+    if (!product.discount || cartQuantity < product.discount.min) return 0;
+    return ((product.discount.reduction * 100) * (rateExchange?.exchangeRate || 1)) / unitPrice;
+  }, [product.discount, cartQuantity]);
 
-        <div className="py-6 flex flex-col justify-center items-start text-gray-600 dark:text-gray-300">
-          {rateExchange ? (
-            <div className="space-y-1">
-              <span className="text-xs block">Unitario</span>
-              {rateExchange.symbol}
-              {(product.price * rateExchange.exchangeRate).toFixed(2)}{" "}
-              <span className="text-xs">{rateExchange.currency}</span>
-            </div>
-          ) : (
-            <div className="space-y-1">
-              <span className="text-xs block">Unitario</span>
-              ${product.price.toFixed(2)} USD
-            </div>
+  const totalPrice = useMemo(() => {
+    if (!unitPrice || cartQuantity <= 0) return 0;
+    const discountMultiplier = discountPercentage > 0 ? (100 - discountPercentage) / 100 : 1;
+    return unitPrice * cartQuantity * discountMultiplier;
+  }, [unitPrice, cartQuantity, discountPercentage]);
+
+  return (
+    <div className={`grid grid-cols-[2fr,1fr,1fr,1fr] items-center border-b border-neutral-200 dark:border-neutral-700 py-3 ${className}`}>
+      <div className="flex items-center pr-4">
+        <div className="relative flex-shrink-0 w-16 h-16 rounded-md overflow-hidden mr-3">
+          {imageStatus !== 'loaded' && (
+            <div className="absolute inset-0 animate-pulse bg-neutral-200 dark:bg-neutral-800" />
           )}
-        </div>
-
-        <div className="py-6 flex flex-col justify-center items-center">
-          <QuantityAdjuster
-            quantity={cartQuantity || 1}
-            isInCart={isInCart}
-            handleQuantityInc={handleQuantityInc}
-            handleQuantityDec={handleQuantityDec}
-            findInCartLocalStorage={() => !!cartQuantity}
-            getLocalStorageData={() => cart?.find((item) => item.id === product.id)}
-            productId={product.id}
-            maxLimit={product.quantity || 100}
+          <Image
+            src={imageStatus === 'error' ? '/nophoto.jpeg' : product.image || '/nophoto.jpeg'}
+            alt={product.name}
+            fill
+            sizes="64px"
+            className="object-cover rounded-xl"
+            onLoad={() => setImageStatus('loaded')}
+            onError={() => setImageStatus('error')}
+            loading="lazy"
           />
+          <div className="absolute top-0 left-0 z-10">
+            <DeleteItemButton onPress={handleRemoveFromCart} />
+          </div>
         </div>
 
-        <div className="py-6 flex flex-col justify-center items-start font-medium">
-          {rateExchange ? (
-            <div className="space-y-1">
-              <span className="text-xs block">Total</span>
-              {rateExchange.symbol}
-              {(product.price * rateExchange.exchangeRate * product.quantity).toFixed(2)}{" "}
-              <span className="text-xs">{rateExchange.currency}</span>
-            </div>
-          ) : (
-            <div className="space-y-1">
-              <span className="text-xs block">Total</span>
-              ${(product.price * product.quantity).toFixed(2)} USD
-            </div>
+        <div className="min-w-0">
+          <h4 className="text-sm font-medium line-clamp-2 text-gray-900 dark:text-gray-100">
+            {product.name}
+          </h4>
+
+          {product.discount && (
+            <Tooltip
+              content={`Compra ${product.discount.min} o más para obtener un descuento del ${((product.discount.reduction * 100) / unitPrice).toFixed(2)}%`}
+              placement="bottom"
+            >
+              <span className="text-xs text-default-600 cursor-help hover:text-blue-700 dark:hover:text-blue-400 transition-colors">
+                Descuento disponible
+              </span>
+            </Tooltip>
           )}
         </div>
       </div>
-    );
-  }
-);
 
-ProductGrid.displayName = "ProductGrid";
+      <div className="text-center">
+        <div className="text-sm font-medium">
+          {rateExchange && formatCurrency(unitPrice, rateExchange.currency, rateExchange.symbol)}
+        </div>
+
+        {discountPercentage > 0 && (
+          <Chip size="sm" variant="flat" color="danger" className="mx-auto mt-1">
+            -{discountPercentage.toFixed(2)}%
+          </Chip>
+        )}
+      </div>
+
+      <div className="flex justify-center">
+        <QuantityAdjuster
+          quantity={cartQuantity}
+          isInCart={isInCart}
+          handleQuantityInc={handleQuantityInc}
+          handleQuantityDec={handleQuantityDec}
+          findInCartLocalStorage={() => !!cartQuantity}
+          getLocalStorageData={() => cart?.find((item) => item.id === product.id)}
+          productId={product.id}
+          maxLimit={product.quantity || 100}
+        />
+      </div>
+
+      <div className="text-center">
+        <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+          {rateExchange && formatCurrency(totalPrice, rateExchange.currency, rateExchange.symbol)}
+        </p>
+
+        {discountPercentage > 0 && (
+          <p className="text-xs text-gray-500 line-through">
+            {rateExchange && formatCurrency(unitPrice * cartQuantity, rateExchange.currency, rateExchange.symbol)}
+          </p>
+        )}
+      </div>
+    </div>
+  );
+});
+
+SmCartCard.displayName = "SmCartCard";
+
+export default SmCartCard;

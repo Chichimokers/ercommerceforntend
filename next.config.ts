@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: "standalone",
+  //output: "standalone",
 
   reactStrictMode: true,
 
@@ -74,14 +74,14 @@ const nextConfig = {
   },
 
   // Se comenta la configuración experimental de Turbopack
-  experimental: {
+  /*experimental: {
     turbo: {
       rules: {
         "*.mdx": ["@mdx-js/loader"],
       },
       resolveExtensions: [".mdx", ".tsx", ".ts", ".jsx", ".js"],
     },
-  },
+  },*/
 
   // Compresión avanzada
   compress: true,

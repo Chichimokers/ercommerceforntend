@@ -2,21 +2,68 @@
 
 import { Header } from "@/components/header/header";
 import dynamic from "next/dynamic";
-import React, { ReactNode } from "react";
+import React, { ReactNode, useState, useEffect } from "react";
 import { Navbar } from "@/components/navbar/nav";
+import LocationModal from "@components/modals/location-modal";
 
 const Footer = dynamic(() => import("@components/footer/footer"));
+import { Overlay } from "@components/overlay";
+import InfoBar from "@components/info-bar";
 
 export default function RootLayout({ children }: { children: ReactNode }) {
+  const [modalOpen, setModalOpen] = useState(false);
+  const [showInfoBar, setShowInfoBar] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
+
+  useEffect(() => {
+    const controlInfoBar = () => {
+      const currentScrollY = window.scrollY;
+
+      // Show the InfoBar when scrolling up or at the top
+      if (currentScrollY < lastScrollY || currentScrollY < 10) {
+        setShowInfoBar(true);
+      }
+      // Hide the InfoBar when scrolling down
+      else if (currentScrollY > lastScrollY && currentScrollY > 10) {
+        setShowInfoBar(false);
+      }
+
+      // Update scroll position
+      setLastScrollY(currentScrollY);
+    };
+
+    window.addEventListener("scroll", controlInfoBar);
+
+    // Cleanup
+    return () => {
+      window.removeEventListener("scroll", controlInfoBar);
+    };
+  }, [lastScrollY]);
+
+  useEffect(() => {
+    if (!localStorage.getItem("location")) {
+      setModalOpen(true);
+    }
+  }
+    , []);
+
   return (
     <>
+      <Header className="fixed top-0 left-0 right-0 h-16" setModalOpen={setModalOpen} />
 
-      <Header className="fixed top-0 left-0 right-0 h-16" />
+      <div
+        className={`fixed top-16 left-0 right-0 z-30 transition-transform duration-300 ${showInfoBar ? "translate-y-0" : "-translate-y-full"
+          }`}
+      >
+        <InfoBar />
+      </div>
 
       <main
-        className="flex-grow container mx-auto max-w-[1920px] min-h-[70vh]"
+        className="flex-grow container mx-auto max-w-[1920px] min-h-[70vh] pt-[114px]"
       >
         {children}
+        {modalOpen && <Overlay onClick={() => setModalOpen(false)} />}
+        <LocationModal open={modalOpen} onClose={() => setModalOpen(false)} />
       </main>
 
       <Footer />

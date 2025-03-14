@@ -1,260 +1,548 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
-import dynamic from "next/dynamic";
-import Link from "next/link";
-import { useParams } from "next/navigation";
-import { FaArrowLeft, FaShoppingCart, FaMoneyBill } from "react-icons/fa";
-import Image from "next/image";
-import useCartActions from "@/components/actions";
-import { Skeleton } from "@heroui/react";
-import React from "react";
-import { CustomButton } from "@/components/buttons/custom-button";
-import { FaTrash } from "react-icons/fa6";
+import React, { useState, useCallback, useEffect, useMemo } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { Card, CardBody, Spinner, Tab, Tabs, Tooltip, Badge } from "@heroui/react";
+import { Breadcrumbs } from "@components/breadcrumb/breadcrumbs";
+import {
+  FaShoppingCart,
+  FaTruck,
+  FaShare,
+  FaExclamationTriangle
+} from "react-icons/fa";
+import { FaBagShopping } from "react-icons/fa6";
+import { WeightIcon, Check, X, AlertTriangle } from "lucide-react";
+
 import { useProductContext } from "@/contexts/product-context";
-import { ProductBase } from "@/types/types";
+import { useCurrency } from "@/contexts/exchange-rate-currency-context";
+import useCartActions from "@/components/actions";
 
-const RelationedProductSection = dynamic(
-  () => import("@/components/sections/relationed-products"),
-  {
-    loading: () => (
-      <div className="flex gap-4 overflow-hidden px-4 py-2 rounded-3xl">
-        {[...Array(4)].map((_, i) => (
-          <div key={i} className="flex-1 min-w-[240px] max-w-[240px]">
-            <div className="animate-pulse bg-default-50/80 rounded-3xl border border-default-100">
-              <div className="relative aspect-square w-full bg-default-100 rounded-t-3xl">
-                <div className="absolute inset-0 bg-gradient-to-br from-default-200 to-default-300 animate-pulse rounded-t-3xl" />
-              </div>
-              <div className="p-3 sm:p-4 space-y-3">
-                <div className="h-5 bg-default-200 rounded-full w-3/4" />
-                <div className="h-4 bg-default-200 rounded-full w-1/2" />
-                <div className="flex justify-between items-center gap-2">
-                  <div className="h-8 bg-default-200 rounded-full w-3/4" />
-                  <div className="h-9 w-10 bg-default-200 rounded-full" />
-                </div>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-    )
-  }
-);
-const QuantityAdjuster = dynamic(
-  () => import("@/components/buttons/quantity-selector")
-);
+import { CustomButton } from "@/components/buttons/custom-button";
+import QuantityAdjuster from "@/components/buttons/quantity-selector";
+import ProductImageGallery from "@components/product-image-gallery";
+import ErrorBoundary from "@components/error-boundary";
+import { SEO } from "@/components/seo";
+import { formatCurrency } from "@components/format-currency";
+import RelatedProductSection from "@components/sections/relationed-products";
 
-const defaultProduct: ProductBase = {
-  id: "",
-  name: "Cargando...",
-  price: 0,
-  image: "/placeholder-image.jpg",
-  description: "Cargando descripción...",
-  category: "",
-  quantity: 0,
-  short_description: "",
-  averageRating: 0,
-};
+interface ProductImageGalleryProps {
+  images: string[];
+  selectedIndex: number;
+  onSelect: (index: number) => void;
+  enableZoom?: boolean;
+}
 
-const ProductDetailPage = () => {
-  const params = useParams();
-  const id = params?.id as string;
-  const { products } = useProductContext();
-
-  const [productState, setProductState] = useState<{
-    data: ProductBase;
-    loading: boolean;
-    error: string | null; // Ahora acepta strings además de null
-  }>({
-    data: defaultProduct,
-    loading: true,
-    error: null,
-  });
-
-
-  const [imageSrc, setImageSrc] = useState("/placeholder-image.jpg");
-
-  const displayProduct = useMemo(
-    () =>
-      productState.loading || productState.error || !productState.data
-        ? defaultProduct
-        : { ...defaultProduct, ...productState.data },
-    [productState]
-  );
+// Hook para detectar si el dispositivo es de bajo rendimiento
+const useDeviceCapabilities = () => {
+  const [isLowPerformance, setIsLowPerformance] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    if (!id) return;
+    // Comprobar preferencias de reducción de movimiento
+    const prefersReducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 
-    const getProductData = async () => {
-      try {
-        const foundProduct = products?.find((p) => p.id.toString() === id);
-        if (foundProduct) {
-          setProductState({ data: foundProduct, loading: false, error: null });
-          return;
-        }
+    // Detectar dispositivo móvil
+    const mobileCheck = window.innerWidth < 768;
+    setIsMobile(mobileCheck);
 
-        setProductState((prev) => ({ ...prev, loading: true, error: null }));
+    // Comprobar capacidades del dispositivo
+    const isLowEnd =
+      navigator.hardwareConcurrency && navigator.hardwareConcurrency < 4 ||
+      'connection' in navigator &&
+      // @ts-ignore - Connection API no está completamente tipada
+      (navigator.connection?.saveData || ['slow-2g', '2g'].includes(navigator.connection?.effectiveType));
 
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}public/product-details?id=${id}`
-        );
+    setIsLowPerformance(prefersReducedMotion || isLowEnd);
 
-        if (!response.ok) throw new Error(`Error: ${response.statusText}`);
-
-        const data = await response.json();
-        setProductState({ data, loading: false, error: null });
-      } catch (err) {
-        setProductState((prev) => ({
-          ...prev,
-          error: "Hubo un problema al cargar el producto.",
-          loading: false,
-        }));
-      }
+    // Listener para cambios de tamaño
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
     };
 
-    getProductData();
-  }, [id, products]);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
-  useEffect(() => {
-    if (displayProduct.image) {
-      setImageSrc(displayProduct.image);
-    }
-  }, [displayProduct.image]);
+  return { isLowPerformance, isMobile };
+};
 
-  const cartActions = useCartActions({
-    id: displayProduct.id,
-    price: displayProduct.price,
-  });
-
-  const CartActions = useMemo(() => (
-    !productState.loading && (
-      <div className="grid grid-cols-2 gap-2 mt-4 w-full">
-        {!cartActions.isInCart && !cartActions.findInCartLocalStorage() ? (
-          <CustomButton className="w-full" onClick={cartActions.handleAddToCart}>
-            <FaShoppingCart />
-            Agregar
-          </CustomButton>
-        ) : (
-          <CustomButton
-            className="w-full"
-            color="danger"
-            onClick={cartActions.handleRemoveFromCart}
-          >
-            <FaTrash />
-            Eliminar
-          </CustomButton>
-        )}
-        <Link
-          className="w-full flex flex-row items-center justify-center gap-2 relative overflow-hidden rounded-xl focus:outline-none transition bg-green-500 text-white hover:bg-green-600 text-base py-2 px-6 disabled:opacity-50 disabled:cursor-not-allowed"
-          href="/shopping-cart"
-          onClick={
-            !cartActions.isInCart && !cartActions.findInCartLocalStorage()
-              ? cartActions.handleAddToCart
-              : undefined
-          }
-        >
-          <FaMoneyBill />
-          Comprar ahora
-        </Link>
-      </div>
-    )
-  ), [productState.loading, cartActions]);
-
-  if (productState.error && id && !productState.loading) {
+// Componente para mostrar disponibilidad del producto
+const StockIndicator = ({ quantity }: { quantity: number }) => {
+  if (quantity <= 0) {
     return (
-      <div className="w-full mx-auto py-10 rounded-xl mt-16">
-        <div className="p-5 flex flex-col items-center justify-center">
-          <h2 className="text-xl font-bold text-red-600">
-            Error al cargar el producto
-          </h2>
-          <p className="mt-2 text-gray-600">Prueba más tarde</p>
-          <Link
-            className="mt-4 text-blue-600 hover:underline flex items-center"
-            href="/products/"
-          >
-            <FaArrowLeft className="w-4 h-4 mr-2" />
-            Volver a todos los productos
-          </Link>
-        </div>
+      <div className="inline-flex items-center gap-2 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 px-3 py-1 rounded-full text-sm font-medium" role="status">
+        <X size={16} className="text-red-500" aria-hidden="true" />
+        <span>No disponible</span>
+      </div>
+    );
+  }
+
+  if (quantity <= 5) {
+    return (
+      <div className="inline-flex items-center gap-2 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 px-3 py-1 rounded-full text-sm font-medium" role="status">
+        <AlertTriangle size={16} className="text-amber-500" aria-hidden="true" />
+        <span>¡Solo quedan {quantity}!</span>
       </div>
     );
   }
 
   return (
-    <div className="w-full max-w-7xl mx-auto py-8 md:py-12 px-4 sm:px-6 lg:px-8 mt-16">
-      <div className="bg-white dark:bg-gray-800 shadow-sm rounded-2xl p-6 md:p-8 lg:p-10">
-        <div className="flex flex-col md:flex-row gap-8 lg:gap-12">
-          <div className="flex-shrink-0 md:w-1/2 lg:w-2/5">
-            <div className="relative w-full aspect-square group rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-700">
+    <div className="inline-flex items-center gap-2 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 px-3 py-1 rounded-full text-sm font-medium" role="status">
+      <Check size={16} className="text-green-500" aria-hidden="true" />
+      <span>En stock</span>
+    </div>
+  );
+};
 
-              <Image
-                key={imageSrc}
-                alt={displayProduct.name}
-                className="w-full h-96 object-contain"
-                fill
-                loading="lazy"
-                src={imageSrc}
-                onError={() => setImageSrc("/nophoto.jpeg")}
-              />
-            </div>
+// Componente precio
+const ProductPrice = ({
+  displayPrice,
+  discountedPrice,
+  discount,
+  quantity,
+  minForDiscount,
+  rateExchange
+}: {
+  displayPrice: number;
+  discountedPrice: number | null;
+  discount?: { reduction: number };
+  quantity: number;
+  minForDiscount?: number;
+  rateExchange: any;
+}) => {
+  return (
+    <div className="mt-4">
+      {discountedPrice ? (
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-2xl md:text-3xl font-bold text-primary">
+            {formatCurrency(discountedPrice, rateExchange?.currency, rateExchange?.symbol)}
+          </span>
+          <span className="text-lg text-gray-500 line-through">
+            {formatCurrency(displayPrice, rateExchange?.currency, rateExchange?.symbol)}
+          </span>
+          <Badge color="danger" className="text-xs font-medium px-2">
+            (-{discount && discount?.reduction && ((discount.reduction * 100 * (rateExchange?.exchangeRate || 1)) / displayPrice).toFixed(2)}%)
+          </Badge>
+        </div>
+      ) : (
+        <span className="text-2xl md:text-3xl font-bold text-primary">
+          {formatCurrency(displayPrice, rateExchange?.currency, rateExchange?.symbol)}
+        </span>
+      )}
 
-            <div className="mt-6 space-y-4">
-              <div className="flex items-center justify-between bg-gray-100 dark:bg-gray-700 p-4 rounded-xl">
-                <p className="text-3xl font-bold text-green-600 dark:text-green-400">
-                  ${displayProduct.price}
-                </p>
-                {!productState.loading && (
-                  <div className="flex items-center space-x-3">
-                    <QuantityAdjuster
-                      quantity={cartActions.quantity}
-                      isInCart={cartActions.isInCart}
-                      handleQuantityInc={cartActions.handleQuantityInc}
-                      handleQuantityDec={cartActions.handleQuantityDec}
-                      findInCartLocalStorage={cartActions.findInCartLocalStorage}
-                      getLocalStorageData={cartActions.getLocalStorageData}
-                      productId={displayProduct.id}
-                      maxLimit={displayProduct.quantity}
-                      className="bg-white dark:bg-gray-800 shadow-sm hover:shadow-md transition-shadow"
-                    />
-                  </div>
-                )}
-              </div>
+      {discount && minForDiscount && quantity < minForDiscount && (
+        <div className="mt-2 text-sm text-blue-600 dark:text-blue-400">
+          Compra {minForDiscount} o más para obtener un {((discount.reduction * 100 * rateExchange?.exchangeRate) / displayPrice).toFixed(2)}% de descuento
+        </div>
+      )}
+    </div>
+  );
+};
 
-              {CartActions}
-            </div>
-          </div>
+// Botones de acción principales
+const ActionButtons = ({
+  product,
+  isInCart,
+  quantity,
+  onAddToCart,
+  onRemoveFromCart,
+  onIncrement,
+  onDecrement,
+  findInCartLocalStorage,
+  getLocalStorageData,
+  isMobile
+}: {
+  product: any;
+  isInCart: boolean;
+  quantity: number;
+  onAddToCart: () => void;
+  onRemoveFromCart: () => void;
+  onIncrement: () => void;
+  onDecrement: () => void;
+  findInCartLocalStorage: any;
+  getLocalStorageData: any;
+  isMobile: boolean;
+}) => {
+  return (
+    <div className={`mt-6 flex ${isMobile ? 'flex-col' : ''} gap-3`}>
+      <div className={isMobile ? 'w-full mb-2' : ''}>
+        <QuantityAdjuster
+          quantity={quantity}
+          isInCart={isInCart}
+          handleQuantityInc={onIncrement}
+          handleQuantityDec={onDecrement}
+          findInCartLocalStorage={findInCartLocalStorage}
+          getLocalStorageData={getLocalStorageData}
+          productId={product.id}
+          maxLimit={product.quantity}
+          className="bg-white dark:bg-gray-800 shadow-sm hover:shadow-md transition-shadow"
+          aria-label="Ajustar cantidad"
+        />
+      </div>
 
-          <div className="flex-1 mt-6 md:mt-0">
-            <h1 className="text-3xl lg:text-4xl font-bold text-zinc-900 dark:text-white mb-4">
-              {displayProduct.name}
-            </h1>
-            <div className="prose dark:prose-invert max-w-none text-lg leading-relaxed">
-              <div className="space-y-4 border-l-4 border-blue-500 pl-4">
-                {displayProduct.description ? (
-                  displayProduct.description.split('\n').map((line, i) => (
-                    <p key={i} className="text-gray-700 dark:text-gray-300">
-                      {line}
-                    </p>
-                  ))
-                ) : (
-                  <p className="text-gray-700 dark:text-gray-300">No hay descripción disponible</p>
-                )}
-              </div>
-            </div>
-          </div>
+      <CustomButton
+        onClick={isInCart ? onRemoveFromCart : onAddToCart}
+        className={`${isMobile ? 'w-full' : 'flex-1'} py-3`}
+        variant="filled"
+        color={isInCart ? "danger" : "primary"}
+        aria-label={isInCart ? "Remover del carrito" : "Añadir al carrito"}
+      >
+        <FaShoppingCart className="mr-2" aria-hidden="true" />
+        <span>{isInCart ? "Remover del carrito" : "Añadir al carrito"}</span>
+      </CustomButton>
+
+      <CustomButton
+        onClick={onAddToCart}
+        isDisabled={product.quantity === 0}
+        className={`${isMobile ? 'w-full' : 'flex-1'} py-3`}
+        variant="filled"
+        color="success"
+        aria-label="Comprar ahora"
+      >
+        <FaBagShopping className="mr-2" aria-hidden="true" />
+        <span>Comprar ahora</span>
+      </CustomButton>
+    </div>
+  );
+};
+
+// Componente para mostrar información del producto
+const ProductInfo = ({ product }: { product: any }) => {
+  return (
+    <div className="mt-6 border-t border-b border-gray-200 dark:border-gray-700 py-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="flex items-center">
+          <FaTruck className="text-gray-500 mr-2" size={16} aria-hidden="true" />
+          <span>Envío desde: <strong>{product.province}</strong></span>
         </div>
 
-        {!productState.loading && !productState.error && (
-          <section className="mt-16">
-            <h3 className="text-2xl font-bold mb-6 text-zinc-800 dark:text-white">
-              Productos relacionados
-            </h3>
-            <RelationedProductSection id={displayProduct.id} />
-          </section>
+        <div className="flex items-center">
+          <WeightIcon className="text-gray-500 mr-2" size={16} aria-hidden="true" />
+          <span>Peso: <strong>{product.weight} kg</strong></span>
+        </div>
+
+        {product.category && (
+          <div className="flex items-center">
+            <span className="text-gray-700 dark:text-gray-300">Categoría: <strong>{product.category}</strong></span>
+          </div>
+        )}
+
+        {product.subcategory && (
+          <div className="flex items-center">
+            <span className="text-gray-700 dark:text-gray-300">Subcategoría: <strong>{product.subcategory}</strong></span>
+          </div>
         )}
       </div>
     </div>
   );
 };
 
-export default React.memo(ProductDetailPage);
+// Página principal de detalles del producto
+export default function ProductDetailPage() {
+  const { id } = useParams();
+  const router = useRouter();
+  const productId = Array.isArray(id) ? id[0] : id;
+  const { isLowPerformance, isMobile } = useDeviceCapabilities();
+
+  const [activeTab, setActiveTab] = useState("details");
+  const [selectedImage, setSelectedImage] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+  const [shareTooltip, setShareTooltip] = useState("Copiar enlace");
+
+  const { rateExchange } = useCurrency();
+  const { products } = useProductContext();
+
+  // Obtener datos del producto
+  const [product, setProduct] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!productId) return;
+
+    const fetchProduct = async () => {
+      try {
+        setIsLoading(true);
+        // Primero intentamos encontrar el producto en el contexto
+        const cachedProduct = products?.find(p => p.id.toString() === productId);
+
+        if (cachedProduct) {
+          setProduct(cachedProduct);
+          setIsLoading(false);
+          return;
+        }
+
+        // Si no está en el contexto, lo buscamos en la API
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}public/product-details?id=${productId}`,
+          { cache: 'force-cache' }
+        );
+
+        if (!response.ok) {
+          throw new Error(`Error: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        setProduct(data);
+      } catch (err) {
+        console.error("Error fetching product:", err);
+        setError("No pudimos cargar la información del producto. Por favor, inténtalo de nuevo.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProduct();
+  }, [productId, products]);
+
+  // Acciones del carrito
+  const {
+    quantity,
+    isInCart,
+    findInCartLocalStorage,
+    getLocalStorageData,
+    handleAddToCart,
+    handleRemoveFromCart,
+    handleQuantityInc,
+    handleQuantityDec
+  } = useCartActions(product);
+
+  // Calcular valores derivados
+  const breadcrumbItems = useMemo(() => [
+    { label: 'Inicio', href: '/' },
+    { label: 'Productos', href: '/products' },
+    { label: product?.name || 'Detalles del producto' }
+  ], [product?.name]);
+
+  const displayPrice = useMemo(() => {
+    if (!product || !rateExchange) return 0;
+    return product.price * (rateExchange.exchangeRate || 1);
+  }, [product, rateExchange]);
+
+  const discountedPrice = useMemo(() => {
+    if (!product?.discount || !displayPrice) return null;
+    if (quantity >= product.discount.min) {
+      return displayPrice - product.discount.reduction * (rateExchange?.exchangeRate || 1);
+    }
+    return null;
+  }, [displayPrice, product, quantity]);
+
+  // Manejadores de eventos
+  const handleTabChange = useCallback((key: React.Key) => {
+    setActiveTab(key.toString());
+  }, []);
+
+  const handleShare = useCallback(async () => {
+    const url = window.location.href;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: product?.name || 'Producto de Esaki',
+          text: product?.short_description || 'Mira este producto en Esaki',
+          url
+        });
+      } catch (err) {
+        copyToClipboard(url);
+      }
+    } else {
+      copyToClipboard(url);
+    }
+  }, [product]);
+
+  const copyToClipboard = useCallback((text: string) => {
+    navigator.clipboard.writeText(text)
+      .then(() => {
+        setShareTooltip('¡Enlace copiado!');
+        setTimeout(() => setShareTooltip('Copiar enlace'), 2000);
+      })
+      .catch(() => {
+        setShareTooltip('Error al copiar');
+        setTimeout(() => setShareTooltip('Copiar enlace'), 2000);
+      });
+  }, []);
+
+  // Renderizado condicional para estados de carga y error
+  if (error) {
+    return (
+      <div className="container mx-auto px-4 py-12">
+        <div className="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 p-6 rounded-lg">
+          <div className="flex items-center">
+            <FaExclamationTriangle className="text-red-500 mr-4 text-2xl" />
+            <div>
+              <h2 className="text-red-700 dark:text-red-300 text-xl font-bold">Ha ocurrido un error</h2>
+              <p className="text-red-600 dark:text-red-400 mt-2">{error}</p>
+              <button
+                onClick={() => router.back()}
+                className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
+              >
+                Volver atrás
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (isLoading || !product) {
+    return (
+      <div className="container mx-auto px-4 py-16 flex flex-col items-center justify-center min-h-[50vh]">
+        <Spinner size="lg" color="primary" />
+        <p className="mt-4 text-gray-600 dark:text-gray-400">Cargando producto...</p>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <SEO
+        title={`${product.name} | Esaki`}
+        description={product.short_description}
+        image={product.image}
+        type="product"
+      />
+
+      <div className="container mx-auto px-4 py-6 sm:py-8">
+        <Breadcrumbs items={breadcrumbItems} className="mb-6" />
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Columna de imágenes */}
+          <div>
+            <ErrorBoundary fallback={
+              <div className="bg-gray-100 dark:bg-gray-800 rounded-xl p-8 flex items-center justify-center h-[400px]">
+                <p>No se pudieron cargar las imágenes</p>
+              </div>
+            }>
+              <div className="sticky top-20">
+                <ProductImageGallery
+                  images={[product.image || '/placeholder.jpg']}
+                  selectedIndex={selectedImage}
+                  onSelect={setSelectedImage}
+                  enableZoom={!isLowPerformance && !isMobile}
+                />
+              </div>
+            </ErrorBoundary>
+          </div>
+
+          {/* Columna de información del producto */}
+          <div className="space-y-6">
+            <div className={isLowPerformance ? "" : "animate-fadeInUp"}>
+              <div className="flex flex-wrap justify-between items-start gap-2 mb-4">
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white flex-grow">
+                  {product.name}
+                </h1>
+
+                <Tooltip content={shareTooltip}>
+                  <button
+                    onClick={handleShare}
+                    aria-label="Compartir producto"
+                    className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 transition-colors"
+                  >
+                    <FaShare className="text-gray-600 dark:text-gray-400" />
+                  </button>
+                </Tooltip>
+              </div>
+
+              <StockIndicator quantity={product.quantity} />
+
+              <ProductPrice
+                displayPrice={displayPrice}
+                discountedPrice={discountedPrice}
+                discount={product.discount}
+                quantity={quantity}
+                minForDiscount={product.discount?.min}
+                rateExchange={rateExchange}
+              />
+
+              <p className="mt-4 text-gray-600 dark:text-gray-300 text-base leading-relaxed">
+                {product.short_description}
+              </p>
+
+              <ActionButtons
+                product={product}
+                isInCart={isInCart}
+                quantity={quantity}
+                onAddToCart={handleAddToCart}
+                onRemoveFromCart={handleRemoveFromCart}
+                onIncrement={handleQuantityInc}
+                onDecrement={handleQuantityDec}
+                findInCartLocalStorage={findInCartLocalStorage}
+                getLocalStorageData={getLocalStorageData}
+                isMobile={isMobile}
+              />
+
+              <ProductInfo product={product} />
+            </div>
+          </div>
+        </div>
+
+        {/* Pestañas de información adicional */}
+        <div className="mt-12">
+          <Tabs
+            selectedKey={activeTab}
+            onSelectionChange={handleTabChange}
+            variant="underlined"
+            className="w-full"
+            aria-label="Información del producto"
+            disableAnimation={isLowPerformance}
+          >
+            <Tab key="details" title={<span className="px-1">Descripción</span>}>
+              <Card className="bg-gray-50 dark:bg-gray-800/80 mt-4" shadow="sm">
+                <CardBody className="p-6">
+                  <div className="prose dark:prose-invert max-w-none">
+                    {product.description ? (
+                      product.description.split('\n').map((paragraph: string, idx: number) => (
+                        <p key={idx} className="mb-4 text-gray-700 dark:text-gray-300">{paragraph}</p>
+                      ))
+                    ) : (
+                      <p className="text-gray-500 dark:text-gray-400 italic">No hay descripción disponible para este producto.</p>
+                    )}
+                  </div>
+                </CardBody>
+              </Card>
+            </Tab>
+
+            <Tab key="specs" title={<span className="px-1">Especificaciones</span>}>
+              <Card className="bg-gray-50 dark:bg-gray-800/80 mt-4" shadow="sm">
+                <CardBody className="p-6">
+                  <div className="overflow-x-auto">
+                    <table className="w-full border-collapse">
+                      <tbody>
+                        <tr className="border-b dark:border-gray-700">
+                          <td className="py-3 px-4 font-medium w-1/3">Categoría</td>
+                          <td className="py-3 px-4">{product.category || '-'}</td>
+                        </tr>
+                        <tr className="border-b dark:border-gray-700">
+                          <td className="py-3 px-4 font-medium">Subcategoría</td>
+                          <td className="py-3 px-4">{product.subcategory || '-'}</td>
+                        </tr>
+                        <tr className="border-b dark:border-gray-700">
+                          <td className="py-3 px-4 font-medium">Peso</td>
+                          <td className="py-3 px-4">{product.weight} kg</td>
+                        </tr>
+                        <tr className="border-b dark:border-gray-700">
+                          <td className="py-3 px-4 font-medium">Provincia</td>
+                          <td className="py-3 px-4">{product.province}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </CardBody>
+              </Card>
+            </Tab>
+          </Tabs>
+        </div>
+
+        <div className="mt-16">
+          <ErrorBoundary fallback={<div className="text-center py-8">No se pudieron cargar productos relacionados</div>}>
+            <div className={isLowPerformance ? "" : "animate-fadeInUp"}>
+              <RelatedProductSection
+                id={product.id}
+              />
+            </div>
+          </ErrorBoundary>
+        </div>
+      </div>
+    </>
+  );
+}

@@ -6,6 +6,7 @@ import { SwitchProps, Tooltip, useSwitch } from "@heroui/react";
 import { useTheme } from "next-themes";
 import clsx from "clsx";
 import { SunFilledIcon, MoonFilledIcon } from "@/components/icons";
+import { SunIcon, MoonIcon } from "lucide-react";
 
 export interface ThemeSwitchProps {
   className?: string;
@@ -69,7 +70,7 @@ export const ThemeSwitch: FC<ThemeSwitchProps> = ({
         aria-label={isSelected ? "Switch to dark mode" : "Switch to light mode"}
         {...getBaseProps({
           className: clsx(
-            "px-px flex flex-col items-center justify-center border border-default-600 h-10 w-10 rounded-full hover:border-default-400 cursor-pointer bg-blue-50/50 dark:bg-gray-900/50",
+            "flex flex-col min-w-10 !p-0 justify-center items-center !w-10 !h-10 !rounded-full !border border-default-600 hover:border-default-400 bg-blue-50/50 dark:bg-gray-900/50 transition-none",
             className,
             classNames?.base
           ),
@@ -97,9 +98,9 @@ export const ThemeSwitch: FC<ThemeSwitchProps> = ({
           })}
         >
           {isSelected ? (
-            <MoonFilledIcon size={22} opacity={0.8} />
+            <MoonIcon size={22} opacity={0.8} />
           ) : (
-            <SunFilledIcon size={22} opacity={0.8} />
+            <SunIcon size={22} opacity={0.8} />
           )}
         </div>
       </Component>

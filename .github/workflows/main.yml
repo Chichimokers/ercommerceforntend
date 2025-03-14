@@ -1,41 +1,36 @@
+name: Deploy to Docker
+
 on:
   push:
-    branches: [master]
+    branches:
+      - master
   pull_request:
-    branches: [master]
-
+    branches:
+      - master
 jobs:
-  deploy-frontend:
-    runs-on: self-hosted
+  build-and-deploy:
+    runs-on: self-hosted  # Especifica que se ejecuta en un runner self-hosted
+
     steps:
-      - name: Clonar repositorio frontend
+      - name: Clonar repositorio
         uses: actions/checkout@v3
-        with:
-            path: frontend 
 
-      - name: Configurar Node.js
-  
-        uses: actions/setup-node@v3
-        with:
-              node-version: 22.13.1
+      - name: Construir imagen con etiqueta latest
+        run: |
+          docker build -f DockerFile.vps -t esakifront:latest .
 
-      # Instalar herramientas globales
-      - name: Instalar dependencias globales
-        working-directory: ./frontend
+      - name: Eliminar contenedor antiguo
         run: |
-              npm install -g dotenv-cli
-              npm install -g pm2
-              
-      - name: Instalar y buildear
-        working-directory: ./frontend
-        run: |
-          npm install
+          docker rm -f esakifront || true  # Fuerza eliminación si existe
 
-      - name: Borrar  frontend
-        working-directory: ./frontend
+      - name: Limpiar imágenes huérfanas (opcional)
         run: |
-           pm2 delete "frontend" || true
-      - name: Desplegar frontend
-        working-directory: ./frontend
+          docker image prune -f  # Elimina imágenes sin uso para ahorrar espacio
+
+      - name: Ejecutar nuevo contenedor
         run: |
-           pm2 start npm --name "frontend" -- run pre -- -p 3001
+          docker run -d \
+            --name esakifront \
+            -p 3000:3000 \
+            --restart unless-stopped \
+            esakifront:latest

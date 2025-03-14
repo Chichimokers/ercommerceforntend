@@ -13,7 +13,7 @@ export const FilterPanel = () => {
   const [isInvalidFilters, setIsInvalidFilters] = useState<boolean>(false);
 
   return (
-    <div className="relative px-4 filter-panel hidden md:block md:w-64 h-[calc(100vh-64px)] overflow-y-auto hover:overflow-y-scroll z-40 shadow-sm scrollbar-hide border-r border-default-50 transition-all duration-300">
+    <div className="relative px-4 filter-panel hidden md:block md:w-64 h-[calc(100vh-114px)] overflow-y-auto hover:overflow-y-scroll z-20 shadow-sm scrollbar-hide border-r border-default-50 transition-all duration-300">
       <div className="absolute inset-x-0 top-0 px-4 z-30 border-b border-default-50">
         <h2 className="text-xl font-bold my-4">Filtros</h2>
       </div>
@@ -22,14 +22,9 @@ export const FilterPanel = () => {
           <Filters
             onFilterChange={setFilters}
             setIsInvalidFilters={setIsInvalidFilters}
-            className="transition-opacity duration-300 ease-in-out"
+            className="transition-opacity duration-300 ease-in-out bg-white dark:bg-gray-900"
           />
         </div>
-      </div>
-      <div className="sticky inset-x-0 bottom-0 z-50 w-full py-4 bg-white dark:bg-gray-900">
-        <CustomButton className="w-full" onClick={applyFilters} isDisabled={isInvalidFilters}>
-          Aplicar filtros
-        </CustomButton>
       </div>
     </div>
   );
