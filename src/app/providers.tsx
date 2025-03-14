@@ -11,6 +11,7 @@ import { ThemeProvider } from "next-themes"
 import { LocationProvider } from "@contexts/location-context";
 import { ShippingProvider } from "@contexts/shipping-context";
 import React from "react";
+import AccessTokenSynchronizer from "@services/access-token-synchronizer";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -21,24 +22,26 @@ export function Providers({ children }: { children: React.ReactNode }) {
       defaultTheme="system"
     >
       <SessionProvider>
-        <CurrencyAndExchangeRateProvider>
-          <LocationProvider>
-            <ShippingProvider>
-              <ProductProvider>
-                <CartProvider>
-                  <ModalProvider>
-                    <HeroUIProvider>
-                      <ToastProvider />
-                      <AuthLayout>
-                        {children}
-                      </AuthLayout>
-                    </HeroUIProvider>
-                  </ModalProvider>
-                </CartProvider>
-              </ProductProvider>
-            </ShippingProvider>
-          </LocationProvider>
-        </CurrencyAndExchangeRateProvider>
+        <AccessTokenSynchronizer>
+          <CurrencyAndExchangeRateProvider>
+            <LocationProvider>
+              <ShippingProvider>
+                <ProductProvider>
+                  <CartProvider>
+                    <ModalProvider>
+                      <HeroUIProvider>
+                        <ToastProvider />
+                        <AuthLayout>
+                          {children}
+                        </AuthLayout>
+                      </HeroUIProvider>
+                    </ModalProvider>
+                  </CartProvider>
+                </ProductProvider>
+              </ShippingProvider>
+            </LocationProvider>
+          </CurrencyAndExchangeRateProvider>
+        </AccessTokenSynchronizer >
       </SessionProvider>
     </ThemeProvider >
   )

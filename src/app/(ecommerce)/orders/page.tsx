@@ -18,7 +18,6 @@ import {
   XCircle,
   TruckIcon,
   PackageOpen,
-  Filter
 } from "lucide-react";
 
 // Importación dinámica optimizada
@@ -341,18 +340,15 @@ const OrdersPage = () => {
     }));
   }
 
-  // Filtrado y ordenado de órdenes
   const filteredAndSortedOrders = useMemo(() => {
     if (!orders || !Array.isArray(orders)) return [];
 
     let processedOrders = mapOrder(orders);
 
-    // Aplicar filtro por estado
     if (statusFilter !== "all") {
       processedOrders = processedOrders.filter(order => order.status === statusFilter);
     }
 
-    // Aplicar búsqueda de texto
     if (searchText.trim()) {
       const searchLower = searchText.toLowerCase();
       processedOrders = processedOrders.filter(order =>
@@ -364,7 +360,6 @@ const OrdersPage = () => {
       );
     }
 
-    // Aplicar ordenamiento
     return processedOrders.sort((a, b) => {
       const dateA = new Date(a.created_at).getTime();
       const dateB = new Date(b.created_at).getTime();
@@ -377,27 +372,22 @@ const OrdersPage = () => {
     });
   }, [orders, statusFilter, sortOrder, searchText]);
 
-  // Navegación a la página de productos
   const navigateToProducts = () => {
     window.location.href = "/products";
   };
 
-  // Reintentar carga de órdenes
   const retryLoading = () => {
     refreshOrders();
   };
 
-  // Función para limpiar todos los filtros
   const clearAllFilters = () => {
     setStatusFilter("all");
     setSearchText("");
     setSortOrder("newest");
   };
 
-  // Determinar si hay filtros aplicados
   const hasFiltersApplied = statusFilter !== "all" || searchText.trim() !== "";
 
-  // Primero, crea este componente para el estado de "no hay resultados para los filtros"
   const NoResultsMessage = () => (
     <motion.div
       initial={{ opacity: 0 }}
@@ -415,37 +405,29 @@ const OrdersPage = () => {
     </motion.div>
   );
 
-  // Renderizado condicional
   if (error) {
     return (
-      <section className="mt-16">
-        <ErrorState
-          message={error.message}
-          onRetry={error.message === 'No orders found' ? navigateToProducts : retryLoading}
-        />
-      </section>
+      <ErrorState
+        message={error.message}
+        onRetry={error.message === 'No orders found' ? navigateToProducts : retryLoading}
+      />
     );
   }
 
   if (isLoading) {
     return (
-      <section className="mt-16">
-        <LoadingState />
-      </section>
+      <LoadingState />
     );
   }
 
-  // Cambio clave: verificar si hay órdenes originales pero no hay resultados filtrados
   if (!orders || !Array.isArray(orders) || orders.length === 0) {
     return (
-      <div className="mt-16">
-        <EmptyOrdersState onGoShopping={navigateToProducts} />
-      </div>
+      <EmptyOrdersState onGoShopping={navigateToProducts} />
     );
   }
 
   return (
-    <div className="mx-auto py-8 md:py-12 px-4 max-w-7xl mt-16">
+    <div className="mx-auto py-8 md:py-12 px-4 max-w-7xl">
       <motion.div
         className="mb-8 text-center"
         initial={{ opacity: 0, y: -20 }}
@@ -461,7 +443,6 @@ const OrdersPage = () => {
         </p>
       </motion.div>
 
-      {/* Filtros y controles */}
       <div className="mb-6 bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
         <motion.div
           className="flex flex-col sm:flex-row gap-4"
@@ -469,7 +450,6 @@ const OrdersPage = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.1 }}
         >
-          {/* Búsqueda */}
           <div className="relative flex-1">
             <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
               <Search className="h-4 w-4 text-gray-400" />
@@ -482,55 +462,23 @@ const OrdersPage = () => {
               className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-600 dark:focus:border-blue-600 transition-all"
             />
           </div>
-
-          <div className="w-full sm:w-48">
-            <Select
-              label="Estado"
-              selectedKeys={[statusFilter]}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              startContent={<Filter size={16} className="text-gray-400" />}
-              size="sm"
-            >
-              <SelectItem key="all">Todos los estados</SelectItem>
-              <SelectItem key="confirmed">Confirmado</SelectItem>
-              <SelectItem key="payd">Pagados</SelectItem>
-              <SelectItem key="pending">Pendientes</SelectItem>
-            </Select>
-          </div>
-
-          <div className="w-full sm:w-44">
-            <Select
-              label="Ordenar por"
-              selectedKeys={[sortOrder]}
-              onChange={(e) => setSortOrder(e.target.value)}
-              size="sm"
-            >
-              <SelectItem key="newest">Más recientes</SelectItem>
-              <SelectItem key="oldest">Más antiguos</SelectItem>
-            </Select>
-          </div>
-
-          <Tooltip content="Actualizar pedidos">
-            <Button
-              isIconOnly
-              variant="flat"
-              color="primary"
-              aria-label="Recargar pedidos"
-              className="min-w-unit-10 w-unit-10 h-unit-10 self-end"
-              onClick={() => refreshOrders()}
-            >
-              <RefreshCcw size={18} />
-            </Button>
-          </Tooltip>
         </motion.div>
       </div>
 
+      {/*<Tooltip content="Actualizar pedidos">
+        <Button
+          isIconOnly
+          variant="flat"
+          color="primary"
+          aria-label="Recargar pedidos"
+          className="min-w-unit-10 w-unit-10 h-unit-10 self-end"
+          onClick={() => refreshOrders()}
+        >
+          <RefreshCcw size={18} />
+        </Button>
+      </Tooltip>*/}
+
       <div className="mb-4 flex justify-between items-center">
-        <div>
-          <span className="text-sm text-gray-500 dark:text-gray-400">
-            {filteredAndSortedOrders.length} pedido{filteredAndSortedOrders.length !== 1 ? 's' : ''} encontrado{filteredAndSortedOrders.length !== 1 ? 's' : ''}
-          </span>
-        </div>
         <div className="flex items-center gap-2">
           {statusFilter !== "all" && (
             <Chip

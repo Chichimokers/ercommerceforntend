@@ -298,8 +298,38 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
   },
-  pages: {
-    error: "/auth/error",
+
+  // Agregar evento personalizado para establecer cookies
+  events: {
+    async signIn({ user, account, profile }) {
+      // Evento disparado al iniciar sesión
+    },
+    async session({ session, token }) {
+      // Usar esta función para sincronizar el access token con una cookie
+      if (token.access_token) {
+        const secureCookie = process.env.NODE_ENV === "production";
+        const cookieName = secureCookie ? "__Secure-next-auth.access-token" : "next-auth.access-token";
+
+        // Configuración de la cookie
+        const cookieOptions = {
+          httpOnly: true,
+          secure: secureCookie,
+          sameSite: "lax" as const,
+          path: "/",
+          maxAge: token.accessTokenExpires ?
+            Math.floor((token.accessTokenExpires - Date.now()) / 1000) :
+            24 * 60 * 60, // 1 día por defecto
+        };
+
+        // Esta cookie será establecida en la respuesta
+        // @ts-ignore - Este campo existe pero no está tipado correctamente
+        session.cookie = {
+          name: cookieName,
+          value: token.access_token,
+          options: cookieOptions
+        };
+      }
+    }
   },
 
   cookies: {
@@ -313,6 +343,7 @@ export const authOptions: NextAuthOptions = {
       },
     },
   },
+
   session: {
     strategy: "jwt",
     maxAge: 24 * 60 * 60,

@@ -15,9 +15,6 @@ interface Option {
 
 const fetcher = async (url: string) => {
   try {
-    console.log("Fetching:", url);
-
-    // Implementar un sistema de reintentos
     let attempts = 0;
     const maxAttempts = 3;
 
@@ -91,10 +88,13 @@ export default function LocationModal({ open, onClose, initialProvince = '', ini
   );
 
   const { data: municipalities = [], isLoading: loadingMunicipalities, error: municipalitiesError } = useSWR<Option[]>(
-    province ? `${process.env.NEXT_PUBLIC_API_URL}public/municipalities/${province}` : null,
+    (open && province && province.trim() !== "")
+      ? `${process.env.NEXT_PUBLIC_API_URL}public/municipalities/${province}`
+      : null,
     fetcher,
     {
       revalidateOnFocus: false,
+      dedupingInterval: 5000,
       onError: (err) => {
         console.error("Error fetching municipalities:", err);
         setFetchError("Error al cargar municipios");

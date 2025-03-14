@@ -7,5 +7,6 @@ namespace NodeJS {
     API_SECRET: string;
     NEXT_PUBLIC_ELTOQUE_TOKEN: string;
     El_TOKE: string;
+    PHONE: string
   }
 }
