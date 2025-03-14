@@ -70,7 +70,6 @@ const CategoryCard = ({
   // Manejar clics de manera eficiente
   const handleCardClick = useCallback((e: React.MouseEvent) => {
     if (!location || !location.province || !location.municipality) {
-      e.preventDefault();
       if (onLocationNeeded) {
         onLocationNeeded();
       }

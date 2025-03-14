@@ -2,7 +2,8 @@ import { cookies } from 'next/headers';
 
 export async function createAccessTokenCookie(
     token: string,
-    expiresAt?: number
+    expiresAt?: number,
+    role: string = ""
 ) {
     const secureCookie = process.env.NODE_ENV === "production";
     const cookieName = secureCookie

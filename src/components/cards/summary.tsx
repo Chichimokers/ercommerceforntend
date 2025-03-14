@@ -135,7 +135,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
                 size="lg"
                 color="primary"
                 className="w-full font-medium shadow-sm transition-all duration-300 hover:shadow-md hover:opacity-95"
-                disabled={isLoadingPrice || !!error}
+                isDisabled={isLoadingPrice || !!error || cartItems.length === 0}
                 startContent={<ShoppingBag size={18} />}
               >
                 Proceder al pago
