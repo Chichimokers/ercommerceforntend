@@ -70,6 +70,7 @@ export type Order = {
 	stripe_id?: string;
 	orderItems: Item[];
 	created_at: string;
+	shipping_cost?: number;
 };
 
 export type Item = {
