@@ -439,3 +439,25 @@ body {
     animation: none;
   }
 }
+
+/* En tu global.css o archivo equivalente */
+@layer utilities {
+  .touch-action-safe {
+    touch-action: pan-x pan-y;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .hover-lift {
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-5px);
+  }
+
+  /* Efecto de presionado con CSS, no JavaScript */
+  .hover-lift:active {
+    transform: translateY(0) scale(0.98);
+  }
+}

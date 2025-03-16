@@ -1,20 +1,29 @@
 "use client";
-import { useSelect } from "@refinedev/core";
+
+import React from "react";
 import { Form, Select } from "antd";
-import { Category } from "../../types/types";
+import { useSelect } from "@refinedev/core";
+import { BaseType } from "../../types/types";
+
+interface Category extends BaseType {
+  name: string;
+}
 
 interface CategorySelectorProps {
   name: string;
-  label?: string;
+  label: string;
   required?: boolean;
+  onChange?: (value: string) => void;
 }
 
 export const CategorySelector: React.FC<CategorySelectorProps> = ({
   name,
-  label = "Categoría",
-  required = true,
+  label,
+  required = false,
+  onChange,
 }) => {
-  const { options } = useSelect<Category>({
+  // Fetch categories
+  const { options: categoryOptions } = useSelect<Category>({
     resource: "category",
     optionLabel: "name",
     optionValue: "id",
@@ -22,24 +31,30 @@ export const CategorySelector: React.FC<CategorySelectorProps> = ({
 
   return (
     <Form.Item
-      name={name}
       label={label}
+      name={name}
       rules={[
         {
-          required,
-          message: "Por favor seleccione una categoría",
+          required: required,
+          message: `Por favor seleccione una ${label.toLowerCase()}`,
         },
       ]}
     >
       <Select
-        options={options}
-        placeholder="Seleccione una categoría"
+        options={categoryOptions}
+        placeholder={`Seleccione una ${label.toLowerCase()}`}
         showSearch
         filterOption={(input, option) =>
           (option?.label?.toString() ?? "")
             .toLowerCase()
             .includes(input.toLowerCase())
         }
+        onChange={(value) => {
+          if (onChange) {
+            onChange(value);
+          }
+        }}
+        allowClear
       />
     </Form.Item>
   );
