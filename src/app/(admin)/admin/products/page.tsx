@@ -4,41 +4,42 @@ import React from "react";
 import { Space, Tag } from "antd";
 import Image from "next/image";
 import { BaseType, ProductBase } from "../../../../types/types";
-import GenericList, { ExtendedColumnType } from "@components/generic_admin_pages/genericListPage";
+import GenericList, { ExtendedColumnType } from "@components/admin/generic_admin_pages/genericListPage";
 
 const ProductList: React.FC = () => {
   const columns: ExtendedColumnType<ProductBase & BaseType>[] = [
-    {
-      title: "Id",
-      dataIndex: "id",
-    },
     {
       title: "Nombre",
       dataIndex: "name",
       sorter: true,
       filterSearch: true,
+      filteredValue:undefined
     },
     {
       title: "Precio",
       dataIndex: "price",
       sorter: true,
-      rangeFilter: true, // Ahora es válido gracias a ExtendedColumnType
+      rangeFilter: true, 
+      filteredValue:undefined// Ahora es válido gracias a ExtendedColumnType
     },
     {
-      title: "Stock",
+      title: "Existencias",
       dataIndex: "quantity",
       sorter: true,
-      rangeFilter: true, // Ahora es válido gracias a ExtendedColumnType
+      rangeFilter: true,
+      filteredValue:undefined // Ahora es válido gracias a ExtendedColumnType
     },
     {
       title: "Categoría",
       dataIndex: "category",
       sorter: true,
+      filteredValue:undefined
     },
     {
       title: "SubCategoria",
       dataIndex: "subCategory",
-		sorter:true
+      sorter:true,
+      filteredValue:undefined
     },
     {
       title: "Estado",
@@ -52,6 +53,7 @@ const ProductList: React.FC = () => {
         { text: "Activo", value: true },
         { text: "Inactivo", value: false },
       ],
+      filteredValue:undefined
     },
     {
       title: "Imagen",
@@ -59,16 +61,22 @@ const ProductList: React.FC = () => {
       render: (image: string) => 
         image && (
           <Image
-            src={image}
-            className="w-12 h-12 object-cover"
+          src={image}
+          className="w-12 h-12 object-cover"
             alt="Imagen"
             width={48}
             height={48}
-          />
-        ),
-    },
-  ];
-
+            />
+          ),
+          filteredValue:undefined
+        },
+        {
+          title: "Id",
+          dataIndex: "id",
+          filteredValue:undefined
+        },
+      ];
+      
   return (
     <GenericList<ProductBase & BaseType>
       resource="products"

@@ -1,7 +1,7 @@
 "use client";
 import { Typography, Tag, Descriptions } from "antd";
 import { useNavigation, useSelect, useShow } from "@refinedev/core";
-import GenericShow from "@components/generic_admin_pages/genericShowPage";
+import GenericShow from "@components/admin/generic_admin_pages/genericShowPage";
 import { Category, SubCategory, BaseType } from "../../../../../../types/types";
 import { useParams } from "next/navigation";
 

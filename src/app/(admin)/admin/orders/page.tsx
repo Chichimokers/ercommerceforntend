@@ -2,14 +2,10 @@
 
 import { Tag } from "antd";
 import { Order, BaseType } from "../../../../types/types";
-import GenericList, { ExtendedColumnType } from "@components/generic_admin_pages/genericListPage";
+import GenericList, { ExtendedColumnType } from "@components/admin/generic_admin_pages/genericListPage";
 
 const OrderList: React.FC = () => {
   const columns: ExtendedColumnType<Order & BaseType>[] = [
-    {
-      title: 'Id',
-      dataIndex: 'id',
-    },
     {
       title: 'Fecha Creación',
       dataIndex: 'created_at',
@@ -36,25 +32,6 @@ const OrderList: React.FC = () => {
       sorter: true,
     },
     {
-      title: 'Ubicación',
-      dataIndex: 'province',
-      render: (province: string, record: Order) => (
-        <div>
-          <div>{province}</div>
-          <div className="text-sm">{record.address}</div>
-        </div>
-      ),
-      sorter: true,
-    },
-
-    {
-      title: 'Monto',
-      dataIndex: 'subtotal',
-      align: 'right',
-      sorter: true,
-      rangeFilter: true
-    },
-    {
       title: 'Estado',
       dataIndex: 'status',
       render: (status: string) => {
@@ -66,7 +43,7 @@ const OrderList: React.FC = () => {
           paid: 'yellow',
           default: 'default',
         };
-
+        
         const color = colorMap[status] || colorMap.default;
         return <Tag color={color}>{status.toUpperCase()}</Tag>;
       },
@@ -78,9 +55,33 @@ const OrderList: React.FC = () => {
         { text: "Pagadas", value: "paid" },
       ],
     },
-
+    {
+      title: 'Ubicación',
+      dataIndex: 'province',
+      render: (province: string, record: Order) => (
+        <div>
+          <div>{province}</div>
+          <div className="text-sm">{record.address}</div>
+        </div>
+      ),
+      sorter: true,
+    },
+    
+    {
+      title: 'Monto',
+      dataIndex: 'subtotal',
+      align: 'right',
+      sorter: true,
+      rangeFilter:true
+    },
+    {
+      title: 'Id',
+      dataIndex: 'id',
+    
+    },
+    
   ];
-
+  
   return (
     <GenericList<Order & BaseType>
       resource="orders"

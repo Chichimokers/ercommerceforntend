@@ -37,6 +37,10 @@ export interface BaseType {
 	updated_at: string;
 	deleted_at: string | null;
 }
+export interface Province {
+	id: string;
+	name: string
+}
 
 export interface Filters {
 	category?: string[];
