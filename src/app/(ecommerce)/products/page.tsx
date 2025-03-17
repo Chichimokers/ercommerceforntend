@@ -166,7 +166,7 @@ export default function ProductPage() {
   const deviceData = useDeviceDetection();
 
   // Estado para controlar la cantidad de elementos a mostrar inicialmente
-  const [visibleItems, setVisibleItems] = useState(deviceData.isMobile ? 8 : 16);
+  const [visibleItems, setVisibleItems] = useState(30);
   const currentPage = Number(searchParams.get("page")) || 1;
   const mainSectionRef = useRef<HTMLElement>(null);
 
@@ -354,7 +354,7 @@ export default function ProductPage() {
     deviceData.isLowPerformance;
 
   useEffect(() => {
-    setVisibleItems(deviceData.isMobile ? 8 : 30);
+    setVisibleItems(30);
   }, [currentPage, searchParams.toString(), deviceData.isMobile]);
 
   return (
