@@ -207,7 +207,6 @@ const ProductImage = React.memo(({
         src={src || PLACEHOLDER}
         alt={alt}
         fill
-        sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
         className={`${transitionClass} ${imgClassName || ''}`}
         quality={isMobile ? 30 : 100} // Reducir más la calidad en móviles
         {...imageLoadingProps}
@@ -220,7 +219,6 @@ const ProductImage = React.memo(({
   );
 });
 
-// Botones optimizados para dispositivos móviles y desktop
 export const AddToCartButton = React.memo(({
   onClick,
   disabled = false,
@@ -230,7 +228,6 @@ export const AddToCartButton = React.memo(({
   disabled?: boolean
   isMobile?: boolean
 }) => {
-  // Componente de botón optimizado para reutilización
   const button = (
     <div>
       <CustomButton

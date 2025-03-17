@@ -53,7 +53,6 @@ const SmCartCard = React.memo(({ product, className = "" }: SmCartCardProps) => 
             src={imageStatus === 'error' ? '/nophoto.jpeg' : product.image || '/nophoto.jpeg'}
             alt={product.name}
             fill
-            sizes="64px"
             className="object-cover rounded-xl"
             onLoad={() => setImageStatus('loaded')}
             onError={() => setImageStatus('error')}

@@ -1,7 +1,6 @@
 import { FaTh } from "react-icons/fa";
 import { getCategoryIcon } from "../../filters/categories";
 import CategoryCard from "@/components/cards/category-cards";
-import { Location } from "../../../types/types";
 
 export interface CategoryGridProps {
   categories: { id: string; name: string }[];
@@ -15,7 +14,7 @@ export default function CategoryGrid({
   onLocationNeeded,
 }: CategoryGridProps) {
   return (
-    <div className="flex flex-nowrap gap-3 sm:gap-4 overflow-x-auto py-4">
+    <div className="flex flex-nowrap gap-3 sm:gap-4 overflow-x-clip p-2">
       <div className="flex-shrink-0">
         <CategoryCard
           className="w-32 h-32 sm:w-40 sm:h-40 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl"

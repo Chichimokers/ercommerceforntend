@@ -3,7 +3,6 @@
 import { useRef, useState, useEffect, useMemo, useCallback } from "react";
 import CategoryGrid from "../category-grid";
 import ScrollIndicator from "./scroll-indicator";
-import ScrollControls from "./scroll-controls";
 import LocationModal from "@/components/modals/location-modal";
 import { useDisclosure } from "@heroui/react";
 import debounce from "lodash.debounce";
@@ -18,28 +17,8 @@ export default function InteractiveContainer() {
   const [isMobile, setIsMobile] = useState(true);
   const [scrollPosition, setScrollPosition] = useState(0);
   const [isScrolling, setIsScrolling] = useState(false);
-  const [hasNetworkImage, setHasNetworkImage] = useState(false);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(true);
-
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { categories } = useProductContext();
-
-  useEffect(() => {
-    if (!scrollRef.current || typeof IntersectionObserver === 'undefined') return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) {
-          setHasNetworkImage(true);
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    observer.observe(scrollRef.current);
-    return () => observer.disconnect();
-  }, []);
 
   const checkForScrollPosition = useCallback(() => {
     if (!scrollRef.current) return;
@@ -52,9 +31,6 @@ export default function InteractiveContainer() {
     );
 
     setScrollPosition(scrollPercentage);
-
-    setCanScrollLeft(scrollLeft > 2);
-    setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 2);
 
     const totalCategWidth = (categories.length + 1) * 148;
     setShouldCenterItems(clientWidth >= totalCategWidth);
@@ -114,9 +90,6 @@ export default function InteractiveContainer() {
             setScrollPosition(scrollLeft / maxScroll);
           }
 
-          setCanScrollLeft(scrollLeft > 2);
-          setCanScrollRight(scrollLeft < maxScroll - 5);
-
           setIsScrolling(false);
         });
       }
@@ -143,26 +116,6 @@ export default function InteractiveContainer() {
     };
   }, []);
 
-  const scrollLeft = useCallback(() => {
-    if (!scrollRef.current) return;
-    const scrollAmount = scrollRef.current.clientWidth * 0.75;
-
-    scrollRef.current.scrollBy({
-      left: -scrollAmount,
-      behavior: isMobile ? 'auto' : 'smooth'
-    });
-  }, [isMobile]);
-
-  const scrollRight = useCallback(() => {
-    if (!scrollRef.current) return;
-    const scrollAmount = scrollRef.current.clientWidth * 0.75;
-
-    scrollRef.current.scrollBy({
-      left: scrollAmount,
-      behavior: isMobile ? 'auto' : 'smooth'
-    });
-  }, [isMobile]);
-
   const handleLocationNeeded = useCallback(() => {
     onOpen();
   }, [onOpen]);
@@ -178,18 +131,10 @@ export default function InteractiveContainer() {
         />
       )}
 
-      <ScrollControls
-        canScrollLeft={canScrollLeft}
-        canScrollRight={canScrollRight}
-        onScrollLeft={scrollLeft}
-        onScrollRight={scrollRight}
-        isMobile={isMobile}
-      />
-
       <div
         ref={scrollRef}
         className={`
-          relative flex overflow-x-auto gap-3 sm:gap-4 py-3 px-4 sm:py-4 sm:px-6 pb-8 sm:pb-12
+          relative flex overflow-x-auto gap-3 sm:gap-4 py-3 px-2 sm:py-4 sm:px-6 pb-8 sm:pb-12
           snap-x snap-mandatory scrollbar-hide will-change-scroll
           ${shouldCenterItems ? 'justify-center' : 'justify-start'}
         `}
