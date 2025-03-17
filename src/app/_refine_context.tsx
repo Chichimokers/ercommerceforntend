@@ -36,6 +36,7 @@ const App = (props: React.PropsWithChildren<AppProps>) => {
 						src={"/logonav.png"}
 						fill
 						alt="EsAki"
+						sizes="300px"
 						className="object-contain"
 						priority
 					/>

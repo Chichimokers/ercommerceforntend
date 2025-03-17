@@ -80,6 +80,7 @@ const TestimonialCard = ({ testimonial, isActive }: { testimonial: typeof testim
             src={testimonial.image || "/placeholder-avatar.jpg"}
             alt={testimonial.name}
             fill
+            sizes="(max-width: 768px) 64px, 80px"
             className="object-cover"
             onError={(e) => {
               // Si hay error de carga, usar placeholder

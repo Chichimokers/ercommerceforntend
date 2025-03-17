@@ -65,6 +65,7 @@ export default function ProductCard({
               <DiscountBadge
                 discount={product.discount}
                 rateExchange={rateExchange}
+                quantity={product.quantity}
               />
             )}
           </div>
@@ -75,9 +76,9 @@ export default function ProductCard({
               {product.name}
             </h3>
 
-            <div className="mb-2">
+            {/*<div className="mb-2">
               <StarRating value={product.averageRating} />
-            </div>
+            </div>*/}
 
             <div className="h-10 mb-2">
               <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 line-clamp-2">
@@ -93,9 +94,7 @@ export default function ProductCard({
                   amount: discountAmount,
                   percentage: Math.round((discountAmount * 100) / (product.price * (rateExchange?.exchangeRate || 1))),
                 } : undefined}
-                originalPrice={product.price}
                 currency={rateExchange?.currency || "USD"}
-                symbol={rateExchange?.symbol}
                 quantity={quantity}
               />
             </div>

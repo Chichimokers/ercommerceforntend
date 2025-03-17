@@ -149,6 +149,7 @@ const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
               src={images[currentIndex]}
               alt={`Imagen del producto ${currentIndex + 1}`}
               fill
+              sizes="(max-width: 768px) 50vw, 25vw"
               className={`
                 object-contain
                 ${isZoomed ? 'opacity-0' : 'opacity-100'} 
@@ -165,7 +166,6 @@ const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
           </motion.div>
         </AnimatePresence>
 
-        {/* Imagen ampliada para zoom */}
         {enableZoom && imageLoaded && isZoomed && imgSrc && (
           <div
             className="absolute inset-0 z-10 transition-opacity duration-200"
@@ -242,6 +242,7 @@ const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
                 src={src}
                 alt={`Miniatura ${index + 1}`}
                 fill
+                sizes="64px"
                 className="object-cover"
                 loading={lazyLoad ? 'lazy' : 'eager'}
               />
