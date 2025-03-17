@@ -95,6 +95,7 @@ export const SearchSuggestions = ({
                   alt={product.name}
                   loading="eager"
                   fill
+                  sizes="48px"
                   className="object-cover"
                 />
               </div>

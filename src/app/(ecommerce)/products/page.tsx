@@ -119,53 +119,10 @@ export default function ProductPage() {
   const deviceData = useDeviceDetection();
 
   const currentPage = Number(searchParams.get("page")) || 1;
-
-  const [isReturningFromProductDetail, setIsReturningFromProductDetail] = useState(false);
   const mainSectionRef = useRef<HTMLElement>(null);
 
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const savedScrollPosition = sessionStorage.getItem("productListScrollPosition");
-      const savedPath = sessionStorage.getItem("productListPath");
-      const currentPath = pathname + searchParams.toString();
-      const isSamePath = savedPath === currentPath;
-
-      if (savedScrollPosition && isSamePath) {
-        requestAnimationFrame(() => {
-          setIsReturningFromProductDetail(true);
-          if (mainSectionRef.current) {
-            mainSectionRef.current.scrollTop = parseInt(savedScrollPosition, 10);
-            window.scrollTo(0, parseInt(savedScrollPosition, 10));
-          }
-        });
-      }
-    }
-  }, [pathname, searchParams]);
-
-  useEffect(() => {
-    const handleProductClick = () => {
-      if (mainSectionRef.current) {
-        sessionStorage.setItem("productListScrollPosition",
-          String(mainSectionRef.current.scrollTop || window.scrollY));
-        sessionStorage.setItem("productListPath",
-          pathname + searchParams.toString());
-      }
-    };
-
-    const productLinks = document.querySelectorAll('a[href^="/products/"]');
-    productLinks.forEach(link => {
-      link.addEventListener('click', handleProductClick);
-    });
-
-    return () => {
-      productLinks.forEach(link => {
-        link.removeEventListener('click', handleProductClick);
-      });
-    };
-  }, [pathname, searchParams, products]);
-
   const handleReset = useCallback(() => {
-    router.push('/products', { scroll: true });
+    router.push('/products', { scroll: false });
   }, [router]);
 
   const handlePageChange = useCallback((page: number) => {
@@ -200,11 +157,6 @@ export default function ProductPage() {
   }, [searchParams, categories]);
 
   const scrollToTop = useCallback(() => {
-    if (isReturningFromProductDetail) {
-      setIsReturningFromProductDetail(false);
-      return;
-    }
-
     requestAnimationFrame(() => {
       if (mainSectionRef.current) {
         mainSectionRef.current.scrollTo({ top: 0, behavior: 'smooth' });
@@ -212,7 +164,7 @@ export default function ProductPage() {
 
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
-  }, [isReturningFromProductDetail]);
+  }, []);
 
   const renderContent = useCallback(() => {
     if (isLoading) {
@@ -306,10 +258,8 @@ export default function ProductPage() {
 
   return (
     <div className="flex flex-col md:flex-row w-full min-h-screen">
-      {!deviceData.isMobile && !shouldOptimizeSeverely ? (
-        <Suspense fallback={<div className="hidden md:block w-64 bg-gray-100 dark:bg-gray-800/50" />}>
-          <FilterPanel />
-        </Suspense>
+      {!deviceData.isMobile ? (
+        <FilterPanel />
       ) : (
         <div className="hidden md:block w-64 bg-gray-100 dark:bg-gray-800/50"></div>
       )}

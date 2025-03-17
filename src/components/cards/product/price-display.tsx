@@ -7,28 +7,23 @@ interface PriceDisplayProps {
     amount: number;
     percentage: number;
   };
-  originalPrice: number;
   currency?: string;
-  symbol?: string;
   quantity: number;
 }
 
 export default function PriceDisplay({
   price,
   discount,
-  originalPrice,
   currency = DEFAULT_CURRENCY,
-  symbol,
   quantity,
 }: PriceDisplayProps) {
   // Calcular precio con descuento si aplica
   const finalPrice = discount ? price - discount.amount : price;
-  const currencySymbol = symbol || '$';
 
   return (
     <div className="flex flex-col min-h-[45px]">
       <p className="font-bold text-sm sm:text-base">
-        {new Intl.NumberFormat("es-ES", {
+        {new Intl.NumberFormat("en-US", {
           style: "currency",
           currency: currency || DEFAULT_CURRENCY,
           minimumFractionDigits: 2,
@@ -39,7 +34,7 @@ export default function PriceDisplay({
       {discount && discount.min && quantity >= discount.min && (
         <span className="text-xs flex flex-wrap items-center mt-0.5">
           <span className="text-gray-400 line-through mr-1">
-            {new Intl.NumberFormat("es-ES", {
+            {new Intl.NumberFormat("en-US", {
               style: "currency",
               currency: currency || DEFAULT_CURRENCY,
             }).format(price)}

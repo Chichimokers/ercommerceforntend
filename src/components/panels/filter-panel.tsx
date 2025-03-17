@@ -1,5 +1,4 @@
 import dynamic from "next/dynamic";
-import { CustomButton } from "../buttons/custom-button";
 import { useFilters } from "@/hooks/useFilters";
 import { useState } from "react";
 import FiltersSkeleton from "@components/skeletons/filters-skeleton";
