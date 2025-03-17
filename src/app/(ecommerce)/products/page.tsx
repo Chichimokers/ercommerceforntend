@@ -27,10 +27,9 @@ const ProductCardSkeleton = memo(() => (
 ProductCardSkeleton.displayName = 'ProductCardSkeleton';
 
 const ProductCard = dynamic(
-  () => import("@/components/cards/product-card").then(mod => ({ default: mod.default })),
+  () => import("@/components/cards/product/product-card").then(mod => ({ default: mod.default })),
   {
     loading: () => <ProductCardSkeleton />,
-    ssr: false
   }
 );
 
@@ -279,11 +278,6 @@ export default function ProductPage() {
               product={product}
               prefetch="viewport"
               lazyLoad={true}
-              onNavigate={() => {
-                sessionStorage.setItem("productListScrollPosition",
-                  String(mainSectionRef.current?.scrollTop || window.scrollY));
-                sessionStorage.setItem("productListPath", pathname + searchParams.toString());
-              }}
             />
           ))}
         </div>

@@ -5,8 +5,6 @@ import { useProductContext } from "@/contexts/product-context";
 import { FaTh } from "react-icons/fa";
 import {
   MapPin,
-  ChevronRight,
-  ChevronLeft,
   SparkleIcon,
   Package,
   Globe,
@@ -103,8 +101,6 @@ const CategoryPanel = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const scrollTrackRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(true);
   const [shouldCenterItems, setShouldCenterItems] = useState(true);
   const [isMobile, setIsMobile] = useState(true);
   const [scrollPosition, setScrollPosition] = useState(0);
@@ -147,10 +143,6 @@ const CategoryPanel = () => {
     );
 
     setScrollPosition(scrollPercentage);
-
-    // Detectar si estamos en el final con mayor tolerancia
-    setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 2);
-    setCanScrollLeft(scrollLeft > 2);
 
     const totalCategWidth = (categories.length + 1) * 148;
     setShouldCenterItems(clientWidth >= totalCategWidth);
@@ -248,10 +240,6 @@ const CategoryPanel = () => {
           else {
             setScrollPosition(scrollLeft / maxScroll);
           }
-
-          // Actualizar estados para botones de navegación
-          setCanScrollLeft(scrollLeft > 2);
-          setCanScrollRight(scrollLeft < maxScroll - 5);
 
           setIsScrolling(false);
         });
