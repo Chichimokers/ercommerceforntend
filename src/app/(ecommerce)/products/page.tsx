@@ -5,23 +5,20 @@ import { useProductContext } from "@/contexts/product-context";
 import { Pagination, Spinner, Chip, Button, Tooltip } from "@heroui/react";
 import dynamic from "next/dynamic";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, memo, useState, useRef, Suspense } from "react";
+import { useCallback, useEffect, useMemo, memo, useState, useRef } from "react";
 import Link from "next/link";
 import { useCategories } from "@hooks/useCategories";
 import { useDeviceDetection } from "@/hooks/useDeviceDetection";
 import { FaArrowLeft, FaShoppingBag } from "react-icons/fa";
 import { AlertCircle } from "lucide-react";
 import LucideIcons from "@components/lazy-imports/lucide-icons";
+import { useInView } from "react-intersection-observer";
 import { throttle } from "lodash";
 
-// Importación dinámica para reducir el tamaño inicial del bundle
-const VirtualizedProductGrid = dynamic(
-  () => import("@/components/product-grid/virtualized-product-grid"),
+const ProductCard = dynamic(
+  () => import("@/components/cards/product/product-card").then(mod => ({ default: mod.default })),
   {
-    loading: () => <div className="w-full h-96 flex items-center justify-center">
-      <Spinner />
-    </div>,
-    ssr: false // Importante: deshabilitar SSR para reafcWindow
+    loading: () => <ProductCardSkeleton />,
   }
 );
 
@@ -100,8 +97,66 @@ const ErrorState = memo(({ error, onReset }: { error: unknown, onReset: () => vo
   </div>
 ));
 
+// Componente de producto optimizado que solo renderiza cuando está visible
+const LazyProductCard = memo(({ product, index, totalCount }: { product: any, index: number, totalCount: number }) => {
+  // Usar useInView para cargar solo cuando es visible
+  const { ref, inView } = useInView({
+    triggerOnce: true,
+    rootMargin: '200px 0px',
+    threshold: 0.1
+  });
+
+  // Calcular prioridad - prioridad mayor para los primeros elementos visibles
+  const priority = index < 6;
+
+  return (
+    <div ref={ref} className="relative w-full transition-opacity duration-300"
+      style={{
+        height: !inView ? '280px' : 'auto',
+        opacity: inView ? 1 : 0,
+        minHeight: '280px'
+      }}>
+      {inView ? (
+        <ProductCard
+          key={product.id}
+          product={product}
+          prefetch={priority ? "hover" : "viewport"}
+          lazyLoad={!priority}
+        />
+      ) : (
+        <ProductCardSkeleton minimal={index > 12} />
+      )}
+    </div>
+  );
+});
+
+LazyProductCard.displayName = 'LazyProductCard';
+
+const ProductCardSkeleton = memo(({ minimal = false }: { minimal?: boolean }) => {
+  if (minimal) {
+    return (
+      <div className="w-full aspect-[3/4] rounded-xl overflow-hidden border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800">
+        <div className="h-full bg-gray-100 dark:bg-gray-800"></div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="w-full aspect-[3/4] rounded-xl overflow-hidden border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800">
+      <div className="h-3/5 bg-gray-200 dark:bg-gray-700 animate-pulse"></div>
+      <div className="p-4 space-y-3">
+        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded-md w-3/4 animate-pulse"></div>
+        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded-md w-1/2 animate-pulse"></div>
+        <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded-md w-1/3 animate-pulse"></div>
+      </div>
+    </div>
+  );
+});
+
+ProductCardSkeleton.displayName = 'ProductCardSkeleton';
+
 export default function ProductPage() {
-  const { products, totalPages, error, isLoading, hasMoreProducts, fetchNextPage } = useProductContext();
+  const { products, totalPages, error, isLoading } = useProductContext();
   const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") || "";
   const { data: categories = [] } = useCategories(baseUrl);
   const router = useRouter();
@@ -109,6 +164,9 @@ export default function ProductPage() {
   const searchParams = useSearchParams();
 
   const deviceData = useDeviceDetection();
+
+  // Estado para controlar la cantidad de elementos a mostrar inicialmente
+  const [visibleItems, setVisibleItems] = useState(deviceData.isMobile ? 8 : 16);
   const currentPage = Number(searchParams.get("page")) || 1;
   const mainSectionRef = useRef<HTMLElement>(null);
 
@@ -133,7 +191,6 @@ export default function ProductPage() {
     if (searchParams.has("rate")) count++;
     return count;
   }, [searchParams]);
-
   const categoryName = useMemo(() => {
     const categoryId = searchParams.get("category");
     if (!categoryId || !categories || categories.length === 0) return "Todos los productos";
@@ -161,21 +218,36 @@ export default function ProductPage() {
     });
   }, [deviceData.isLowPerformance]);
 
-  // Función para cargar más productos - ahora usada por react-window-infinite-loader
-  const loadNextPageThrottled = useCallback(throttle(() => {
-    if (!isLoading && hasMoreProducts) {
-      fetchNextPage();
+  // Función para cargar más elementos cuando se hace scroll
+  const loadMoreItems = useCallback(throttle(() => {
+    // Solo cargamos más si no estamos en proceso de carga
+    if (!isLoading && products.length > visibleItems) {
+      const newVisibleItems = Math.min(visibleItems + (deviceData.isMobile ? 4 : 8), products.length);
+      setVisibleItems(newVisibleItems);
     }
-  }, 300), [isLoading, hasMoreProducts, fetchNextPage]);
+  }, 200), [visibleItems, products.length, isLoading, deviceData.isMobile]);
 
-  const shouldOptimizeSeverely = deviceData.isDataSaver ||
-    deviceData.effectiveType === 'slow-2g' ||
-    deviceData.effectiveType === '2g' ||
-    deviceData.isLowPerformance;
+  // Manejar evento de scroll para cargar más elementos
+  useEffect(() => {
+    const handleScroll = throttle(() => {
+      if (mainSectionRef.current) {
+        const { scrollTop, scrollHeight, clientHeight } = mainSectionRef.current;
+        // Si estamos cerca del final, cargamos más
+        if (scrollHeight - scrollTop - clientHeight < 600) {
+          loadMoreItems();
+        }
+      }
+    }, 100);
 
-  // Renderizar el contenido principal
+    const section = mainSectionRef.current;
+    if (section) {
+      section.addEventListener('scroll', handleScroll);
+      return () => section.removeEventListener('scroll', handleScroll);
+    }
+  }, [loadMoreItems]);
+
   const renderContent = useCallback(() => {
-    if (isLoading && products.length === 0) {
+    if (isLoading) {
       const { isMobile, isLowPerformance, isDataSaver } = deviceData;
       const loadingText = isMobile || isLowPerformance || isDataSaver ? null :
         <p className="mt-4 text-gray-500 dark:text-gray-400">Cargando productos...</p>;
@@ -229,14 +301,34 @@ export default function ProductPage() {
           </div>
         </div>
 
-        {/* Grid virtualizado en lugar del grid común */}
-        <VirtualizedProductGrid
-          products={products}
-          isLoading={isLoading}
-          hasNextPage={hasMoreProducts}
-          loadNextPage={loadNextPageThrottled}
-          deviceData={deviceData}
-        />
+        <div className={
+          "grid grid-cols-2 xm:grid-cols-3 sm:grid-cols-3 md:grid-cols-2 xg:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-2 w-full"
+        }>
+          {/* Solo renderizamos los elementos visibles para mejor rendimiento */}
+          {products.slice(0, visibleItems).map((product, index) => (
+            <LazyProductCard
+              key={product.id}
+              product={product}
+              index={index}
+              totalCount={products.length}
+            />
+          ))}
+
+          {/* Mostrar un indicador de carga si hay más elementos */}
+          {visibleItems < products.length && (
+            <div className="col-span-full flex justify-center py-8">
+              <Button
+                color="primary"
+                variant="bordered"
+                onClick={() => loadMoreItems()}
+                isDisabled={deviceData.isLowPerformance}
+                disableAnimation={deviceData.isLowPerformance}
+              >
+                Cargar más productos
+              </Button>
+            </div>
+          )}
+        </div>
 
         {totalPages > 1 && (
           <div className="sticky bottom-0 w-full flex justify-center py-6 mt-6 bg-gradient-to-t from-white dark:from-gray-900 to-transparent">
@@ -253,11 +345,17 @@ export default function ProductPage() {
         )}
       </>
     );
-  }, [
-    isLoading, error, products, totalPages, currentPage, deviceData,
-    handlePageChange, handleReset, categoryName, filtersApplied,
-    hasMoreProducts, loadNextPageThrottled
-  ]);
+  }, [isLoading, error, products, totalPages, currentPage, handlePageChange, handleReset,
+    categoryName, filtersApplied, deviceData]);
+
+  const shouldOptimizeSeverely = deviceData.isDataSaver ||
+    deviceData.effectiveType === 'slow-2g' ||
+    deviceData.effectiveType === '2g' ||
+    deviceData.isLowPerformance;
+
+  useEffect(() => {
+    setVisibleItems(deviceData.isMobile ? 8 : 30);
+  }, [currentPage, searchParams.toString(), deviceData.isMobile]);
 
   return (
     <div className="flex flex-col md:flex-row w-full min-h-screen">
@@ -277,11 +375,9 @@ export default function ProductPage() {
         style={{
           WebkitOverflowScrolling: 'touch',
           scrollBehavior: deviceData.prefersReducedMotion || deviceData.isLowPerformance ? 'auto' : 'smooth',
-          // Eliminar sombras y efectos costosos en dispositivos de baja potencia
           boxShadow: deviceData.isLowPerformance ? 'none' : undefined,
-          // Optimizaciones para rendimiento de scrolling
           willChange: 'scroll-position',
-          backfaceVisibility: 'hidden',
+          backfaceVisibility: 'hidden'
         }}
       >
         {renderContent()}
