@@ -29,9 +29,7 @@ const CategoryCard = dynamic(() => import("@/components/cards/category-cards"), 
   ),
 });
 
-// Fetcher optimizado con caché para reducir solicitudes de red en móviles
 const fetcher = async (url: string) => {
-  // 1. Intentar primero la caché
   try {
     const cachedData = sessionStorage.getItem(url);
     if (cachedData) {

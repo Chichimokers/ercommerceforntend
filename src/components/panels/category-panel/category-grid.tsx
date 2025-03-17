@@ -1,20 +1,21 @@
-// src/components/panels/category-panel/category-grid.tsx
 import { FaTh } from "react-icons/fa";
 import { getCategoryIcon } from "../../filters/categories";
 import CategoryCard from "@/components/cards/category-cards";
+import { Location } from "../../../types/types";
 
 export interface CategoryGridProps {
   categories: { id: string; name: string }[];
   isMobile?: boolean;
+  onLocationNeeded: () => void;
 }
 
 export default function CategoryGrid({
   categories,
   isMobile = false,
+  onLocationNeeded,
 }: CategoryGridProps) {
   return (
-    <div className="flex flex-nowrap gap-3 sm:gap-4 overflow-x-auto">
-      {/* Tarjeta "Todos" */}
+    <div className="flex flex-nowrap gap-3 sm:gap-4 overflow-x-auto py-4">
       <div className="flex-shrink-0">
         <CategoryCard
           className="w-32 h-32 sm:w-40 sm:h-40 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl"
@@ -22,10 +23,10 @@ export default function CategoryGrid({
           size="md"
           text="Todos"
           url="/products/"
+          onLocationNeeded={onLocationNeeded}
         />
       </div>
 
-      {/* Listado de categorías */}
       {categories.map((category) => {
         const Icon = getCategoryIcon(category.name);
         const url = `/products?page=1&limit=30&category=${category.id}`;
@@ -41,6 +42,7 @@ export default function CategoryGrid({
               size={isMobile ? "sm" : "md"}
               text={category.name}
               url={url}
+              onLocationNeeded={onLocationNeeded}
             />
           </div>
         );

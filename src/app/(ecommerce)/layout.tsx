@@ -7,8 +7,9 @@ import { Navbar } from "@/components/navbar/nav";
 import LocationModal from "@components/modals/location-modal";
 
 const Footer = dynamic(() => import("@components/footer/footer"));
+const InfoBar = dynamic(() => import("@components/info-bar"));
 import { Overlay } from "@components/overlay";
-import InfoBar from "@components/info-bar";
+
 
 export default function EcommerceLayout({ children }: { children: ReactNode }) {
   const [modalOpen, setModalOpen] = useState(false);
@@ -19,22 +20,18 @@ export default function EcommerceLayout({ children }: { children: ReactNode }) {
     const controlInfoBar = () => {
       const currentScrollY = window.scrollY;
 
-      // Show the InfoBar when scrolling up or at the top
-      if (currentScrollY < lastScrollY || currentScrollY < 10) {
+      if (currentScrollY < lastScrollY || currentScrollY < 5) {
         setShowInfoBar(true);
       }
-      // Hide the InfoBar when scrolling down
-      else if (currentScrollY > lastScrollY && currentScrollY > 10) {
+      else if (currentScrollY > lastScrollY && currentScrollY > 5) {
         setShowInfoBar(false);
       }
 
-      // Update scroll position
       setLastScrollY(currentScrollY);
     };
 
     window.addEventListener("scroll", controlInfoBar);
 
-    // Cleanup
     return () => {
       window.removeEventListener("scroll", controlInfoBar);
     };
@@ -68,7 +65,7 @@ export default function EcommerceLayout({ children }: { children: ReactNode }) {
 
       <Footer />
 
-      <div className="sticky bottom-0 left-0 w-full xm:hidden">
+      <div className="sticky bottom-0 left-0 w-full xm:hidden z-50">
         <Navbar className="fixed bottom-0 left-0 right-0" />
       </div>
     </>
