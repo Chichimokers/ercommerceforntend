@@ -1,6 +1,5 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -38,16 +37,14 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       </header>
 
       <main className="flex-1 relative z-10 container mx-auto flex justify-center items-center px-4 py-6 md:py-12">
-        <AnimatePresence mode="wait">
-          <div
-            key={pathname}
-            className="w-full max-w-lg"
-          >
-            <div className="bg-white/80 dark:bg-gray-900/80 rounded-2xl backdrop-blur-xl overflow-hidden shadow-xl shadow-blue-900/10 dark:shadow-blue-500/5 border border-white/60 dark:border-gray-800/60">
-              {mounted && children}
-            </div>
+        <div
+          key={pathname}
+          className="w-full max-w-lg"
+        >
+          <div className="bg-white/80 dark:bg-gray-900/80 rounded-2xl backdrop-blur-xl overflow-hidden shadow-xl shadow-blue-900/10 dark:shadow-blue-500/5 border border-white/60 dark:border-gray-800/60">
+            {mounted && children}
           </div>
-        </AnimatePresence>
+        </div>
       </main>
     </div>
   );
@@ -58,10 +55,8 @@ function AuthLink({ href, label, active }: { href: string; label: string; active
     <Link href={href} className="relative w-full">
       <div className="px-4 py-2 rounded-lg text-center transition-all duration-300 hover:bg-white/20 dark:hover:bg-white/5">
         {active && (
-          <motion.div
-            layoutId="authTab"
+          <div
             className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-700 dark:to-indigo-700 rounded-lg shadow-md"
-            transition={{ type: "spring", stiffness: 350, damping: 30 }}
           />
         )}
         <span className={`relative z-10 text-sm font-medium ${active ? "text-white" : "text-gray-700 dark:text-gray-300"}`}>

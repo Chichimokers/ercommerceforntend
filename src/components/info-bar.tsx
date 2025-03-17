@@ -1,5 +1,4 @@
 import React from "react";
-import { motion } from "framer-motion";
 import { FaPhoneAlt, FaEnvelope, FaHeadset, FaMapMarkerAlt } from "react-icons/fa";
 import CurrencySelector from "@components/selects/currency-selector";
 import Link from "next/link";
@@ -29,9 +28,7 @@ const InfoItem = ({ icon, href, children, className = "" }: {
 
 const InfoBar = ({ className = "" }: { className?: string }) => {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: -10 }}
-      animate={{ opacity: 1, y: 0 }}
+    <div
       className={`backdrop-blur-sm bg-white/80 dark:bg-gray-900/80 border-b border-gray-200/50 dark:border-gray-700/50 
                   text-gray-700 dark:text-gray-300 py-2 px-4 shadow-sm ${className}`}
     >
@@ -78,7 +75,7 @@ const InfoBar = ({ className = "" }: { className?: string }) => {
           </div>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 };
 

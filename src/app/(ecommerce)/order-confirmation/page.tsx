@@ -4,7 +4,6 @@ import React, { useEffect, useState } from "react";
 import { CheckCircleIcon, ShoppingBag, ClipboardCheck, Truck, ArrowLeftIcon, HomeIcon } from "lucide-react";
 import Link from "next/link";
 import { Toaster } from "react-hot-toast";
-import { motion } from "framer-motion";
 import { Button } from "@heroui/react";
 import { QRCodeCanvas } from "qrcode.react";
 import { formatCurrency } from "@components/format-currency";
@@ -83,9 +82,7 @@ export default function OrderConfirmationPage() {
     : statusColors.default;
 
   return (
-    <motion.section
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
+    <section
       className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-950 px-4 py-12"
     >
       <Toaster
@@ -97,10 +94,7 @@ export default function OrderConfirmationPage() {
       />
 
       <div className="w-full max-w-3xl">
-        <motion.div
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.2 }}
+        <div
           className="mb-6 flex items-center justify-between"
         >
           <Link href="/" className="flex items-center text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 transition-colors">
@@ -112,25 +106,19 @@ export default function OrderConfirmationPage() {
             <ShoppingBag className="h-4 w-4 mr-2" />
             <span>Mis pedidos</span>
           </Link>
-        </motion.div>
+        </div>
 
-        <motion.div
-          initial={{ y: 30, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.3 }}
+        <div
           className="bg-white dark:bg-gray-800 shadow-lg rounded-2xl overflow-hidden"
         >
           <div className="relative bg-gradient-to-r from-primary-500 to-primary-600 dark:from-primary-400 dark:to-primary-300 p-8 text-white">
 
             <div className="flex items-center">
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ delay: 0.5, type: "spring" }}
+              <div
                 className="bg-white/20 backdrop-blur-sm p-4 rounded-full mr-4"
               >
                 <CheckCircleIcon className="h-10 w-10" />
-              </motion.div>
+              </div>
 
               <div>
                 <h1 className="text-3xl font-bold">¡Pedido Confirmado!</h1>
@@ -273,8 +261,8 @@ export default function OrderConfirmationPage() {
               </Button>
             </Link>
           </div>
-        </motion.div>
+        </div>
       </div>
-    </motion.section>
+    </section>
   );
 }

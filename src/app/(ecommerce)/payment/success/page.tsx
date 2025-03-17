@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { motion } from "framer-motion";
 import confetti from "canvas-confetti";
 import Link from "next/link";
 import { CheckCircle, ShoppingBag, ChevronRight, ArrowLeft, Clock } from "lucide-react";
@@ -53,22 +52,13 @@ export default function ThankYouPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-blue-50 dark:from-gray-900 dark:to-gray-800 py-12 px-4">
       <div className="max-w-3xl mx-auto">
-        <motion.div
+        <div
           className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
         >
           <div className="bg-gradient-to-r from-blue-500 to-indigo-600 p-6 text-center">
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.3, type: "spring", stiffness: 150 }}
-            >
-              <div className="bg-white dark:bg-gray-800 rounded-full w-20 h-20 mx-auto flex items-center justify-center">
-                <CheckCircle size={40} className="text-green-500" />
-              </div>
-            </motion.div>
+            <div className="bg-white dark:bg-gray-800 rounded-full w-20 h-20 mx-auto flex items-center justify-center">
+              <CheckCircle size={40} className="text-green-500" />
+            </div>
             <h1 className="text-white text-3xl font-bold mt-4">¡Gracias por tu compra!</h1>
             <p className="text-blue-100 mt-2">Tu pedido ha sido procesado correctamente</p>
           </div>
@@ -103,11 +93,8 @@ export default function ThankYouPage() {
               </h3>
 
               <div className="space-y-4">
-                <motion.div
+                <div
                   className="flex items-start gap-3"
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.5 }}
                 >
                   <div className="bg-blue-100 dark:bg-blue-900/30 rounded-full p-2 mt-1">
                     <CheckCircle size={16} className="text-blue-600 dark:text-blue-400" />
@@ -118,13 +105,10 @@ export default function ThankYouPage() {
                       Hemos recibido tu pedido y estamos preparándolo.
                     </p>
                   </div>
-                </motion.div>
+                </div>
 
-                <motion.div
+                <div
                   className="flex items-start gap-3"
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.7 }}
                 >
                   <div className="bg-blue-100 dark:bg-blue-900/30 rounded-full p-2 mt-1">
                     <Clock size={16} className="text-blue-600 dark:text-blue-400" />
@@ -135,7 +119,7 @@ export default function ThankYouPage() {
                       Recibirás un email con los detalles y el seguimiento de tu pedido.
                     </p>
                   </div>
-                </motion.div>
+                </div>
               </div>
             </div>
 
@@ -167,7 +151,7 @@ export default function ThankYouPage() {
               </Link>.
             </p>
           </div>
-        </motion.div>
+        </div>
       </div>
     </div>
   );

@@ -6,7 +6,6 @@ import { Accordion, AccordionItem, Divider, Spinner, Select, SelectItem, Badge, 
 import { Order } from "@/types/types";
 import { useSession } from "next-auth/react";
 import { useState, useMemo } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import {
   ShoppingBag,
   AlertTriangle,
@@ -113,10 +112,7 @@ const OrderSkeleton = () => (
 
 // Estado vacío elegante
 const EmptyOrdersState = ({ onGoShopping }: { onGoShopping: () => void }) => (
-  <motion.div
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ duration: 0.5 }}
+  <div
     className="flex flex-col items-center justify-center min-h-[60vh] text-center gap-6 p-4"
   >
     <div className="relative">
@@ -140,14 +136,11 @@ const EmptyOrdersState = ({ onGoShopping }: { onGoShopping: () => void }) => (
     >
       Explorar productos
     </Button>
-  </motion.div>
+  </div>
 );
 
 const ErrorState = ({ message, onRetry }: { message: string; onRetry: () => void }) => (
-  <motion.div
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ duration: 0.5 }}
+  <div
     className="flex flex-col items-center justify-center min-h-[60vh] text-center gap-6 p-4"
   >
     <div className="relative">
@@ -178,7 +171,7 @@ const ErrorState = ({ message, onRetry }: { message: string; onRetry: () => void
     >
       {message === 'No orders found' ? 'Explorar productos' : 'Reintentar'}
     </Button>
-  </motion.div>
+  </div>
 );
 
 // Estado de carga elegante
@@ -389,10 +382,7 @@ const OrdersPage = () => {
   const hasFiltersApplied = statusFilter !== "all" || searchText.trim() !== "";
 
   const NoResultsMessage = () => (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.4 }}
+    <div
       className="bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800/30 rounded-xl p-8 flex flex-col items-center justify-center text-center my-6"
     >
       <Search className="h-12 w-12 text-amber-500 mb-4" />
@@ -402,7 +392,7 @@ const OrdersPage = () => {
       <p className="text-gray-600 dark:text-gray-400 max-w-md mb-4">
         Prueba con otros criterios de filtrado o ajusta tu búsqueda para encontrar lo que buscas.
       </p>
-    </motion.div>
+    </div>
   );
 
   if (error) {
@@ -428,11 +418,8 @@ const OrdersPage = () => {
 
   return (
     <div className="mx-auto py-8 md:py-12 px-4 max-w-7xl">
-      <motion.div
+      <div
         className="mb-8 text-center"
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
       >
         <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-2 flex items-center justify-center">
           <CalendarDays className="mr-3 h-8 w-8 text-blue-500" />
@@ -441,14 +428,11 @@ const OrdersPage = () => {
         <p className="text-gray-500 dark:text-gray-400 md:text-lg">
           Revisa y gestiona todos tus pedidos en un solo lugar
         </p>
-      </motion.div>
+      </div>
 
       <div className="mb-6 bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
-        <motion.div
+        <div
           className="flex flex-col sm:flex-row gap-4"
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.1 }}
         >
           <div className="relative flex-1">
             <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
@@ -462,7 +446,7 @@ const OrdersPage = () => {
               className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-600 dark:focus:border-blue-600 transition-all"
             />
           </div>
-        </motion.div>
+        </div>
       </div>
 
       {/*<Tooltip content="Actualizar pedidos">
@@ -505,26 +489,19 @@ const OrdersPage = () => {
         </div>
       </div>
 
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={`orders-${statusFilter}-${sortOrder}-${searchText}`}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.3 }}
-        >
-          {filteredAndSortedOrders.length > 0 ? (
-            <OrderList
-              orders={filteredAndSortedOrders}
-              onCancelOrder={handleCancelClick}
-            />
-          ) : (
-            <NoResultsMessage />
-          )}
-        </motion.div>
-      </AnimatePresence>
+      <div
+        key={`orders-${statusFilter}-${sortOrder}-${searchText}`}
+      >
+        {filteredAndSortedOrders.length > 0 ? (
+          <OrderList
+            orders={filteredAndSortedOrders}
+            onCancelOrder={handleCancelClick}
+          />
+        ) : (
+          <NoResultsMessage />
+        )}
+      </div>
 
-      {/* Modal de cancelación */}
       <CancelOrderModal
         isOpen={showCancelModal}
         onClose={() => setShowCancelModal(false)}
