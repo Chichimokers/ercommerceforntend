@@ -29,6 +29,8 @@ interface ProductContextType {
   mutateCartProducts: () => void;
   filters: Filters;
   currentPage: number;
+  hasMoreProducts: boolean;
+  fetchNextPage: () => void;
 }
 
 const ProductContext = createContext<ProductContextType>({
@@ -44,6 +46,8 @@ const ProductContext = createContext<ProductContextType>({
   categories: [],
   errorStatus: false,
   errorMessage: "",
+  hasMoreProducts: false,
+  fetchNextPage: () => { },
 });
 const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") || "";
 
@@ -58,6 +62,7 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({
   const [filters, setFilters] = useState<Filters>({});
   const [page, setPage] = useState(1);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const [hasMoreProducts, setHasMoreProducts] = useState(false);
 
   const getQueryParams = useCallback(() => {
     return Object.fromEntries(searchParams.entries());
@@ -99,6 +104,24 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({
   } = useCartProducts(baseUrl, productsData?.products);
   const { data: categories = [] } = useCategories(baseUrl);
 
+  const fetchNextPage = useCallback(() => {
+    const currentPage = Number(searchParams.get("page")) || 1;
+    const newPage = currentPage + 1;
+
+    if (newPage <= productsData?.totalPages) {
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("page", newPage.toString());
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    }
+  }, [searchParams, productsData?.totalPages, router, pathname]);
+
+  useEffect(() => {
+    if (productsData) {
+      const totalItems = productsData.totalItems || productsData.products.length || 0;
+      setHasMoreProducts(productsData.products.length < totalItems);
+    }
+  }, [productsData]);
+
   const contextValue = useMemo(() => ({
     products: productsData?.products || [],
     totalPages: productsData?.totalPages || 1,
@@ -115,6 +138,8 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({
       productsError?.message === "Not found products!"
         ? "No se han encontrado productos relacionados con los parámetros del filtrado"
         : productsError?.message || "",
+    hasMoreProducts,
+    fetchNextPage,
   }), [
     productsData,
     isLoadingProducts,
@@ -125,6 +150,8 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({
     categories,
     filters,
     page,
+    hasMoreProducts,
+    fetchNextPage,
   ]);
 
   return (

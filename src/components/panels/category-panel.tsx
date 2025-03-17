@@ -15,6 +15,8 @@ import { getCategoryIcon } from "../filters/categories";
 import useSWR from "swr";
 import { useDisclosure } from "@heroui/react";
 import debounce from "lodash.debounce";
+import throttle from "lodash.throttle";
+import { useDeviceDetection } from "@/hooks/useDeviceDetection";
 
 // Carga perezosa optimizada con tamaño de paquete reducido
 const LocationModal = dynamic(() => import("@/components/modals/location-modal"), {
@@ -40,10 +42,9 @@ const fetcher = async (url: string) => {
       }
     }
   } catch (error) {
-    // Continuar con fetching si hay error en la caché
+
   }
 
-  // 2. Si no hay caché, hacer el fetch
   try {
     const response = await fetch(url);
     if (!response.ok) throw new Error(response.statusText);
@@ -95,21 +96,23 @@ const CategoryPanel = () => {
   const { categories } = useProductContext();
   const fetchUrl = `${process.env.NEXT_PUBLIC_API_URL}public/main`;
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const deviceData = useDeviceDetection();
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const scrollTrackRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [shouldCenterItems, setShouldCenterItems] = useState(true);
-  const [isMobile, setIsMobile] = useState(true);
+  const [isMobile, setIsMobile] = useState<boolean>(deviceData.isMobile || true);
   const [scrollPosition, setScrollPosition] = useState(0);
   const [isScrolling, setIsScrolling] = useState(false);
   const [hasNetworkImage, setHasNetworkImage] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
 
-  const { data } = useSWR(fetchUrl, fetcher, {
+  const { data } = useSWR(isVisible ? fetchUrl : null, fetcher, {
     revalidateOnFocus: false,
-    dedupingInterval: 900000,
+    dedupingInterval: deviceData.isLowPerformance ? 1800000 : 900000, // 30 min en vez de 15 min para dispositivos de bajo rendimiento
     focusThrottleInterval: 60000,
-    errorRetryCount: 1,
+    errorRetryCount: deviceData.isDataSaver ? 0 : 1, // Sin reintentos para modo ahorro de datos
   });
 
   useEffect(() => {
@@ -119,9 +122,10 @@ const CategoryPanel = () => {
       (entries) => {
         if (entries[0].isIntersecting) {
           setHasNetworkImage(true);
+          setIsVisible(true);
         }
       },
-      { threshold: 0.1 }
+      { threshold: 0.1, rootMargin: '100px' }
     );
 
     observer.observe(scrollRef.current);
@@ -131,27 +135,59 @@ const CategoryPanel = () => {
   const checkForScrollPosition = useCallback(() => {
     if (!scrollRef.current) return;
 
+    if (isScrolling && deviceData.isLowPerformance) {
+      // Si ya está scrolling y es dispositivo de bajo rendimiento, saltarse cálculos
+      return;
+    }
+
     const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+    const maxScroll = Math.max(1, scrollWidth - clientWidth);
 
-    // Ajuste para asegurar que llega a 1.0 cuando está al final
-    // Agregamos una pequeña tolerancia (0.98) para garantizar que llegue al máximo
-    const scrollPercentage = Math.min(
-      scrollLeft / Math.max(1, scrollWidth - clientWidth),
-      0.98
-    );
+    // Optimización para casos extremos (inicio/fin) - menos cálculos
+    let nextScrollPosition;
+    if (scrollLeft <= 2) {
+      nextScrollPosition = 0;
+    } else if (scrollLeft >= maxScroll - 5) {
+      nextScrollPosition = 1;
+    } else {
+      // Ajuste para asegurar que llega a 1.0 cuando está al final
+      nextScrollPosition = Math.min(scrollLeft / maxScroll, 0.98);
+    }
 
-    setScrollPosition(scrollPercentage);
+    if (Math.abs(nextScrollPosition - scrollPosition) > 0.01) {
+      setScrollPosition(nextScrollPosition);
+    }
 
-    const totalCategWidth = (categories.length + 1) * 148;
-    setShouldCenterItems(clientWidth >= totalCategWidth);
-  }, [categories.length]);
+    if (!deviceData.isLowPerformance || !shouldCenterItems) {
+      const totalCategWidth = (categories.length + 1) * 148;
+      const shouldCenter = clientWidth >= totalCategWidth;
+      if (shouldCenter !== shouldCenterItems) {
+        setShouldCenterItems(shouldCenter);
+      }
+    }
+  }, [categories.length, scrollPosition, isScrolling, deviceData.isLowPerformance, shouldCenterItems]);
 
+  const throttledCheck = useMemo(
+    () => throttle(
+      checkForScrollPosition,
+      deviceData.isLowPerformance ? 200 : 100,
+      { leading: true, trailing: true }
+    ),
+    [checkForScrollPosition, deviceData.isLowPerformance]
+  );
+
+  // Mantener también una versión con debounce para eventos menos frecuentes como resize
   const debouncedCheck = useMemo(
-    () => debounce(checkForScrollPosition, 100, { leading: true }),
-    [checkForScrollPosition]
+    () => debounce(
+      checkForScrollPosition,
+      deviceData.isLowPerformance ? 250 : 150,
+      { leading: false, trailing: true }
+    ),
+    [checkForScrollPosition, deviceData.isLowPerformance]
   );
 
   useEffect(() => {
+    // Optimización: usar mediaQuery en lugar de evento resize para detectar móvil
     const checkForMobile = () => {
       const isMobileDevice = window.innerWidth < 768;
       setIsMobile(isMobileDevice);
@@ -163,44 +199,88 @@ const CategoryPanel = () => {
       }
     };
 
+    // Realizar comprobación inicial
     checkForMobile();
     checkForScrollPosition();
 
-    if (typeof ResizeObserver !== 'undefined') {
+    // Usando MediaQueryList para optimizar la detección de cambios de tamaño
+    const mediaQuery = window.matchMedia('(min-width: 768px)');
+    const handleMediaChange = (e: MediaQueryListEvent) => {
+      setIsMobile(!e.matches);
+
+      if (!e.matches && scrollTrackRef.current) {
+        scrollTrackRef.current.style.display = 'block';
+      } else if (scrollTrackRef.current) {
+        scrollTrackRef.current.style.display = 'none';
+      }
+
+      // Usar debounced check para evitar cálculos frecuentes
+      debouncedCheck();
+    };
+
+    // Usar ResizeObserver sólo para el contenedor de categorías, no para la ventana entera
+    if (typeof ResizeObserver !== 'undefined' && !deviceData.isLowPerformance) {
       const resizeObserver = new ResizeObserver(() => {
-        checkForMobile();
-        checkForScrollPosition();
+        debouncedCheck(); // Usar debouncedCheck en lugar de callCheck directo
       });
 
       if (containerRef.current) resizeObserver.observe(containerRef.current);
 
-      return () => resizeObserver.disconnect();
+      mediaQuery.addEventListener('change', handleMediaChange);
+
+      return () => {
+        resizeObserver.disconnect();
+        mediaQuery.removeEventListener('change', handleMediaChange);
+      };
     }
 
-    window.addEventListener('resize', checkForMobile);
-    return () => window.removeEventListener('resize', checkForMobile);
-  }, [checkForScrollPosition]);
+    // Fallback para navegadores sin ResizeObserver
+    mediaQuery.addEventListener('change', handleMediaChange);
+    const handleResize = debounce(checkForMobile, 200);
+    window.addEventListener('resize', handleResize, { passive: true });
+
+    return () => {
+      mediaQuery.removeEventListener('change', handleMediaChange);
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [checkForScrollPosition, debouncedCheck, deviceData.isLowPerformance]);
 
   const scrollLeft = useCallback(() => {
     if (!scrollRef.current) return;
-    const scrollAmount = scrollRef.current.clientWidth * 0.75;
+
+    // Reducir la cantidad de scroll en dispositivos lentos para mejorar rendimiento
+    const scrollPercentage = deviceData.isLowPerformance ? 0.5 : 0.75;
+    const scrollAmount = scrollRef.current.clientWidth * scrollPercentage;
 
     // Usar scrollBy nativo para mejor rendimiento
-    scrollRef.current.scrollBy({
-      left: -scrollAmount,
-      behavior: isMobile ? 'auto' : 'smooth'  // En móvil, instantáneo es mejor
+    // Para dispositivos de bajo rendimiento o modo ahorro de datos, siempre usar 'auto'
+    const scrollBehavior = (isMobile || deviceData.isLowPerformance || deviceData.isDataSaver) ? 'auto' : 'smooth';
+
+    requestAnimationFrame(() => {
+      scrollRef.current?.scrollBy({
+        left: -scrollAmount,
+        behavior: scrollBehavior
+      });
     });
-  }, [isMobile]);
+  }, [isMobile, deviceData.isLowPerformance, deviceData.isDataSaver]);
 
   const scrollRight = useCallback(() => {
     if (!scrollRef.current) return;
-    const scrollAmount = scrollRef.current.clientWidth * 0.75;
 
-    scrollRef.current.scrollBy({
-      left: scrollAmount,
-      behavior: isMobile ? 'auto' : 'smooth'
+    // Reducir la cantidad de scroll en dispositivos lentos para mejorar rendimiento
+    const scrollPercentage = deviceData.isLowPerformance ? 0.5 : 0.75;
+    const scrollAmount = scrollRef.current.clientWidth * scrollPercentage;
+
+    // Para dispositivos de bajo rendimiento o modo ahorro de datos, siempre usar 'auto'
+    const scrollBehavior = (isMobile || deviceData.isLowPerformance || deviceData.isDataSaver) ? 'auto' : 'smooth';
+
+    requestAnimationFrame(() => {
+      scrollRef.current?.scrollBy({
+        left: scrollAmount,
+        behavior: scrollBehavior
+      });
     });
-  }, [isMobile]);
+  }, [isMobile, deviceData.isLowPerformance, deviceData.isDataSaver]);
 
   const handleOpenLocationModal = useCallback(() => {
     onOpen();
@@ -216,57 +296,49 @@ const CategoryPanel = () => {
     const scrollElement = scrollRef.current;
     if (!scrollElement) return;
 
-    const handleScroll = () => {
-      if (!isScrolling) {
-        setIsScrolling(true);
-        requestAnimationFrame(() => {
-          // Cálculo directo sin pasar por función debounce
-          const { scrollLeft, scrollWidth, clientWidth } = scrollElement;
+    // Crear una versión más eficiente del manejador de scroll usando throttle
+    // para limitar el número de actualizaciones de estado
+    const handleScroll = throttle(() => {
+      setIsScrolling(true);
+      throttledCheck();
 
-          // Ajuste para llegar a los extremos
-          const maxScroll = scrollWidth - clientWidth;
+      // Desactivar el estado de scrolling después de un corto periodo
+      // para permitir otras actualizaciones visuales
+      setTimeout(() => setIsScrolling(false), 100);
+    }, deviceData.isLowPerformance ? 150 : 100, { leading: true, trailing: true });
 
-          // Caso especial cuando estamos al inicio
-          if (scrollLeft <= 2) {
-            setScrollPosition(0);
-          }
-          // Caso especial cuando estamos al final
-          else if (scrollLeft >= maxScroll - 5) {
-            setScrollPosition(1);
-          }
-          // Caso normal
-          else {
-            setScrollPosition(scrollLeft / maxScroll);
-          }
-
-          setIsScrolling(false);
-        });
+    // Optimización para dispositivos táctiles
+    const handleTouchStart = () => {
+      // En dispositivos de bajo rendimiento, cancelar animaciones al iniciar touch
+      if (deviceData.isLowPerformance && scrollElement.style) {
+        scrollElement.style.scrollBehavior = 'auto';
       }
     };
 
-    scrollElement.addEventListener('scroll', handleScroll, { passive: true });
-
-    // Detectar si llegó al final en dispositivos táctiles
-    const handleTouchEnd = () => {
-      // Pequeño retraso para asegurar que el scroll se haya completado
+    // Detectar final de eventos táctiles con optimizaciones
+    const handleTouchEnd = debounce(() => {
+      // Pequeño retraso para permitir que el scroll termine, más corto en dispositivos rápidos
       setTimeout(() => {
-        const { scrollLeft, scrollWidth, clientWidth } = scrollElement;
-        const maxScroll = scrollWidth - clientWidth;
+        checkForScrollPosition(); // Usar la función directa para actualizar inmediatamente
 
-        // Verificar si está muy cerca del final
-        if (scrollLeft >= maxScroll - 10) {
-          setScrollPosition(1);
+        // Restaurar comportamiento de scroll suave si es apropiado
+        if (!deviceData.isLowPerformance && scrollElement.style) {
+          scrollElement.style.scrollBehavior = '';
         }
-      }, 50);
-    };
+      }, deviceData.isLowPerformance ? 100 : 50);
+    }, 50, { leading: false, trailing: true });
 
+    // Usar options passive para mejorar rendimiento de scroll
+    scrollElement.addEventListener('scroll', handleScroll, { passive: true });
+    scrollElement.addEventListener('touchstart', handleTouchStart, { passive: true });
     scrollElement.addEventListener('touchend', handleTouchEnd, { passive: true });
 
     return () => {
       scrollElement.removeEventListener('scroll', handleScroll);
+      scrollElement.removeEventListener('touchstart', handleTouchStart);
       scrollElement.removeEventListener('touchend', handleTouchEnd);
     };
-  }, []);
+  }, [throttledCheck, checkForScrollPosition, deviceData.isLowPerformance]);
 
   return (
     <div
@@ -282,16 +354,25 @@ const CategoryPanel = () => {
         />
       )}
 
+      {/* Fondo decorativo - optimizado para rendimiento */}
       {isMobile ? (
         <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
-          <div className="absolute -top-20 -right-20 w-40 h-40 rounded-full bg-blue-100/20 dark:bg-blue-900/10 blur-md" />
-          <div className="absolute top-10 -left-10 w-30 h-30 rounded-full bg-purple-100/20 dark:bg-purple-900/10 blur-md" />
+          {!deviceData.isLowPerformance && !deviceData.isDataSaver && (
+            <>
+              <div className="absolute -top-20 -right-20 w-40 h-40 rounded-full bg-blue-100/20 dark:bg-blue-900/10 blur-md" />
+              <div className="absolute top-10 -left-10 w-30 h-30 rounded-full bg-purple-100/20 dark:bg-purple-900/10 blur-md" />
+            </>
+          )}
         </div>
       ) : (
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          <div className="absolute -top-40 -right-40 w-80 h-80 rounded-full bg-gradient-to-br from-blue-100/30 to-blue-300/10 dark:from-blue-800/10 dark:to-blue-900/5 blur-xl" />
-          <div className="absolute top-20 -left-20 w-60 h-60 rounded-full bg-gradient-to-tr from-purple-100/20 to-purple-300/10 dark:from-purple-800/10 dark:to-purple-900/5 blur-lg" />
-          <div className="absolute bottom-10 right-1/4 w-32 h-32 rounded-full bg-gradient-to-tl from-teal-100/10 to-teal-300/5 dark:from-teal-800/10 dark:to-teal-900/5 blur-md" />
+          {!deviceData.isLowPerformance && !deviceData.isDataSaver && (
+            <>
+              <div className="absolute -top-40 -right-40 w-80 h-80 rounded-full bg-gradient-to-br from-blue-100/30 to-blue-300/10 dark:from-blue-800/10 dark:to-blue-900/5 blur-xl" />
+              <div className="absolute top-20 -left-20 w-60 h-60 rounded-full bg-gradient-to-tr from-purple-100/20 to-purple-300/10 dark:from-purple-800/10 dark:to-purple-900/5 blur-lg" />
+              <div className="absolute bottom-10 right-1/4 w-32 h-32 rounded-full bg-gradient-to-tl from-teal-100/10 to-teal-300/5 dark:from-teal-800/10 dark:to-teal-900/5 blur-md" />
+            </>
+          )}
         </div>
       )}
 

@@ -1,44 +1,14 @@
 "use client";
 
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState, memo } from "react";
 import { Card, CardBody } from "@heroui/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useLocation } from "@contexts/location-context";
+import { useDeviceDetection } from "@/hooks/useDeviceDetection";
+import Image from "next/image";
 
-const useDeviceOptimization = () => {
-  const [isLowPerformance, setIsLowPerformance] = useState(false);
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
-  const [isTouchDevice, setIsTouchDevice] = useState(false);
-
-  useEffect(() => {
-    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-    setPrefersReducedMotion(mediaQuery.matches);
-
-    setIsTouchDevice('ontouchstart' in window || navigator.maxTouchPoints > 0);
-
-    const isLowEnd =
-      navigator.hardwareConcurrency && navigator.hardwareConcurrency < 4 ||
-      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) &&
-      (window.devicePixelRatio < 2 || !window.requestAnimationFrame);
-
-    const hasLowBandwidth =
-      'connection' in navigator &&
-      // @ts-ignore - Connection API no está completamente tipada
-      (navigator.connection?.saveData || ['slow-2g', '2g'].includes(navigator.connection?.effectiveType));
-
-    setIsLowPerformance(isLowEnd || hasLowBandwidth);
-
-    const handleChange = (e: MediaQueryListEvent) => {
-      setPrefersReducedMotion(e.matches);
-    };
-
-    mediaQuery.addEventListener('change', handleChange);
-    return () => mediaQuery.removeEventListener('change', handleChange);
-  }, []);
-
-  return { isLowPerformance, prefersReducedMotion, isTouchDevice };
-};
+// Este hook se elimina a favor del hook centralizado useDeviceDetection
 
 interface CategoryCardProps {
   className?: string;
@@ -48,7 +18,67 @@ interface CategoryCardProps {
   url: string;
   onLocationNeeded?: () => void;
   itemsCount?: number;
+  imageUrl?: string;
 }
+
+// Versión optimizada de CategoryCard para dispositivos de bajo rendimiento
+const LightCategoryCard = memo(({
+  className = "",
+  icon,
+  text,
+  url,
+  itemsCount,
+  onLocationNeeded
+}: CategoryCardProps) => {
+  const { location } = useLocation();
+  // Agregamos el useRouter aunque no lo usemos para mantener la consistencia de hooks
+  const router = useRouter();
+
+  // Manejador de clics simplificado
+  const handleCardClick = useCallback((e: React.MouseEvent) => {
+    if (!location || !location.province || !location.municipality) {
+      if (onLocationNeeded) {
+        e.preventDefault();
+        onLocationNeeded();
+      }
+    }
+  }, [location, onLocationNeeded]);
+
+  return (
+    <Card
+      isHoverable
+      isPressable
+      as={Link}
+      href={url}
+      onClick={handleCardClick}
+      shadow="none"
+      className={`relative overflow-hidden h-full ${className}`}
+      style={{ touchAction: "pan-x pan-y" }}
+    >
+      <CardBody className="p-4 relative">
+        <div className="flex flex-col justify-center items-center h-full gap-2">
+          <div className="relative h-12 w-12 flex items-center justify-center">
+            <div className="relative z-10 text-blue-600 dark:text-blue-400 text-2xl">
+              {icon}
+            </div>
+          </div>
+
+          <h3 className="text-xs font-semibold text-gray-800 dark:text-gray-200 line-clamp-2 text-center">
+            {text}
+          </h3>
+
+          {itemsCount !== undefined && (
+            <span className="absolute top-2 right-2 bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300 text-xs font-medium px-1.5 py-0.5 rounded-full">
+              {itemsCount > 999 ? '999+' : itemsCount}
+            </span>
+          )}
+        </div>
+      </CardBody>
+    </Card>
+  );
+});
+
+LightCategoryCard.displayName = 'LightCategoryCard';
 
 const CategoryCard = ({
   className = "",
@@ -58,13 +88,18 @@ const CategoryCard = ({
   url,
   onLocationNeeded,
   itemsCount,
+  imageUrl,
 }: CategoryCardProps) => {
   const { location } = useLocation();
   const router = useRouter();
-  const { isLowPerformance, prefersReducedMotion, isTouchDevice } = useDeviceOptimization();
+  const deviceData = useDeviceDetection();
 
   // Determinar si debemos deshabilitar animaciones
-  const disableAnimations = isLowPerformance || prefersReducedMotion;
+  const disableAnimations = deviceData.isLowPerformance || deviceData.prefersReducedMotion;
+
+  // Nota: Movemos este retorno condicional después de declarar todos los hooks
+  // para evitar el error "Rendered fewer hooks than expected"
+  const needsLightVersion = deviceData.isLowPerformance || deviceData.effectiveType === 'slow-2g';
 
   // Manejar clics de manera eficiente
   const handleCardClick = useCallback((e: React.MouseEvent) => {
@@ -77,25 +112,46 @@ const CategoryCard = ({
     }
   }, [location, onLocationNeeded]);
 
-  // NUEVA FUNCIÓN: Manejar eventos touch para permitir scroll vertical
+  // Manejar eventos touch de manera eficiente y sin bloquear el thread principal
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
-    // No hacemos nada - solo evitamos que otros handlers capture el evento
-  }, []);
+    if (deviceData.isLowPerformance) {
+      // Para dispositivos de bajo rendimiento, no permitimos eventos táctiles complejos
+      return;
+    }
+    // Para dispositivos normales, solo evitamos que otros handlers capturen el evento
+  }, [deviceData.isLowPerformance]);
 
-  // Clases CSS condicionales basadas en capacidades del dispositivo
+  // Ahora que hemos declarado todos los hooks necesarios, podemos hacer el return temprano
+  if (needsLightVersion) {
+    return (
+      <LightCategoryCard
+        className={className}
+        size={size}
+        icon={icon}
+        text={text}
+        url={url}
+        onLocationNeeded={onLocationNeeded}
+        itemsCount={itemsCount}
+      />
+    );
+  }
+
+  // Clases CSS condicionales basadas en capacidades del dispositivo - optimizadas
   const cardClasses = `
     relative overflow-hidden h-full 
     ${className}
     ${disableAnimations
       ? 'transition-none'
-      : 'transition-transform duration-300 hover:scale-[1.02] active:scale-[0.98]'}
+      : deviceData.isDataSaver
+        ? 'transition-transform duration-150 hover:scale-[1.01] active:scale-[0.99]'
+        : 'transition-transform duration-300 hover:scale-[1.02] active:scale-[0.98]'}
     touch-action-safe
   `;
 
-  // Clases para el contenedor principal que reemplaza a motion.div
+  // Clases para el contenedor principal - optimizadas para rendimiento
   const containerClasses = `
     h-full 
-    ${!disableAnimations && 'transform-gpu'} 
+    ${(!disableAnimations && !deviceData.isDataSaver) ? 'transform-gpu' : ''} 
     ${disableAnimations ? '' : 'hover-lift'}
   `;
 
@@ -110,7 +166,7 @@ const CategoryCard = ({
   const glowEffectClasses = `
     absolute -inset-full h-[400%] w-[400%] opacity-0 
     ${!disableAnimations && 'group-hover:opacity-20 blur-xl'}
-    ${isLowPerformance ? 'hidden' : 'bg-gradient-conic from-blue-600 via-transparent to-blue-600'}
+    ${deviceData.isLowPerformance ? 'hidden' : 'bg-gradient-conic from-blue-600 via-transparent to-blue-600'}
   `;
 
   // Clases para el icono
@@ -145,7 +201,7 @@ const CategoryCard = ({
         <div className={bgEffectClasses} />
 
         {/* Brillo en hover - solo para dispositivos de alto rendimiento */}
-        {!isLowPerformance && (
+        {!deviceData.isLowPerformance && (
           <div className={glowEffectClasses} />
         )}
 
@@ -155,7 +211,26 @@ const CategoryCard = ({
             <div className={iconClasses}>
               <div className={iconBgClasses} />
               <div className="relative z-10 text-blue-600 dark:text-blue-400 text-2xl sm:text-3xl">
-                {icon}
+                {/* Si hay una imagen, la usamos optimizada, si no, usamos el icono */}
+                {imageUrl ? (
+                  <div className="relative w-12 h-12 rounded-full overflow-hidden">
+                    <Image
+                      src={imageUrl}
+                      alt={text}
+                      fill
+                      sizes="48px"
+                      loading="lazy"
+                      placeholder="empty"
+                      className="object-cover"
+                      quality={deviceData.isDataSaver ? 30 : 60}
+                      style={{
+                        objectFit: 'cover',
+                      }}
+                    />
+                  </div>
+                ) : (
+                  icon
+                )}
               </div>
             </div>
 
