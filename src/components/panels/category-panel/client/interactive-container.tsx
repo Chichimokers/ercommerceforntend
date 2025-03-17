@@ -7,12 +7,9 @@ import ScrollControls from "./scroll-controls";
 import LocationModal from "@/components/modals/location-modal";
 import { useDisclosure } from "@heroui/react";
 import debounce from "lodash.debounce";
+import { useProductContext } from "@contexts/product-context";
 
-interface InteractiveContainerProps {
-  categories: { id: string; name: string }[];
-}
-
-export default function InteractiveContainer({ categories }: InteractiveContainerProps) {
+export default function InteractiveContainer() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const scrollTrackRef = useRef<HTMLDivElement>(null);
@@ -26,6 +23,7 @@ export default function InteractiveContainer({ categories }: InteractiveContaine
   const [canScrollRight, setCanScrollRight] = useState(true);
 
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const { categories } = useProductContext();
 
   useEffect(() => {
     if (!scrollRef.current || typeof IntersectionObserver === 'undefined') return;
@@ -195,19 +193,12 @@ export default function InteractiveContainer({ categories }: InteractiveContaine
           snap-x snap-mandatory scrollbar-hide will-change-scroll
           ${shouldCenterItems ? 'justify-center' : 'justify-start'}
         `}
-        style={{
-          scrollSnapType: 'x proximity',
-          WebkitOverflowScrolling: 'touch',
-          touchAction: "pan-x pan-y",
-          overscrollBehavior: "contain",
-          msOverflowStyle: 'none',
-          scrollbarWidth: 'none',
-        }}
         onScroll={debouncedCheck}
       >
         <CategoryGrid
           categories={categories}
           isMobile={isMobile}
+          onLocationNeeded={handleLocationNeeded}
         />
       </div>
 

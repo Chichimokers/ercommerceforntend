@@ -2,11 +2,9 @@ import StatsCard, { colorVariants } from "./stats-card";
 import GradientBackground from "./gradient-background";
 import InteractiveContainer from "./client/interactive-container";
 import { MapPin, SparkleIcon, Package, Globe, ShoppingCart } from "lucide-react";
-import { getCategories } from "@/lib/api/categories";
 import { getPublicStats } from "@lib/api/stats";
 
 export default async function CategoryPanel() {
-  const categories = await getCategories();
   const stats = await getPublicStats();
 
   const statsData = {
@@ -124,8 +122,7 @@ export default async function CategoryPanel() {
         </div>
       </div>
 
-      {/* Categorías con interactividad envuelta en cliente */}
-      <InteractiveContainer categories={categories} />
+      <InteractiveContainer />
     </div>
   );
 }
