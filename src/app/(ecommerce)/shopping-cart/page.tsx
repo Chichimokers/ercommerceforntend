@@ -26,6 +26,7 @@ export default function ShoppingCartPage() {
   const { cartProducts, isLoading, mutateCartProducts } = useProductContext();
   const [isMounted, setIsMounted] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [isInitialRender, setIsInitialRender] = useState(true);
   const { location } = useLocation();
   const { setShippingPrice, setTotalWeight } = useShipping();
 
@@ -114,8 +115,14 @@ export default function ShoppingCartPage() {
     handleResize();
     window.addEventListener('resize', handleResize);
 
+    // Marcar que ya pasó el renderizado inicial después de 1 segundo
+    const initialRenderTimer = setTimeout(() => {
+      setIsInitialRender(false);
+    }, 1000);
+
     return () => {
       window.removeEventListener('resize', handleResize);
+      clearTimeout(initialRenderTimer);
     };
   }, []);
 
@@ -137,13 +144,11 @@ export default function ShoppingCartPage() {
     );
   }, [cart, cartProducts]);
 
-  // Estado de carga inicial
   if (!isMounted) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center max-w-[100vw] overflow-hidden">
         <div className="text-center">
           <Spinner size="lg" color="primary" />
-          <p className="mt-4 text-gray-600 dark:text-gray-300">Cargando carrito...</p>
         </div>
       </div>
     );
@@ -152,20 +157,14 @@ export default function ShoppingCartPage() {
   return (
     <AnimatePresence>
       <motion.section
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        transition={{ duration: 0.4 }}
-        className="py-8 px-2 sm:py-12 sm:px-4"
+        transition={{ duration: 0.3 }}
+        className="py-8 px-2 sm:py-12 sm:px-4 overflow-hidden max-w-full"
       >
-        <div className="container mx-auto">
-          {/* Header con animación y navegación */}
-          <motion.header
-            className="mb-6 flex flex-col sm:flex-row sm:justify-between sm:items-center"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.2 }}
-          >
+        <div className="container mx-auto max-w-[100vw] overflow-x-hidden">
+          <header className="mb-6 flex flex-col sm:flex-row sm:justify-between sm:items-center">
             <h1 className="text-3xl md:text-4xl font-extrabold text-gray-800 dark:text-white inline-flex items-center">
               <ShoppingBag className="mr-2 h-8 w-8 text-blue-500" />
               <span className="border-b-4 border-blue-300 pb-1">Carrito de Compras</span>
@@ -175,20 +174,12 @@ export default function ShoppingCartPage() {
               <ArrowLeft className="w-4 h-4 mr-1" />
               Continuar comprando
             </Link>
-          </motion.header>
+          </header>
 
-          {/* Cuerpo del carrito con animación */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
-            {/* Panel principal del carrito */}
-            <motion.div
-              className="lg:col-span-2 space-y-6"
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.3 }}
-            >
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 w-full overflow-hidden">
+            <div className="lg:col-span-2 space-y-6">
               {cartItems.length > 0 ? (
                 <>
-                  {/* Encabezados de columnas */}
                   <div className="hidden md:grid grid-cols-[2fr,1fr,1fr,1fr] gap-4 bg-gray-50 dark:bg-gray-800 px-6 py-3 rounded-xl shadow-sm items-center">
                     <div className="font-medium text-gray-700 dark:text-gray-300">
                       Producto
@@ -204,19 +195,10 @@ export default function ShoppingCartPage() {
                     </div>
                   </div>
 
-                  {/* Lista de productos */}
                   <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800">
                     <div className="divide-y divide-gray-100 dark:divide-gray-800">
                       {cartItems.map((product) => (
-                        <motion.div
-                          key={product.id}
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          transition={{
-                            duration: 0.3,
-                            delay: cartItems.indexOf(product) * 0.1
-                          }}
-                        >
+                        <div key={product.id}>
                           {isMobile ? (
                             <CartCard
                               key={`${product.id}-mobile-${cart?.length}`}
@@ -229,7 +211,7 @@ export default function ShoppingCartPage() {
                               className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-150 px-6 py-4"
                             />
                           )}
-                        </motion.div>
+                        </div>
                       ))}
                     </div>
 
@@ -254,18 +236,12 @@ export default function ShoppingCartPage() {
               ) : (
                 <EmptyCart />
               )}
-            </motion.div>
+            </div>
 
-            {/* Panel de resumen */}
-            <motion.div
-              className="lg:col-span-1"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.4 }}
-            >
-              <div className="sticky top-20">
+            <div className="lg:col-span-1">
+              <div className="sticky top-20 max-w-full overflow-hidden">
                 {isLoadingPrice ? (
-                  <div className="w-full rounded-xl bg-white dark:bg-gray-800 shadow-md p-6 space-y-4">
+                  <div className="rounded-xl bg-white dark:bg-gray-800 shadow-md p-6 space-y-4">
                     <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
                     <div className="space-y-2">
                       <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-3/4"></div>
@@ -293,7 +269,7 @@ export default function ShoppingCartPage() {
 
 
               </div>
-            </motion.div>
+            </div>
           </div>
         </div>
       </motion.section>

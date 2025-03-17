@@ -1,6 +1,6 @@
 import { useProductContext } from "@/contexts/product-context";
 import { FaTh } from "react-icons/fa";
-import { Globe, Package, ShoppingCart, MapPin, ChevronRight, ChevronLeft } from "lucide-react";
+import { Globe, Package, ShoppingCart, MapPin, ChevronRight, ChevronLeft, SparkleIcon } from "lucide-react";
 import dynamic from "next/dynamic";
 import { getCategoryIcon } from "../filters/categories";
 import useSWR from "swr";
@@ -8,6 +8,7 @@ import { useDisclosure } from "@heroui/react";
 import { useRef, useState, useEffect, useMemo } from "react";
 import React from "react";
 import debounce from "lodash.debounce";
+import { motion } from "framer-motion";
 
 // Cargar componentes bajo demanda
 const LocationModal = dynamic(() => import("@/components/modals/location-modal"), {
@@ -17,7 +18,7 @@ const LocationModal = dynamic(() => import("@/components/modals/location-modal")
 // Optimización del placeholder para reducir pintura
 const CategoryCard = dynamic(() => import("@/components/cards/category-cards"), {
   loading: () => (
-    <div className="flex-shrink-0 snap-center w-36 md:w-40 h-36 md:h-40 bg-gray-100 dark:bg-gray-800 rounded-xl opacity-60" />
+    <div className="flex-shrink-0 snap-center w-36 md:w-40 h-36 md:h-40 bg-gray-100 dark:bg-gray-800 rounded-xl opacity-60 animate-pulse" />
   ),
 });
 
@@ -139,13 +140,26 @@ const CategoryPanel = () => {
         initialMunicipality=""
       />
 
-      <div className="absolute inset-0 pointer-events-none">
-        <div
-          className="absolute -top-40 -right-40 w-80 h-80 rounded-full bg-blue-100/20 dark:bg-blue-900/5"
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 1.2, ease: "easeOut" }}
+          className="absolute -top-40 -right-40 w-80 h-80 rounded-full bg-gradient-to-br from-blue-100/30 to-blue-300/10 dark:from-blue-800/10 dark:to-blue-900/5 blur-xl"
           style={{ willChange: "transform", transform: "translateZ(0)" }}
         />
-        <div
-          className="absolute top-20 -left-20 w-60 h-60 rounded-full bg-purple-100/10 dark:bg-purple-900/5"
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 1.5, delay: 0.2, ease: "easeOut" }}
+          className="absolute top-20 -left-20 w-60 h-60 rounded-full bg-gradient-to-tr from-purple-100/20 to-purple-300/10 dark:from-purple-800/10 dark:to-purple-900/5 blur-lg"
+          style={{ willChange: "transform", transform: "translateZ(0)" }}
+        />
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 0.5, y: 0 }}
+          transition={{ duration: 1.8, delay: 0.4, ease: "easeOut" }}
+          className="absolute bottom-10 right-1/4 w-32 h-32 rounded-full bg-gradient-to-tl from-teal-100/10 to-teal-300/5 dark:from-teal-800/10 dark:to-teal-900/5 blur-md"
           style={{ willChange: "transform", transform: "translateZ(0)" }}
         />
       </div>
@@ -158,24 +172,41 @@ const CategoryPanel = () => {
               className={`space-y-6 ${isMobile ? "" : "motion-safe:animate-fadeInLeft"}`}
               style={isMobile ? {} : { animationDelay: "200ms", animationDuration: "500ms" }}
             >
-              <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-800 dark:text-white bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600">
-                Explora nuestras ofertas para Cuba
-              </h2>
-              <p className="text-base text-gray-700 dark:text-gray-300 leading-relaxed max-w-lg">
+              <motion.h2
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, ease: "easeOut" }}
+                className="text-3xl sm:text-4xl font-extrabold text-gray-800 dark:text-white bg-clip-text text-transparent bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-600"
+              >
+                <span className="inline-flex items-center gap-2">
+                  Explora nuestras ofertas para Cuba <SparkleIcon className="h-6 w-6 text-yellow-400 animate-pulse" />
+                </span>
+              </motion.h2>
+              <motion.p
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.1, ease: "easeOut" }}
+                className="text-base text-gray-700 dark:text-gray-300 leading-relaxed max-w-lg"
+              >
                 Nos enfocamos en brindar una amplia gama de productos para las provincias de{" "}
-                <span className="font-medium text-blue-700 dark:text-blue-400">Santiago de Cuba</span> y{" "}
-                <span className="font-medium text-blue-700 dark:text-blue-400">Villa Clara</span>.
+                <span className="font-medium bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">Santiago de Cuba</span> y{" "}
+                <span className="font-medium bg-gradient-to-r from-blue-500 to-blue-300 bg-clip-text text-transparent">Villa Clara</span>.
                 Próximamente, estaremos expandiéndonos a más regiones y añadiendo nuevas categorías.
-              </p>
-              <div className="pt-2">
+              </motion.p>
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2, ease: "easeOut" }}
+                className="pt-3"
+              >
                 <button
                   onClick={handleOpenLocationModal}
-                  className="inline-flex items-center gap-2 bg-white dark:bg-gray-800 shadow-sm hover:shadow border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-200 font-medium py-2 px-4 rounded-xl transition-shadow"
+                  className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-medium py-2.5 px-5 rounded-xl transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
                 >
-                  <MapPin size={18} />
+                  <MapPin size={18} className="animate-bounce" />
                   Seleccionar ubicación
                 </button>
-              </div>
+              </motion.div>
             </div>
 
             <div
@@ -352,35 +383,53 @@ const StatsCard = ({ icon, label, value, colorClass, large = false }: {
     icon: string;
     text: string;
     bg: string;
+    gradient: string;
   };
   large?: boolean;
 }) => (
-  <div
+  <motion.div
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{
+      duration: 0.5,
+      delay: large ? 0.2 : 0.3,
+      ease: "easeOut"
+    }}
+    whileHover={{ y: -5, transition: { duration: 0.2 } }}
     className={`
       bg-white dark:bg-gray-800 
-      border border-gray-200 dark:border-gray-700
-      rounded-xl shadow-sm
-      ${large ? 'p-3 sm:p-4' : 'p-2 sm:p-3'}
+      border border-gray-100 dark:border-gray-700
+      rounded-xl 
+      ${large ? 'p-4 sm:p-5' : 'p-3 sm:p-4'}
       h-full
+      shadow-lg hover:shadow-xl
+      backdrop-blur-sm
+      bg-opacity-80 dark:bg-opacity-80
+      transition-all duration-300
     `}
   >
-    <div className={large ? 'flex items-start gap-3' : 'flex items-center gap-2'}>
-      {/* Contenedor de icono más compacto para pantallas pequeñas */}
-      <div className={`
-        ${colorClass.bg} rounded-lg flex-shrink-0
-        flex items-center justify-center
-        ${large ? 'p-2.5 sm:p-3' : 'p-1.5 sm:p-2'}
-      `}>
+    <div className={large ? 'flex items-start gap-4' : 'flex items-center gap-3'}>
+      {/* Contenedor de icono mejorado con gradiente */}
+      <div
+        className={`
+          ${colorClass.gradient} rounded-xl flex-shrink-0
+          flex items-center justify-center
+          ${large ? 'p-3 sm:p-3.5' : 'p-2 sm:p-2.5'}
+          shadow-md
+          transform transition-transform duration-300
+        `}
+      >
         {icon}
       </div>
 
       {/* Contenedor de texto con mejor manejo de espacio */}
       <div className="min-w-0 flex-1">
-        {/* Etiqueta con tamaño reducido */}
+        {/* Etiqueta con tamaño reducido y efecto de gradiente */}
         <p className={`
-          ${large ? 'text-xs sm:text-sm' : 'text-[10px] sm:text-xs'} 
+          ${large ? 'text-xs sm:text-sm' : 'text-[11px] sm:text-xs'} 
           text-gray-500 dark:text-gray-400 
           font-medium 
+          uppercase tracking-wide
           truncate
         `}>
           {label}
@@ -388,10 +437,10 @@ const StatsCard = ({ icon, label, value, colorClass, large = false }: {
 
         {/* Valor con manejo de palabras y ajuste dinámico */}
         <h3 className={`
-          ${large ? 'text-base sm:text-lg' : 'text-sm sm:text-base'} 
-          ${colorClass.text}
-          font-bold 
-          mt-0.5
+          ${large ? 'text-lg sm:text-xl' : 'text-base sm:text-lg'} 
+          ${colorClass.gradient ? 'text-transparent bg-clip-text ' + colorClass.gradient : colorClass.text}
+          font-extrabold 
+          mt-1
           break-words
           leading-tight
         `}>
@@ -406,30 +455,40 @@ const StatsCard = ({ icon, label, value, colorClass, large = false }: {
         </h3>
       </div>
     </div>
-  </div>
+  </motion.div>
 );
 
 // Definir colores como objetos para evitar clases dinámicas
 const colorVariants = {
   blue: {
-    icon: "text-blue-600 dark:text-blue-400",
+    icon: "text-white",
     text: "text-blue-600 dark:text-blue-400",
     bg: "bg-blue-100 dark:bg-blue-900/30",
+    gradient: "bg-gradient-to-br from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-800"
   },
   purple: {
-    icon: "text-purple-600 dark:text-purple-400",
+    icon: "text-white",
     text: "text-purple-600 dark:text-purple-400",
     bg: "bg-purple-100 dark:bg-purple-900/30",
+    gradient: "bg-gradient-to-br from-purple-500 to-purple-600 dark:from-purple-600 dark:to-purple-800"
   },
   green: {
-    icon: "text-green-600 dark:text-green-400",
+    icon: "text-white",
     text: "text-green-600 dark:text-green-400",
     bg: "bg-green-100 dark:bg-green-900/30",
+    gradient: "bg-gradient-to-br from-green-500 to-green-600 dark:from-green-600 dark:to-green-800"
   },
   amber: {
-    icon: "text-amber-600 dark:text-amber-400",
+    icon: "text-white",
     text: "text-amber-600 dark:text-amber-400",
     bg: "bg-amber-100 dark:bg-amber-900/30",
+    gradient: "bg-gradient-to-br from-amber-500 to-amber-600 dark:from-amber-600 dark:to-amber-800"
+  },
+  teal: {
+    icon: "text-white",
+    text: "text-teal-600 dark:text-teal-400",
+    bg: "bg-teal-100 dark:bg-teal-900/30",
+    gradient: "bg-gradient-to-br from-teal-500 to-teal-600 dark:from-teal-600 dark:to-teal-800"
   }
 };
 

@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useContext, useMemo } from "react"
+import React, { useContext, useMemo, useCallback, useState, useEffect } from "react"
 import { Card, CardBody, CardFooter, Chip, Tooltip } from "@heroui/react"
 import { FaShoppingCart } from "react-icons/fa"
 import Link from "next/link"
@@ -14,10 +14,52 @@ import { CustomButton } from "../buttons/custom-button"
 import QuantityAdjuster from "@components/buttons/quantity-selector"
 import { formatCurrency } from "@components/format-currency"
 
-const IMAGE_QUALITY = 50;
+// Constantes para configuración y optimización
+const IMAGE_QUALITY = 40; // Reducir calidad para mejor rendimiento
 const PLACEHOLDER = "/placeholder.webp";
 const ASPECT_RATIO = "aspect-square";
 const DEFAULT_CURRENCY = "USD";
+
+// Hook optimizado para detección de dispositivos
+const useDeviceDetection = () => {
+  const [isMobile, setIsMobile] = useState(false);
+  const [isLowPerformance, setIsLowPerformance] = useState(false);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    // Detectar móviles
+    const mobileCheck = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+      navigator.userAgent
+    );
+    setIsMobile(mobileCheck);
+
+    // Detectar preferencia de reducción de movimiento
+    const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    setPrefersReducedMotion(motionQuery.matches);
+
+    // Detectar dispositivos de bajo rendimiento
+    const isLowEnd =
+      (navigator.hardwareConcurrency && navigator.hardwareConcurrency < 4) ||
+      (window.devicePixelRatio < 2) ||
+      mobileCheck;
+
+    setIsLowPerformance(isLowEnd);
+
+    // Listener para cambios en preferencia de movimiento
+    const handleMotionChange = (e: MediaQueryListEvent) => {
+      setPrefersReducedMotion(e.matches);
+    };
+
+    motionQuery.addEventListener('change', handleMotionChange);
+    return () => {
+      motionQuery.removeEventListener('change', handleMotionChange);
+    };
+  }, []);
+
+  return { isMobile, isLowPerformance, prefersReducedMotion };
+};
 
 // Componentes pequeños separados para mejor rendimiento
 const StockBadge = React.memo(({ quantity }: { quantity: number }) => {
@@ -111,7 +153,7 @@ const PriceDisplay = React.memo(({
     Math.round((discount.reduction * 100) / originalPrice) : 0;
 
   return (
-    <div className="flex flex-col justify-between h-[40px]">
+    <div className="flex flex-col justify-between min-h-[40px]">
       <p className="font-bold text-sm sm:text-base">
         {new Intl.NumberFormat('es-ES', {
           style: 'currency',
@@ -143,17 +185,22 @@ const ProductImage = React.memo(({
   src,
   alt,
   lazyLoad,
-  imgClassName
+  imgClassName,
+  isMobile = false
 }: {
   src: string,
   alt: string,
   lazyLoad: boolean,
-  imgClassName?: string
+  imgClassName?: string,
+  isMobile?: boolean
 }) => {
-  // Props para la carga de imagen
+  // Props para la carga de imagen optimizados según dispositivo
   const imageLoadingProps = lazyLoad
     ? { loading: "lazy" as const, priority: false }
     : { loading: "eager" as const, priority: true };
+
+  // Simplificar las clases y transiciones en móviles
+  const transitionClass = isMobile ? 'object-cover' : 'object-cover transition-transform duration-300 hover:scale-105';
 
   return (
     <div className={`relative w-full ${ASPECT_RATIO} bg-gray-100 dark:bg-gray-700 overflow-hidden`}>
@@ -162,36 +209,38 @@ const ProductImage = React.memo(({
         alt={alt}
         fill
         sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
-        className={`object-cover transition-transform duration-300 hover:scale-105 ${imgClassName || ''}`}
-        quality={IMAGE_QUALITY}
+        className={`${transitionClass} ${imgClassName || ''}`}
+        quality={isMobile ? IMAGE_QUALITY - 10 : IMAGE_QUALITY} // Reducir más la calidad en móviles
         {...imageLoadingProps}
+        placeholder="empty"
         onError={(e) => {
           (e.target as HTMLImageElement).src = PLACEHOLDER;
         }}
-        // Mejora la experiencia de carga con blur
-        placeholder="blur"
-        blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIwIiBoZWlnaHQ9IjMyMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjJmMmYyIi8+PC9zdmc+"
       />
     </div>
   );
 });
 
-// Botones optimizados
+// Botones optimizados para dispositivos móviles y desktop
 export const AddToCartButton = React.memo(({
   onClick,
-  disabled = false
+  disabled = false,
+  isMobile = false
 }: {
   onClick: (event: React.MouseEvent<HTMLButtonElement>) => void
   disabled?: boolean
-}) => (
-  <Tooltip content={disabled ? "Sin stock disponible" : "Añadir al carrito"}>
+  isMobile?: boolean
+}) => {
+  // Componente de botón optimizado para reutilización
+  const button = (
     <div>
       <CustomButton
         className={`
           h-9 !min-w-10 !max-w-full !w-full !p-0 
-          hover:shadow-lg active:scale-95 transition-all duration-200 
+          ${isMobile ? '' : 'hover:shadow-lg active:scale-95'} 
+          ${isMobile ? 'transition-opacity' : 'transition-all'} duration-200 
           rounded-xl ${disabled ? 'opacity-60 cursor-not-allowed' : ''} 
-          touch-manipulation
+          touch-action-pan-y
         `}
         onClick={onClick}
         isDisabled={disabled}
@@ -200,22 +249,37 @@ export const AddToCartButton = React.memo(({
         <FaShoppingCart className="h-4 w-4" />
       </CustomButton>
     </div>
-  </Tooltip>
-));
+  );
+
+  // En dispositivos móviles retornamos el botón directamente sin Tooltip
+  // para evitar renderizado extra y mejorar el rendimiento
+  if (isMobile) return button;
+
+  // En desktop añadimos el Tooltip para mejor UX
+  return (
+    <Tooltip content={disabled ? "Sin stock disponible" : "Añadir al carrito"}>
+      {button}
+    </Tooltip>
+  );
+});
 
 export const RemoveFromCartButton = React.memo(({
   onClick,
-  product
+  product,
+  isMobile = false
 }: {
   onClick: (event: React.MouseEvent<HTMLButtonElement>) => void
   product: ProductBase
-}) => (
-  <Tooltip content={`Eliminar ${product.name} del carrito`}>
+  isMobile?: boolean
+}) => {
+  // Componente de botón optimizado para reutilización
+  const button = (
     <div>
       <CustomButton
-        className="h-9 !min-w-10 !max-w-full !w-full !p-0 hover:shadow-lg 
-                  active:scale-95 transition-all duration-200 rounded-xl 
-                  bg-red-500 hover:bg-red-600 touch-manipulation"
+        className={`h-9 !min-w-10 !max-w-full !w-full !p-0 
+                  ${isMobile ? '' : 'hover:shadow-lg active:scale-95'} 
+                  ${isMobile ? 'transition-colors' : 'transition-all'} duration-200 rounded-xl 
+                  bg-red-500 hover:bg-red-600 touch-action-pan-y`}
         color="danger"
         onClick={onClick}
         aria-label={`Eliminar ${product.name} del carrito`}
@@ -223,8 +287,19 @@ export const RemoveFromCartButton = React.memo(({
         <FaBucket className="h-4 w-4" />
       </CustomButton>
     </div>
-  </Tooltip>
-));
+  );
+
+  // En dispositivos móviles retornamos el botón directamente sin Tooltip
+  // para evitar renderizado extra y mejorar el rendimiento
+  if (isMobile) return button;
+
+  // En desktop añadimos el Tooltip para mejor UX
+  return (
+    <Tooltip content={`Eliminar ${product.name} del carrito`}>
+      {button}
+    </Tooltip>
+  );
+});
 
 const ProductCard = React.memo(({
   product,
@@ -252,6 +327,9 @@ const ProductCard = React.memo(({
     quantity
   } = useCartActions(product);
 
+  // Usar el hook de detección de dispositivos
+  const { isMobile, isLowPerformance } = useDeviceDetection();
+
   // Cálculos de precios - memoizados para evitar recálculos
   const displayPrice = useMemo(() => {
     return product.price * (rateExchange?.exchangeRate || 1);
@@ -267,35 +345,49 @@ const ProductCard = React.memo(({
   // URL del producto
   const productUrl = `/products/${product.id}`;
 
-  // Detener propagación solo cuando sea necesario
-  const handleButtonClick = (e: React.MouseEvent, callback: () => void) => {
+  // Detener propagación solo cuando sea necesario (memoizado)
+  const handleButtonClick = useCallback((e: React.MouseEvent, callback: () => void) => {
     e.preventDefault();
     e.stopPropagation();
     callback();
-  };
+  }, []);
+
+  // Para evitar renderizados innecesarios, usamos una versión optimizada de las clases
+  // basadas en si estamos en un dispositivo móvil/bajo rendimiento
+  const cardClasses = useMemo(() => {
+    const baseClasses = `
+      h-full cursor-pointer rounded-xl overflow-hidden
+      bg-white dark:bg-gray-800/80 
+      border border-gray-200 dark:border-gray-700
+      ${className}
+      touch-action-pan-y
+    `;
+
+    // En dispositivos móviles o de bajo rendimiento, reducimos las animaciones
+    return isMobile || isLowPerformance
+      ? `${baseClasses} shadow-sm transition-opacity duration-200`
+      : `${baseClasses} hover:shadow-md transition-all duration-300 hover:translate-y-[-4px]`;
+  }, [className, isMobile, isLowPerformance]);
 
   return (
     <Link
       href={productUrl}
       prefetch={prefetch === "none" ? false : undefined}
       className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-xl"
+      style={{ touchAction: 'pan-y pan-x' }}
     >
-      <Card className={`
-        h-full cursor-pointer hover:shadow-md transition-all duration-300 
-        bg-white dark:bg-gray-800/80 
-        hover:translate-y-[-4px] 
-        rounded-xl overflow-hidden
-        border border-gray-200 dark:border-gray-700
-        ${className}
-      `}>
+      <Card
+        className={cardClasses}
+        style={{ touchAction: 'pan-y pan-x' }}
+      >
         <CardBody className="p-0 overflow-hidden">
-          {/* Imagen optimizada */}
           <div className="relative">
             <ProductImage
               src={product.image || PLACEHOLDER}
               alt={product.name}
               lazyLoad={lazyLoad}
               imgClassName={imgClassName}
+              isMobile={isMobile}
             />
 
             {/* Badges */}
@@ -307,9 +399,7 @@ const ProductCard = React.memo(({
             />
           </div>
 
-          {/* Información del producto - responsive spacing */}
           <div className="px-2 pt-2 sm:px-3 sm:pt-3 md:px-4 md:pt-4">
-            {/* Título con elipsis */}
             <h3 className="text-sm sm:text-base font-medium line-clamp-1 mb-1">
               {product.name}
             </h3>
@@ -318,8 +408,8 @@ const ProductCard = React.memo(({
               <StarRating value={product.averageRating} />
             </div>
 
-            {/* Descripción con altura fija */}
-            <div className="h-8 sm:h-10 mb-2">
+            {/* Descripción con altura fija y menos padding en móvil */}
+            <div className={`${isMobile ? 'h-6' : 'h-8 sm:h-10'} mb-2`}>
               <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 line-clamp-2">
                 {product.short_description || "Sin descripción disponible"}
               </p>
@@ -349,7 +439,7 @@ const ProductCard = React.memo(({
               getLocalStorageData={getLocalStorageData}
               productId={product.id}
               maxLimit={product.quantity || 0}
-              className="bg-white dark:bg-gray-700 shadow-sm hover:shadow-md transition-shadow"
+              className={`bg-white dark:bg-gray-700 ${isMobile ? '' : 'shadow-sm hover:shadow-md transition-shadow'}`}
             />
           </div>
 
@@ -359,11 +449,13 @@ const ProductCard = React.memo(({
               <RemoveFromCartButton
                 onClick={(e) => handleButtonClick(e, handleRemoveFromCart)}
                 product={product}
+                isMobile={isMobile}
               />
             ) : (
               <AddToCartButton
                 onClick={(e) => handleButtonClick(e, handleAddToCart)}
                 disabled={product.quantity === 0}
+                isMobile={isMobile}
               />
             )}
           </div>
@@ -373,7 +465,6 @@ const ProductCard = React.memo(({
   );
 });
 
-// Display names para DevTools
 StockBadge.displayName = "StockBadge";
 DiscountBadge.displayName = "DiscountBadge";
 PriceDisplay.displayName = "PriceDisplay";

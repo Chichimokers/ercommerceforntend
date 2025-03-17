@@ -6,7 +6,6 @@ import { Pagination, Spinner, Chip, Button, Tooltip } from "@heroui/react";
 import dynamic from "next/dynamic";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, memo, useState, useContext, useRef, Suspense } from "react";
-import { ShoppingBag, AlertCircle, ListFilter, Grid, List, ArrowUpRight, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useCategories } from "@hooks/useCategories";
 import { ProductBase } from "../../../types/types";
@@ -16,76 +15,140 @@ import Image from "next/image";
 import { formatCurrency } from "@/components/format-currency";
 import QuantityAdjuster from "@/components/buttons/quantity-selector";
 import { AddToCartButton, RemoveFromCartButton } from "@/components/cards/product-card";
+import { useDeviceDetection } from "@/hooks/useDeviceDetection";
+import { FaArrowLeft, FaShoppingBag } from "react-icons/fa";
+import { AlertCircle } from "lucide-react";
+import LucideIcons from "@components/lazy-imports/lucide-icons";
 
-// Hook para detectar si el dispositivo es de bajo rendimiento
+// Usando el hook centralizado de detección de dispositivo
+// Este es un hook legacy mantenido por compatibilidad
 const useDeviceCapabilities = () => {
-  const [isLowPerformance, setIsLowPerformance] = useState(false);
+  const [deviceData, setDeviceData] = useState({
+    isLowPerformance: false,
+    isMobile: false,
+    prefersReducedMotion: false,
+    connectionType: 'unknown',
+    effectiveType: '4g',
+    isDataSaver: false
+  });
 
   useEffect(() => {
-    const checkPerformance = () => {
-      // Comprobar preferencias de reducción de movimiento
+    if (typeof window === 'undefined') return;
+
+    const checkCapabilities = () => {
+      // Detección de preferencias de movimiento
       const prefersReducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 
-      // Comprobar capacidades del dispositivo
-      const isLowEnd =
-        navigator.hardwareConcurrency && navigator.hardwareConcurrency < 4 ||
-        'connection' in navigator &&
-        // @ts-ignore - Connection API no está completamente tipada
-        (navigator.connection?.saveData || ['slow-2g', '2g'].includes(navigator.connection?.effectiveType));
+      // Detección de dispositivo móvil
+      const isMobile = window.innerWidth < 768 ||
+        ('ontouchstart' in window && window.matchMedia?.('(pointer: coarse)').matches);
 
-      setIsLowPerformance(prefersReducedMotion || isLowEnd);
+      // Verificar hardware de bajo rendimiento
+      const isLowEnd =
+        (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4) ||
+        ('connection' in navigator && (navigator as any).connection?.saveData) ||
+        (typeof window.performance !== 'undefined' &&
+          (window.performance as any).memory &&
+          (window.performance as any).memory.jsHeapSizeLimit < 2147483648); // < 2GB
+
+      // Información sobre la conexión para optimizaciones adicionales
+      let connectionType = 'unknown';
+      let effectiveType = '4g';
+      let isDataSaver = false;
+
+      if ('connection' in navigator) {
+        const conn = (navigator as any).connection;
+        connectionType = conn?.type || 'unknown';
+        effectiveType = conn?.effectiveType || '4g';
+        isDataSaver = conn?.saveData || false;
+      }
+
+      setDeviceData({
+        isLowPerformance: prefersReducedMotion || isLowEnd || isDataSaver || ['slow-2g', '2g'].includes(effectiveType),
+        isMobile,
+        prefersReducedMotion,
+        connectionType,
+        effectiveType,
+        isDataSaver
+      });
     };
 
-    // Ejecutar después de la primera pintada para no bloquear la UI
+    // Verificación inicial
+    checkCapabilities();
+
+    // Reaccionar a cambios en el tamaño de la ventana
+    const handleResize = () => {
+      setDeviceData(prev => ({
+        ...prev,
+        isMobile: window.innerWidth < 768
+      }));
+    };
+
+    window.addEventListener('resize', handleResize);
+
+    // Optimizar la ejecución para no bloquear el hilo principal
     if (typeof requestIdleCallback === 'function') {
-      requestIdleCallback(() => checkPerformance());
+      const idleId = requestIdleCallback(checkCapabilities);
+      return () => {
+        cancelIdleCallback(idleId);
+        window.removeEventListener('resize', handleResize);
+      };
     } else {
-      setTimeout(checkPerformance, 500);
+      const timeoutId = setTimeout(checkCapabilities, 300);
+      return () => {
+        clearTimeout(timeoutId);
+        window.removeEventListener('resize', handleResize);
+      };
     }
   }, []);
 
-  return { isLowPerformance };
+  return deviceData;
 };
 
-// Placeholder ligero para ProductCard sin Framer Motion
-const ProductCardSkeleton = () => (
-  <div className="w-full aspect-[3/4] animate-pulse rounded-xl overflow-hidden">
-    <div className="h-3/5 bg-gray-200 dark:bg-gray-700"></div>
+// Skeleton optimizado con menor complejidad CSS
+const ProductCardSkeleton = memo(() => (
+  <div className="w-full aspect-[3/4] rounded-xl overflow-hidden border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800">
+    <div className="h-3/5 bg-gray-200 dark:bg-gray-700 animate-pulse"></div>
     <div className="p-4 space-y-3">
-      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded-md w-3/4"></div>
-      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded-md w-1/2"></div>
-      <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded-md w-1/3"></div>
+      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded-md w-3/4 animate-pulse"></div>
+      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded-md w-1/2 animate-pulse"></div>
+      <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded-md w-1/3 animate-pulse"></div>
     </div>
   </div>
-);
+));
 
-// Carga dinámica pero más eficiente del ProductCard
+ProductCardSkeleton.displayName = 'ProductCardSkeleton';
+
+// ProductCard cargado dinámicamente con opciones de prioridad para mejorar el LCP
 const ProductCard = dynamic(
-  () => import("@/components/cards/product-card"),
+  () => import("@/components/cards/product-card").then(mod => ({ default: mod.default })),
   {
     loading: () => <ProductCardSkeleton />,
-    ssr: false // Deshabilitar SSR puede mejorar el tiempo inicial en este caso
+    ssr: false
   }
 );
 
-// Carga dinámica del drawer con baja prioridad
+// Drawer cargado con prioridad baja para mejorar rendimiento inicial
 const FilterDrawer = dynamic(
-  () => import("@/components/drawers/filter-drawer"),
+  () =>
+    Promise.all([
+      import("@/components/drawers/filter-drawer"),
+      new Promise(resolve => setTimeout(resolve, 800))
+    ]).then(([module]) => module),
   {
     loading: () => (
-      <div className="w-full h-12 bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center">
-        <ListFilter className="opacity-20" />
+      <div className="w-full h-12 bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center">
+        <div className="w-4 h-4 opacity-20"></div>
       </div>
     ),
     ssr: false
   }
 );
 
-// Estado vacío mejorado y más ligero (sin Framer Motion)
 const EmptyState = memo(({ onReset }: { onReset: () => void }) => (
   <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
     <div className="rounded-full bg-blue-50 dark:bg-blue-900/20 p-8 mb-6">
-      <ShoppingBag className="h-12 w-12 text-blue-500" />
+      <FaShoppingBag className="h-12 w-12 text-blue-500" />
     </div>
     <h3 className="text-2xl font-bold tracking-tight mb-2 text-gray-800 dark:text-gray-100">
       No se encontraron productos
@@ -98,7 +161,7 @@ const EmptyState = memo(({ onReset }: { onReset: () => void }) => (
       onClick={onReset}
       color="primary"
       size="lg"
-      startContent={<ArrowLeft className="h-4 w-4" />}
+      startContent={<FaArrowLeft className="h-4 w-4" />}
       className="font-medium"
     >
       Ver todos los productos
@@ -106,7 +169,6 @@ const EmptyState = memo(({ onReset }: { onReset: () => void }) => (
   </div>
 ));
 
-// Estado de error mejorado y más ligero
 const ErrorState = memo(({ error, onReset }: { error: unknown, onReset: () => void }) => (
   <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
     <div className="rounded-full bg-red-50 dark:bg-red-900/20 p-8 mb-6">
@@ -146,13 +208,21 @@ const ProductItem = memo(({
   product,
   index,
   viewMode,
-  isLowPerformance
+  deviceData
 }: {
   product: ProductBase;
   index: number;
   viewMode: "grid" | "list";
-  isLowPerformance: boolean;
+  deviceData: {
+    isLowPerformance: boolean;
+    isMobile: boolean;
+    prefersReducedMotion: boolean;
+    connectionType: string;
+    effectiveType: string;
+    isDataSaver: boolean;
+  };
 }) => {
+  const { isLowPerformance, isMobile, isDataSaver } = deviceData;
   const { rateExchange } = useContext(CurrencyAndExchangeRateContext) || {};
   const {
     handleQuantityInc,
@@ -165,7 +235,6 @@ const ProductItem = memo(({
     quantity
   } = useCartActions(product);
 
-  // Cálculo de precios más seguro
   const displayPrice = useMemo(() =>
     product.price * (rateExchange?.exchangeRate || 1)
     , [product.price, rateExchange?.exchangeRate]);
@@ -178,33 +247,34 @@ const ProductItem = memo(({
     return displayPrice - product.discount.reduction;
   }, [displayPrice, product.discount, quantity]);
 
-  // Estilos basados en el rendimiento del dispositivo y modo de vista
+  // Simplificar los estilos para mejorar el rendimiento, evitando clases CSS complejas
   const itemStyle = useMemo(() => {
     const baseStyles = "w-full " + (viewMode === "list"
       ? "bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm"
       : "");
 
-    // Solo aplicar animaciones si el dispositivo puede manejarlas
-    if (isLowPerformance) {
+    // Evitar animaciones en dispositivos de bajo rendimiento o modo de ahorro de datos
+    if (isLowPerformance || isDataSaver) {
       return baseStyles;
     }
 
-    return `${baseStyles} fade-in-product ${index < 12 ? `delay-${Math.min(index, 5)}` : ''}`;
-  }, [viewMode, isLowPerformance, index]);
+    // Sólo aplicar animaciones a los primeros elementos para mejorar el FCP
+    const shouldAnimate = index < 8;
+    return shouldAnimate ? `${baseStyles} fade-in-product delay-${Math.min(index, 3)}` : baseStyles;
+  }, [viewMode, isLowPerformance, isDataSaver, index]);
 
   if (viewMode === "grid") {
     return (
       <div className={itemStyle}>
         <ProductCard
           product={product}
-          prefetch="viewport"
+          prefetch={isMobile || isDataSaver ? "none" : "viewport"}
           className="overflow-hidden relative h-full"
         />
       </div>
     );
   }
 
-  // Renderizado para vista de lista - sin animación Framer Motion
   return (
     <div className={itemStyle}>
       <Link href={`/products/${product.id}`}>
@@ -217,7 +287,9 @@ const ProductItem = memo(({
               sizes="(max-width: 640px) 100px, 128px"
               className="object-cover"
               loading="lazy"
-              quality={80}
+              quality={deviceData.isMobile || deviceData.isLowPerformance ? 30 : 50}
+              fetchPriority="high"
+              decoding="async"
             />
             {product.quantity < 5 && product.quantity > 1 && (
               <Chip
@@ -320,19 +392,14 @@ const ProductItem = memo(({
     </div>
   );
 }, (prevProps, nextProps) => {
-  // Implementar una comparación personalizada para prevenir renders innecesarios
   return (
     prevProps.product.id === nextProps.product.id &&
     prevProps.viewMode === nextProps.viewMode &&
-    prevProps.isLowPerformance === nextProps.isLowPerformance &&
+    prevProps.deviceData.isLowPerformance === nextProps.deviceData.isLowPerformance &&
     prevProps.index === nextProps.index
   );
 });
 
-/**
- * Componente principal optimizado - ProductPage
- * Con renderizado virtualizado para listas grandes y reducción de dependencias
- */
 export default function ProductPage() {
   const { products, totalPages, error, isLoading } = useProductContext();
   const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") || "";
@@ -340,20 +407,35 @@ export default function ProductPage() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const { isLowPerformance } = useDeviceCapabilities();
 
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  // Usar el hook centralizado de detección de dispositivo
+  const deviceData = useDeviceDetection();
+
+  // Utilizar localStorage para persistir preferencias, con fallback a grid para móviles
+  const [viewMode, setViewMode] = useState<"grid" | "list">(() => {
+    if (typeof window !== 'undefined') {
+      // Por defecto usar grid en móviles aunque el usuario haya elegido lista antes
+      const savedMode = localStorage.getItem('productViewMode') as "grid" | "list" || "grid";
+      return deviceData.isMobile ? "grid" : savedMode;
+    }
+    return "grid";
+  });
+
   const currentPage = Number(searchParams.get("page")) || 1;
 
-  // Referencia a la sección principal para scroll
+  // Guardar preferencia de vista en localStorage
+  useEffect(() => {
+    if (typeof window !== 'undefined' && !deviceData.isMobile) {
+      localStorage.setItem('productViewMode', viewMode);
+    }
+  }, [viewMode, deviceData.isMobile]);
+
   const mainSectionRef = useRef<HTMLElement>(null);
 
-  // Para reiniciar filtros
   const handleReset = useCallback(() => {
     router.push('/products', { scroll: true });
   }, [router]);
 
-  // Cambio de página optimizado
   const handlePageChange = useCallback((page: number) => {
     if (page === currentPage) return;
 
@@ -363,7 +445,6 @@ export default function ProductPage() {
     scrollToTop();
   }, [pathname, router, searchParams, currentPage]);
 
-  // Conteo de filtros aplicados - memoizado
   const filtersApplied = useMemo(() => {
     let count = 0;
     if (searchParams.has("category")) count++;
@@ -373,12 +454,16 @@ export default function ProductPage() {
     return count;
   }, [searchParams]);
 
-  // Función simple para cambiar entre vista de cuadrícula y lista
+  // Optimizar cambio de vista para reducir trabajo de renderizado
   const toggleViewMode = useCallback(() => {
-    setViewMode(prev => prev === "grid" ? "list" : "grid");
+    setViewMode(prev => {
+      const newMode = prev === "grid" ? "list" : "grid";
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('productViewMode', newMode);
+      }
+      return newMode;
+    });
   }, []);
-
-  // Derivar el nombre de categoría - memoizado
   const categoryName = useMemo(() => {
     const categoryId = searchParams.get("category");
     if (!categoryId || !categories || categories.length === 0) return "Todos los productos";
@@ -393,11 +478,8 @@ export default function ProductPage() {
     return category?.name || "Todos los productos";
   }, [searchParams, categories]);
 
-  // Scroll a inicio optimizado
   const scrollToTop = useCallback(() => {
-    // Método más robusto para manejar el scroll hacia arriba
     requestAnimationFrame(() => {
-      // Intentar primero con el elemento referenciado
       if (mainSectionRef.current) {
         mainSectionRef.current.scrollTo({ top: 0, behavior: 'smooth' });
       }
@@ -406,13 +488,17 @@ export default function ProductPage() {
     });
   }, []);
 
-  // Renderizado condicional del contenido principal - simplificado
   const renderContent = useCallback(() => {
     if (isLoading) {
+      const { isMobile, isLowPerformance, isDataSaver } = deviceData;
+      // Optimizar la carga para dispositivos móviles o de bajo rendimiento
+      const loadingText = isMobile || isLowPerformance || isDataSaver ? null :
+        <p className="mt-4 text-gray-500 dark:text-gray-400">Cargando productos...</p>;
+
       return (
         <div className="flex flex-col justify-center items-center min-h-[50vh]">
-          <Spinner size="lg" color="primary" />
-          <p className="mt-4 text-gray-500 dark:text-gray-400">Cargando productos...</p>
+          <Spinner size={isMobile ? "md" : "lg"} color="primary" />
+          {loadingText}
         </div>
       );
     }
@@ -432,30 +518,51 @@ export default function ProductPage() {
             <div className="flex items-center gap-2">
               <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
                 {categoryName || "Todos los productos"}
+                {filtersApplied > 0 && (
+                  <span className="ml-2 inline-flex items-center justify-center bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 text-xs font-medium rounded-full px-2 py-0.5">
+                    {filtersApplied}
+                  </span>
+                )}
               </h2>
               <Chip size="sm" color="primary" variant="flat">
                 {products.length} {products.length === 1 ? 'producto' : 'productos'}
               </Chip>
             </div>
-            {filtersApplied > 0 && (
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                {filtersApplied} {filtersApplied === 1 ? 'filtro aplicado' : 'filtros aplicados'}
-              </p>
-            )}
           </div>
 
           <div className="flex items-center gap-2">
-            <Tooltip content={viewMode === "grid" ? "Ver como lista" : "Ver como cuadrícula"}>
-              <Button
-                variant="light"
-                size="sm"
-                isIconOnly
-                onClick={toggleViewMode}
-                aria-label={viewMode === "grid" ? "Ver como lista" : "Ver como cuadrícula"}
-              >
-                {viewMode === "grid" ? <List size={18} /> : <Grid size={18} />}
-              </Button>
-            </Tooltip>
+            {!deviceData.isMobile && (
+              <Tooltip content={viewMode === "grid" ? "Ver como lista" : "Ver como cuadrícula"}>
+                <Button
+                  variant="light"
+                  size="sm"
+                  isIconOnly
+                  onClick={toggleViewMode}
+                  aria-label={viewMode === "grid" ? "Ver como lista" : "Ver como cuadrícula"}
+                >
+                  {typeof window !== 'undefined' ? (
+                    viewMode === "grid" ?
+                      <span className="flex items-center justify-center w-5 h-5">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <line x1="3" y1="6" x2="21" y2="6" />
+                          <line x1="3" y1="12" x2="21" y2="12" />
+                          <line x1="3" y1="18" x2="21" y2="18" />
+                        </svg>
+                      </span> :
+                      <span className="flex items-center justify-center w-5 h-5">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <rect x="3" y="3" width="7" height="7" />
+                          <rect x="14" y="3" width="7" height="7" />
+                          <rect x="14" y="14" width="7" height="7" />
+                          <rect x="3" y="14" width="7" height="7" />
+                        </svg>
+                      </span>
+                  ) : (
+                    <span className="w-5 h-5" />
+                  )}
+                </Button>
+              </Tooltip>
+            )}
 
             {filtersApplied > 0 && (
               <Button
@@ -470,7 +577,6 @@ export default function ProductPage() {
           </div>
         </div>
 
-        {/* Cuadrícula de productos optimizada */}
         <div className={
           viewMode === "grid"
             ? "grid grid-cols-2 xm:grid-cols-3 sm:grid-cols-3 md:grid-cols-2 xg:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-2 w-full"
@@ -482,7 +588,7 @@ export default function ProductPage() {
               product={product}
               index={index}
               viewMode={viewMode}
-              isLowPerformance={isLowPerformance}
+              deviceData={deviceData}
             />
           ))}
         </div>
@@ -504,80 +610,68 @@ export default function ProductPage() {
       </>
     );
   }, [isLoading, error, products, totalPages, currentPage, handlePageChange, handleReset,
-    categoryName, filtersApplied, viewMode, toggleViewMode, isLowPerformance]);
+    categoryName, filtersApplied, viewMode, toggleViewMode, deviceData]);
+
+  // Determinar si debemos aplicar optimizaciones agresivas basadas en conexión o rendimiento
+  const shouldOptimizeSeverely = deviceData.isDataSaver ||
+    deviceData.effectiveType === 'slow-2g' ||
+    deviceData.effectiveType === '2g';
 
   return (
     <div className="flex flex-col md:flex-row w-full min-h-screen">
-      {/* Panel de filtros para escritorio - carga diferida */}
-      <Suspense fallback={<div className="hidden md:block w-64 bg-gray-100 dark:bg-gray-800/50 animate-pulse" />}>
-        <FilterPanel />
-      </Suspense>
+      {/* Solo cargar FilterPanel en desktop cuando no sea una conexión muy lenta */}
+      {!deviceData.isMobile && !shouldOptimizeSeverely ? (
+        <Suspense fallback={<div className="hidden md:block w-64 bg-gray-100 dark:bg-gray-800/50" />}>
+          <FilterPanel />
+        </Suspense>
+      ) : (
+        <div className="hidden md:block w-64 bg-gray-100 dark:bg-gray-800/50"></div>
+      )}
 
-      {/* Drawer de filtros para móvil - carga diferida */}
-      <div className="block md:hidden sticky top-16 z-20 px-2 py-2 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
-        <FilterDrawer className="w-full" />
-      </div>
+      {/* Solo mostrar drawer en móvil si no es una conexión muy lenta */}
+      {deviceData.isMobile && !shouldOptimizeSeverely && (
+        <div className="block md:hidden sticky top-16 z-20 px-2 py-2 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
+          <FilterDrawer />
+        </div>
+      )}
 
-      {/* Sección principal de productos */}
       <section
         ref={mainSectionRef}
-        className="flex-1 flex flex-col p-3 sm:p-4 overflow-y-auto relative fade-in"
+        className={`flex-1 flex flex-col p-3 sm:p-4 overflow-y-auto relative ${deviceData.isLowPerformance ? '' : 'fade-in'}`}
+        style={{
+          // Configuración CSS para mejorar el rendimiento de scroll en dispositivos móviles
+          WebkitOverflowScrolling: 'touch',
+          scrollBehavior: deviceData.prefersReducedMotion ? 'auto' : 'smooth'
+        }}
       >
         {renderContent()}
 
-        {/* Enlaces rápidos flotantes */}
-        <div className="hidden md:block fixed bottom-6 right-6 z-30">
-          <Tooltip content="Volver arriba">
-            <Button
-              isIconOnly
-              color="primary"
-              size="lg"
-              className="shadow-lg animate-bounce-subtle"
-              onClick={scrollToTop}
-              aria-label="Volver arriba"
-            >
-              <ArrowUpRight />
-            </Button>
-          </Tooltip>
-        </div>
+        {/* Solo mostrar botón de scroll en desktop y sin animación en dispositivos de bajo rendimiento */}
+        {!deviceData.isMobile && (
+          <div className="hidden md:block fixed bottom-6 right-6 z-30">
+            <Tooltip content="Volver arriba">
+              <Button
+                isIconOnly
+                color="primary"
+                size="lg"
+                className={`shadow-md ${!deviceData.isLowPerformance && !deviceData.prefersReducedMotion ? 'animate-bounce-subtle' : ''}`}
+                onClick={scrollToTop}
+                aria-label="Volver arriba"
+              >
+                {typeof LucideIcons !== 'undefined' ? (
+                  <LucideIcons.ArrowUpRight />
+                ) : (
+                  <span className="w-5 h-5" />
+                )}
+              </Button>
+            </Tooltip>
+          </div>
+        )}
       </section>
     </div>
   );
 }
 
-// Nombres de visualización para componentes memoizados
 EmptyState.displayName = "EmptyState";
 ErrorState.displayName = "ErrorState";
 ProductItem.displayName = "ProductItem";
-
-// Añade estos estilos a tu CSS global o a tu archivo CSS de módulo
-/*
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-.fade-in {
-  animation: fadeIn 0.3s ease-out forwards;
-}
-
-.fade-in-product {
-  opacity: 0;
-  animation: fadeIn 0.5s ease-out forwards;
-}
-
-.delay-0 { animation-delay: 0s; }
-.delay-1 { animation-delay: 0.05s; }
-.delay-2 { animation-delay: 0.1s; }
-.delay-3 { animation-delay: 0.15s; }
-.delay-4 { animation-delay: 0.2s; }
-.delay-5 { animation-delay: 0.25s; }
-
-@media (prefers-reduced-motion: reduce) {
-  .fade-in,
-  .fade-in-product {
-    animation: none;
-    opacity: 1;
-  }
-}
-*/

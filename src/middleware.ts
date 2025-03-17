@@ -10,7 +10,6 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // VERIFICACIÓN DE AUTENTICACIÓN
   const sessionToken = request.cookies.get("next-auth.session-token")?.value ||
     request.cookies.get("__Secure-next-auth.session-token")?.value;
 
@@ -19,10 +18,8 @@ export async function middleware(request: NextRequest) {
   let role = null;
   let isAdmin = false;
 
-  // VERIFICACIÓN DEL CARRITO - usando la cookie 'cart'
   const cartCookie = request.cookies.get("cart")?.value;
 
-  // Intentar parsear el carrito para verificar si está vacío
   let cartItems = [];
   let hasCart = false;
 
@@ -74,7 +71,6 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // PROTECCIÓN DE CHECKOUT
   if (pathname.startsWith("/checkout")) {
     if (!isAuthenticated) {
       console.log("❌ Redirigiendo a login - no autenticado");
