@@ -10,7 +10,7 @@ const Footer = dynamic(() => import("@components/footer/footer"));
 import { Overlay } from "@components/overlay";
 import InfoBar from "@components/info-bar";
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+export default function EcommerceLayout({ children }: { children: ReactNode }) {
   const [modalOpen, setModalOpen] = useState(false);
   const [showInfoBar, setShowInfoBar] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
@@ -68,9 +68,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
 
       <Footer />
 
-      <nav className="sticky bottom-0 left-0 w-full xm:hidden z-50">
-        <Navbar />
-      </nav>
+      <div className="sticky bottom-0 left-0 w-full xm:hidden">
+        <Navbar className="fixed bottom-0 left-0 right-0" />
+      </div>
     </>
   );
 }

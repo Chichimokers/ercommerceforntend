@@ -15,7 +15,6 @@ import QuantityAdjuster from "@components/buttons/quantity-selector"
 import { formatCurrency } from "@components/format-currency"
 
 // Constantes para configuración y optimización
-const IMAGE_QUALITY = 40; // Reducir calidad para mejor rendimiento
 const PLACEHOLDER = "/placeholder.webp";
 const ASPECT_RATIO = "aspect-square";
 const DEFAULT_CURRENCY = "USD";
@@ -153,9 +152,9 @@ const PriceDisplay = React.memo(({
     Math.round((discount.reduction * 100) / originalPrice) : 0;
 
   return (
-    <div className="flex flex-col justify-between min-h-[40px]">
+    <div className="flex flex-col min-h-[45px]">
       <p className="font-bold text-sm sm:text-base">
-        {new Intl.NumberFormat('es-ES', {
+        {new Intl.NumberFormat('en-US', {
           style: 'currency',
           currency: currency || DEFAULT_CURRENCY,
           minimumFractionDigits: 2,
@@ -164,9 +163,9 @@ const PriceDisplay = React.memo(({
       </p>
 
       {discountedPrice && (
-        <span className="text-2xs sm:text-xs flex flex-wrap items-center">
+        <span className="text-xs flex flex-wrap items-center">
           <span className="text-gray-400 line-through mr-1">
-            {new Intl.NumberFormat('es-ES', {
+            {new Intl.NumberFormat('en-US', {
               style: 'currency',
               currency: currency || DEFAULT_CURRENCY
             }).format(displayPrice)}
@@ -210,7 +209,7 @@ const ProductImage = React.memo(({
         fill
         sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
         className={`${transitionClass} ${imgClassName || ''}`}
-        quality={isMobile ? IMAGE_QUALITY - 10 : IMAGE_QUALITY} // Reducir más la calidad en móviles
+        quality={isMobile ? 30 : 100} // Reducir más la calidad en móviles
         {...imageLoadingProps}
         placeholder="empty"
         onError={(e) => {
@@ -251,11 +250,8 @@ export const AddToCartButton = React.memo(({
     </div>
   );
 
-  // En dispositivos móviles retornamos el botón directamente sin Tooltip
-  // para evitar renderizado extra y mejorar el rendimiento
   if (isMobile) return button;
 
-  // En desktop añadimos el Tooltip para mejor UX
   return (
     <Tooltip content={disabled ? "Sin stock disponible" : "Añadir al carrito"}>
       {button}
@@ -306,13 +302,15 @@ const ProductCard = React.memo(({
   prefetch = "none",
   className = "",
   imgClassName = "",
-  lazyLoad = true
+  lazyLoad = true,
+  onNavigate = () => { } // Nuevo prop para mantener posición de scroll
 }: {
   product: ProductBase,
   prefetch?: "hover" | "viewport" | "none",
   className?: string,
   imgClassName?: string,
-  lazyLoad?: boolean
+  lazyLoad?: boolean,
+  onNavigate?: () => void // Nuevo prop
 }) => {
   // Context y hooks
   const { rateExchange } = useContext(CurrencyAndExchangeRateContext) || {};
@@ -375,6 +373,10 @@ const ProductCard = React.memo(({
       prefetch={prefetch === "none" ? false : undefined}
       className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-xl"
       style={{ touchAction: 'pan-y pan-x' }}
+      onClick={(e) => {
+        // No prevenir la navegación, solo ejecutar onNavigate
+        onNavigate();
+      }}
     >
       <Card
         className={cardClasses}
@@ -409,7 +411,7 @@ const ProductCard = React.memo(({
             </div>
 
             {/* Descripción con altura fija y menos padding en móvil */}
-            <div className={`${isMobile ? 'h-6' : 'h-8 sm:h-10'} mb-2`}>
+            <div className={`h-10 mb-2`}>
               <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 line-clamp-2">
                 {product.short_description || "Sin descripción disponible"}
               </p>

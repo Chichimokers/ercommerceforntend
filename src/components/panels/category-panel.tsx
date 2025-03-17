@@ -1,42 +1,65 @@
+"use client";
+
+import React, { useRef, useState, useEffect, useMemo, useCallback } from "react";
 import { useProductContext } from "@/contexts/product-context";
 import { FaTh } from "react-icons/fa";
-import { Globe, Package, ShoppingCart, MapPin, ChevronRight, ChevronLeft, SparkleIcon } from "lucide-react";
+import {
+  MapPin,
+  ChevronRight,
+  ChevronLeft,
+  SparkleIcon,
+  Package,
+  Globe,
+  ShoppingCart
+} from "lucide-react";
 import dynamic from "next/dynamic";
 import { getCategoryIcon } from "../filters/categories";
 import useSWR from "swr";
 import { useDisclosure } from "@heroui/react";
-import { useRef, useState, useEffect, useMemo } from "react";
-import React from "react";
 import debounce from "lodash.debounce";
-import { motion } from "framer-motion";
 
-// Cargar componentes bajo demanda
+// Carga perezosa optimizada con tamaño de paquete reducido
 const LocationModal = dynamic(() => import("@/components/modals/location-modal"), {
   ssr: false,
+  loading: () => <div className="h-60 w-full" />, // Placeholder mínimo
 });
 
-// Optimización del placeholder para reducir pintura
+// Optimización del placeholder con altura explícita para evitar CLS
 const CategoryCard = dynamic(() => import("@/components/cards/category-cards"), {
   loading: () => (
-    <div className="flex-shrink-0 snap-center w-36 md:w-40 h-36 md:h-40 bg-gray-100 dark:bg-gray-800 rounded-xl opacity-60 animate-pulse" />
+    <div className="flex-shrink-0 snap-center w-36 h-36 rounded-xl opacity-60 bg-gray-100 dark:bg-gray-800 animate-pulse" />
   ),
 });
 
-// Fetcher optimizado con caché y manejo de errores
+// Fetcher optimizado con caché para reducir solicitudes de red en móviles
 const fetcher = async (url: string) => {
+  // 1. Intentar primero la caché
   try {
     const cachedData = sessionStorage.getItem(url);
     if (cachedData) {
-      return JSON.parse(cachedData);
+      const { data, timestamp } = JSON.parse(cachedData);
+      // Caché válida por 5 minutos en móviles (conserva batería)
+      if (Date.now() - timestamp < 5 * 60 * 1000) {
+        return data;
+      }
     }
+  } catch (error) {
+    // Continuar con fetching si hay error en la caché
+  }
 
+  // 2. Si no hay caché, hacer el fetch
+  try {
     const response = await fetch(url);
-    if (!response.ok) {
-      throw new Error(response.statusText);
-    }
+    if (!response.ok) throw new Error(response.statusText);
 
     const data = await response.json();
-    sessionStorage.setItem(url, JSON.stringify(data));
+
+    // Guardar en caché con timestamp
+    sessionStorage.setItem(
+      url,
+      JSON.stringify({ data, timestamp: Date.now() })
+    );
+
     return data;
   } catch (error) {
     console.error("Error fetching data:", error);
@@ -44,270 +67,347 @@ const fetcher = async (url: string) => {
   }
 };
 
+const SimpleStatsCard = React.memo(({ icon, label, value, colorClass }: {
+  icon: React.ReactNode;
+  label: string;
+  value: string | number;
+  colorClass: {
+    icon: string;
+    text: string;
+    bg: string;
+    gradient: string;
+  };
+}) => (
+  <div className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl p-3 h-full shadow-sm">
+    <div className="flex items-center gap-3">
+      <div className={`${colorClass.bg} rounded-lg flex-shrink-0 p-2`}>
+        {icon}
+      </div>
+      <div className="min-w-0 flex-1">
+        <p className="text-[11px] text-gray-500 dark:text-gray-400 font-medium uppercase tracking-wide truncate">
+          {label}
+        </p>
+        <h3 className={`text-base font-bold mt-0.5 ${colorClass.text}`}>
+          {value}
+        </h3>
+      </div>
+    </div>
+  </div>
+));
+
 const CategoryPanel = () => {
   const { categories } = useProductContext();
   const fetchUrl = `${process.env.NEXT_PUBLIC_API_URL}public/main`;
   const { isOpen, onOpen, onClose } = useDisclosure();
+
   const scrollRef = useRef<HTMLDivElement>(null);
+  const scrollTrackRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
   const [shouldCenterItems, setShouldCenterItems] = useState(true);
-  const [isMobile, setIsMobile] = useState(false);
+  const [isMobile, setIsMobile] = useState(true);
+  const [scrollPosition, setScrollPosition] = useState(0);
+  const [isScrolling, setIsScrolling] = useState(false);
+  const [hasNetworkImage, setHasNetworkImage] = useState(false);
 
-  // Optimizar SWR con opciones de caché
-  const { data, error, isLoading } = useSWR(fetchUrl, fetcher, {
+  const { data } = useSWR(fetchUrl, fetcher, {
     revalidateOnFocus: false,
-    dedupingInterval: 600000, // 10 minutos
-    focusThrottleInterval: 10000,
+    dedupingInterval: 900000,
+    focusThrottleInterval: 60000,
+    errorRetryCount: 1,
   });
 
-  // Función optimizada para comprobar scroll con debounce
-  const checkForScrollPosition = useMemo(
-    () => debounce(() => {
-      if (!scrollRef.current) return;
+  useEffect(() => {
+    if (!scrollRef.current || typeof IntersectionObserver === 'undefined') return;
 
-      const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
-      setCanScrollLeft(scrollLeft > 0);
-      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setHasNetworkImage(true);
+        }
+      },
+      { threshold: 0.1 }
+    );
 
-      // Calcular si las tarjetas deben centrarse
-      const totalCategoriesWidth = (categories.length + 1) * (isMobile ? 136 : 160); // ancho de tarjeta + gap
-      setShouldCenterItems(clientWidth >= totalCategoriesWidth);
-    }, 100),
-    [categories.length, isMobile]
+    observer.observe(scrollRef.current);
+    return () => observer.disconnect();
+  }, []);
+
+  const checkForScrollPosition = useCallback(() => {
+    if (!scrollRef.current) return;
+
+    const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+
+    // Ajuste para asegurar que llega a 1.0 cuando está al final
+    // Agregamos una pequeña tolerancia (0.98) para garantizar que llegue al máximo
+    const scrollPercentage = Math.min(
+      scrollLeft / Math.max(1, scrollWidth - clientWidth),
+      0.98
+    );
+
+    setScrollPosition(scrollPercentage);
+
+    // Detectar si estamos en el final con mayor tolerancia
+    setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 2);
+    setCanScrollLeft(scrollLeft > 2);
+
+    const totalCategWidth = (categories.length + 1) * 148;
+    setShouldCenterItems(clientWidth >= totalCategWidth);
+  }, [categories.length]);
+
+  const debouncedCheck = useMemo(
+    () => debounce(checkForScrollPosition, 100, { leading: true }),
+    [checkForScrollPosition]
   );
 
-  // Usar ResizeObserver en lugar de listeners de eventos
   useEffect(() => {
     const checkForMobile = () => {
-      setIsMobile(window.innerWidth < 768);
+      const isMobileDevice = window.innerWidth < 768;
+      setIsMobile(isMobileDevice);
+
+      if (isMobileDevice && scrollTrackRef.current) {
+        scrollTrackRef.current.style.display = 'block';
+      } else if (scrollTrackRef.current) {
+        scrollTrackRef.current.style.display = 'none';
+      }
     };
 
     checkForMobile();
+    checkForScrollPosition();
 
-    const resizeObserver = new ResizeObserver(() => {
-      checkForMobile();
-      checkForScrollPosition();
-    });
+    if (typeof ResizeObserver !== 'undefined') {
+      const resizeObserver = new ResizeObserver(() => {
+        checkForMobile();
+        checkForScrollPosition();
+      });
 
-    if (scrollRef.current) {
-      resizeObserver.observe(scrollRef.current);
+      if (containerRef.current) resizeObserver.observe(containerRef.current);
+
+      return () => resizeObserver.disconnect();
     }
 
-    if (containerRef.current) {
-      resizeObserver.observe(containerRef.current);
-    }
-
-    return () => {
-      resizeObserver.disconnect();
-    };
+    window.addEventListener('resize', checkForMobile);
+    return () => window.removeEventListener('resize', checkForMobile);
   }, [checkForScrollPosition]);
 
-  // Optimizar funciones de scroll
-  const scrollLeft = () => {
+  const scrollLeft = useCallback(() => {
     if (!scrollRef.current) return;
     const scrollAmount = scrollRef.current.clientWidth * 0.75;
-    scrollRef.current.scrollBy({ left: -scrollAmount, behavior: "smooth" });
-  };
 
-  const scrollRight = () => {
+    // Usar scrollBy nativo para mejor rendimiento
+    scrollRef.current.scrollBy({
+      left: -scrollAmount,
+      behavior: isMobile ? 'auto' : 'smooth'  // En móvil, instantáneo es mejor
+    });
+  }, [isMobile]);
+
+  const scrollRight = useCallback(() => {
     if (!scrollRef.current) return;
     const scrollAmount = scrollRef.current.clientWidth * 0.75;
-    scrollRef.current.scrollBy({ left: scrollAmount, behavior: "smooth" });
-  };
 
-  const handleOpenLocationModal = () => {
+    scrollRef.current.scrollBy({
+      left: scrollAmount,
+      behavior: isMobile ? 'auto' : 'smooth'
+    });
+  }, [isMobile]);
+
+  const handleOpenLocationModal = useCallback(() => {
     onOpen();
-  };
+  }, [onOpen]);
 
-  // Optimizar para menos rerender
   const statsData = useMemo(() => ({
-    products: isLoading ? "..." : data?.products ? `+${data.products}` : "+100",
-    provinces: isLoading ? "..." : data?.provinces || 2,
-    categories: isLoading ? "..." : data?.category || 5,
-  }), [isLoading, data]);
+    products: data?.products ? `+${data.products}` : "+100",
+    provinces: data?.provinces || 2,
+    categories: data?.category || 5,
+  }), [data]);
+
+  useEffect(() => {
+    const scrollElement = scrollRef.current;
+    if (!scrollElement) return;
+
+    const handleScroll = () => {
+      if (!isScrolling) {
+        setIsScrolling(true);
+        requestAnimationFrame(() => {
+          // Cálculo directo sin pasar por función debounce
+          const { scrollLeft, scrollWidth, clientWidth } = scrollElement;
+
+          // Ajuste para llegar a los extremos
+          const maxScroll = scrollWidth - clientWidth;
+
+          // Caso especial cuando estamos al inicio
+          if (scrollLeft <= 2) {
+            setScrollPosition(0);
+          }
+          // Caso especial cuando estamos al final
+          else if (scrollLeft >= maxScroll - 5) {
+            setScrollPosition(1);
+          }
+          // Caso normal
+          else {
+            setScrollPosition(scrollLeft / maxScroll);
+          }
+
+          // Actualizar estados para botones de navegación
+          setCanScrollLeft(scrollLeft > 2);
+          setCanScrollRight(scrollLeft < maxScroll - 5);
+
+          setIsScrolling(false);
+        });
+      }
+    };
+
+    scrollElement.addEventListener('scroll', handleScroll, { passive: true });
+
+    // Detectar si llegó al final en dispositivos táctiles
+    const handleTouchEnd = () => {
+      // Pequeño retraso para asegurar que el scroll se haya completado
+      setTimeout(() => {
+        const { scrollLeft, scrollWidth, clientWidth } = scrollElement;
+        const maxScroll = scrollWidth - clientWidth;
+
+        // Verificar si está muy cerca del final
+        if (scrollLeft >= maxScroll - 10) {
+          setScrollPosition(1);
+        }
+      }, 50);
+    };
+
+    scrollElement.addEventListener('touchend', handleTouchEnd, { passive: true });
+
+    return () => {
+      scrollElement.removeEventListener('scroll', handleScroll);
+      scrollElement.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, []);
 
   return (
     <div
       ref={containerRef}
       className="relative overflow-hidden"
     >
-      <LocationModal
-        open={isOpen}
-        onClose={onClose}
-        initialProvince=""
-        initialMunicipality=""
-      />
+      {isOpen && (
+        <LocationModal
+          open={isOpen}
+          onClose={onClose}
+          initialProvince=""
+          initialMunicipality=""
+        />
+      )}
 
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1.2, ease: "easeOut" }}
-          className="absolute -top-40 -right-40 w-80 h-80 rounded-full bg-gradient-to-br from-blue-100/30 to-blue-300/10 dark:from-blue-800/10 dark:to-blue-900/5 blur-xl"
-          style={{ willChange: "transform", transform: "translateZ(0)" }}
-        />
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1.5, delay: 0.2, ease: "easeOut" }}
-          className="absolute top-20 -left-20 w-60 h-60 rounded-full bg-gradient-to-tr from-purple-100/20 to-purple-300/10 dark:from-purple-800/10 dark:to-purple-900/5 blur-lg"
-          style={{ willChange: "transform", transform: "translateZ(0)" }}
-        />
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 0.5, y: 0 }}
-          transition={{ duration: 1.8, delay: 0.4, ease: "easeOut" }}
-          className="absolute bottom-10 right-1/4 w-32 h-32 rounded-full bg-gradient-to-tl from-teal-100/10 to-teal-300/5 dark:from-teal-800/10 dark:to-teal-900/5 blur-md"
-          style={{ willChange: "transform", transform: "translateZ(0)" }}
-        />
-      </div>
+      {isMobile ? (
+        <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
+          <div className="absolute -top-20 -right-20 w-40 h-40 rounded-full bg-blue-100/20 dark:bg-blue-900/10 blur-md" />
+          <div className="absolute top-10 -left-10 w-30 h-30 rounded-full bg-purple-100/20 dark:bg-purple-900/10 blur-md" />
+        </div>
+      ) : (
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <div className="absolute -top-40 -right-40 w-80 h-80 rounded-full bg-gradient-to-br from-blue-100/30 to-blue-300/10 dark:from-blue-800/10 dark:to-blue-900/5 blur-xl" />
+          <div className="absolute top-20 -left-20 w-60 h-60 rounded-full bg-gradient-to-tr from-purple-100/20 to-purple-300/10 dark:from-purple-800/10 dark:to-purple-900/5 blur-lg" />
+          <div className="absolute bottom-10 right-1/4 w-32 h-32 rounded-full bg-gradient-to-tl from-teal-100/10 to-teal-300/5 dark:from-teal-800/10 dark:to-teal-900/5 blur-md" />
+        </div>
+      )}
 
-      <div className="py-12 px-6 relative z-10">
-        <div className="mx-auto max-w-6xl">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-            {/* Texto y descripción - animaciones simplificadas para móvil */}
-            <div
-              className={`space-y-6 ${isMobile ? "" : "motion-safe:animate-fadeInLeft"}`}
-              style={isMobile ? {} : { animationDelay: "200ms", animationDuration: "500ms" }}
-            >
-              <motion.h2
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, ease: "easeOut" }}
-                className="text-3xl sm:text-4xl font-extrabold text-gray-800 dark:text-white bg-clip-text text-transparent bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-600"
-              >
+      <div className="py-6 sm:py-12 px-4 sm:px-6 relative z-10">
+        <div className="mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-8 items-center">
+            <div className="space-y-4 sm:space-y-6">
+              <h2 className="text-2xl sm:text-4xl font-extrabold text-gray-800 dark:text-white bg-clip-text text-transparent bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-600">
                 <span className="inline-flex items-center gap-2">
-                  Explora nuestras ofertas para Cuba <SparkleIcon className="h-6 w-6 text-yellow-400 animate-pulse" />
+                  Explora nuestras ofertas para Cuba
+                  <SparkleIcon className="h-5 w-5 sm:h-6 sm:w-6 text-yellow-400" />
                 </span>
-              </motion.h2>
-              <motion.p
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.1, ease: "easeOut" }}
-                className="text-base text-gray-700 dark:text-gray-300 leading-relaxed max-w-lg"
-              >
+              </h2>
+              <p className="text-sm sm:text-base text-gray-700 dark:text-gray-300 leading-relaxed max-w-lg">
                 Nos enfocamos en brindar una amplia gama de productos para las provincias de{" "}
                 <span className="font-medium bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">Santiago de Cuba</span> y{" "}
                 <span className="font-medium bg-gradient-to-r from-blue-500 to-blue-300 bg-clip-text text-transparent">Villa Clara</span>.
-                Próximamente, estaremos expandiéndonos a más regiones y añadiendo nuevas categorías.
-              </motion.p>
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.2, ease: "easeOut" }}
-                className="pt-3"
-              >
+                Próximamente, estaremos expandiéndonos a más regiones.
+              </p>
+              <div className="pt-2 sm:pt-3">
                 <button
                   onClick={handleOpenLocationModal}
-                  className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-medium py-2.5 px-5 rounded-xl transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+                  className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-medium py-2 sm:py-2.5 px-4 sm:px-5 rounded-xl transition-colors"
+                  aria-label="Seleccionar ubicación"
                 >
-                  <MapPin size={18} className="animate-bounce" />
-                  Seleccionar ubicación
+                  <MapPin size={16} className="sm:animate-bounce" />
+                  <span className="text-sm sm:text-base">Seleccionar ubicación</span>
                 </button>
-              </motion.div>
-            </div>
-
-            <div
-              className={`grid grid-cols-2 gap-2 sm:gap-4 ${isMobile ? "" : "motion-safe:animate-fadeInUp"}`}
-              style={isMobile ? {} : { animationDelay: "400ms", animationDuration: "500ms" }}
-            >
-              {/* Versión para pantallas pequeñas - 2x2 grid con tarjetas más pequeñas */}
-              <div className="sm:hidden">
-                <StatsCard
-                  icon={<ShoppingCart className="h-5 w-5 text-blue-600 dark:text-blue-400" />}
-                  label="Productos"
-                  value={statsData.products}
-                  colorClass={colorVariants.blue}
-                />
-              </div>
-              <div className="sm:hidden">
-                <StatsCard
-                  icon={<MapPin className="h-5 w-5 text-purple-600 dark:text-purple-400" />}
-                  label="Provincias"
-                  value={statsData.provinces}
-                  colorClass={colorVariants.purple}
-                />
-              </div>
-              <div className="sm:hidden">
-                <StatsCard
-                  icon={<Package className="h-5 w-5 text-green-600 dark:text-green-400" />}
-                  label="Categorías"
-                  value={statsData.categories}
-                  colorClass={colorVariants.green}
-                />
-              </div>
-              <div className="sm:hidden">
-                <StatsCard
-                  icon={<Globe className="h-5 w-5 text-amber-600 dark:text-amber-400" />}
-                  label="Expansión"
-                  value="En progreso"
-                  colorClass={colorVariants.amber}
-                />
-              </div>
-
-              {/* Versión para pantallas medianas y grandes - tarjetas más grandes */}
-              <div className="hidden sm:block">
-                <StatsCard
-                  icon={<ShoppingCart className="h-6 w-6 text-blue-600 dark:text-blue-400" />}
-                  label="Productos"
-                  value={statsData.products}
-                  colorClass={colorVariants.blue}
-                  large
-                />
-              </div>
-              <div className="hidden sm:block">
-                <StatsCard
-                  icon={<MapPin className="h-6 w-6 text-purple-600 dark:text-purple-400" />}
-                  label="Provincias"
-                  value={statsData.provinces}
-                  colorClass={colorVariants.purple}
-                  large
-                />
-              </div>
-              <div className="hidden sm:block">
-                <StatsCard
-                  icon={<Package className="h-6 w-6 text-green-600 dark:text-green-400" />}
-                  label="Categorías"
-                  value={statsData.categories}
-                  colorClass={colorVariants.green}
-                  large
-                />
-              </div>
-              <div className="hidden sm:block">
-                <StatsCard
-                  icon={<Globe className="h-6 w-6 text-amber-600 dark:text-amber-400" />}
-                  label="Expansión"
-                  value="En progreso"
-                  colorClass={colorVariants.amber}
-                  large
-                />
               </div>
             </div>
-          </div>
-        </div>
-      </div>
 
-      <div className="px-6 pt-4 pb-2 relative z-10">
-        <div className="mx-auto flex justify-between items-center">
-          <div className="flex items-center gap-2 md:hidden">
-            <button
-              onClick={scrollLeft}
-              disabled={!canScrollLeft}
-              aria-label="Desplazar a la izquierda"
-              className={`p-2 rounded-full bg-gray-100 dark:bg-gray-700 ${!canScrollLeft ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200 dark:hover:bg-gray-600'}`}
-            >
-              <ChevronLeft size={20} />
-            </button>
-            <button
-              onClick={scrollRight}
-              disabled={!canScrollRight}
-              aria-label="Desplazar a la derecha"
-              className={`p-2 rounded-full bg-gray-100 dark:bg-gray-700 ${!canScrollRight ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200 dark:hover:bg-gray-600'}`}
-            >
-              <ChevronRight size={20} />
-            </button>
+            <div className="grid grid-cols-2 gap-2 sm:gap-4 mt-4 sm:mt-0">
+              {isMobile && (
+                <>
+                  <SimpleStatsCard
+                    icon={<ShoppingCart className="h-5 w-5 text-blue-600 dark:text-blue-400" />}
+                    label="Productos"
+                    value={statsData.products}
+                    colorClass={colorVariants.blue}
+                  />
+                  <SimpleStatsCard
+                    icon={<MapPin className="h-5 w-5 text-purple-600 dark:text-purple-400" />}
+                    label="Provincias"
+                    value={statsData.provinces}
+                    colorClass={colorVariants.purple}
+                  />
+                  <SimpleStatsCard
+                    icon={<Package className="h-5 w-5 text-green-600 dark:text-green-400" />}
+                    label="Categorías"
+                    value={statsData.categories}
+                    colorClass={colorVariants.green}
+                  />
+                  <SimpleStatsCard
+                    icon={<Globe className="h-5 w-5 text-amber-600 dark:text-amber-400" />}
+                    label="Expansión"
+                    value="En progreso"
+                    colorClass={colorVariants.amber}
+                  />
+                </>
+              )}
+
+              {!isMobile && (
+                <>
+                  <div className="hidden sm:block">
+                    <StatsCard
+                      icon={<ShoppingCart className="h-6 w-6 text-blue-600 dark:text-blue-400" />}
+                      label="Productos"
+                      value={statsData.products}
+                      colorClass={colorVariants.blue}
+                      large
+                    />
+                  </div>
+                  <div className="hidden sm:block">
+                    <StatsCard
+                      icon={<MapPin className="h-6 w-6 text-purple-600 dark:text-purple-400" />}
+                      label="Provincias"
+                      value={statsData.provinces}
+                      colorClass={colorVariants.purple}
+                      large
+                    />
+                  </div>
+                  <div className="hidden sm:block">
+                    <StatsCard
+                      icon={<Package className="h-6 w-6 text-green-600 dark:text-green-400" />}
+                      label="Categorías"
+                      value={statsData.categories}
+                      colorClass={colorVariants.green}
+                      large
+                    />
+                  </div>
+                  <div className="hidden sm:block">
+                    <StatsCard
+                      icon={<Globe className="h-6 w-6 text-amber-600 dark:text-amber-400" />}
+                      label="Expansión"
+                      value="En progreso"
+                      colorClass={colorVariants.amber}
+                      large
+                    />
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -315,22 +415,17 @@ const CategoryPanel = () => {
       <div
         ref={scrollRef}
         className={`
-          relative flex overflow-x-auto gap-4 py-4 px-6 pb-12 
-          snap-x snap-mandatory scrollbar-hide 
+          relative flex overflow-x-auto gap-3 sm:gap-4 py-3 px-4 sm:py-4 sm:px-6 pb-8 sm:pb-12
+          snap-x snap-mandatory scrollbar-hide will-change-scroll
           ${shouldCenterItems ? 'justify-center' : 'justify-start'}
-          touch-action-pan-y
         `}
-        onScroll={checkForScrollPosition}
-        style={{
-          willChange: "scroll-position",
-          overscrollBehavior: "auto", // Cambiar de "contain" a "auto"
-          touchAction: "pan-y pan-x" // Permitir explícitamente desplazamiento vertical y horizontal
-        }}
+
+        onScroll={debouncedCheck}
       >
         <div key="all" className="flex-shrink-0 snap-center">
           <CategoryCard
-            className="w-36 h-36 md:w-40 md:h-40 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl"
-            icon={<FaTh size={40} />}
+            className="w-32 h-32 sm:w-40 sm:h-40 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl"
+            icon={<FaTh size={32} />}
             size="md"
             text="Todos"
             url="/products/"
@@ -338,7 +433,7 @@ const CategoryPanel = () => {
           />
         </div>
 
-        {categories.map((category) => {
+        {(hasNetworkImage || !isMobile) && categories.map((category) => {
           const Icon = getCategoryIcon(category.name);
           const url = `/products?page=1&limit=30&category=${category.id}`;
 
@@ -348,9 +443,9 @@ const CategoryPanel = () => {
               className="flex-shrink-0 snap-center"
             >
               <CategoryCard
-                className="w-36 h-36 md:w-40 md:h-40 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl"
-                icon={<Icon size={40} />}
-                size="md"
+                className="w-32 h-32 sm:w-40 sm:h-40 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl"
+                icon={<Icon size={32} />}
+                size={isMobile ? "sm" : "md"}
                 text={category.name}
                 url={url}
                 onLocationNeeded={handleOpenLocationModal}
@@ -359,21 +454,28 @@ const CategoryPanel = () => {
           );
         })}
 
-        <div className="flex-shrink-0 w-6" aria-hidden="true" />
+        <div className="flex-shrink-0 w-4 sm:w-6" aria-hidden="true" />
       </div>
 
-      <div className="flex justify-center pb-6 md:hidden">
-        <div className="flex gap-1">
-          <div className={`h-1 w-4 rounded-full ${canScrollLeft ? 'bg-gray-300 dark:bg-gray-600' : 'bg-blue-500'}`}></div>
-          <div className={`h-1 w-4 rounded-full ${canScrollLeft && canScrollRight ? 'bg-blue-500' : 'bg-gray-300 dark:bg-gray-600'}`}></div>
-          <div className={`h-1 w-4 rounded-full ${canScrollRight ? 'bg-gray-300 dark:bg-gray-600' : 'bg-blue-500'}`}></div>
+      {isMobile && (
+        <div className="flex justify-center gap-2 pb-3 sm:pb-6 md:hidden">
+          {Array.from({ length: 6 }).map((_, index) => {
+            const isActive = index / 6 <= scrollPosition;
+            return (
+              <div
+                key={index}
+                className={`h-2 w-2 rounded-full transition-all duration-150 ${isActive
+                  ? 'bg-blue-500 scale-100'
+                  : 'bg-gray-300 dark:bg-gray-600 scale-75'
+                  }`}
+              />
+            );
+          })}
         </div>
-      </div>
+      )}
     </div>
   );
 };
-
-// Reemplazar el componente StatsCard actual con esta versión optimizada
 
 const StatsCard = ({ icon, label, value, colorClass, large = false }: {
   icon: React.ReactNode;
@@ -387,108 +489,51 @@ const StatsCard = ({ icon, label, value, colorClass, large = false }: {
   };
   large?: boolean;
 }) => (
-  <motion.div
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{
-      duration: 0.5,
-      delay: large ? 0.2 : 0.3,
-      ease: "easeOut"
-    }}
-    whileHover={{ y: -5, transition: { duration: 0.2 } }}
-    className={`
-      bg-white dark:bg-gray-800 
-      border border-gray-100 dark:border-gray-700
-      rounded-xl 
-      ${large ? 'p-4 sm:p-5' : 'p-3 sm:p-4'}
-      h-full
-      shadow-lg hover:shadow-xl
-      backdrop-blur-sm
-      bg-opacity-80 dark:bg-opacity-80
-      transition-all duration-300
-    `}
-  >
+  <div className={`
+    bg-white dark:bg-gray-800 
+    border border-gray-100 dark:border-gray-700
+    rounded-xl p-4 sm:p-5 h-full shadow-lg
+  `}>
     <div className={large ? 'flex items-start gap-4' : 'flex items-center gap-3'}>
-      {/* Contenedor de icono mejorado con gradiente */}
-      <div
-        className={`
-          ${colorClass.gradient} rounded-xl flex-shrink-0
-          flex items-center justify-center
-          ${large ? 'p-3 sm:p-3.5' : 'p-2 sm:p-2.5'}
-          shadow-md
-          transform transition-transform duration-300
-        `}
-      >
+      <div className={`${colorClass.bg} rounded-xl flex-shrink-0 p-3`}>
         {icon}
       </div>
-
-      {/* Contenedor de texto con mejor manejo de espacio */}
       <div className="min-w-0 flex-1">
-        {/* Etiqueta con tamaño reducido y efecto de gradiente */}
-        <p className={`
-          ${large ? 'text-xs sm:text-sm' : 'text-[11px] sm:text-xs'} 
-          text-gray-500 dark:text-gray-400 
-          font-medium 
-          uppercase tracking-wide
-          truncate
-        `}>
+        <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 font-medium uppercase tracking-wide truncate">
           {label}
         </p>
-
-        {/* Valor con manejo de palabras y ajuste dinámico */}
-        <h3 className={`
-          ${large ? 'text-lg sm:text-xl' : 'text-base sm:text-lg'} 
-          ${colorClass.gradient ? 'text-transparent bg-clip-text ' + colorClass.gradient : colorClass.text}
-          font-extrabold 
-          mt-1
-          break-words
-          leading-tight
-        `}>
-          {/* Dividir en líneas si es "En progreso" en dispositivos pequeños */}
-          {value === "En progreso" && !large ? (
-            <>
-              <span className="inline">En progreso</span>
-            </>
-          ) : (
-            value
-          )}
+        <h3 className={`text-lg sm:text-xl font-bold mt-1 ${colorClass.text}`}>
+          {value}
         </h3>
       </div>
     </div>
-  </motion.div>
+  </div>
 );
 
-// Definir colores como objetos para evitar clases dinámicas
 const colorVariants = {
   blue: {
     icon: "text-white",
     text: "text-blue-600 dark:text-blue-400",
     bg: "bg-blue-100 dark:bg-blue-900/30",
-    gradient: "bg-gradient-to-br from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-800"
+    gradient: "bg-gradient-to-br from-blue-500 to-blue-600"
   },
   purple: {
     icon: "text-white",
     text: "text-purple-600 dark:text-purple-400",
     bg: "bg-purple-100 dark:bg-purple-900/30",
-    gradient: "bg-gradient-to-br from-purple-500 to-purple-600 dark:from-purple-600 dark:to-purple-800"
+    gradient: "bg-gradient-to-br from-purple-500 to-purple-600"
   },
   green: {
     icon: "text-white",
     text: "text-green-600 dark:text-green-400",
     bg: "bg-green-100 dark:bg-green-900/30",
-    gradient: "bg-gradient-to-br from-green-500 to-green-600 dark:from-green-600 dark:to-green-800"
+    gradient: "bg-gradient-to-br from-green-500 to-green-600"
   },
   amber: {
     icon: "text-white",
     text: "text-amber-600 dark:text-amber-400",
     bg: "bg-amber-100 dark:bg-amber-900/30",
-    gradient: "bg-gradient-to-br from-amber-500 to-amber-600 dark:from-amber-600 dark:to-amber-800"
-  },
-  teal: {
-    icon: "text-white",
-    text: "text-teal-600 dark:text-teal-400",
-    bg: "bg-teal-100 dark:bg-teal-900/30",
-    gradient: "bg-gradient-to-br from-teal-500 to-teal-600 dark:from-teal-600 dark:to-teal-800"
+    gradient: "bg-gradient-to-br from-amber-500 to-amber-600"
   }
 };
 
