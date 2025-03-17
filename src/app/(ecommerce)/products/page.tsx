@@ -41,29 +41,6 @@ const FilterDrawer = dynamic(
   }
 );
 
-export const ProductCardSkeleton = memo(({ minimal = false }: { minimal?: boolean }) => {
-  if (minimal) {
-    return (
-      <div className="w-full aspect-[3/4] rounded-xl overflow-hidden border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800">
-        <div className="h-full bg-gray-100 dark:bg-gray-800"></div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="w-full aspect-[3/4] rounded-xl overflow-hidden border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800">
-      <div className="h-3/5 bg-gray-200 dark:bg-gray-700 animate-pulse"></div>
-      <div className="p-4 space-y-3">
-        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded-md w-3/4 animate-pulse"></div>
-        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded-md w-1/2 animate-pulse"></div>
-        <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded-md w-1/3 animate-pulse"></div>
-      </div>
-    </div>
-  );
-});
-
-ProductCardSkeleton.displayName = 'ProductCardSkeleton';
-
 const EmptyState = memo(({ onReset }: { onReset: () => void }) => (
   <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
     <div className="rounded-full bg-blue-50 dark:bg-blue-900/20 p-8 mb-6">
