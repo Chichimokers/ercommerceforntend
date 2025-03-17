@@ -28,7 +28,6 @@ const OrderItem = React.memo(({ item, rateExchange }: { item: Item, rateExchange
           alt={`Imagen de ${item.product?.name || 'producto'}`}
           className="object-cover rounded-md"
           fill
-          sizes="(max-width: 768px) 64px, 80px"
           src={item.product?.image || "/nophoto.jpeg"}
           loading="lazy"
           onError={(e) => {

@@ -149,7 +149,6 @@ const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
               src={images[currentIndex]}
               alt={`Imagen del producto ${currentIndex + 1}`}
               fill
-              sizes="(max-width: 768px) 100vw, 50vw"
               className={`
                 object-contain
                 ${isZoomed ? 'opacity-0' : 'opacity-100'} 
@@ -243,7 +242,6 @@ const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
                 src={src}
                 alt={`Miniatura ${index + 1}`}
                 fill
-                sizes="64px"
                 className="object-cover"
                 loading={lazyLoad ? 'lazy' : 'eager'}
               />

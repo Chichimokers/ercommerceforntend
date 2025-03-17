@@ -4,7 +4,7 @@ import SectionSkeleton from "@components/sections/section-skeleton";
 import AuthCheckClient from "@components/auth/auth-check";
 import ProductProvider from "@components/sections/product-provider";
 
-const HeroSection = dynamic(() => import("@components/hero-section"), {
+const HeroSection = dynamic(() => import("@components/sections/hero-section/index"), {
   loading: () => <SectionSkeleton height="500px" />
 });
 

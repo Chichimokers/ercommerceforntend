@@ -37,7 +37,6 @@ const App = (props: React.PropsWithChildren<AppProps>) => {
 						fill
 						alt="EsAki"
 						className="object-contain"
-						sizes="300px"
 						priority
 					/>
 				</div>

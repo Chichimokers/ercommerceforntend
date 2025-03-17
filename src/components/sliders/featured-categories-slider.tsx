@@ -90,7 +90,6 @@ const CategoryCard = ({ category }: { category: typeof featuredCategories[0] }) 
           src={category.image || "/placeholder-category.jpg"}
           alt={category.name}
           fill
-          sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw"
           className="object-cover opacity-70 dark:opacity-50 group-hover:opacity-80 dark:group-hover:opacity-60 group-hover:scale-110 transition-all duration-500"
           onError={(e) => {
             e.currentTarget.src = "/placeholder-category.jpg";
