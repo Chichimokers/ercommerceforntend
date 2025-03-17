@@ -247,18 +247,15 @@ const ProductItem = memo(({
     return displayPrice - product.discount.reduction;
   }, [displayPrice, product.discount, quantity]);
 
-  // Simplificar los estilos para mejorar el rendimiento, evitando clases CSS complejas
   const itemStyle = useMemo(() => {
     const baseStyles = "w-full " + (viewMode === "list"
       ? "bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm"
       : "");
 
-    // Evitar animaciones en dispositivos de bajo rendimiento o modo de ahorro de datos
     if (isLowPerformance || isDataSaver) {
       return baseStyles;
     }
 
-    // Sólo aplicar animaciones a los primeros elementos para mejorar el FCP
     const shouldAnimate = index < 8;
     return shouldAnimate ? `${baseStyles} fade-in-product delay-${Math.min(index, 3)}` : baseStyles;
   }, [viewMode, isLowPerformance, isDataSaver, index]);
@@ -408,13 +405,9 @@ export default function ProductPage() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  // Usar el hook centralizado de detección de dispositivo
   const deviceData = useDeviceDetection();
-
-  // Utilizar localStorage para persistir preferencias, con fallback a grid para móviles
   const [viewMode, setViewMode] = useState<"grid" | "list">(() => {
     if (typeof window !== 'undefined') {
-      // Por defecto usar grid en móviles aunque el usuario haya elegido lista antes
       const savedMode = localStorage.getItem('productViewMode') as "grid" | "list" || "grid";
       return deviceData.isMobile ? "grid" : savedMode;
     }
@@ -630,9 +623,7 @@ export default function ProductPage() {
 
       {/* Solo mostrar drawer en móvil si no es una conexión muy lenta */}
       {deviceData.isMobile && !shouldOptimizeSeverely && (
-        <div className="block md:hidden sticky top-16 z-20 px-2 py-2 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
-          <FilterDrawer />
-        </div>
+        <FilterDrawer />
       )}
 
       <section
