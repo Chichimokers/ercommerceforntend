@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 
 interface CollapseProps {
   /**
@@ -82,26 +82,24 @@ const Collapse = ({
   };
 
   return (
-    <AnimatePresence initial={false}>
-      <motion.div
-        ref={contentRef}
-        className={`overflow-hidden ${className}`}
-        initial="closed"
-        animate={open ? "open" : "closed"}
-        variants={variants}
-        transition={{
-          duration: duration,
-          ease: "easeInOut"
-        }}
-        style={{
-          pointerEvents: open ? "auto" : "none",
-          visibility: height === 0 && !open ? "hidden" : "visible"
-        }}
-        aria-hidden={!open}
-      >
-        {children}
-      </motion.div>
-    </AnimatePresence>
+    <motion.div
+      ref={contentRef}
+      className={`overflow-hidden ${className}`}
+      initial="closed"
+      animate={open ? "open" : "closed"}
+      variants={variants}
+      transition={{
+        duration: duration,
+        ease: "easeInOut"
+      }}
+      style={{
+        pointerEvents: open ? "auto" : "none",
+        visibility: height === 0 && !open ? "hidden" : "visible"
+      }}
+      aria-hidden={!open}
+    >
+      {children}
+    </motion.div>
   );
 };
 

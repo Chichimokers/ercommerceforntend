@@ -4,7 +4,6 @@ import { CurrencyAndExchangeRateContext } from "@/contexts/exchange-rate-currenc
 import { formatCurrency } from "@components/format-currency";
 import { Box, Truck, Info, ShoppingBag } from "lucide-react";
 import Link from "next/link";
-import { motion } from "framer-motion";
 import { ProductBase } from "../../types/types";
 
 interface OrderSummaryProps {
@@ -45,11 +44,8 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
     hasTooltip?: boolean;
     tooltipText?: string;
   }) => (
-    <motion.div
+    <div
       className="flex justify-between items-center py-1.5"
-      initial={{ opacity: 0, y: 5 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.2 }}
     >
       <div className="flex items-center gap-2">
         {icon && <span className="text-gray-500 dark:text-gray-400">{icon}</span>}
@@ -68,15 +64,12 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
       <span className="text-sm font-medium">
         {formatCurrency(amount * exchangeRate, currency, symbol)}
       </span>
-    </motion.div>
+    </div>
   );
 
   return (
     <div className={`flex justify-center w-full ${className}`}>
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
+      <div
         className="w-full"
       >
         <Card className="w-full shadow-sm border border-gray-200 dark:border-gray-700 rounded-xl mx-auto bg-gradient-to-b from-white to-gray-50 dark:from-gray-800 dark:to-gray-800/90">
@@ -110,24 +103,19 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
               />
             </div>
 
-            {/* Total */}
             <div className="pt-3 mt-1 border-t border-gray-200 dark:border-gray-700">
               <div className="flex justify-between items-center">
                 <span className="font-semibold text-gray-900 dark:text-white">
                   Total
                 </span>
-                <motion.span
+                <span
                   className="text-base sm:text-lg font-bold text-blue-600 dark:text-blue-400"
-                  initial={{ scale: 0.9 }}
-                  animate={{ scale: 1 }}
-                  transition={{ duration: 0.3, delay: 0.2 }}
                 >
                   {formatCurrency(total * exchangeRate, currency, symbol)}
-                </motion.span>
+                </span>
               </div>
             </div>
 
-            {/* Botón de Checkout */}
             <div className="mt-4">
               <Button
                 as={Link}
@@ -147,20 +135,16 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
               </div>
             </div>
 
-            {/* Mensaje de error */}
             {error && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.3 }}
+              <div
                 className="mt-2 p-2 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-xs rounded"
               >
                 Error al calcular el envío. Por favor intenta nuevamente.
-              </motion.div>
+              </div>
             )}
           </CardBody>
         </Card>
-      </motion.div>
+      </div>
     </div>
   );
 };

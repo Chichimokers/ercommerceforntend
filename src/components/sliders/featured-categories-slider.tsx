@@ -3,10 +3,8 @@
 import { useRef, useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-// Datos de categorías destacadas
 const featuredCategories = [
   {
     id: "electronics",
@@ -143,20 +141,17 @@ const FeaturedCategoriesSlider = () => {
   const scrollRight = () => {
     if (!sliderRef.current) return;
 
-    const scrollAmount = sliderRef.current.clientWidth * 0.75; // 75% del ancho visible
+    const scrollAmount = sliderRef.current.clientWidth * 0.75;
     sliderRef.current.scrollBy({ left: scrollAmount, behavior: "smooth" });
   };
 
-  // Configurar evento de desplazamiento
   useEffect(() => {
     const slider = sliderRef.current;
 
     if (slider) {
       slider.addEventListener("scroll", handleScroll);
-      // Verificar el estado inicial de desplazamiento
       handleScroll();
 
-      // Verificar el estado de desplazamiento cuando cambie el tamaño de la ventana
       window.addEventListener("resize", handleScroll);
     }
 
@@ -170,19 +165,15 @@ const FeaturedCategoriesSlider = () => {
 
   return (
     <div className="relative">
-      {/* Botón de desplazamiento izquierdo */}
-      <motion.button
-        initial={{ opacity: 0 }}
-        animate={{ opacity: canScrollLeft ? 1 : 0 }}
+      <button
         className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 dark:bg-gray-800/90 rounded-full p-2 shadow-lg disabled:opacity-0 transition-opacity"
         onClick={scrollLeft}
         disabled={!canScrollLeft}
         aria-label="Desplazar a la izquierda"
       >
         <ChevronLeft size={24} className="text-gray-700 dark:text-gray-200" />
-      </motion.button>
+      </button>
 
-      {/* Contenedor del slider */}
       <div
         ref={sliderRef}
         className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide"
@@ -198,19 +189,15 @@ const FeaturedCategoriesSlider = () => {
         ))}
       </div>
 
-      {/* Botón de desplazamiento derecho */}
-      <motion.button
-        initial={{ opacity: 0 }}
-        animate={{ opacity: canScrollRight ? 1 : 0 }}
+      <button
         className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 dark:bg-gray-800/90 rounded-full p-2 shadow-lg disabled:opacity-0 transition-opacity"
         onClick={scrollRight}
         disabled={!canScrollRight}
         aria-label="Desplazar a la derecha"
       >
         <ChevronRight size={24} className="text-gray-700 dark:text-gray-200" />
-      </motion.button>
+      </button>
 
-      {/* Estilo para ocultar la barra de desplazamiento */}
       <style jsx global>{`
         .scrollbar-hide::-webkit-scrollbar {
           display: none;

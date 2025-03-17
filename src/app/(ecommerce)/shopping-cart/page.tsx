@@ -12,7 +12,6 @@ import { useLocation } from "@contexts/location-context";
 import useSWR from "swr";
 import { useShipping } from "@/contexts/shipping-context";
 import { ArrowLeft, ShoppingBag } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 
 // Tipos para mejor documentación del código
@@ -155,124 +154,116 @@ export default function ShoppingCartPage() {
   }
 
   return (
-    <AnimatePresence>
-      <motion.section
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 0.3 }}
-        className="py-8 px-2 sm:py-12 sm:px-4 overflow-hidden max-w-full"
-      >
-        <div className="container mx-auto max-w-[100vw] overflow-x-hidden">
-          <header className="mb-6 flex flex-col sm:flex-row sm:justify-between sm:items-center">
-            <h1 className="text-3xl md:text-4xl font-extrabold text-gray-800 dark:text-white inline-flex items-center">
-              <ShoppingBag className="mr-2 h-8 w-8 text-blue-500" />
-              <span className="border-b-4 border-blue-300 pb-1">Carrito de Compras</span>
-            </h1>
+    <section
+      className="py-8 px-2 sm:py-12 sm:px-4 overflow-hidden max-w-full"
+    >
+      <div className="container mx-auto max-w-[100vw] overflow-x-hidden">
+        <header className="mb-6 flex flex-col sm:flex-row sm:justify-between sm:items-center">
+          <h1 className="text-3xl md:text-4xl font-extrabold text-gray-800 dark:text-white inline-flex items-center">
+            <ShoppingBag className="mr-2 h-8 w-8 text-blue-500" />
+            <span className="border-b-4 border-blue-300 pb-1">Carrito de Compras</span>
+          </h1>
 
-            <Link href="/products" className="mt-4 sm:mt-0 inline-flex items-center text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors">
-              <ArrowLeft className="w-4 h-4 mr-1" />
-              Continuar comprando
-            </Link>
-          </header>
+          <Link href="/products" className="mt-4 sm:mt-0 inline-flex items-center text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors">
+            <ArrowLeft className="w-4 h-4 mr-1" />
+            Continuar comprando
+          </Link>
+        </header>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 w-full overflow-hidden">
-            <div className="lg:col-span-2 space-y-6">
-              {cartItems.length > 0 ? (
-                <>
-                  <div className="hidden md:grid grid-cols-[2fr,1fr,1fr,1fr] gap-4 bg-gray-50 dark:bg-gray-800 px-6 py-3 rounded-xl shadow-sm items-center">
-                    <div className="font-medium text-gray-700 dark:text-gray-300">
-                      Producto
-                    </div>
-                    <div className="font-medium text-center text-gray-700 dark:text-gray-300">
-                      Precio
-                    </div>
-                    <div className="font-medium text-center text-gray-700 dark:text-gray-300">
-                      Cantidad
-                    </div>
-                    <div className="font-medium text-center text-gray-700 dark:text-gray-300">
-                      Total
-                    </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 w-full overflow-hidden">
+          <div className="lg:col-span-2 space-y-6">
+            {cartItems.length > 0 ? (
+              <>
+                <div className="hidden md:grid grid-cols-[2fr,1fr,1fr,1fr] gap-4 bg-gray-50 dark:bg-gray-800 px-6 py-3 rounded-xl shadow-sm items-center">
+                  <div className="font-medium text-gray-700 dark:text-gray-300">
+                    Producto
                   </div>
+                  <div className="font-medium text-center text-gray-700 dark:text-gray-300">
+                    Precio
+                  </div>
+                  <div className="font-medium text-center text-gray-700 dark:text-gray-300">
+                    Cantidad
+                  </div>
+                  <div className="font-medium text-center text-gray-700 dark:text-gray-300">
+                    Total
+                  </div>
+                </div>
 
-                  <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800">
-                    <div className="divide-y divide-gray-100 dark:divide-gray-800">
-                      {cartItems.map((product) => (
-                        <div key={product.id}>
-                          {isMobile ? (
-                            <CartCard
-                              key={`${product.id}-mobile-${cart?.length}`}
-                              productCart={product}
-                            />
-                          ) : (
-                            <SmCartCard
-                              key={`${product.id}-desktop-${cart?.length}`}
-                              product={product}
-                              className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-150 px-6 py-4"
-                            />
-                          )}
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Acciones adicionales */}
-                    <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-b-xl">
-                      <div className="flex flex-wrap justify-between items-center gap-4">
-                        <div className="text-sm text-gray-500 dark:text-gray-400">
-                          {cartItems.length} {cartItems.length === 1 ? 'producto' : 'productos'} en el carrito
-                        </div>
-                        <Button
-                          size="sm"
-                          color="danger"
-                          variant="light"
-                          onClick={clearCart}
-                        >
-                          Vaciar carrito
-                        </Button>
+                <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800">
+                  <div className="divide-y divide-gray-100 dark:divide-gray-800">
+                    {cartItems.map((product) => (
+                      <div key={product.id}>
+                        {isMobile ? (
+                          <CartCard
+                            key={`${product.id}-mobile-${cart?.length}`}
+                            productCart={product}
+                          />
+                        ) : (
+                          <SmCartCard
+                            key={`${product.id}-desktop-${cart?.length}`}
+                            product={product}
+                            className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-150 px-6 py-4"
+                          />
+                        )}
                       </div>
+                    ))}
+                  </div>
+
+                  {/* Acciones adicionales */}
+                  <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-b-xl">
+                    <div className="flex flex-wrap justify-between items-center gap-4">
+                      <div className="text-sm text-gray-500 dark:text-gray-400">
+                        {cartItems.length} {cartItems.length === 1 ? 'producto' : 'productos'} en el carrito
+                      </div>
+                      <Button
+                        size="sm"
+                        color="danger"
+                        variant="light"
+                        onClick={clearCart}
+                      >
+                        Vaciar carrito
+                      </Button>
                     </div>
                   </div>
-                </>
+                </div>
+              </>
+            ) : (
+              <EmptyCart />
+            )}
+          </div>
+
+          <div className="lg:col-span-1">
+            <div className="sticky top-20 max-w-full overflow-hidden">
+              {isLoadingPrice ? (
+                <div className="rounded-xl bg-white dark:bg-gray-800 shadow-md p-6 space-y-4">
+                  <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+                  <div className="space-y-2">
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-3/4"></div>
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-1/2"></div>
+                  </div>
+                  <Divider />
+                  <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+                </div>
               ) : (
-                <EmptyCart />
+                <OrderSummary
+                  subtotal={subtotal}
+                  shipping={shippingPrice}
+                  weight={totalWeight}
+                  isLoadingPrice={isLoadingPrice}
+                  cartItems={cartItems}
+                  error={error}
+                />
               )}
-            </div>
 
-            <div className="lg:col-span-1">
-              <div className="sticky top-20 max-w-full overflow-hidden">
-                {isLoadingPrice ? (
-                  <div className="rounded-xl bg-white dark:bg-gray-800 shadow-md p-6 space-y-4">
-                    <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
-                    <div className="space-y-2">
-                      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-3/4"></div>
-                      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-1/2"></div>
-                    </div>
-                    <Divider />
-                    <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
-                  </div>
-                ) : (
-                  <OrderSummary
-                    subtotal={subtotal}
-                    shipping={shippingPrice}
-                    weight={totalWeight}
-                    isLoadingPrice={isLoadingPrice}
-                    cartItems={cartItems}
-                    error={error}
-                  />
-                )}
-
-                {error && (
-                  <div className="mt-4 p-3 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm rounded-lg">
-                    Error al calcular el envío. Por favor intenta nuevamente.
-                  </div>
-                )}
-
-
-              </div>
+              {error && (
+                <div className="mt-4 p-3 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm rounded-lg">
+                  Error al calcular el envío. Por favor intenta nuevamente.
+                </div>
+              )}
             </div>
           </div>
         </div>
-      </motion.section>
-    </AnimatePresence>
+      </div>
+    </section>
   );
 }
