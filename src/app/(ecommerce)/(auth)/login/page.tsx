@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useCallback, useEffect } from "react";
-import { Input, Link, Button, addToast } from "@heroui/react";
+import { Input, Button, addToast } from "@heroui/react";
 import { FaGoogle, FaLock } from "react-icons/fa";
 import { MdOutlineEmail } from "react-icons/md";
 import Image from "next/image";
@@ -11,6 +11,7 @@ import { EyeSlashFilledIcon } from "@components/images/eye-slash-icon";
 import { EyeFilledIcon } from "@components/images/eye-filled";
 import { useRouter } from "next/navigation";
 import { FormField } from "@components/forms/form-field";
+import Link from "next/link";
 
 // Detectar capacidades del dispositivo
 const useDeviceCapabilities = () => {

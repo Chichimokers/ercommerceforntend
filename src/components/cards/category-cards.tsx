@@ -77,6 +77,11 @@ const CategoryCard = ({
     }
   }, [location, onLocationNeeded]);
 
+  // NUEVA FUNCIÓN: Manejar eventos touch para permitir scroll vertical
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    // No hacemos nada - solo evitamos que otros handlers capture el evento
+  }, []);
+
   // Clases CSS condicionales basadas en capacidades del dispositivo
   const cardClasses = `
     relative overflow-hidden h-full 
@@ -121,7 +126,10 @@ const CategoryCard = ({
   `;
 
   return (
-    <div className={containerClasses}>
+    <div
+      className={containerClasses}
+      style={{ touchAction: "pan-x pan-y" }} // Permitir ambos scrolls
+    >
       <Card
         isPressable
         as={Link}
@@ -129,6 +137,9 @@ const CategoryCard = ({
         onClick={handleCardClick}
         shadow={disableAnimations ? "sm" : "none"}
         className={`${cardClasses} group`}
+        style={{ touchAction: "pan-x pan-y" }} // Permitir ambos scrolls
+        // Eventos touch capturados pero permitiendo propagación
+        onTouchStart={handleTouchStart}
       >
         {/* Fondo con gradiente - optimizado */}
         <div className={bgEffectClasses} />
@@ -171,16 +182,3 @@ const CategoryCard = ({
 };
 
 export default CategoryCard;
-
-// Añade estos estilos a tu archivo global de CSS:
-/*
-@media (prefers-reduced-motion: no-preference) {
-  .hover-lift {
-    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-  }
-  
-  .hover-lift:hover {
-    transform: translateY(-5px);
-  }
-}
-*/

@@ -1,7 +1,7 @@
 "use client";
 
 import { useSession } from "next-auth/react";
-import { useMemo, memo, Suspense, lazy, useState, useEffect, useCallback, useRef } from "react";
+import { useMemo, memo, Suspense, useState, useEffect, useCallback, useRef } from "react";
 import { useProductContext } from "@/contexts/product-context";
 import dynamic from "next/dynamic";
 import Link from "next/link";
@@ -150,7 +150,6 @@ const CategoryPanel = dynamic(
   () => import("@components/panels/category-panel"),
   {
     loading: () => <SectionSkeleton height="300px" />,
-    ssr: false
   }
 );
 
