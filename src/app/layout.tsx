@@ -4,6 +4,10 @@ import { Metadata, Viewport } from "next";
 import { Providers } from "./providers";
 import { ClientLayout } from "./client-layout";
 import { Inter } from 'next/font/google';
+import PerformanceModeController from '@/components/performance/performance-mode-controller';
+import MemoryManager from '@/components/performance/memory-manager';
+import TouchOptimizer from '@/components/performance/touch-optimizer';
+import { Suspense } from 'react';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -54,6 +58,12 @@ export default function RootLayout({
     <html lang="es" suppressHydrationWarning className={inter.variable}>
       <Head />
       <body className="min-h-screen flex flex-col antialiased text-gray-800 dark:text-gray-200">
+        <Suspense fallback={null}>
+          <PerformanceModeController />
+          <MemoryManager />
+          <TouchOptimizer />
+        </Suspense>
+
         <Providers>
           <ClientLayout>
             {children}
