@@ -1,6 +1,5 @@
 "use client";
 
-import { FilterPanel } from "@/components/panels/filter-panel";
 import { useProductContext } from "@/contexts/product-context";
 import { Pagination, Spinner, Chip, Button, Tooltip } from "@heroui/react";
 import dynamic from "next/dynamic";
@@ -14,6 +13,8 @@ import { AlertCircle } from "lucide-react";
 import LucideIcons from "@components/lazy-imports/lucide-icons";
 import { useInView } from "react-intersection-observer";
 import { throttle } from "lodash";
+import UltraLightMode, { UltraLightSkeleton } from '@/components/performance/ultra-light-mode';
+import { useDeviceCapabilities } from '@/hooks/useDeviceCapabilities';
 
 const ProductCard = dynamic(
   () => import("@/components/cards/product/product-card").then(mod => ({ default: mod.default })),
@@ -35,6 +36,15 @@ const FilterDrawer = dynamic(
       </div>
     ),
     ssr: false
+  }
+);
+
+const FilterPanel = dynamic(() =>
+  import("@/components/panels/filter-panel")
+    .then(mod => ({ default: mod.FilterPanel })),
+  {
+    ssr: false,
+    loading: () => <div className="w-64 bg-gray-100 dark:bg-gray-800/50"></div>
   }
 );
 
@@ -97,7 +107,6 @@ const ErrorState = memo(({ error, onReset }: { error: unknown, onReset: () => vo
   </div>
 ));
 
-// Componente de producto optimizado que solo renderiza cuando está visible
 const LazyProductCard = memo(({ product, index, totalCount }: { product: any, index: number, totalCount: number }) => {
   // Usar useInView para cargar solo cuando es visible
   const { ref, inView } = useInView({
@@ -166,7 +175,7 @@ export default function ProductPage() {
   const deviceData = useDeviceDetection();
 
   // Estado para controlar la cantidad de elementos a mostrar inicialmente
-  const [visibleItems, setVisibleItems] = useState(deviceData.isMobile ? 8 : 16);
+  const [visibleItems, setVisibleItems] = useState(30);
   const currentPage = Number(searchParams.get("page")) || 1;
   const mainSectionRef = useRef<HTMLElement>(null);
 
@@ -304,7 +313,6 @@ export default function ProductPage() {
         <div className={
           "grid grid-cols-2 xm:grid-cols-3 sm:grid-cols-3 md:grid-cols-2 xg:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-2 w-full"
         }>
-          {/* Solo renderizamos los elementos visibles para mejor rendimiento */}
           {products.slice(0, visibleItems).map((product, index) => (
             <LazyProductCard
               key={product.id}
@@ -314,7 +322,6 @@ export default function ProductPage() {
             />
           ))}
 
-          {/* Mostrar un indicador de carga si hay más elementos */}
           {visibleItems < products.length && (
             <div className="col-span-full flex justify-center py-8">
               <Button
@@ -354,7 +361,7 @@ export default function ProductPage() {
     deviceData.isLowPerformance;
 
   useEffect(() => {
-    setVisibleItems(deviceData.isMobile ? 8 : 30);
+    setVisibleItems(30);
   }, [currentPage, searchParams.toString(), deviceData.isMobile]);
 
   return (

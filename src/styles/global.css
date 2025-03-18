@@ -4,6 +4,29 @@
 @tailwind components;
 @tailwind utilities;
 
+
+
+/* Ocultar scrollbars para Chrome, Safari y Opera */
+.custom-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Ocultar scrollbars para IE, Edge y Firefox */
+.custom-scrollbar {
+  -ms-overflow-style: none;
+  /* IE y Edge */
+  scrollbar-width: none;
+  /* Firefox */
+}
+
+/* Variables CSS para modo bajo rendimiento */
+:root {
+  --animation-duration: 300ms;
+  --transition-duration: 300ms;
+  --fallback-bg-color: #ffffff;
+  --low-performance-image-quality: 50;
+}
+
 /* Ocultar la barra de desplazamiento en dispositivos móviles */
 @media (max-width: 768px) {
   body {
