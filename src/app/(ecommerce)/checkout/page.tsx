@@ -18,7 +18,6 @@ import { FormField } from "@components/forms/form-field";
 import InputField from "@components/forms/input";
 import { formatCurrency } from "@components/format-currency";
 import { CurrencyAndExchangeRateContext } from "@/contexts/exchange-rate-currency-context";
-import { useShipping } from "@contexts/shipping-context";
 
 
 const formSchema = z.object({
@@ -49,8 +48,6 @@ export default function BuyPage() {
   const { products, isLoading } = useProductContext();
   const { data: session } = useSession();
   const { rateExchange } = useContext(CurrencyAndExchangeRateContext) || {};
-  const { shippingPrice, totalWeight } = useShipping();
-  const rateShippingPrice = (shippingPrice! * (rateExchange?.exchangeRate || 1))
 
   const productMap = useMemo(
     () => new Map(products?.map((p) => [p.id, p]) || []),
@@ -327,14 +324,6 @@ export default function BuyPage() {
               <div className="flex justify-between items-center mb-4">
                 <span className="text-default-600">Subtotal:</span>
                 <span className="font-semibold">{formatCurrency((calculateSubtotal() * (rateExchange?.exchangeRate || 1)), rateExchange?.currency, rateExchange?.symbol)}</span>
-              </div>
-              <div className="flex justify-between items-center mb-4">
-                <span className="text-default-600">Envío:</span>
-                <span className="font-semibold">{formatCurrency(rateShippingPrice, rateExchange?.currency, rateExchange?.symbol)}</span>
-              </div>
-              <div className="flex justify-between items-center text-xl font-bold">
-                <span>Total:</span>
-                <span className="text-primary">{formatCurrency(((calculateSubtotal() + shippingPrice!) * (rateExchange?.exchangeRate || 1)), rateExchange?.currency, rateExchange?.symbol)}</span>
               </div>
             </div>
           </div>
