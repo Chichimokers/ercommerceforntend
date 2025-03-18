@@ -17,7 +17,7 @@ export default function ProductInteraction({
   product,
 }: ProductInteractionProps) {
   const { rateExchange } = useContext(CurrencyAndExchangeRateContext) || {};
-  const { isMobile, isLowPerformance } = useDeviceDetection();
+  const { isMobile } = useDeviceDetection();
 
   const {
     handleQuantityInc,
@@ -30,7 +30,6 @@ export default function ProductInteraction({
     quantity,
   } = useCartActions(product);
 
-  // Cálculos de precios con descuentos dinámicamente basados en la cantidad
   const displayPrice = useMemo(() => {
     return product.price * (rateExchange?.exchangeRate || 1);
   }, [product.price, rateExchange?.exchangeRate]);
@@ -42,7 +41,6 @@ export default function ProductInteraction({
     return null;
   }, [displayPrice, product.discount, quantity, rateExchange?.exchangeRate]);
 
-  // Esta función detiene la propagación del evento para evitar la navegación
   const handleInteractionClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -51,7 +49,7 @@ export default function ProductInteraction({
   return (
     <div
       className="flex justify-between items-center gap-2 p-2 sm:p-3 border-t border-gray-100 dark:border-gray-700 w-full"
-      onClick={handleInteractionClick}  // Importante: detiene la navegación en toda esta área
+      onClick={handleInteractionClick}
     >
       <div className="flex-shrink-0">
         <QuantityAdjuster

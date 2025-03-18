@@ -21,7 +21,7 @@ export default function LocationButton() {
     <>
       <button
         onClick={handleOpenLocationModal}
-        className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-medium py-2 sm:py-2.5 px-4 sm:px-5 rounded-xl transition-colors"
+        className="inline-flex items-center gap-2 bg-blue-600 text-white font-medium py-2 sm:py-2.5 px-4 sm:px-5 rounded-xl transition-colors"
         aria-label="Seleccionar ubicación"
       >
         <MapPin size={16} className="sm:animate-bounce" />
