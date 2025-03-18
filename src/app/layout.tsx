@@ -47,7 +47,17 @@ export const viewport: Viewport = {
   viewportFit: "cover",
 };
 
-export const dynamic = 'auto';
+/*function RefineComponentsWrapper({ children }: { children: React.ReactNode }) {
+  return (
+    <Suspense fallback={
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-2 border-t-blue-500 border-blue-200"></div>
+      </div>
+    }>
+      {children}
+    </Suspense>
+  );
+}*/
 
 export default function RootLayout({
   children,

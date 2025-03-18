@@ -4,7 +4,7 @@ import { useProductContext } from "@/contexts/product-context";
 import { Pagination, Spinner, Chip, Button, Tooltip } from "@heroui/react";
 import dynamic from "next/dynamic";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, memo, useState, useRef } from "react";
+import { useCallback, useEffect, useMemo, memo, useState, useRef, Suspense } from "react";
 import Link from "next/link";
 import { useCategories } from "@hooks/useCategories";
 import { useDeviceDetection } from "@/hooks/useDeviceDetection";
@@ -164,15 +164,53 @@ const ProductCardSkeleton = memo(({ minimal = false }: { minimal?: boolean }) =>
 
 ProductCardSkeleton.displayName = 'ProductCardSkeleton';
 
+// Componente principal que NO usa useSearchParams directamente
 export default function ProductPage() {
+  const deviceData = useDeviceDetection();
+  const shouldOptimizeSeverely = deviceData.isDataSaver ||
+    deviceData.effectiveType === 'slow-2g' ||
+    deviceData.effectiveType === '2g' ||
+    deviceData.isLowPerformance;
+
+  return (
+    <div className="flex flex-col md:flex-row w-full min-h-screen">
+      {!deviceData.isMobile ? (
+        <FilterPanel />
+      ) : (
+        <div className="hidden md:block w-64 bg-gray-100 dark:bg-gray-800/50"></div>
+      )}
+
+      {deviceData.isMobile && !shouldOptimizeSeverely && (
+        <FilterDrawer />
+      )}
+      
+      <Suspense fallback={
+        <section className="flex-1 flex flex-col p-3 sm:p-4 overflow-y-auto relative">
+          <div className="flex flex-col justify-center items-center min-h-[50vh]">
+            <Spinner size={deviceData.isMobile ? "md" : "lg"} color="primary" />
+            {!deviceData.isMobile && !deviceData.isLowPerformance && !deviceData.isDataSaver && (
+              <p className="mt-4 text-gray-500 dark:text-gray-400">Cargando productos...</p>
+            )}
+          </div>
+        </section>
+      }>
+        <ProductPageContent deviceData={deviceData} shouldOptimizeSeverely={shouldOptimizeSeverely} />
+      </Suspense>
+    </div>
+  );
+}
+
+// Componente secundario que SÍ usa useSearchParams
+function ProductPageContent({ deviceData, shouldOptimizeSeverely }: { 
+  deviceData: ReturnType<typeof useDeviceDetection>,
+  shouldOptimizeSeverely: boolean 
+}) {
   const { products, totalPages, error, isLoading } = useProductContext();
   const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") || "";
   const { data: categories = [] } = useCategories(baseUrl);
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-
-  const deviceData = useDeviceDetection();
 
   // Estado para controlar la cantidad de elementos a mostrar inicialmente
   const [visibleItems, setVisibleItems] = useState(30);
@@ -200,6 +238,7 @@ export default function ProductPage() {
     if (searchParams.has("rate")) count++;
     return count;
   }, [searchParams]);
+  
   const categoryName = useMemo(() => {
     const categoryId = searchParams.get("category");
     if (!categoryId || !categories || categories.length === 0) return "Todos los productos";
@@ -353,63 +392,46 @@ export default function ProductPage() {
       </>
     );
   }, [isLoading, error, products, totalPages, currentPage, handlePageChange, handleReset,
-    categoryName, filtersApplied, deviceData]);
-
-  const shouldOptimizeSeverely = deviceData.isDataSaver ||
-    deviceData.effectiveType === 'slow-2g' ||
-    deviceData.effectiveType === '2g' ||
-    deviceData.isLowPerformance;
+    categoryName, filtersApplied, deviceData, visibleItems, loadMoreItems]);
 
   useEffect(() => {
     setVisibleItems(30);
   }, [currentPage, searchParams.toString(), deviceData.isMobile]);
 
   return (
-    <div className="flex flex-col md:flex-row w-full min-h-screen">
-      {!deviceData.isMobile ? (
-        <FilterPanel />
-      ) : (
-        <div className="hidden md:block w-64 bg-gray-100 dark:bg-gray-800/50"></div>
+    <section
+      ref={mainSectionRef}
+      className={`flex-1 flex flex-col p-3 sm:p-4 overflow-y-auto relative`}
+      style={{
+        WebkitOverflowScrolling: 'touch',
+        scrollBehavior: deviceData.prefersReducedMotion || deviceData.isLowPerformance ? 'auto' : 'smooth',
+        boxShadow: deviceData.isLowPerformance ? 'none' : undefined,
+        willChange: 'scroll-position',
+        backfaceVisibility: 'hidden'
+      }}
+    >
+      {renderContent()}
+      {!deviceData.isMobile && (
+        <div className="hidden md:block fixed bottom-6 right-6 z-30">
+          <Tooltip content="Volver arriba">
+            <Button
+              isIconOnly
+              color="primary"
+              size="lg"
+              className={`shadow-md ${!deviceData.isLowPerformance && !deviceData.prefersReducedMotion ? 'animate-bounce-subtle' : ''}`}
+              onClick={scrollToTop}
+              aria-label="Volver arriba"
+            >
+              {typeof LucideIcons !== 'undefined' ? (
+                <LucideIcons.ArrowUpRight />
+              ) : (
+                <span className="w-5 h-5" />
+              )}
+            </Button>
+          </Tooltip>
+        </div>
       )}
-
-      {deviceData.isMobile && !shouldOptimizeSeverely && (
-        <FilterDrawer />
-      )}
-
-      <section
-        ref={mainSectionRef}
-        className={`flex-1 flex flex-col p-3 sm:p-4 overflow-y-auto relative`}
-        style={{
-          WebkitOverflowScrolling: 'touch',
-          scrollBehavior: deviceData.prefersReducedMotion || deviceData.isLowPerformance ? 'auto' : 'smooth',
-          boxShadow: deviceData.isLowPerformance ? 'none' : undefined,
-          willChange: 'scroll-position',
-          backfaceVisibility: 'hidden'
-        }}
-      >
-        {renderContent()}
-        {!deviceData.isMobile && (
-          <div className="hidden md:block fixed bottom-6 right-6 z-30">
-            <Tooltip content="Volver arriba">
-              <Button
-                isIconOnly
-                color="primary"
-                size="lg"
-                className={`shadow-md ${!deviceData.isLowPerformance && !deviceData.prefersReducedMotion ? 'animate-bounce-subtle' : ''}`}
-                onClick={scrollToTop}
-                aria-label="Volver arriba"
-              >
-                {typeof LucideIcons !== 'undefined' ? (
-                  <LucideIcons.ArrowUpRight />
-                ) : (
-                  <span className="w-5 h-5" />
-                )}
-              </Button>
-            </Tooltip>
-          </div>
-        )}
-      </section>
-    </div>
+    </section>
   );
 }
 

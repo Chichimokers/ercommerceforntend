@@ -2,6 +2,7 @@ import dynamic from "next/dynamic";
 import { useFilters } from "@/hooks/useFilters";
 import { useState } from "react";
 import FiltersSkeleton from "@components/skeletons/filters-skeleton";
+import React from "react";
 
 const Filters = dynamic(() => import("../filters/filters"), {
   loading: () => <FiltersSkeleton />,
@@ -18,11 +19,13 @@ export const FilterPanel = () => {
       </div>
       <div className="mt-[64px] mb-2 py-2">
         <div className="relative min-h-[300px]">
-          <Filters
-            onFilterChange={setFilters}
-            setIsInvalidFilters={setIsInvalidFilters}
-            className="transition-opacity duration-300 ease-in-out bg-white dark:bg-gray-900"
-          />
+          <React.Suspense fallback={<FiltersSkeleton />}>
+            <Filters
+              onFilterChange={setFilters}
+              setIsInvalidFilters={setIsInvalidFilters}
+              className="transition-opacity duration-300 ease-in-out bg-white dark:bg-gray-900"
+            />
+          </React.Suspense>
         </div>
       </div>
     </div>

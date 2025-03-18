@@ -8,7 +8,6 @@ import { ProductProvider } from "@contexts/product-context"
 import { CartProvider } from "@contexts/cart-context"
 import { ThemeProvider } from "next-themes"
 import { LocationProvider } from "@contexts/location-context";
-import { ShippingProvider } from "@contexts/shipping-context";
 import React from "react";
 import AccessTokenSynchronizer from "@services/access-token-synchronizer";
 import CartSyncBackup from "@components/cart/cart-sync-backup";
@@ -25,19 +24,17 @@ export function Providers({ children }: { children: React.ReactNode }) {
         <AccessTokenSynchronizer>
           <CurrencyAndExchangeRateProvider>
             <LocationProvider>
-              <ShippingProvider>
-                <ProductProvider>
-                  <CartProvider>
-                    <CartSyncBackup />
-                    <ModalProvider>
-                      <HeroUIProvider>
-                        <ToastProvider />
-                        {children}
-                      </HeroUIProvider>
-                    </ModalProvider>
-                  </CartProvider>
-                </ProductProvider>
-              </ShippingProvider>
+              <ProductProvider>
+                <CartProvider>
+                  <CartSyncBackup />
+                  <ModalProvider>
+                    <HeroUIProvider>
+                      <ToastProvider />
+                      {children}
+                    </HeroUIProvider>
+                  </ModalProvider>
+                </CartProvider>
+              </ProductProvider>
             </LocationProvider>
           </CurrencyAndExchangeRateProvider>
         </AccessTokenSynchronizer >

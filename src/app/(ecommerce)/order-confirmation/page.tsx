@@ -8,7 +8,6 @@ import { Button } from "@heroui/react";
 import { QRCodeCanvas } from "qrcode.react";
 import { formatCurrency } from "@components/format-currency";
 import { CurrencyAndExchangeRateContext } from "@contexts/exchange-rate-currency-context";
-import { useShipping } from "@contexts/shipping-context";
 
 interface Order {
   receiver_name: string;
@@ -26,7 +25,6 @@ export default function OrderConfirmationPage() {
   const [order, setOrder] = useState<Order | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const { rateExchange } = React.useContext(CurrencyAndExchangeRateContext);
-  const { shippingPrice } = useShipping();
 
   useEffect(() => {
     const storedOrder = localStorage.getItem("orderDetails");
@@ -195,13 +193,6 @@ export default function OrderConfirmationPage() {
                         <p className="text-sm text-gray-500 dark:text-gray-400">Hora</p>
                         <p className="font-medium">{formattedTime}</p>
                       </div>
-                      {/*TODO*/}
-                      <div className="col-span-2">
-                        <p className="text-sm text-gray-500 dark:text-gray-400">Monto total</p>
-                        <p className="font-bold text-lg text-primary-600 dark:text-primary-400">
-                          {formatCurrency((order.subtotal * (rateExchange?.exchangeRate || 1) + shippingPrice!), rateExchange?.currency, rateExchange?.symbol)}
-                        </p>
-                      </div>
                     </div>
 
                     <div className="flex justify-center p-4 mt-2">
@@ -235,7 +226,6 @@ export default function OrderConfirmationPage() {
             )}
           </div>
 
-          {/* Footer con acciones */}
           <div className="bg-gray-50 dark:bg-gray-900/50 border-t border-gray-200 dark:border-gray-700 p-6 flex flex-col sm:flex-row justify-center gap-3">
             <Link href="/" passHref>
               <Button

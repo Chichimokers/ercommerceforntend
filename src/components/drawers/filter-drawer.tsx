@@ -3,7 +3,6 @@ import {
   DrawerContent,
   DrawerHeader,
   DrawerBody,
-  DrawerFooter,
   useDisclosure,
 } from "@heroui/react";
 import { FaFilter } from "react-icons/fa6";
@@ -25,15 +24,6 @@ const FilterDrawer = React.memo(function FilterDrawer({ className }: { className
       "!shadow-xl !border !border-default-400 transition-transform duration-300 " +
       "ease-in-out transform translate-x-12 bg-opacity-80 backdrop-blur-sm",
     []
-  );
-
-  const handleApplyFilters = useCallback(
-    (onClose: () => void) => {
-      if (isInvalidFilters) return;
-      applyFilters();
-      onClose();
-    },
-    [applyFilters, isInvalidFilters]
   );
 
   return (
@@ -67,7 +57,9 @@ const FilterDrawer = React.memo(function FilterDrawer({ className }: { className
                 <h2 className="text-xl font-bold px-4 my-4">Filtros</h2>
               </DrawerHeader>
               <DrawerBody>
-                <Filters onFilterChange={setFilters} setIsInvalidFilters={setIsInvalidFilters} />
+                <React.Suspense fallback={<div></div>}>
+                  <Filters onFilterChange={setFilters} setIsInvalidFilters={setIsInvalidFilters} />
+                </React.Suspense>
               </DrawerBody>
             </>
           )}

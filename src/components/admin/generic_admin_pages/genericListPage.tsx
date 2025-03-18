@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState, useCallback } from "react";
+import React, { useMemo, useState, useCallback, Suspense } from "react";
 import { List, useTable, ExportButton, DeleteButton, EditButton, ShowButton } from "@refinedev/antd";
 import { Space, Table, Slider, Input, Button, Form } from "antd";
 import type { ColumnType, TablePaginationConfig } from "antd/es/table";
@@ -27,6 +27,23 @@ const isLogicalFilter = (filter: CustomFilter): filter is LogicalFilter =>
 
 const isRangeFilter = (filter: CustomFilter): filter is RangeFilter => 
   'type' in filter && filter.type === 'range';
+
+// Componente de fallback para Suspense
+const ListSkeleton = () => (
+  <div className="animate-pulse">
+    <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded mb-4 w-1/3"></div>
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow">
+      <div className="p-4 border-b">
+        <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-1/4"></div>
+      </div>
+      <div className="p-4">
+        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-3"></div>
+        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-3"></div>
+        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
+      </div>
+    </div>
+  </div>
+);
 
 // Componente de filtro de rango
 interface RangeFilterProps {
@@ -135,15 +152,29 @@ interface GenericListProps<T extends BaseType> {
   showActions?: boolean;
 }
 
-// Componente principal
-const GenericList = <T extends BaseType>({
+// NUEVA IMPLEMENTACIÓN: Dividir en dos componentes
+// 1. Componente wrapper con Suspense
+export default function GenericList<T extends BaseType>(props: GenericListProps<T>) {
+  // Importante: forzar modo dinámico para prevenir prerendering
+  // que causa el error de useSearchParams
+  React.useEffect(() => {}, []);
+  
+  return (
+    <Suspense fallback={<ListSkeleton />}>
+      <GenericListContent {...props} />
+    </Suspense>
+  );
+}
+
+// 2. Componente real con la implementación actual
+function GenericListContent<T extends BaseType>({
   resource,
   title,
   columns,
   canCreate = true,
   pageSize = 10,
   showActions = true,
-}: GenericListProps<T>) => {
+}: GenericListProps<T>) {
   // Estado para filtros, ordenamiento y paginación
   const [activeFilters, setActiveFilters] = useState<CustomFilter[]>([]);
   const [activeSorter, setActiveSorter] = useState<{field: string, order: 'ascend' | 'descend'} | null>(null);
@@ -312,7 +343,6 @@ const GenericList = <T extends BaseType>({
               resource={resource}
             />
             <DeleteButton
-            
               recordItemId={record.id}
               resource={resource}
               meta={{
@@ -336,8 +366,6 @@ const GenericList = <T extends BaseType>({
     filters: Record<string, FilterValue | null>,
     sorter: SorterResult<T> | SorterResult<T>[],
   ) => {
-    console.log('Table change:', { pagination, filters, sorter });
-    
     // Actualizar filtros estándar
     const standardFilters: LogicalFilter[] = [];
     Object.entries(filters).forEach(([field, value]) => {
@@ -432,20 +460,14 @@ const GenericList = <T extends BaseType>({
       title={title}
       canCreate={canCreate}
       headerButtons={({ defaultButtons }) => (
-        <>
-          {defaultButtons}
-          <ExportButton onClick={handleExport} />
-        </>
+        <Suspense fallback={<>Cargando...</>}>
+          <>
+            {defaultButtons}
+            <ExportButton onClick={handleExport} />
+          </>
+        </Suspense>
       )}
     >
-      {/* Debug */}
-      {/* <div style={{marginBottom: '10px'}}>
-        <p>Página actual: {currentPage}</p>
-        <p>Tamaño de página: {pageSize_}</p>
-        <p>Total items: {processedData.length}</p>
-        <p>Items en página actual: {paginatedData.length}</p>
-      </div> */}
-      
       <Table<T>
         rowKey="id"
         columns={getFinalColumns()}
@@ -464,6 +486,4 @@ const GenericList = <T extends BaseType>({
       />
     </List>
   );
-};
-
-export default GenericList;
+}

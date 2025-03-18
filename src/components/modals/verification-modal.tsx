@@ -14,7 +14,6 @@ import { UserData } from "@/types/types";
 import { resendVerification, sendVerification } from "@/services/authService";
 import { signIn } from "next-auth/react";
 import { useModal } from "@/contexts/modal-context";
-import SuccessModal from "./succes-modal";
 
 interface VerificationModalProps {
   isOpen: boolean;
@@ -223,7 +222,7 @@ export default function VerificationModal({
               length={6}
               value={state.verificationCode}
               size="lg"
-              allowedKeys="[a-z0-9]"
+              allowedKeys="[A-Za-z0-9]"
               variant="bordered"
               aria-label="Código de verificación"
               onValueChange={handleCodeChange}
@@ -279,13 +278,6 @@ export default function VerificationModal({
           </Button>
         </ModalFooter>
       </ModalContent>
-      <SuccessModal
-        isOpen={state.openSuccessModal}
-        message={state.messageForSuccesModal}
-        onClose={() =>
-          setState((prev) => ({ ...initState, timerActive: true }))
-        }
-      />
     </Modal>
   );
 }

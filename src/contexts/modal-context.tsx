@@ -8,6 +8,7 @@ import React, {
   useCallback,
   useState,
   useMemo,
+  Suspense,
 } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ModalAction, ModalState, ModalType, UserData } from "@/types/types";
@@ -98,7 +99,19 @@ const ModalContext = createContext<
   | undefined
 >(undefined);
 
+// Componente wrapper para proporcionar el límite de Suspense
 export const ModalProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
+  return (
+    <Suspense fallback={null}>
+      <ModalProviderContent>{children}</ModalProviderContent>
+    </Suspense>
+  );
+};
+
+// Componente interno con la lógica original que usa useSearchParams
+const ModalProviderContent: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const router = useRouter();

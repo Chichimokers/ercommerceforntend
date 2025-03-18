@@ -7,6 +7,7 @@ import React, {
   useState,
   useMemo,
   useCallback,
+  Suspense
 } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { Category, Filters, ProductBase } from "@/types/types";
@@ -55,13 +56,27 @@ const ProductContext = createContext<ProductContextType>({
 });
 const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") || "";
 
+// Componente principal que proporciona el límite de Suspense
 export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
+  return (
+    <Suspense fallback={null}>
+      <ProductProviderContent>
+        {children}
+      </ProductProviderContent>
+    </Suspense>
+  );
+};
+
+// Componente interno que usa useSearchParams
+const ProductProviderContent: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const { location } = useLocation()
+  const { location } = useLocation();
 
   const [filters, setFilters] = useState<Filters>({});
   const [page, setPage] = useState(1);

@@ -1,4 +1,3 @@
-
 namespace NodeJS {
   interface ProcessEnv {
     NEXT_PUBLIC_API_URL: string;
@@ -7,6 +6,8 @@ namespace NodeJS {
     API_SECRET: string;
     NEXT_PUBLIC_ELTOQUE_TOKEN: string;
     El_TOKE: string;
-    PHONE: string
+    NEXT_PUBLIC_PHONE: string;
+    NEXT_PUBLIC_EMAIL: string;
+    ANALYZE: string;
   }
 }

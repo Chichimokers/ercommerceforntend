@@ -2,7 +2,6 @@
 
 import { useEffect } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { Button } from '@heroui/react';
 import { FiAlertTriangle, FiRefreshCw, FiHome, FiArrowLeft } from 'react-icons/fi';
 
@@ -14,7 +13,6 @@ export default function Error({
   reset: () => void;
 }) {
   useEffect(() => {
-    // Log error to monitoring service
     console.error(error);
   }, [error]);
 

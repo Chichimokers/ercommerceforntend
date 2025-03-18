@@ -10,18 +10,15 @@ import OrderSummary from "@components/cards/summary";
 import EmptyCart from "@components/empty/empty-cart";
 import { useLocation } from "@contexts/location-context";
 import useSWR from "swr";
-import { useShipping } from "@/contexts/shipping-context";
 import { ArrowLeft, ShoppingBag } from "lucide-react";
 import Link from "next/link";
 import { useDeviceDetection } from "@/hooks/useDeviceDetection";
 
-// Tipos para mejor documentación del código
 interface ShippingPriceRequest {
   total_weight: number;
   municipality: string;
 }
 
-// Componente memoizado para cada producto en el carrito - evitamos re-renders innecesarios
 const CartItem = memo(({ product, isMobile }: { product: any, isMobile: boolean }) => {
   return (
     <div key={product.id} className="cart-item">
@@ -40,14 +37,12 @@ const CartItem = memo(({ product, isMobile }: { product: any, isMobile: boolean 
     </div>
   );
 }, (prevProps, nextProps) => {
-  // Solo volvemos a renderizar si el producto cambia o cambia el modo de visualización
   return prevProps.product.id === nextProps.product.id &&
     prevProps.isMobile === nextProps.isMobile;
 });
 
 CartItem.displayName = 'CartItem';
 
-// Componente memoizado para el esqueleto de carga del resumen
 const OrderSummarySkeleton = memo(() => (
   <div className="rounded-xl bg-white dark:bg-gray-800 shadow-md p-6 space-y-4">
     <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
@@ -68,9 +63,7 @@ export default function ShoppingCartPage() {
   const [isMounted, setIsMounted] = useState(false);
   const [isInitialRender, setIsInitialRender] = useState(true);
   const { location } = useLocation();
-  const { setShippingPrice, setTotalWeight } = useShipping();
 
-  // Usando el hook de detección de dispositivo para evitar resize listeners redundantes
   const deviceData = useDeviceDetection();
   const isMobile = deviceData.isMobile;
 
@@ -90,7 +83,6 @@ export default function ShoppingCartPage() {
     }, 0);
   }, [cart, cartProducts]);
 
-  // Fetcher para SWR con validación
   const fetchShippingPrice = useCallback(async (url: string) => {
     if (totalWeight === 0 || !location.municipality) {
       return 0;
@@ -149,12 +141,9 @@ export default function ShoppingCartPage() {
     }, 0);
   }, [cart, cartProducts]);
 
-  // Simplificamos el useEffect para solo manejar el montaje y el timer inicial
   useEffect(() => {
     setIsMounted(true);
 
-    // Marcar que ya pasó el renderizado inicial después de 500ms
-    // Reducido de 1000ms para mayor rapidez
     const initialRenderTimer = setTimeout(() => {
       setIsInitialRender(false);
     }, 500);
@@ -164,16 +153,6 @@ export default function ShoppingCartPage() {
     };
   }, []);
 
-  // Actualizar contexto cuando cambian los precios
-  useEffect(() => {
-    if (shippingPrice !== undefined && !isLoadingPrice) {
-      setShippingPrice(shippingPrice);
-    }
-
-    setTotalWeight(totalWeight);
-  }, [shippingPrice, isLoadingPrice, totalWeight, setShippingPrice, setTotalWeight]);
-
-  // Productos en el carrito
   const cartItems = useMemo(() => {
     if (!cart || !cartProducts.length) return [];
 
@@ -196,7 +175,6 @@ export default function ShoppingCartPage() {
     <section
       className="py-8 px-2 sm:py-12 sm:px-4 overflow-hidden max-w-full"
       style={{
-        // Optimizaciones para rendimiento de scrolling en dispositivos de gama baja
         willChange: deviceData.isLowPerformance ? 'scroll-position' : 'auto',
         backfaceVisibility: 'hidden'
       }}
@@ -235,7 +213,6 @@ export default function ShoppingCartPage() {
 
                 <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800">
                   <div className="divide-y divide-gray-100 dark:divide-gray-800">
-                    {/* Usamos componentes memoizados con keys estables para evitar re-renders innecesarios */}
                     {cartItems.map((product) => (
                       <CartItem
                         key={`cart-item-${product.id}`}
@@ -245,7 +222,6 @@ export default function ShoppingCartPage() {
                     ))}
                   </div>
 
-                  {/* Acciones adicionales */}
                   <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-b-xl">
                     <div className="flex flex-wrap justify-between items-center gap-4">
                       <div className="text-sm text-gray-500 dark:text-gray-400">
@@ -256,7 +232,6 @@ export default function ShoppingCartPage() {
                         color="danger"
                         variant="light"
                         onClick={clearCart}
-                        // Deshabilitar animaciones para dispositivos de bajo rendimiento
                         disableAnimation={deviceData.isLowPerformance}
                       >
                         Vaciar carrito
