@@ -92,9 +92,9 @@ export default function ReadyToStart() {
       </div>
 
       {/* Componente cliente para efectos interactivos - cargado después del SSR */}
-      <Suspense fallback={null}>
+      {/*<Suspense fallback={null}>
         <ClientInteractivity />
-      </Suspense>
+      </Suspense>*/}
     </section>
   );
 }

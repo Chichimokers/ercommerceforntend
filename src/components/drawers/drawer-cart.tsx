@@ -77,9 +77,11 @@ export default function DrawerCart({ className }: { className?: string }) {
 
   const handleBackdropChange = useCallback((backdrop: string) => {
     setBackdrop(backdrop);
-    mutateCartProducts();
+    if (!isOpen) {
+      mutateCartProducts();
+    }
     setTimeout(onOpen, 0);
-  }, [mutateCartProducts, onOpen]);
+  }, [mutateCartProducts, onOpen, isOpen]);
 
   const emptyCartContent = useMemo(() => (
     <div className="w-full flex flex-col items-center justify-center py-8">
@@ -91,7 +93,7 @@ export default function DrawerCart({ className }: { className?: string }) {
           src="/Empty_Cart.svg"
           onLoad={() => setImageLoaded(true)}
           fill
-          quality={Number(process.env.IMAGE_QUALITY) || 75}
+          quality={75}
           loading="lazy"
         />
       </div>
@@ -104,8 +106,10 @@ export default function DrawerCart({ className }: { className?: string }) {
   const cartItemsContent = useMemo(() =>
     cart?.map((item) => {
       const product = convertItem(item);
+      if (!product) return null;
+
       return product ? (
-        <React.Suspense key={product.id} fallback={<div>Cargando producto...</div>}>
+        <React.Suspense key={product.id} fallback={<div className="h-24 bg-gray-100 dark:bg-gray-800 rounded-md"></div>}>
           <CartCard productCart={product} />
         </React.Suspense>
       ) : null;
@@ -124,7 +128,6 @@ export default function DrawerCart({ className }: { className?: string }) {
     );
   }
 
-  // Valores formateados para mostrar
   const formattedSubtotal = formatCurrency(
     (exchangeRate ? subtotal * exchangeRate : subtotal),
     currency,

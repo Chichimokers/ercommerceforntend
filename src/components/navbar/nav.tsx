@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useMemo, useCallback, useRef, useEffect, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { Tabs, Tab } from "@heroui/react";
 import { FaStore, FaShoppingCart, FaUser, FaHome } from "react-icons/fa";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { FaList } from "react-icons/fa6";
 import { useIsomorphicLayoutEffect } from "framer-motion";
@@ -36,9 +36,7 @@ const useDeviceOptimization = () => {
 
 export const Navbar = ({ className = "" }: { className?: string }) => {
   const pathname = usePathname();
-  const router = useRouter();
   const { isLowPerformance, isTouchDevice } = useDeviceOptimization();
-  const prefetchedRef = useRef<Record<string, boolean>>({});
 
   const navItems = useMemo(() => [
     { key: "/", href: "/", icon: FaHome, label: "Inicio" },
@@ -56,63 +54,7 @@ export const Navbar = ({ className = "" }: { className?: string }) => {
     )?.key || "/";
   }, [pathname, navItems]);
 
-  const handlePrefetch = useCallback((href: string) => {
-    if (isLowPerformance || prefetchedRef.current[href]) return;
 
-    if (href === "/products" && !prefetchedRef.current[href]) {
-      router.prefetch("/products");
-
-      const prefetchData = async () => {
-        try {
-          const queryParams = new URLSearchParams({
-            page: "1",
-            limit: "10",
-          }).toString();
-
-          const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 3000);
-
-          const response = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL}public/products?${queryParams}`,
-            {
-              signal: controller.signal,
-              priority: 'low',
-              cache: 'force-cache'
-            }
-          );
-
-          clearTimeout(timeoutId);
-          if (response.ok) {
-            const data = await response.json();
-            sessionStorage.setItem('prefetched_products', JSON.stringify(data));
-          }
-        } catch (error: unknown) {
-          if (error instanceof Error && error.name !== 'AbortError') {
-            console.debug('Error prefetching products data:', error);
-          }
-        }
-      };
-
-      if ('requestIdleCallback' in window) {
-        requestIdleCallback(() => prefetchData());
-      } else {
-        setTimeout(prefetchData, 1000);
-      }
-
-      prefetchedRef.current[href] = true;
-    }
-  }, [router, isLowPerformance]);
-
-  const getInteractionHandlers = useCallback((href: string) => {
-    if (isLowPerformance) return {};
-
-    return isTouchDevice
-      ? {}
-      : {
-        onMouseEnter: () => handlePrefetch(href),
-        onFocus: () => handlePrefetch(href)
-      };
-  }, [handlePrefetch, isTouchDevice, isLowPerformance]);
 
   return (
     <div
@@ -165,7 +107,6 @@ export const Navbar = ({ className = "" }: { className?: string }) => {
                 <span className="text-xs sm:text-sm">{label}</span>
               </div>
             }
-            {...getInteractionHandlers(href)}
           />
         ))}
       </Tabs>

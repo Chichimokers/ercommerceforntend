@@ -48,7 +48,7 @@ export default function ProductInteraction({
 
   return (
     <div
-      className="flex justify-between items-center gap-2 p-2 sm:p-3 border-t border-gray-100 dark:border-gray-700 w-full"
+      className="flex justify-between items-center gap-2 p-2 sm:p-3 w-full"
       onClick={handleInteractionClick}
     >
       <div className="flex-shrink-0">

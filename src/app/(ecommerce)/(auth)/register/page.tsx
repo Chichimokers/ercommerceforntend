@@ -227,7 +227,7 @@ export default function SignUp() {
           />
         </div>
         <div className={getAnimationClass("text-center", "animate-fadeInDown")}>
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent dark:from-blue-400 dark:to-indigo-300">
+          <h1 className="text-2xl font-bold text-blue-600 dark:text-blue-400">
             Crea tu cuenta
           </h1>
           <p className="text-center mt-2 text-gray-600 dark:text-gray-400 text-sm max-w-xs mx-auto">
