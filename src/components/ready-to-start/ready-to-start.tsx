@@ -12,19 +12,18 @@ export default function ReadyToStart() {
       className="
         relative 
         overflow-hidden
-        bg-gradient-to-br from-blue-50 to-indigo-100
-        dark:from-gray-900 dark:to-blue-900
+        bg-indigo-100
+        dark:bg-blue-950
         py-20 sm:py-28
       "
     >
       {/* Fondo estático para SSR inicial */}
-      <div className="absolute inset-0 z-0">
+      {/*<div className="absolute inset-0 z-0">
         <div className="absolute inset-0 opacity-10 dark:opacity-20 bg-[url('/images/grid-pattern.svg')]"></div>
         <div className="absolute top-0 -left-48 w-96 h-96 bg-blue-400 dark:bg-blue-700 rounded-full mix-blend-multiply opacity-10 dark:opacity-5" />
         <div className="absolute bottom-0 -right-48 w-96 h-96 bg-purple-400 dark:bg-purple-700 rounded-full mix-blend-multiply opacity-10 dark:opacity-5" />
-      </div>
+      </div>*/}
 
-      {/* Contenido principal (renderizado en servidor) */}
       <div className="relative z-10 container mx-auto px-6 flex flex-col items-center text-center">
         <div className="max-w-3xl">
           <h2 className="text-3xl md:text-5xl font-extrabold bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-300 bg-clip-text text-transparent mb-6">
@@ -69,7 +68,6 @@ export default function ReadyToStart() {
             </Link>
           </div>
 
-          {/* Insignia de confianza */}
           <div className="flex items-center justify-center mt-10 text-sm text-gray-500 dark:text-gray-400">
             <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />

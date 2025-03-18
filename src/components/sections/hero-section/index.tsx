@@ -10,20 +10,10 @@ const HeroButtons = dynamic(() => import("./client/hero-buttons"), {
 
 const LocationHandler = dynamic(() => import("./client/location-handler"));
 
-const AnimationEffects = dynamic(() => import("./client/animation-effects"));
-
 export default function HeroSection() {
   return (
     <div className="relative overflow-hidden">
       <LocationHandler>
-        <div className="absolute inset-0 pointer-events-none">
-          <div
-            className="absolute -top-40 -right-40 w-80 h-80 rounded-full bg-blue-100/20 dark:bg-blue-900/5"
-          />
-          <div
-            className="absolute top-20 -left-20 w-60 h-60 rounded-full bg-purple-100/10 dark:bg-purple-900/5"
-          />
-        </div>
 
         <section className="relative w-full min-h-[600px] h-auto md:h-[700px] lg:h-[800px] flex flex-col items-center justify-center text-center overflow-hidden bg-gradient-to-b from-black/70 via-black/50 to-blue-50 dark:to-black/70 py-8 md:py-0">
           <div className="absolute inset-0 w-full h-full">
@@ -40,8 +30,8 @@ export default function HeroSection() {
             <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-black/50" />
           </div>
 
-          <div className="absolute top-1/4 -left-20 w-[40rem] h-[40rem] rounded-full bg-blue-600/10 blur-3xl z-0"></div>
-          <div className="absolute bottom-0 -right-20 w-[30rem] h-[30rem] rounded-full bg-indigo-600/10 blur-3xl z-0"></div>
+          <div className="absolute top-1/4 -left-20 w-[40rem] h-[40rem] rounded-full bg-blue-50/10 dark:bg-blue-600/10 blur-3xl z-0"></div>
+          <div className="absolute bottom-0 -right-20 w-[30rem] h-[30rem] rounded-full bg-blue-50/10 dark:bg-indigo-600/10 blur-3xl z-0"></div>
 
           <div className="relative z-20 px-6 sm:px-10 py-10 sm:py-16 w-full max-w-7xl mx-auto flex flex-col items-center">
             <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white tracking-tight leading-[1.1] mb-4 sm:mb-6">
@@ -88,7 +78,6 @@ export default function HeroSection() {
                   />
                 </div>
 
-                {/* Botones - reemplazados por componente cliente */}
                 <div className="mt-5 sm:mt-8 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
                   <HeroButtons />
                 </div>
@@ -96,17 +85,14 @@ export default function HeroSection() {
             </div>
           </div>
 
-          <div className="absolute bottom-0 left-0 w-full h-16 bg-gradient-to-t from-gray-900 to-transparent z-10"></div>
+          <div className="absolute bottom-0 left-0 w-full h-20 bg-gradient-to-t from-blue-50 dark:from-gray-900 to-transparent"></div>
         </section>
 
-        {/* Efectos visuales adicionales */}
-        <AnimationEffects />
       </LocationHandler>
     </div>
   );
 }
 
-// Fallback para botones mientras se cargan
 function ButtonsFallback() {
   return (
     <>

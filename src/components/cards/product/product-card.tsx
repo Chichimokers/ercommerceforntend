@@ -35,7 +35,7 @@ export default function ProductCard({
     h-full rounded-xl overflow-hidden
     bg-white dark:bg-gray-800/80 
     border border-gray-200 dark:border-gray-700
-    hover:shadow-md transition-all duration-300 hover:-translate-y-1
+    transition-all duration-300 hover:border-default-400 dark:hover:border-default-400
     ${className}
   `;
 
@@ -71,7 +71,6 @@ export default function ProductCard({
           </div>
 
           <div className="px-2 pt-2 sm:px-3 sm:pt-3 md:px-4 md:pt-4">
-            {/* Título del producto - ya clickeable porque el Link es el contenedor */}
             <h3 className="text-sm sm:text-base font-medium line-clamp-1 mb-1 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
               {product.name}
             </h3>
