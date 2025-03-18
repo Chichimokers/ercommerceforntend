@@ -22,6 +22,8 @@ interface ProductContextType {
   isLoading: boolean;
   categories: Category[];
   totalPages: number;
+  minPrice: number;
+  maxPrice: number;
   error: any;
   errorStatus: boolean;
   errorMessage: string;
@@ -36,6 +38,8 @@ interface ProductContextType {
 const ProductContext = createContext<ProductContextType>({
   products: [],
   totalPages: 1,
+  minPrice: 0,
+  maxPrice: 1000,
   isLoading: false,
   error: null,
   cartProducts: [],
@@ -125,6 +129,8 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({
   const contextValue = useMemo(() => ({
     products: productsData?.products || [],
     totalPages: productsData?.totalPages || 1,
+    minPrice: productsData?.minPrice || 0,
+    maxPrice: productsData?.maxPrice || 1000,
     isLoading: isLoadingProducts,
     error: productsError,
     cartProducts,

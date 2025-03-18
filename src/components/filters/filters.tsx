@@ -67,7 +67,7 @@ const parsePriceRange = (pricerange: string | null): [number, number] => {
 };
 
 const Filters = ({ onFilterChange, setIsInvalidFilters, className, onPendingFiltersChange }: FiltersProps) => {
-  const { categories, isLoading } = useProductContext();
+  const { categories, isLoading, minPrice, maxPrice } = useProductContext();
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -404,8 +404,8 @@ const Filters = ({ onFilterChange, setIsInvalidFilters, className, onPendingFilt
           }}
           className="max-w-md"
           value={displayFilters.priceRange}
-          maxValue={1000}
-          minValue={0}
+          maxValue={maxPrice && maxPrice > 0 ? maxPrice : 1000}
+          minValue={minPrice && minPrice > 0 ? minPrice : 0}
           step={20}
           onChange={handlePriceRangeChange}
         />
