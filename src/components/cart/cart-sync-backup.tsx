@@ -17,12 +17,10 @@ export default function CartSyncBackup() {
             path: '/',
             sameSite: 'lax'
           });
-          console.log('Carrito sincronizado: localStorage → cookie');
         }
 
         else if (!localCart && cookieCart) {
           localStorage.setItem('cart', cookieCart);
-          console.log('Carrito sincronizado: cookie → localStorage');
         }
 
         else if (localCart && cookieCart && localCart !== cookieCart) {
@@ -31,10 +29,8 @@ export default function CartSyncBackup() {
             path: '/',
             sameSite: 'lax'
           });
-          console.log('Carrito re-sincronizado: localStorage → cookie (diferencias)');
         }
       } catch (error) {
-        console.error('Error en sincronización de respaldo:', error);
       }
     };
 
