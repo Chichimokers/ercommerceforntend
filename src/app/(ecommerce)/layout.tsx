@@ -52,7 +52,9 @@ export default function EcommerceLayout({ children }: { children: ReactNode }) {
         className={`fixed top-16 left-0 right-0 z-30 transition-transform duration-300 ${showInfoBar ? "translate-y-0" : "-translate-y-full"
           }`}
       >
-        <InfoBar />
+        <React.Suspense fallback={<div className="h-12 bg-blue-100 dark:bg-gray-800 animate-pulse"></div>}>
+          <InfoBar />
+        </React.Suspense>
       </div>
 
       <main

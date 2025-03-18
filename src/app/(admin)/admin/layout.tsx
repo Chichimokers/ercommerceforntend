@@ -31,7 +31,7 @@ import { customDataProvider } from "@providers/data-provider";
 import { RefineContext } from "@app/_refine_context";
 import { getSession } from "next-auth/react";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 
 
@@ -257,6 +257,7 @@ function Layout({ children }: { children: React.ReactNode }) {
              redirectOnFail="/api/auth/signin?callbackUrl=/admin"
 
             >
+              <Suspense fallback={<div className="h-screen w-screen"></div>}>
               <App>
                 <ThemedLayoutV2 initialSiderCollapsed
                   dashboard
@@ -276,6 +277,7 @@ function Layout({ children }: { children: React.ReactNode }) {
                   {children}
                 </ThemedLayoutV2>
               </App>
+              </Suspense>
             </Authenticated>
           </Refine>
         </ConfigProvider>

@@ -1,11 +1,19 @@
-// src/components/scroll/scroll-manager.tsx
 "use client";
 
 import { usePathname, useSearchParams } from "next/navigation";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, Suspense } from "react";
 
+// Componente wrapper que proporciona el límite de Suspense
 export default function ScrollManager() {
-  // Rastrea si estamos usando la navegación del navegador (botón atrás)
+  return (
+    <Suspense fallback={null}>
+      <ScrollManagerContent />
+    </Suspense>
+  );
+}
+
+// Componente interno que contiene toda la lógica con useSearchParams
+function ScrollManagerContent() {
   const isBackNavigation = useRef(false);
   const pathname = usePathname();
   const searchParams = useSearchParams();

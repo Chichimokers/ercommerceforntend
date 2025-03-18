@@ -92,6 +92,8 @@ const SimpleStatsCard = React.memo(({ icon, label, value, colorClass }: {
   </div>
 ));
 
+SimpleStatsCard.displayName = "SimpleStatsCard";
+
 const CategoryPanel = () => {
   const { categories } = useProductContext();
   const fetchUrl = `${process.env.NEXT_PUBLIC_API_URL}public/main`;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback, useContext } from "react";
+import { useEffect, useState, useCallback, useContext, Suspense } from "react";
 import ProductCard from "@components/cards/product-card";
 import { useSearchParams, useRouter } from "next/navigation";
 import { ProductBase } from "../../../types/types";
@@ -69,6 +69,48 @@ const getCategoryName = (category: any): string => {
 };
 
 export default function SearchPage() {
+  return (
+    <Suspense fallback={<SearchLoadingFallback />}>
+      <SearchPageContent />
+    </Suspense>
+  );
+}
+
+function SearchLoadingFallback() {
+  return (
+    <div className="min-h-[calc(100vh-64px)] bg-gray-50 dark:bg-gray-900">
+      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+        <div className="container mx-auto px-4 py-4 sm:py-6">
+          <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+            <div>
+              <div className="h-8 bg-gray-200 dark:bg-gray-700 animate-pulse rounded-lg w-64 mb-2"></div>
+              <div className="h-4 bg-gray-200 dark:bg-gray-700 animate-pulse rounded-lg w-32"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="container mx-auto md:px-4 py-6">
+        <div className="flex flex-col md:flex-row gap-6">
+          <div className="flex-1 grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {[...Array(8)].map((_, i) => (
+              <div key={i} className="bg-white dark:bg-gray-800 rounded-xl p-3 shadow-sm">
+                <div className="h-40 bg-gray-200 dark:bg-gray-700 animate-pulse rounded-lg mb-3" />
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 animate-pulse rounded w-3/4 mb-2" />
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 animate-pulse rounded w-1/2" />
+                <div className="mt-3 flex justify-between items-center">
+                  <div className="h-6 bg-gray-200 dark:bg-gray-700 animate-pulse rounded w-1/3" />
+                  <div className="h-8 w-8 bg-gray-200 dark:bg-gray-700 animate-pulse rounded-full" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SearchPageContent() {
   const [results, setResults] = useState<ProductBase[]>([]);
   const [filteredResults, setFilteredResults] = useState<ProductBase[]>([]);
   const [loading, setLoading] = useState(true);

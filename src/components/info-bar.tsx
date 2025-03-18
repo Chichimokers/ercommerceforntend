@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import { FaPhoneAlt, FaEnvelope, FaHeadset, FaMapMarkerAlt } from "react-icons/fa";
 import CurrencySelector from "@components/selects/currency-selector";
