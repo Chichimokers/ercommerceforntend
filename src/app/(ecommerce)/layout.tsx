@@ -65,7 +65,7 @@ export default function EcommerceLayout({ children }: { children: ReactNode }) {
 
       <Footer />
 
-      <div className="sticky bottom-0 left-0 w-full xm:hidden z-50">
+      <div className="sticky bottom-0 left-0 w-full xm:hidden mt-16 z-50">
         <Navbar className="fixed bottom-0 left-0 right-0" />
       </div>
     </>

@@ -35,7 +35,8 @@ export default function ProductCard({
     h-full rounded-xl overflow-hidden
     bg-white dark:bg-gray-800/80 
     border border-gray-200 dark:border-gray-700
-    transition-all duration-300 hover:border-default-400 dark:hover:border-default-400
+    transition-all duration-300 hover:border-default-400 
+    dark:hover:border-default-400
     ${className}
   `;
 
@@ -46,7 +47,6 @@ export default function ProductCard({
   return (
     <Link
       href={productUrl}
-      prefetch={prefetch === "none" ? false : undefined}
       className="group relative block rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
       style={{ touchAction: "pan-y pan-x" }}
     >
