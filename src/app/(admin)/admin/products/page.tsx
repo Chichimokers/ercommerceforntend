@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, Suspense } from "react";
 import {
   useSelect,
   List,
@@ -13,13 +13,12 @@ import { useCustom } from "@refinedev/core";
 import { Table, Select, InputNumber, Row, Col, Space, Typography, Input, Button } from "antd";
 import type { GetListResponse } from "@refinedev/core";
 import { ProductBase, BaseType, Category, SubCategory } from "../../../../types/types";
-import { SearchSuggestions } from "@components/search-suggestions";
 import { useRouter } from "next/navigation";
 
 const { Text } = Typography;
 const { Search } = Input;
 
-const ProductList = () => {
+export default function ProductList() {
   const router = useRouter();
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -408,12 +407,3 @@ const ProductList = () => {
     </List>
   );
 };
-
-// Componente principal con Suspense
-export default function ProductList() {
-  return (
-    <Suspense fallback={<ListSkeleton />}>
-      <ProductContent />
-    </Suspense>
-  );
-}

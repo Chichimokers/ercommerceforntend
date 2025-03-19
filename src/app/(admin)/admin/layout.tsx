@@ -23,7 +23,6 @@ import { ConfigProvider, App, Layout as AntLayout, Button, Space, Typography, Sw
 import { theme } from "antd";
 import { useTheme } from "next-themes";
 import { customDataProvider } from "@providers/data-provider";
-import { RefineContext } from "@app/_refine_context";
 import { getSession } from "next-auth/react";
 
 import { Suspense, useEffect, useState } from "react";
@@ -47,7 +46,6 @@ const { Title, Text } = Typography;
 const CustomHeader = () => {
   const { resolvedTheme, setTheme } = useTheme();
 
-
   return (
     <Header
       style={{
@@ -59,7 +57,6 @@ const CustomHeader = () => {
         boxShadow: "0 1px 4px rgba(0,0,0,0.1)",
       }}
     >
-
       <Switch size="default" style={{ marginRight: '20px' }}
         checked={resolvedTheme === "dark"}
         onChange={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
@@ -67,14 +64,11 @@ const CustomHeader = () => {
         unCheckedChildren={<SunOutlined />}
       />
       <Space align="center">
-
         <AccountButton />
-
       </Space>
     </Header>
   );
 };
-
 
 function Layout({ children }: { children: React.ReactNode }) {
   const { resolvedTheme } = useTheme();
@@ -118,7 +112,6 @@ function Layout({ children }: { children: React.ReactNode }) {
     },
   };
 
-
   useEffect(() => {
     document.documentElement.classList.toggle('dark', resolvedTheme === 'dark');
   }, [resolvedTheme]);
@@ -127,6 +120,7 @@ function Layout({ children }: { children: React.ReactNode }) {
     fontSize: '18px',
     color: resolvedTheme === "dark" ? "#f5f5f5" : "#555",
   });
+
   const resources = [
     {
       name: "dashboard",
@@ -191,9 +185,6 @@ function Layout({ children }: { children: React.ReactNode }) {
         icon: <FolderOpenOutlined style={getIconStyle()} />
       },
     },
-
-
-
     {
       name: "province",
       list: "/admin/province",
@@ -213,10 +204,9 @@ function Layout({ children }: { children: React.ReactNode }) {
       show: "/admin/municipality/show/:id",
       meta: {
         label: "Municipios",
-        icon: <HomeOutlined style={getIconStyle()} /> //noceque iconos ponerle 
+        icon: <HomeOutlined style={getIconStyle()} />
       },
-    }
-    ,
+    },
     {
       name: "utils",
       list: "/admin/utils",
@@ -230,100 +220,73 @@ function Layout({ children }: { children: React.ReactNode }) {
   return (
     <SessionProvider>
       <AntdRegistry>
-        <ConfigProvider theme={themeConfig}>
-          <Refine
-            routerProvider={NextRouterProvider}
-            dataProvider={customDataProvider}
-            authProvider={authProvider}
-            notificationProvider={useNotificationProvider}
-            resources={resources}
-            options={{
-              syncWithLocation: true,
-              warnWhenUnsavedChanges: true,
-              disableTelemetry: true,
-            }}
-          >
-            <Authenticated
-              key="admin-auth"
-              redirectOnFail="/api/auth/signin?callbackUrl=/admin"
-
+        <ConfigProvider locale={esES} theme={themeConfig}>
+          <App className="ant-app">
+            <Refine
+              routerProvider={NextRouterProvider}
+              dataProvider={customDataProvider}
+              authProvider={{
+                ...authProvider,
+                onError: async (error) => {
+                  if (error.response?.status === 401) {
+                    return {
+                      logout: true,
+                    };
+                  }
+                  return {
+                    error,
+                  };
+                },
+                getIdentity: async () => {
+                  if (session?.user) {
+                    return {
+                      name: session.user.name,
+                    };
+                  }
+                  return null;
+                },
+              }}
+              notificationProvider={useNotificationProvider}
+              resources={resources}
+              i18nProvider={i18nProvider}
+              options={{
+                syncWithLocation: true,
+                warnWhenUnsavedChanges: true,
+                disableTelemetry: true,
+              }}
             >
-              <Suspense fallback={<div className="h-screen w-screen"></div>}>
-                <App>
-                  <ThemedLayoutV2 initialSiderCollapsed
-        <ConfigProvider
-                    locale={esES}
-                    theme={themeConfig}
+              <Authenticated
+                key="admin-auth"
+                redirectOnFail={`/login?to=${encodeURIComponent('/admin')}`}
+              >
+                <Suspense fallback={<div className="h-screen w-screen"></div>}>
+                  <ThemedLayoutV2
+                    initialSiderCollapsed
+                    Header={() => <CustomHeader />}
+                    Title={({ collapsed }) => (
+                      <div style={{ display: 'flex', alignItems: 'center', padding: collapsed ? '0 12px' : '0 16px' }}>
+                        {collapsed ? (
+                          <AppstoreOutlined style={{ fontSize: '24px', color: '#3b82f6' }} />
+                        ) : (
+                          <Image
+                            alt="Company Logo"
+                            loading="lazy"
+                            width={160}
+                            height={60}
+                            quality={50}
+                            src="/logonav.png"
+                            className="w-auto object-contain flex-shrink-0"
+                          />
+                        )}
+                      </div>
+                    )}
                   >
-                    <App className="ant-app">
-                      <Refine
-                        routerProvider={NextRouterProvider}
-                        dataProvider={customDataProvider}
-                        authProvider={{
-                          ...authProvider,
-                          onError: async (error) => {
-                            if (error.response?.status === 401) {
-                              return {
-                                logout: true,
-                              };
-                            }
-                            return {
-                              error,
-                            };
-                          },
-                          getIdentity: async () => {
-                            if (session?.user) {
-                              return {
-                                name: session.user.name,
-                              };
-                            }
-                            return null;
-                          },
-                        }}
-                        notificationProvider={useNotificationProvider}
-                        resources={resources}
-                        i18nProvider={i18nProvider}
-                        options={{
-                          syncWithLocation: true,
-                          warnWhenUnsavedChanges: true,
-                          disableTelemetry: true,
-                        }}
-                      >
-                        <Authenticated
-                          key="admin-auth"
-                          redirectOnFail={`/login?to=${encodeURIComponent('/admin')}`}
-                        >
-                          <ThemedLayoutV2
-                            initialSiderCollapsed
-                            dashboard
-                            Header={() => <CustomHeader />}
-                            Title={({ collapsed }) => (
-                              <div style={{ display: 'flex', alignItems: 'center', padding: collapsed ? '0 12px' : '0 16px' }}>
-                                {collapsed ? (
-                                  <AppstoreOutlined style={{ fontSize: '24px', color: '#3b82f6' }} />
-                                ) : (
-                                  <Image
-                                    alt="Company Logo"
-                                    loading="lazy"
-                                    width={160}
-                                    height={60}
-                                    quality={50}
-                                    src="/logonav.png"
-                                    className="w-auto object-contain flex-shrink-0"
-                                  />
-                                )}
-                              </div>
-                            )}
-                          >
-                            {children}
-                          </ThemedLayoutV2>
-                        </App>
-                      </Suspense>
-                    </Authenticated>
-                  </Refine>
-                </Authenticated>
-              </Refine>
-            </App>
+                    {children}
+                  </ThemedLayoutV2>
+                </Suspense>
+              </Authenticated>
+            </Refine>
+          </App>
         </ConfigProvider>
       </AntdRegistry>
     </SessionProvider>
