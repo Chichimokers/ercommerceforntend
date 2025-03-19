@@ -1,35 +1,37 @@
 "use client";
+
+import React from "react";
 import { Form, Input } from "antd";
+import { Create } from "@refinedev/antd";
+import { useForm } from "@refinedev/antd";
 import { BaseType, SubCategory } from "../../../../../types/types";
-import GenericCreatePage from "@components/admin/generic_admin_pages/genericCreatePage";
 import { CategorySelector } from "@components/selects/category-selector";
 
-const SubCategoryCreate: React.FC = () => {
+export default function SubCategoryCreate() {
+  const { form, formProps, saveButtonProps } = useForm<SubCategory & BaseType>({
+    resource: "sub_category",
+    redirect: "show",
+    action: "create",
+  });
+
   return (
-    <GenericCreatePage<SubCategory & BaseType>
-      resource="sub_category"
-      title="Crear Subcategoría"
-    >
-      <Form.Item
-        label="Nombre"
-        name="name"
-        rules={[
-          {
-            required: true,
-            message: "Por favor ingrese el nombre de la subcategoría",
-          },
-        ]}
-      >
-        <Input />
-      </Form.Item>
+    <Create title="Crear Subcategoría" saveButtonProps={saveButtonProps}>
+      <Form {...formProps} form={form} layout="vertical">
+        <Form.Item
+          name="name"
+          label="Nombre"
+          rules={[{ required: true, message: "El nombre es obligatorio" }]}
+        >
+          <Input placeholder="Nombre de la subcategoría" />
+        </Form.Item>
 
-      <CategorySelector
-        name="categoryId"
-        label="Categoría Padre"
-        required={true}
-      />
-    </GenericCreatePage>
+        <CategorySelector
+          name="categoryId"
+          label="Categoría Padre"
+          required={true}
+        />
+      </Form>
+    </Create>
   );
-};
-
-export default SubCategoryCreate;
+}
+  

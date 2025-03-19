@@ -25,20 +25,21 @@ const ListSkeleton = () => (
 // Componente de contenido que se envuelve con Suspense
 const SubCategoryContent: React.FC = () => {
   const columns: ColumnType<SubCategory & BaseType>[] = [
-    {
-      title: "Id",
-      dataIndex: "id",
-    },
+   
     {
       title: "Nombre",
       dataIndex: "name",
       sorter: true,
-    },
+    }, 
     {
       title: "Categoría",
       dataIndex: "categoryId",
-      render: (categoryId: string) => `Id: ${categoryId}`,
+      render: (categoryId: string) => `${categoryId}`,
       sorter: true,
+    },
+    {
+      title: "Id",
+      dataIndex: "id",
     },
   ];
 

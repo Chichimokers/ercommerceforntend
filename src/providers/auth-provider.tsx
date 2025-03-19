@@ -11,13 +11,19 @@ export const authProvider: AuthProvider = {
   },
   check: async () => {
     const session = await getSession();
+    
     if (!session?.access_token) {
+      // Obtener la URL actual para redirigir después del login
+      const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
+      const redirectPath = currentPath.startsWith('/admin') ? `/login?to=${encodeURIComponent('/admin')}` : '/login';
+      
       return {
         success: false,
-        redirectTo: "/login",
+        redirectTo: redirectPath,
         authenticated: false
       };
     }
+    
     return { success: true, authenticated: true };
   },
   logout: async () => ({
@@ -26,6 +32,17 @@ export const authProvider: AuthProvider = {
   }),
   onError: async (error) => {
     console.error("Error de autenticación:", error);
+    
+    if (error.response?.status === 401) {
+      const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
+      const redirectPath = currentPath.startsWith('/admin') ? `/login?to=${encodeURIComponent('/admin')}` : '/login';
+      
+      return {
+        logout: true,
+        redirectTo: redirectPath
+      };
+    }
+    
     return { error };
   },
   getIdentity: async () => {

@@ -1,10 +1,16 @@
 "use client";
 
 import { Tag } from "antd";
-import { Order, BaseType } from "../../../../types/types";
+import { Order, BaseType, Province } from "../../../../types/types";
 import GenericList, { ExtendedColumnType } from "@components/admin/generic_admin_pages/genericListPage";
+import { useList } from "@refinedev/core";
+import { ColumnFilterItem } from "antd/es/table/interface";
 
 const OrderList: React.FC = () => {
+  
+  const { data: provinceData } = useList<Province>({ resource: 'province' });
+  const provinceFilter: ColumnFilterItem[] = provinceData?.data.map(p => ({ text: p.name, value: p.name })) || [];
+
   const columns: ExtendedColumnType<Order & BaseType>[] = [
     {
       title: 'Fecha Creación',
@@ -24,9 +30,8 @@ const OrderList: React.FC = () => {
       render: (name: string, record: Order) => (
         <div>
           <div>{name}</div>
-          <div className="text-gray-500">CI:{record.CI}</div>
-          <div className="text-gray-500">Tel:{record.phone}</div>
-
+          <div className="text-gray-500">CI: {record.CI}</div>
+          <div className="text-gray-500">Tel: {record.phone}</div>
         </div>
       ),
       sorter: true,
@@ -43,7 +48,7 @@ const OrderList: React.FC = () => {
           paid: 'yellow',
           default: 'default',
         };
-        
+
         const color = colorMap[status] || colorMap.default;
         return <Tag color={color}>{status.toUpperCase()}</Tag>;
       },
@@ -64,30 +69,31 @@ const OrderList: React.FC = () => {
           <div className="text-sm">{record.address}</div>
         </div>
       ),
+      filters: provinceFilter,
       sorter: true,
     },
-    
     {
       title: 'Monto',
       dataIndex: 'subtotal',
       align: 'right',
       sorter: true,
-      rangeFilter:true
+      rangeFilter: true,
     },
     {
       title: 'Id',
       dataIndex: 'id',
-    
     },
-    
   ];
-  
+
   return (
     <GenericList<Order & BaseType>
       resource="orders"
       title="Órdenes"
+      actionButtons={{edit:false,delete:true,show:true}}
+      canCreate={false}
       columns={columns}
       pageSize={10}
+    
     />
   );
 };
