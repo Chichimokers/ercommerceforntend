@@ -24,6 +24,7 @@ import ErrorBoundary from "@components/error-boundary";
 import { SEO } from "@/components/seo";
 import { formatCurrency } from "@components/format-currency";
 import RelatedProductSection from "@components/sections/relationed-products";
+import { CurrencyData } from "../../../../types/types";
 
 interface ProductImageGalleryProps {
   images: string[];
@@ -108,7 +109,7 @@ const ProductPrice = ({
   discount?: { reduction: number };
   quantity: number;
   minForDiscount?: number;
-  rateExchange: any;
+  rateExchange: CurrencyData | null;
 }) => {
   return (
     <div className="mt-4">
@@ -132,7 +133,7 @@ const ProductPrice = ({
 
       {discount && minForDiscount && quantity < minForDiscount && (
         <div className="mt-2 text-sm text-blue-600 dark:text-blue-400">
-          Compra {minForDiscount} o más para obtener un {((discount.reduction * 100 * rateExchange?.exchangeRate) / displayPrice).toFixed(2)}% de descuento
+          Compra {minForDiscount} o más para obtener un {((discount.reduction * 100 * (rateExchange?.exchangeRate || 1)) / displayPrice).toFixed(2)}% de descuento
         </div>
       )}
     </div>

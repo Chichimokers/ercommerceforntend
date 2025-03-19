@@ -321,6 +321,7 @@ export const Header = ({ className, setModalOpen }: { className?: string, setMod
   const isCartOrBuyPage = pathname === "/shopping-cart" || pathname === "/buy";
   const { data: session, status } = useSession({ required: false });
   const isAuthPage = pathname === "/login" || pathname === "/register";
+  const isCheckoutPage = pathname === "/checkout";
 
   const [scrolled, setScrolled] = useState(false);
 
@@ -370,7 +371,9 @@ export const Header = ({ className, setModalOpen }: { className?: string, setMod
 
       <NavbarContent className="hidden xm:flex sm:basis-full w-full gap-2" justify="end">
         <NavbarItem className="flex gap-3 items-end">
-          <LocationButton setModalOpen={setModalOpen} />
+          {!isCheckoutPage && (
+            <LocationButton setModalOpen={setModalOpen} />
+          )}
 
           <div className="h-10 border-r border-gray-200 dark:border-gray-800 mx-1"></div>
 
@@ -395,7 +398,9 @@ export const Header = ({ className, setModalOpen }: { className?: string, setMod
       <NavbarContent className="xm:hidden basis" justify="end">
         <NavbarItem className="flex gap-2.5 items-end">
           <MobileSearch />
-          <LocationButton setModalOpen={setModalOpen} />
+          {!isCheckoutPage && (
+            <LocationButton setModalOpen={setModalOpen} />
+          )}
           <ThemeSwitch />
 
           {status === "loading" ? (

@@ -7,51 +7,12 @@ import { CustomButton } from "@components/buttons/custom-button";
 import { motion, AnimatePresence } from "framer-motion";
 import { CartContext } from "@contexts/cart-context";
 import Image from "next/image";
+import { locationFetcher } from "@services/location";
 
 interface Option {
   key: string;
   label: string;
 }
-
-const fetcher = async (url: string) => {
-  try {
-    let attempts = 0;
-    const maxAttempts = 3;
-
-    while (attempts < maxAttempts) {
-      try {
-        const res = await fetch(url, {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          cache: 'no-store'
-        });
-
-        if (!res.ok) {
-          const errorText = await res.text();
-          console.error(`API error (${res.status}):`, errorText);
-          throw new Error(`API error: ${res.status}`);
-        }
-
-        const data = await res.json();
-        console.log("API response success:", data);
-        return data;
-      } catch (fetchError) {
-        attempts++;
-        console.warn(`Fetch attempt ${attempts} failed:`, fetchError);
-
-        if (attempts < maxAttempts) {
-          await new Promise(resolve => setTimeout(resolve, 1000));
-        } else {
-          throw fetchError;
-        }
-      }
-    }
-  } catch (error) {
-    console.error("All fetch attempts failed:", error);
-    throw error;
-  }
-};
 
 interface LocationModalProps {
   open: boolean;
@@ -77,7 +38,7 @@ export default function LocationModal({ open, onClose, initialProvince = '', ini
 
   const { data: provinces = [], isLoading: loadingProvinces, error: provincesError } = useSWR<Option[]>(
     open ? `${process.env.NEXT_PUBLIC_API_URL}public/provinces` : null,
-    fetcher,
+    locationFetcher,
     {
       revalidateOnFocus: false,
       onError: (err) => {
@@ -91,7 +52,7 @@ export default function LocationModal({ open, onClose, initialProvince = '', ini
     (open && province && province.trim() !== "")
       ? `${process.env.NEXT_PUBLIC_API_URL}public/municipalities/${province}`
       : null,
-    fetcher,
+    locationFetcher,
     {
       revalidateOnFocus: false,
       dedupingInterval: 5000,

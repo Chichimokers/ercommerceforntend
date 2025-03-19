@@ -6,7 +6,7 @@ import { FaShoppingCart } from "react-icons/fa"
 import Link from "next/link"
 import { FaBucket } from "react-icons/fa6"
 import Image from "next/image"
-import type { ProductBase } from "@/types/types"
+import type { CurrencyData, ProductBase } from "@/types/types"
 import StarRating from "../star-rating"
 import useCartActions from "../actions"
 import { CurrencyAndExchangeRateContext } from "@/contexts/exchange-rate-currency-context"
@@ -350,7 +350,7 @@ const LightProductCard = React.memo(function LightProductCard({
   product: ProductBase;
   prefetch: "hover" | "viewport" | "none";
   onNavigate: () => void;
-  rateExchange: any;
+  rateExchange: CurrencyData | null;
   formattedPrice: string;
   isInCart: boolean;
   handleAddToCart: () => void;
