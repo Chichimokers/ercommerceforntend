@@ -134,7 +134,7 @@ export default function OrderConfirmationPage() {
 
         <div className={`bg-white dark:bg-gray-800 shadow-xl rounded-2xl overflow-hidden transition-all duration-700 ${isAnimated ? 'opacity-100 transform-none' : 'opacity-0 translate-y-8'}`}>
           {/* Header con animación de confeti */}
-          <div className="relative bg-gradient-to-r from-primary to-blue-600 dark:from-primary-600 dark:to-blue-500 p-8 text-white overflow-hidden">
+          <div className="relative bg-gradient-to-r from-primary to-blue-600 p-8 text-white overflow-hidden">
             <div className="absolute inset-0 bg-[url('/confetti-bg.svg')] opacity-10"></div>
 
             <div className="flex flex-col md:flex-row items-center gap-6">
@@ -286,20 +286,6 @@ export default function OrderConfirmationPage() {
                           <p className="font-medium">{formattedTime}</p>
                         </div>
                       </div>
-
-                      <div className="flex justify-center py-4">
-                        <div className="p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
-                          <QRCodeCanvas
-                            value={order.id}
-                            size={150}
-                            className="h-[140px] w-[140px]"
-                            level="H"
-                          />
-                          <p className="text-center text-xs mt-2 text-gray-500 dark:text-gray-400">
-                            ID: {order.id.slice(0, 12)}...
-                          </p>
-                        </div>
-                      </div>
                     </div>
                   </div>
                 </div>
@@ -332,29 +318,21 @@ export default function OrderConfirmationPage() {
           </div>
 
           <div className="bg-gray-50 dark:bg-gray-900/50 border-t border-gray-200 dark:border-gray-700 p-6 flex flex-col sm:flex-row justify-center gap-3">
-            {/* Botón de pago (reemplaza "Volver al inicio") */}
-            <Button
-              color="success"
-              variant="shadow"
-              className={`flex items-center justify-center gap-2 font-semibold transition-all duration-700 delay-400 ${isAnimated ? 'opacity-100 transform-none' : 'opacity-0 translate-y-4'}`}
-              fullWidth
-              as="a"
-              href="/checkout/payment"
-            >
-              <CreditCard size={18} />
-              Proceder a pagar
-            </Button>
 
-            <PaymentMethodButton
-              className="w-full"
-              orderId={order!.id}
-              onSuccess={() => {
-                router.push('/payment/success');
-              }}
-              onError={(error) => {
-                console.error('Error de pago:', error);
-              }}
-            />
+            {order && (
+              <PaymentMethodButton
+                className="w-full"
+                orderId={order.id} // Sin el operador ! de non-null assertion
+                onSuccess={() => {
+                  router.push('/payment/success');
+                }}
+                onError={(error) => {
+                  console.error('Error de pago:', error);
+                }}
+                variant="shadow"
+                color="success"
+              />
+            )}
 
             <Link href="/products" passHref>
               <Button

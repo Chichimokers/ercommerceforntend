@@ -203,20 +203,17 @@ const OrderFooter = ({
             {formatCurrency((order.subtotal * (rateExchange?.exchangeRate || 1)), rateExchange?.currency, rateExchange?.symbol)}
           </span>
         </div>
-
-        {order.total && order.total > order.subtotal && (
-          <div className="flex justify-between items-center mb-2">
-            <span className="text-sm text-gray-600 dark:text-gray-400">Envío:</span>
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-              {formatCurrency(((order.total - order.subtotal) * (rateExchange?.exchangeRate || 1)), rateExchange?.currency, rateExchange?.symbol)}
-            </span>
-          </div>
-        )}
+        <div className="flex justify-between items-center mb-2">
+          <span className="text-sm text-gray-600 dark:text-gray-400">Precio de envio:</span>
+          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            {formatCurrency((order.shipping_price * (rateExchange?.exchangeRate || 1)), rateExchange?.currency, rateExchange?.symbol)}
+          </span>
+        </div>
 
         <div className="flex justify-between items-center pt-2 border-t border-gray-200 dark:border-gray-700">
           <span className="font-semibold text-gray-900 dark:text-white">Total:</span>
           <span className="text-lg sm:text-xl font-bold text-primary-600 dark:text-primary-400">
-            {formatCurrency(((order.total || order.subtotal) * (rateExchange?.exchangeRate || 1)), rateExchange?.currency, rateExchange?.symbol)}
+            {formatCurrency(((order.subtotal + order.shipping_price) * (rateExchange?.exchangeRate || 1)), rateExchange?.currency, rateExchange?.symbol)}
           </span>
         </div>
       </div>

@@ -1,25 +1,27 @@
+import { Chip } from "@heroui/react";
+
 export default function StockBadge({ quantity }: { quantity: number }) {
   if (quantity === 0) {
     return (
-      <div className="absolute bottom-2 left-2 text-xs z-10 bg-red-500 text-white px-2 py-1 rounded-full bg-opacity-90 backdrop-blur-sm">
+      <Chip color="danger" className="absolute bottom-2 left-2">
         Agotado
-      </div>
+      </Chip>
     );
   }
 
   if (quantity === 1) {
     return (
-      <div className="absolute bottom-2 left-2 text-xs z-10 bg-red-500 text-white px-2 py-1 rounded-full bg-opacity-90 backdrop-blur-sm">
+      <Chip color="danger" className="absolute bottom-2 left-2">
         Última unidad
-      </div>
+      </Chip>
     );
   }
 
   if (quantity < 5) {
     return (
-      <div className="absolute bottom-2 left-2 text-xs z-10 bg-amber-500 text-white px-2 py-1 rounded-full bg-opacity-90 backdrop-blur-sm">
+      <Chip color="warning" className="absolute bottom-2 left-2">
         Solo {quantity} unidades
-      </div>
+      </Chip>
     );
   }
 

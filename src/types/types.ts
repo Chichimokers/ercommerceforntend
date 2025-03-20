@@ -73,14 +73,14 @@ export type Order = {
 	address: string;
 	status: string;
 	subtotal: number;
-	total?: number;
+	total: number;
 	phone: string;
 	province: string;
 	receiver_name: string;
 	stripe_id?: string;
 	orderItems: Item[];
 	created_at: string;
-	shipping_cost?: number;
+	shipping_price: number;
 };
 
 export type Item = {

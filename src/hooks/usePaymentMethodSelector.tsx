@@ -5,14 +5,16 @@ import { FaCreditCard } from "react-icons/fa";
 import { SiVisa, SiMastercard, SiPaypal } from "react-icons/si";
 import { toast } from "sonner";
 import dynamic from "next/dynamic";
+import { Button } from "@heroui/react";
+import { useSession } from "next-auth/react";
 
-// Botón personalizado que EVITA usar HeroUI - diseñado para máxima compatibilidad
 const CustomButton = ({
   onClick,
   children,
   isLoading,
   className,
-  startIcon
+  startIcon,
+
 }: {
   onClick: () => void;
   children: React.ReactNode;
@@ -53,13 +55,17 @@ interface PaymentMethodButtonProps {
   onSuccess?: () => void;
   onError?: (error: any) => void;
   className?: string;
+  variant?: "solid" | "ghost" | "flat" | "bordered" | "light" | "faded" | "shadow" | undefined;
+  color?: "primary" | "secondary" | "danger" | "success" | "warning";
 }
 
 const PaymentMethodButton = ({
   orderId,
   onSuccess,
   onError,
-  className = ""
+  className = "",
+  variant = "solid",
+  color = "primary",
 }: PaymentMethodButtonProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedMethod, setSelectedMethod] = useState<string>("");
@@ -87,62 +93,65 @@ const PaymentMethodButton = ({
       setIsLoading(true);
       setSelectedMethod(method);
 
-      toast.loading(`Procesando pago con ${getMethodName(method)}...`,
-        { id: 'payment-toast' }
-      );
+      toast.loading(`Procesando pago con ${getMethodName(method)}...`, { id: 'payment-toast' });
 
-      // Llamamos a nuestra API route
-      const response = await fetch('/api/payment', {
+      // 1. Realizar la petición
+      const response = await fetch(`$/api/payment`, {
+
         method: 'POST',
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          orderId,
-        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ orderId, paymentMethod: method }),
+        credentials: 'include',
       });
 
-      const result = await response.json();
-
-      if (!response.ok || !result.success) {
-        throw new Error(result.error || 'Error al procesar el pago');
+      // 2. Si la respuesta no es ok, leer el cuerpo una única vez como texto
+      if (!response.ok) {
+        const responseText = await response.text();
+        let errorMessage;
+        try {
+          const errorData = JSON.parse(responseText);
+          errorMessage = errorData.error || `Error en la respuesta: ${response.status}`;
+        } catch {
+          errorMessage = responseText || `Error en la respuesta: ${response.status}`;
+        }
+        throw new Error(errorMessage);
       }
 
-      // Si hay URL de redirección, redirigir al usuario
-      if (result.redirectUrl) {
-        toast.success(`Redirigiendo a pasarela de pago...`,
-          { id: 'payment-toast' }
-        );
+      // 3. Leer la respuesta exitosa como JSON
+      const responseData = await response.json();
 
-        // Redirigir a la página de pago
-        window.location.href = result.redirectUrl;
-        return result;
+      // 4. Procesar respuesta exitosa
+      if (!responseData.success) {
+        throw new Error(responseData.error || 'Error al procesar el pago');
       }
 
-      // Si no hay redirección, es un proceso exitoso normal
-      toast.success(`Pago con ${getMethodName(method)} procesado correctamente`,
-        { id: 'payment-toast' }
-      );
+      // 5. Manejar redirección si existe
+      if (responseData.redirectUrl) {
+        toast.success(`Redirigiendo a pasarela de pago...`, { id: 'payment-toast' });
+        window.location.href = responseData.redirectUrl;
+        return responseData;
+      }
 
+      // 6. Éxito sin redirección
+      toast.success(`Pago con ${getMethodName(method)} procesado correctamente`, { id: 'payment-toast' });
       if (onSuccess) {
         onSuccess();
       }
-
-      return result.data;
+      return responseData.data;
     } catch (error) {
       console.error('Error al procesar el pago:', error);
       toast.error(
-        `Error al procesar el pago: ${error instanceof Error ? error.message : 'Error desconocido'
-        }`,
+        `Error al procesar el pago: ${error instanceof Error ? error.message : 'Error desconocido'}`,
         { id: 'payment-toast' }
       );
-
       if (onError) {
         onError(error);
       }
-
       return null;
     } finally {
-      // No cerrar el modal inmediatamente si estamos redirigiendo
-      if (!window.location.href.includes('stripe.com')) {
+      if (!window.location.href.includes('stripe.com') && !window.location.href.includes('paypal.com')) {
         setIsLoading(false);
         setIsModalOpen(false);
       }
@@ -190,11 +199,13 @@ const PaymentMethodButton = ({
 
   return (
     <>
-      <CustomButton
+      <Button
         onClick={handleOpenModal}
         isLoading={isLoading}
         className={className}
-        startIcon={getPaymentIcon()}
+        startContent={getPaymentIcon()}
+        variant={variant}
+        color={color}
       >
         {isLoading
           ? "Procesando pago..."
@@ -202,7 +213,7 @@ const PaymentMethodButton = ({
             ? `Pagar con ${getMethodName(selectedMethod)}`
             : "Pagar"
         }
-      </CustomButton>
+      </Button>
 
       <PaymentMethodModal
         isOpen={isModalOpen}
