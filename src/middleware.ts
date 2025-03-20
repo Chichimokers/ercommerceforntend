@@ -95,6 +95,13 @@ export async function middleware(request: NextRequest) {
     }
   }
 
+  if (pathname.startsWith("/orders") && !isAuthenticated) {
+    return NextResponse.redirect(
+      new URL(`/login?to=${encodeURIComponent(pathname)}`, request.url),
+      302
+    );
+  }
+
   return NextResponse.next();
 }
 

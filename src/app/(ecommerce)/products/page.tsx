@@ -183,7 +183,7 @@ export default function ProductPage() {
       {deviceData.isMobile && !shouldOptimizeSeverely && (
         <FilterDrawer />
       )}
-      
+
       <Suspense fallback={
         <section className="flex-1 flex flex-col p-3 sm:p-4 overflow-y-auto relative">
           <div className="flex flex-col justify-center items-center min-h-[50vh]">
@@ -201,9 +201,9 @@ export default function ProductPage() {
 }
 
 // Componente secundario que SÍ usa useSearchParams
-function ProductPageContent({ deviceData, shouldOptimizeSeverely }: { 
+function ProductPageContent({ deviceData, shouldOptimizeSeverely }: {
   deviceData: ReturnType<typeof useDeviceDetection>,
-  shouldOptimizeSeverely: boolean 
+  shouldOptimizeSeverely: boolean
 }) {
   const { products, totalPages, error, isLoading } = useProductContext();
   const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") || "";
@@ -238,7 +238,7 @@ function ProductPageContent({ deviceData, shouldOptimizeSeverely }: {
     if (searchParams.has("rate")) count++;
     return count;
   }, [searchParams]);
-  
+
   const categoryName = useMemo(() => {
     const categoryId = searchParams.get("category");
     if (!categoryId || !categories || categories.length === 0) return "Todos los productos";
@@ -385,7 +385,6 @@ function ProductPageContent({ deviceData, shouldOptimizeSeverely }: {
               showControls
               size="lg"
               color="primary"
-              className="shadow-sm bg-white dark:bg-gray-800 px-2 py-1 rounded-full"
             />
           </div>
         )}

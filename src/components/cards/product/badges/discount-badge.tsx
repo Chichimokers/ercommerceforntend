@@ -1,4 +1,5 @@
 import { formatCurrency } from "@/components/format-currency";
+import { Chip } from "@heroui/react";
 
 interface DiscountBadgeProps {
   discount?: { reduction: number; min: number };
@@ -16,12 +17,12 @@ export default function DiscountBadge({
   const discountAmount = discount.reduction * (rateExchange?.exchangeRate || 1);
 
   return (
-    <div className="absolute top-2 right-2 text-xs z-10 bg-amber-500 text-white px-2 py-1 rounded-full bg-opacity-90 backdrop-blur-sm">
+    <Chip color="warning" className="absolute top-2 right-2">
       -{formatCurrency(
         discountAmount,
         rateExchange?.currency,
         rateExchange?.symbol
       )} desde {discount.min} unid.
-    </div>
+    </Chip>
   );
 }

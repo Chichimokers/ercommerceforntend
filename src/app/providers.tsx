@@ -11,6 +11,7 @@ import { LocationProvider } from "@contexts/location-context";
 import React from "react";
 import AccessTokenSynchronizer from "@services/access-token-synchronizer";
 import CartSyncBackup from "@components/cart/cart-sync-backup";
+import ReactQueryProvider from "@utils/providers/react-query-provider";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -30,7 +31,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
                   <ModalProvider>
                     <HeroUIProvider>
                       <ToastProvider />
-                      {children}
+                      <ReactQueryProvider>
+                        {children}
+                      </ReactQueryProvider>
                     </HeroUIProvider>
                   </ModalProvider>
                 </CartProvider>

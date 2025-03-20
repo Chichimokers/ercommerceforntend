@@ -1,7 +1,7 @@
 'use client';
 
 import dynamic from "next/dynamic";
-import useSWR, { mutate } from "swr";
+import useSWR from "swr";
 import { Accordion, AccordionItem, Divider, Spinner, Select, SelectItem, Badge, Chip, Button, Tooltip } from "@heroui/react";
 import { Order } from "@/types/types";
 import { useSession } from "next-auth/react";
@@ -301,7 +301,6 @@ const OrdersPage = () => {
     }
   };
 
-  // Función para mapear órdenes
   function mapOrder(orders: any[]): Order[] {
     if (!Array.isArray(orders)) return [];
 
@@ -311,7 +310,8 @@ const OrdersPage = () => {
       address: order.address,
       status: order.status,
       subtotal: Number(order.subtotal),
-      total: order.total ? Number(order.total) : undefined,
+      shipping_price: order.shipping_price ? Number(order.shipping_price) : 0,
+      total: (order.subtotal + order.shipping_price) || 0,
       phone: order.phone,
       province: order.province,
       receiver_name: order.receiver_name,

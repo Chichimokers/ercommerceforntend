@@ -105,7 +105,7 @@ function ThankYouContent() {
             </div>
             <div className="flex justify-between items-center text-sm">
               <span className="text-gray-600 dark:text-gray-400">Total</span>
-              <span className="font-bold text-green-600">{total ? `${total}€` : 'Calculando...'}</span>
+              <span className="font-bold text-green-600">{total ? `${total}` : 'Calculando...'}</span>
             </div>
           </div>
         </div>
