@@ -1,11 +1,10 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { CheckCircleIcon, ShoppingBag, ClipboardCheck, Truck, CreditCard, ArrowLeftIcon, HomeIcon, Calendar, Clock, Receipt } from "lucide-react";
+import { CheckCircleIcon, ShoppingBag, ClipboardCheck, Truck, CreditCard, Calendar, Clock, Receipt } from "lucide-react";
 import Link from "next/link";
 import { Toaster } from "react-hot-toast";
 import { Button } from "@heroui/react";
-import { QRCodeCanvas } from "qrcode.react";
 import { formatCurrency } from "@components/format-currency";
 import { CurrencyAndExchangeRateContext } from "@contexts/exchange-rate-currency-context";
 import PaymentMethodButton from "@hooks/usePaymentMethodSelector";
@@ -27,29 +26,11 @@ export default function OrderConfirmationPage() {
   const [order, setOrder] = useState<Order | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const { rateExchange } = React.useContext(CurrencyAndExchangeRateContext);
-  const [isAnimated, setIsAnimated] = useState(false);
+  const [isVisibleContent, setIsVisibleContent] = useState(false);
   const router = useRouter();
+  const [themeLoaded, setThemeLoaded] = useState(false);
 
-  useEffect(() => {
-    const storedOrder = localStorage.getItem("orderDetails");
-    if (storedOrder) {
-      try {
-        setOrder(JSON.parse(storedOrder));
-      } catch (error) {
-        console.error("Error al parsear los detalles de la orden", error);
-      } finally {
-        localStorage.removeItem("orderDetails");
-        setIsLoaded(true);
-      }
-    } else {
-      setIsLoaded(true);
-    }
-
-    // Activar animaciones después de un breve retraso
-    const timer = setTimeout(() => setIsAnimated(true), 300);
-    return () => clearTimeout(timer);
-  }, []);
-
+  // Formatear fecha y hora
   const formattedDate = order
     ? new Date(order.created_at).toLocaleDateString("es-ES", {
       day: "numeric",
@@ -65,6 +46,7 @@ export default function OrderConfirmationPage() {
     })
     : "";
 
+  // Mapeo de estados a español
   const spanishStatus = {
     accepted: 'Aceptada',
     cancelled: 'Cancelada',
@@ -74,6 +56,7 @@ export default function OrderConfirmationPage() {
     default: 'Pendiente',
   } as const;
 
+  // Colores para los estados
   const statusColors = {
     accepted: 'bg-blue-100 text-blue-800 dark:bg-blue-800/20 dark:text-blue-300 border-blue-300 dark:border-blue-700',
     cancelled: 'bg-red-100 text-red-800 dark:bg-red-800/20 dark:text-red-300 border-red-300 dark:border-red-700',
@@ -114,6 +97,162 @@ export default function OrderConfirmationPage() {
     }
   ];
 
+  useEffect(() => {
+    // Esperar a que el tema esté completamente cargado (dark/light)
+    const themeLoadCheck = setTimeout(() => {
+      setThemeLoaded(true);
+    }, 50); // Un pequeño tiempo para asegurar que el tema se ha aplicado
+
+    return () => clearTimeout(themeLoadCheck);
+  }, []);
+
+  useEffect(() => {
+    // Solo ejecutar la lógica de carga cuando el tema ya esté establecido
+    if (!themeLoaded) return;
+
+    // Uso un tiempo de carga mínimo más largo para asegurar una transición suave
+    const minLoadTime = setTimeout(() => {
+      const storedOrder = localStorage.getItem("orderDetails");
+      if (storedOrder) {
+        try {
+          setOrder(JSON.parse(storedOrder));
+        } catch (error) {
+          console.error("Error al parsear los detalles de la orden", error);
+        }
+      }
+      // No establecer isLoaded aquí para mantener el skeleton hasta que la transición sea segura
+    }, 800);
+
+    // Después de un tiempo aún mayor, hacemos la transición completa
+    const completeLoadTime = setTimeout(() => {
+      setIsLoaded(true);
+      localStorage.removeItem("orderDetails"); // Limpiar el localStorage después de cargar los detalles
+
+      // Solo después de que isLoaded es true, iniciamos la transición de visibilidad
+      setTimeout(() => {
+        setIsVisibleContent(true);
+      }, 100); // Pequeño retraso para asegurar que el DOM se ha actualizado
+
+    }, 1200);
+
+    return () => {
+      clearTimeout(minLoadTime);
+      clearTimeout(completeLoadTime);
+    };
+  }, [themeLoaded]); // Ejecutar este efecto cuando el tema esté cargado
+
+  // Si el tema no se ha cargado, mostramos una pantalla en blanco o un loader minimalista
+  if (!themeLoaded) {
+    return <div className="min-h-screen"></div>; // Pantalla vacía mientras se detecta el tema
+  }
+
+  // Skeleton loader con una animación más suave
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-950 px-4 py-12">
+        <div className="w-full max-w-4xl animate-fadeIn">
+          {/* Link de navegación */}
+          <div className="flex items-center justify-between mb-6">
+            <div className="h-5 w-28 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+          </div>
+
+          {/* Card principal con skeleton */}
+          <div className="bg-white dark:bg-gray-800 shadow-xl rounded-2xl overflow-hidden">
+            {/* Skeleton del header */}
+            <div className="relative bg-gradient-to-r from-primary/80 to-blue-600/80 p-8 overflow-hidden">
+              <div className="flex flex-col md:flex-row items-center gap-6">
+                <div className="bg-white/20 backdrop-blur-sm p-4 rounded-full shrink-0 h-20 w-20 animate-pulse"></div>
+                <div className="text-center md:text-left w-full">
+                  <div className="h-10 bg-white/20 rounded-lg w-3/4 mb-3 animate-pulse"></div>
+                  <div className="h-6 bg-white/20 rounded-lg w-1/2 animate-pulse"></div>
+                  <div className="mt-4 flex flex-wrap justify-center md:justify-start gap-3">
+                    <div className="h-10 bg-white/20 rounded-lg w-32 animate-pulse"></div>
+                    <div className="h-10 bg-white/20 rounded-lg w-24 animate-pulse"></div>
+                  </div>
+                </div>
+                <div className="md:ml-auto bg-white/10 backdrop-blur-sm rounded-xl px-6 py-4 border border-white/20 w-36 h-24 animate-pulse"></div>
+              </div>
+            </div>
+
+            {/* Skeleton del timeline - con una animación más sutil */}
+            <div className="px-6 py-5 bg-gray-50 dark:bg-gray-900/30 border-b border-gray-200 dark:border-gray-700">
+              <div className="flex items-center justify-between w-full">
+                {[1, 2, 3, 4].map((_, i) => (
+                  <React.Fragment key={i}>
+                    <div className="flex flex-col items-center">
+                      <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse"></div>
+                      <div className="hidden sm:block h-4 w-16 bg-gray-200 dark:bg-gray-700 mt-2 rounded animate-pulse"></div>
+                    </div>
+                    {i < 3 && (
+                      <div className="flex-1 h-1 mx-2">
+                        <div className="h-full bg-gray-200 dark:bg-gray-700 animate-pulse"></div>
+                      </div>
+                    )}
+                  </React.Fragment>
+                ))}
+              </div>
+            </div>
+
+            {/* Skeleton del contenido principal */}
+            <div className="p-6 md:p-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {/* Skeleton del bloque de información de envío */}
+                <div className="space-y-5">
+                  <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/2 animate-pulse"></div>
+                  <div className="space-y-4 rounded-xl bg-gray-50 dark:bg-gray-900/30 p-4 border border-gray-200 dark:border-gray-700">
+                    {[1, 2, 3, 4].map((_, i) => (
+                      <div key={i} className="space-y-2">
+                        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4 animate-pulse"></div>
+                        <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-3/4 animate-pulse"></div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Skeleton del bloque de detalles del pedido */}
+                <div className="space-y-5">
+                  <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/2 animate-pulse"></div>
+                  <div className="rounded-xl bg-gray-50 dark:bg-gray-900/30 p-4 border border-gray-200 dark:border-gray-700">
+                    <div className="grid grid-cols-2 gap-4">
+                      {[1, 2].map((_, i) => (
+                        <div key={i} className="space-y-2">
+                          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2 animate-pulse"></div>
+                          <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-3/4 animate-pulse"></div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Skeleton del bloque de próximos pasos */}
+              <div className="border-t border-gray-200 dark:border-gray-700 mt-8 pt-6">
+                <div className="bg-blue-50/50 dark:bg-blue-900/10 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
+                  <div className="flex items-start md:items-center gap-3">
+                    <div className="p-2 bg-blue-100/50 dark:bg-blue-800/20 rounded-full shrink-0 h-10 w-10 animate-pulse"></div>
+                    <div className="space-y-2 w-full">
+                      <div className="h-6 bg-blue-200/50 dark:bg-blue-800/20 rounded w-3/4 animate-pulse"></div>
+                      <div className="h-4 bg-blue-200/50 dark:bg-blue-800/20 rounded w-full animate-pulse"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Skeleton del footer con botones */}
+            <div className="bg-gray-50 dark:bg-gray-900/50 border-t border-gray-200 dark:border-gray-700 p-6">
+              <div className="flex flex-col sm:flex-row justify-center gap-3">
+                <div className="h-12 bg-green-500/40 rounded-lg w-full animate-pulse"></div>
+                <div className="h-12 bg-primary/40 rounded-lg w-full animate-pulse"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Contenido principal con una transición simple de opacidad, sin animaciones de agrandamiento
   return (
     <section className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-950 px-4 py-12">
       <Toaster
@@ -132,7 +271,7 @@ export default function OrderConfirmationPage() {
           </Link>
         </div>
 
-        <div className={`bg-white dark:bg-gray-800 shadow-xl rounded-2xl overflow-hidden transition-all duration-700 ${isAnimated ? 'opacity-100 transform-none' : 'opacity-0 translate-y-8'}`}>
+        <div className={`bg-white dark:bg-gray-800 shadow-xl rounded-2xl overflow-hidden transition-opacity duration-500 ${isVisibleContent ? 'opacity-100' : 'opacity-0'}`}>
           {/* Header con animación de confeti */}
           <div className="relative bg-gradient-to-r from-primary to-blue-600 p-8 text-white overflow-hidden">
             <div className="absolute inset-0 bg-[url('/confetti-bg.svg')] opacity-10"></div>
@@ -185,16 +324,14 @@ export default function OrderConfirmationPage() {
             <div className="flex items-center justify-between w-full">
               {timelineSteps.map((step, index) => (
                 <React.Fragment key={step.name}>
-                  {/* Paso del timeline */}
+                  {/* Paso del timeline - sin animación de escala */}
                   <div className="flex flex-col items-center">
                     <div
-                      className={`flex items-center justify-center w-10 h-10 rounded-full transition-all duration-500
+                      className={`flex items-center justify-center w-10 h-10 rounded-full
                         ${step.active
                           ? 'bg-primary text-white'
                           : 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
-                        }
-                        ${isAnimated && step.active ? 'scale-110' : 'scale-100'}
-                      `}
+                        }`}
                     >
                       <step.icon className="w-5 h-5" />
                     </div>
@@ -224,13 +361,13 @@ export default function OrderConfirmationPage() {
             </div>
           </div>
 
-          {/* Cuerpo con la información del pedido */}
+          {/* Cuerpo con la información del pedido - sin animaciones de translación/escala */}
           <div className="p-6 md:p-8">
             {order ? (
               <>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   {/* Información de envío */}
-                  <div className={`space-y-5 transition-all duration-700 delay-100 ${isAnimated ? 'opacity-100 transform-none' : 'opacity-0 translate-y-4'}`}>
+                  <div className="space-y-5">
                     <h3 className="text-lg font-semibold border-b border-gray-200 dark:border-gray-700 pb-2 mb-3 flex items-center">
                       <Truck className="h-5 w-5 mr-2 text-primary" />
                       Información de envío
@@ -262,7 +399,7 @@ export default function OrderConfirmationPage() {
                   </div>
 
                   {/* Detalles del pedido */}
-                  <div className={`space-y-5 transition-all duration-700 delay-200 ${isAnimated ? 'opacity-100 transform-none' : 'opacity-0 translate-y-4'}`}>
+                  <div className="space-y-5">
                     <h3 className="text-lg font-semibold border-b border-gray-200 dark:border-gray-700 pb-2 mb-3 flex items-center">
                       <Receipt className="h-5 w-5 mr-2 text-primary" />
                       Detalles del pedido
@@ -290,7 +427,7 @@ export default function OrderConfirmationPage() {
                   </div>
                 </div>
 
-                <div className={`border-t border-gray-200 dark:border-gray-700 mt-8 pt-6 transition-all duration-700 delay-300 ${isAnimated ? 'opacity-100 transform-none' : 'opacity-0'}`}>
+                <div className="border-t border-gray-200 dark:border-gray-700 mt-8 pt-6">
                   <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4 flex items-start md:items-center gap-3">
                     <div className="p-2 bg-blue-100 dark:bg-blue-800/30 rounded-full shrink-0">
                       <ClipboardCheck className="h-6 w-6 text-blue-600 dark:text-blue-300" />
@@ -322,7 +459,7 @@ export default function OrderConfirmationPage() {
             {order && (
               <PaymentMethodButton
                 className="w-full"
-                orderId={order.id} // Sin el operador ! de non-null assertion
+                orderId={order.id}
                 onSuccess={() => {
                   router.push('/payment/success');
                 }}
@@ -338,7 +475,7 @@ export default function OrderConfirmationPage() {
               <Button
                 color="primary"
                 variant="flat"
-                className={`flex items-center justify-center gap-2 transition-all duration-700 delay-500 ${isAnimated ? 'opacity-100 transform-none' : 'opacity-0 translate-y-4'}`}
+                className="flex items-center justify-center gap-2"
                 fullWidth
               >
                 <ShoppingBag size={18} />
