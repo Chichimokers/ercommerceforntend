@@ -49,7 +49,14 @@ export async function POST(req: NextRequest) {
     if (response.status === 302 || response.status === 303 || response.status === 307) {
       const redirectUrl = response.headers.get('location');
       if (redirectUrl) {
-        return NextResponse.redirect(redirectUrl);
+        return NextResponse.json(
+          {
+            success: true,
+            redirectUrl,
+            message: `Pago con método ${paymentMethod} procesado correctamente`
+          },
+          { status: 200 }
+        );
       }
     }
 

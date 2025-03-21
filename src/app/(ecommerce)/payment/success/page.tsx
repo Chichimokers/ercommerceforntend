@@ -1,7 +1,7 @@
 "use client";
 
 import React, { Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import confetti from "canvas-confetti";
 import Link from "next/link";
 import { CheckCircle, ShoppingBag, ChevronRight, ArrowLeft, Clock } from "lucide-react";
@@ -37,12 +37,40 @@ export default function ThankYouPage() {
 
 // Componente secundario que SÍ usa useSearchParams
 function ThankYouContent() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const [mounted, setMounted] = React.useState(false);
+  const hasFetched = React.useRef(false); // Flag para controlar la ejecución
 
   const orderId = searchParams?.get('order_id') || 'N/A';
   const total = searchParams?.get('total') || '0';
+
+  React.useEffect(() => {
+    if (!hasFetched.current) {
+      const urlParams = new URLSearchParams(window.location.search);
+      const orderIdFromRedirect = urlParams.get("order_id");
+      if (orderIdFromRedirect) {
+        fetch(`/api/capture-payment?order_id=${orderIdFromRedirect}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          }
+        })
+          .then(async (res) => {
+            const data = await res.json();
+            console.log("Respuesta de captura:", data);
+            if (data.success) {
+              console.log("Pago capturado correctamente");
+            } else {
+              console.error("Error al capturar el pago", data);
+            }
+          })
+          .catch((error) => {
+            console.error("Error en la petición de captura de pago:", error);
+          });
+      }
+      hasFetched.current = true;
+    }
+  }, []);
 
   React.useEffect(() => {
     setMounted(true);

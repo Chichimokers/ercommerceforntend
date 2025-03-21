@@ -95,8 +95,7 @@ const PaymentMethodButton = ({
 
       toast.loading(`Procesando pago con ${getMethodName(method)}...`, { id: 'payment-toast' });
 
-      // 1. Realizar la petición
-      const response = await fetch(`$/api/payment`, {
+      const response = await fetch(`/api/payment`, {
 
         method: 'POST',
         headers: {
@@ -106,7 +105,6 @@ const PaymentMethodButton = ({
         credentials: 'include',
       });
 
-      // 2. Si la respuesta no es ok, leer el cuerpo una única vez como texto
       if (!response.ok) {
         const responseText = await response.text();
         let errorMessage;
@@ -119,22 +117,18 @@ const PaymentMethodButton = ({
         throw new Error(errorMessage);
       }
 
-      // 3. Leer la respuesta exitosa como JSON
       const responseData = await response.json();
 
-      // 4. Procesar respuesta exitosa
       if (!responseData.success) {
         throw new Error(responseData.error || 'Error al procesar el pago');
       }
 
-      // 5. Manejar redirección si existe
       if (responseData.redirectUrl) {
         toast.success(`Redirigiendo a pasarela de pago...`, { id: 'payment-toast' });
         window.location.href = responseData.redirectUrl;
         return responseData;
       }
 
-      // 6. Éxito sin redirección
       toast.success(`Pago con ${getMethodName(method)} procesado correctamente`, { id: 'payment-toast' });
       if (onSuccess) {
         onSuccess();

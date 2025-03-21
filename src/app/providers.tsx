@@ -32,7 +32,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
                     <HeroUIProvider>
                       <ToastProvider />
                       <ReactQueryProvider>
-                        {children}
+                      {children}
                       </ReactQueryProvider>
                     </HeroUIProvider>
                   </ModalProvider>
