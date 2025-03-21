@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import confetti from "canvas-confetti";
 import Link from "next/link";
 import { CheckCircle, ShoppingBag, ChevronRight, ArrowLeft, Clock } from "lucide-react";
+import { CheckoutStepper } from "@components/stepper/stepper";
 
 // Componente principal que NO usa useSearchParams
 export default function ThankYouPage() {
@@ -113,6 +114,7 @@ function ThankYouContent() {
 
   return (
     <>
+      <CheckoutStepper step_active="confirmed_payment" />
       <div className="p-6">
         <div className="border border-gray-200 dark:border-gray-700 rounded-xl p-5 mb-6 bg-gray-50 dark:bg-gray-800/50">
           <h3 className="font-semibold text-lg text-gray-800 dark:text-gray-200 mb-3">Detalles del pedido</h3>
@@ -130,10 +132,6 @@ function ThankYouContent() {
                   year: 'numeric'
                 })}
               </span>
-            </div>
-            <div className="flex justify-between items-center text-sm">
-              <span className="text-gray-600 dark:text-gray-400">Total</span>
-              <span className="font-bold text-green-600">{total ? `${total}` : 'Calculando...'}</span>
             </div>
           </div>
         </div>

@@ -211,7 +211,7 @@ const OrderList: React.FC<OrderListProps> = ({
           onSelectionChange={(keys) => setSelectedKeys(keys as Set<string>)}
           className="gap-4 flex flex-col"
           itemClasses={{
-            base: "border p-0 border-gray-200 bg-white dark:bg-gray-800 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow mb-4",
+            base: "border p-0 border-gray-200 bg-white dark:bg-gray-800 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow",
             trigger: "px-4 py-3",
             content: "px-0 pt-0 pb-0"
           }}

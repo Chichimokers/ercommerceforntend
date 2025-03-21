@@ -484,3 +484,11 @@ body {
     transform: translateY(0) scale(0.98);
   }
 }
+
+.input-focus-effect {
+  @apply transition-all border border-gray-200 dark:border-gray-700;
+  &:focus-within {
+    @apply border-primary dark:border-primary ring-2 ring-primary/20 dark:ring-primary/30;
+    transform: translateY(-2px);
+  }
+}

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { CheckCircleIcon, ShoppingBag, ClipboardCheck, Truck, CreditCard, Calendar, Clock, Receipt } from "lucide-react";
+import { CheckCircleIcon, ShoppingBag, ClipboardCheck, Truck, Calendar, Clock, Receipt } from "lucide-react";
 import Link from "next/link";
 import { Toaster } from "react-hot-toast";
 import { Button } from "@heroui/react";
@@ -9,6 +9,7 @@ import { formatCurrency } from "@components/format-currency";
 import { CurrencyAndExchangeRateContext } from "@contexts/exchange-rate-currency-context";
 import PaymentMethodButton from "@hooks/usePaymentMethodSelector";
 import { useRouter } from "next/navigation";
+import { CheckoutStepper } from "@components/stepper/stepper";
 
 interface Order {
   receiver_name: string;
@@ -69,33 +70,6 @@ export default function OrderConfirmationPage() {
   const statusColor = order?.status
     ? statusColors[order.status as keyof typeof statusColors] || statusColors.default
     : statusColors.default;
-
-  // Obtener el estado actual del pedido para el timeline
-  const currentStatus = order?.status || 'pending';
-
-  // Definir los pasos del timeline basados en el estado actual
-  const timelineSteps = [
-    {
-      name: 'Pedido realizado',
-      active: true,
-      icon: ClipboardCheck
-    },
-    {
-      name: 'Pendiente de pago',
-      active: ['accepted', 'paid', 'retired'].includes(currentStatus),
-      icon: CreditCard
-    },
-    {
-      name: 'Pago confirmado',
-      active: ['paid', 'retired'].includes(currentStatus),
-      icon: CheckCircleIcon
-    },
-    {
-      name: 'Enviado',
-      active: ['retired'].includes(currentStatus),
-      icon: Truck
-    }
-  ];
 
   useEffect(() => {
     // Esperar a que el tema esté completamente cargado (dark/light)
@@ -303,7 +277,6 @@ export default function OrderConfirmationPage() {
                 )}
               </div>
 
-              {/* Precio grande a la derecha */}
               {order && (
                 <div className="md:ml-auto bg-white/10 backdrop-blur-sm rounded-xl px-6 py-4 border border-white/20 text-center">
                   <div className="text-white/70 text-sm font-medium mb-1">TOTAL</div>
@@ -319,54 +292,12 @@ export default function OrderConfirmationPage() {
             </div>
           </div>
 
-          {/* Timeline del progreso del pedido */}
-          <div className="px-6 py-5 bg-gray-50 dark:bg-gray-900/30 border-b border-gray-200 dark:border-gray-700">
-            <div className="flex items-center justify-between w-full">
-              {timelineSteps.map((step, index) => (
-                <React.Fragment key={step.name}>
-                  {/* Paso del timeline - sin animación de escala */}
-                  <div className="flex flex-col items-center">
-                    <div
-                      className={`flex items-center justify-center w-10 h-10 rounded-full
-                        ${step.active
-                          ? 'bg-primary text-white'
-                          : 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
-                        }`}
-                    >
-                      <step.icon className="w-5 h-5" />
-                    </div>
-                    <span className={`hidden sm:block text-xs mt-2 font-medium 
-                      ${step.active
-                        ? 'text-primary dark:text-primary-400'
-                        : 'text-gray-500 dark:text-gray-400'
-                      }`}
-                    >
-                      {step.name}
-                    </span>
-                  </div>
+          <CheckoutStepper step_active="order_placed" />
 
-                  {/* Línea conectora (excepto después del último paso) */}
-                  {index < timelineSteps.length - 1 && (
-                    <div className="flex-1 h-1 mx-2">
-                      <div
-                        className={`h-full ${step.active && timelineSteps[index + 1].active
-                          ? 'bg-primary dark:bg-primary-400'
-                          : 'bg-gray-200 dark:bg-gray-700'
-                          }`}
-                      ></div>
-                    </div>
-                  )}
-                </React.Fragment>
-              ))}
-            </div>
-          </div>
-
-          {/* Cuerpo con la información del pedido - sin animaciones de translación/escala */}
           <div className="p-6 md:p-8">
             {order ? (
               <>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  {/* Información de envío */}
                   <div className="space-y-5">
                     <h3 className="text-lg font-semibold border-b border-gray-200 dark:border-gray-700 pb-2 mb-3 flex items-center">
                       <Truck className="h-5 w-5 mr-2 text-primary" />

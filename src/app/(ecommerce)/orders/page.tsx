@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import useSWR from "swr";
-import { Accordion, AccordionItem, Divider, Spinner, Select, SelectItem, Badge, Chip, Button, Tooltip } from "@heroui/react";
+import { Accordion, AccordionItem, Divider, Spinner, Chip, Button, Tooltip } from "@heroui/react";
 import { Order } from "@/types/types";
 import { useSession } from "next-auth/react";
 import { useState, useMemo } from "react";
@@ -373,14 +373,6 @@ const OrdersPage = () => {
     refreshOrders();
   };
 
-  const clearAllFilters = () => {
-    setStatusFilter("all");
-    setSearchText("");
-    setSortOrder("newest");
-  };
-
-  const hasFiltersApplied = statusFilter !== "all" || searchText.trim() !== "";
-
   const NoResultsMessage = () => (
     <div
       className="bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800/30 rounded-xl p-8 flex flex-col items-center justify-center text-center my-6"
@@ -430,7 +422,7 @@ const OrdersPage = () => {
         </p>
       </div>
 
-      <div className="mb-6 bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+      <div className="mb-2 bg-white dark:bg-gray-800 p-2 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
         <div
           className="flex flex-col sm:flex-row gap-4"
         >
@@ -483,7 +475,7 @@ const OrdersPage = () => {
               startContent={<Search size={14} />}
               onClose={() => setSearchText('')}
             >
-              "{searchText}"
+              &quot;{searchText}&quot;
             </Chip>
           )}
         </div>
