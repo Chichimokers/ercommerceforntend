@@ -15,30 +15,30 @@ export default function HeroSection() {
     <div className="relative overflow-hidden">
       <LocationHandler>
         <section className="relative w-full min-h-[600px] h-auto md:h-[700px] lg:h-[800px] flex flex-col items-center justify-center text-center overflow-hidden py-8 md:py-0">
-          <div className="absolute inset-0 bg-gray-600/70 dark:bg-gray-900/70 z-10"></div>
 
           <Image
-            src="/banner-principal.webp"
+            src="/bitmap.svg"
             alt="Es Aki - E-commerce cubano"
             fill
-            quality={60}
             className="object-cover"
           />
 
+          <div className="absolute inset-0 h-16 bg-gradient-to-b from-transparent to-blue-50 dark:from-transparent dark:to-gray-900"></div>
+
           <div className="relative z-20 px-6 sm:px-10 py-10 sm:py-16 w-full max-w-7xl mx-auto flex flex-col items-center">
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.1] mb-4 sm:mb-6 text-white drop-shadow-md">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.1] mb-4 sm:mb-6">
               ¡Bienvenido a <span className="bg-blue-400 bg-clip-text text-transparent">Es Aki!</span>
             </h1>
 
             <div className="max-w-2xl mx-auto">
-              <p className="text-lg sm:text-xl md:text-2xl text-white drop-shadow-sm mb-6 sm:mb-8 leading-relaxed">
+              <p className="text-lg sm:text-xl md:text-2xl drop-shadow-sm mb-6 sm:mb-8 leading-relaxed">
                 Descubre los mejores productos con entrega rápida en Cuba.
                 <span className="hidden md:inline"> Conectando familias a través del comercio digital.</span>
               </p>
             </div>
 
             <div className="w-full max-w-4xl mx-auto pb-4 sm:pb-8 px-2 sm:px-0">
-              <div className="bg-blue-50 dark:bg-gray-900 p-4 sm:p-6 md:p-8 rounded-2xl border border-white/20 dark:border-gray-800/50 shadow-xl">
+              <div className="bg-blue-50/70 dark:bg-gray-900/70 p-4 sm:p-6 md:p-8 rounded-2xl border border-white/20 dark:border-gray-800/50 shadow-xl">
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                   <FeatureItem
                     icon={<FiShoppingCart className="text-lg sm:text-xl text-blue-600 dark:text-blue-300" />}

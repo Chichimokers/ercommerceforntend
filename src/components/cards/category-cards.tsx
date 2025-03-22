@@ -29,7 +29,6 @@ const LightCategoryCard = memo(({
 }: CategoryCardProps) => {
   const { location, hasLocation } = useLocationStore();
 
-  // Manejador de clics simplificado
   const handleCardClick = useCallback((e: React.MouseEvent) => {
     if (!location || !location.province || !location.municipality) {
       if (onLocationNeeded) {
