@@ -13,7 +13,6 @@ import {
   Tooltip,
   Button
 } from "@heroui/react";
-import { CartContext } from "@/contexts/cart-context";
 import { FaTag } from "react-icons/fa";
 import { CartItem } from "@/types/interfaces";
 import { ShoppingCartIcon } from "lucide-react";
