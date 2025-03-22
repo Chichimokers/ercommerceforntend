@@ -23,15 +23,13 @@ import { ConfigProvider, App, Layout as AntLayout, Button, Space, Typography, Sw
 import { theme } from "antd";
 import { useTheme } from "next-themes";
 import { customDataProvider } from "@providers/data-provider";
-import { getSession } from "next-auth/react";
-
-import { Suspense, useEffect, useState } from "react";
 import esES from "antd/locale/es_ES";
 import dynamic from "next/dynamic";
 import "@refinedev/antd/dist/reset.css";
 import { i18nProvider } from '@providers/i18n-refine-provider';
 import { SessionProvider } from "next-auth/react";
 import { useSession } from "next-auth/react";
+import { useEffect } from "react";
 import Image from 'next/image';
 
 const AccountButton = dynamic(
@@ -46,6 +44,7 @@ const { Title, Text } = Typography;
 const CustomHeader = () => {
   const { resolvedTheme, setTheme } = useTheme();
 
+
   return (
     <Header
       style={{
@@ -57,6 +56,7 @@ const CustomHeader = () => {
         boxShadow: "0 1px 4px rgba(0,0,0,0.1)",
       }}
     >
+
       <Switch size="default" style={{ marginRight: '20px' }}
         checked={resolvedTheme === "dark"}
         onChange={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
@@ -64,11 +64,14 @@ const CustomHeader = () => {
         unCheckedChildren={<SunOutlined />}
       />
       <Space align="center">
+
         <AccountButton />
+
       </Space>
     </Header>
   );
 };
+
 
 function Layout({ children }: { children: React.ReactNode }) {
   const { resolvedTheme } = useTheme();
@@ -112,6 +115,7 @@ function Layout({ children }: { children: React.ReactNode }) {
     },
   };
 
+
   useEffect(() => {
     document.documentElement.classList.toggle('dark', resolvedTheme === 'dark');
   }, [resolvedTheme]);
@@ -120,7 +124,6 @@ function Layout({ children }: { children: React.ReactNode }) {
     fontSize: '18px',
     color: resolvedTheme === "dark" ? "#f5f5f5" : "#555",
   });
-
   const resources = [
     {
       name: "dashboard",
@@ -185,6 +188,9 @@ function Layout({ children }: { children: React.ReactNode }) {
         icon: <FolderOpenOutlined style={getIconStyle()} />
       },
     },
+
+
+
     {
       name: "province",
       list: "/admin/province",
@@ -204,9 +210,10 @@ function Layout({ children }: { children: React.ReactNode }) {
       show: "/admin/municipality/show/:id",
       meta: {
         label: "Municipios",
-        icon: <HomeOutlined style={getIconStyle()} />
+        icon: <HomeOutlined style={getIconStyle()} /> //noceque iconos ponerle 
       },
-    },
+    }
+    ,
     {
       name: "utils",
       list: "/admin/utils",
@@ -220,7 +227,10 @@ function Layout({ children }: { children: React.ReactNode }) {
   return (
     <SessionProvider>
       <AntdRegistry>
-        <ConfigProvider locale={esES} theme={themeConfig}>
+        <ConfigProvider
+          locale={esES}
+          theme={themeConfig}
+        >
           <App className="ant-app">
             <Refine
               routerProvider={NextRouterProvider}
@@ -259,31 +269,30 @@ function Layout({ children }: { children: React.ReactNode }) {
                 key="admin-auth"
                 redirectOnFail={`/login?to=${encodeURIComponent('/admin')}`}
               >
-                <Suspense fallback={<div className="h-screen w-screen"></div>}>
-                  <ThemedLayoutV2
-                    initialSiderCollapsed
-                    Header={() => <CustomHeader />}
-                    Title={({ collapsed }) => (
-                      <div style={{ display: 'flex', alignItems: 'center', padding: collapsed ? '0 12px' : '0 16px' }}>
-                        {collapsed ? (
-                          <AppstoreOutlined style={{ fontSize: '24px', color: '#3b82f6' }} />
-                        ) : (
-                          <Image
-                            alt="Company Logo"
-                            loading="lazy"
-                            width={160}
-                            height={60}
-                            quality={50}
-                            src="/logonav.png"
-                            className="w-auto object-contain flex-shrink-0"
-                          />
-                        )}
-                      </div>
-                    )}
-                  >
-                    {children}
-                  </ThemedLayoutV2>
-                </Suspense>
+                <ThemedLayoutV2
+                  initialSiderCollapsed
+                  dashboard
+                  Header={() => <CustomHeader />}
+                  Title={({ collapsed }) => (
+                    <div style={{ display: 'flex', alignItems: 'center', padding: collapsed ? '0 12px' : '0 16px' }}>
+                      {collapsed ? (
+                        <AppstoreOutlined style={{ fontSize: '24px', color: '#3b82f6' }} />
+                      ) : (
+                        <Image
+                          alt="Company Logo"
+                          loading="lazy"
+                          width={160}
+                          height={60}
+                          quality={50}
+                          src="/logonav.png"
+                          className="w-auto object-contain flex-shrink-0"
+                        />
+                      )}
+                    </div>
+                  )}
+                >
+                  {children}
+                </ThemedLayoutV2>
               </Authenticated>
             </Refine>
           </App>
