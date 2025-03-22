@@ -6,9 +6,8 @@ import DiscountBadge from "./badges/discount-badge";
 import PriceDisplay from "./price-display";
 import StarRating from "@/components/star-rating";
 import ProductInteraction from "./client/product-interaction";
-import { CurrencyAndExchangeRateContext } from "@/contexts/exchange-rate-currency-context";
-import { useContext } from "react";
 import useCartActions from "@components/actions";
+import { useCurrencyStore } from "@store/currency/currency-store";
 
 const PLACEHOLDER = "/placeholder.webp";
 
@@ -28,7 +27,7 @@ export default function ProductCard({
   lazyLoad = true,
 }: ProductCardProps) {
   const productUrl = `/products/${product.id}`;
-  const { rateExchange } = useContext(CurrencyAndExchangeRateContext) || {};
+  const { rateExchange } = useCurrencyStore();
   const { quantity } = useCartActions(product);
 
   const cardBaseClasses = `

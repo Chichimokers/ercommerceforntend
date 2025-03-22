@@ -8,10 +8,10 @@ import { Search, Filter, X, ArrowUpDown, Grid, List, ChevronLeft, ChevronRight, 
 import Link from "next/link";
 import Image from "next/image";
 import { Button, Chip, Checkbox, Pagination, Select, SelectItem, CheckboxGroup } from "@heroui/react";
-import { CurrencyAndExchangeRateContext } from "@contexts/exchange-rate-currency-context";
 import { formatCurrency } from "@components/format-currency";
 import { UUID } from "crypto";
-import { useLocation } from "@contexts/location-context";
+import { useLocationStore } from "@store/location/location-store";
+import { useCurrencyStore } from "@store/currency/currency-store";
 
 type SearchProducts = {
   id: UUID,
@@ -123,8 +123,8 @@ function SearchPageContent() {
   const [searchError, setSearchError] = useState(false);
   const [categories, setCategories] = useState<{ id: string, name: string }[]>([]);
   const [relatedSearches, setRelatedSearches] = useState<string[]>([]);
-  const { rateExchange } = useContext(CurrencyAndExchangeRateContext);
-  const { location } = useLocation();
+  const { rateExchange } = useCurrencyStore();
+  const { location } = useLocationStore();
 
   const searchParams = useSearchParams();
   const router = useRouter();

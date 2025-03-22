@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useMemo, useState, useEffect, useCallback } from "react";
-import { useCurrency } from "@/contexts/exchange-rate-currency-context";
+import { useCurrencyStore } from "@store/currency/currency-store";
 import { currencies } from "@/helpers/currency-codes-list";
 import {
   Modal,
@@ -23,7 +23,7 @@ export default function CurrencySelector({ selectlabel }: CurrencySelectorProps)
     selectedCurrency,
     handleCurrencyChange,
     isDataChanging
-  } = useCurrency();
+  } = useCurrencyStore();
 
   const [showModal, setShowModal] = useState(false);
 

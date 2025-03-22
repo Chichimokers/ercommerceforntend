@@ -6,10 +6,10 @@ import Link from "next/link";
 import { Toaster } from "react-hot-toast";
 import { Button } from "@heroui/react";
 import { formatCurrency } from "@components/format-currency";
-import { CurrencyAndExchangeRateContext } from "@contexts/exchange-rate-currency-context";
 import PaymentMethodButton from "@hooks/usePaymentMethodSelector";
 import { useRouter } from "next/navigation";
 import { CheckoutStepper } from "@components/stepper/stepper";
+import { useCurrencyStore } from "@store/currency/currency-store";
 
 interface Order {
   receiver_name: string;
@@ -26,7 +26,7 @@ interface Order {
 export default function OrderConfirmationPage() {
   const [order, setOrder] = useState<Order | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
-  const { rateExchange } = React.useContext(CurrencyAndExchangeRateContext);
+  const { rateExchange } = useCurrencyStore();
   const [isVisibleContent, setIsVisibleContent] = useState(false);
   const router = useRouter();
   const [themeLoaded, setThemeLoaded] = useState(false);

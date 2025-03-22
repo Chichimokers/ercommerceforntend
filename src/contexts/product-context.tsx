@@ -15,7 +15,7 @@ import { buildQueryParams } from "@/hooks/buildQueryParams";
 import { parseQueryToFilters } from "@/hooks/parseQuerys";
 import { useCategories } from "@/hooks/useCategories";
 import { useProducts, useCartProducts } from "@/hooks/useProducts";
-import { useLocation } from "./location-context";
+import { useLocationStore } from "@store/location/location-store";
 
 interface ProductContextType {
   products: ProductBase[];
@@ -76,7 +76,7 @@ const ProductProviderContent: React.FC<{ children: React.ReactNode }> = ({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const { location } = useLocation();
+  const { location } = useLocationStore();
 
   const [filters, setFilters] = useState<Filters>({});
   const [page, setPage] = useState(1);

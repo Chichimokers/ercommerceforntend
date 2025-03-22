@@ -1,11 +1,11 @@
 import { CardBody, Card, Tooltip, Divider, Button } from "@heroui/react";
-import React, { useContext, memo } from "react";
-import { CurrencyAndExchangeRateContext } from "@/contexts/exchange-rate-currency-context";
+import React, { memo } from "react";
 import { formatCurrency } from "@components/format-currency";
 import { Box, Truck, Info, ShoppingBag } from "lucide-react";
 import Link from "next/link";
 import { ProductBase } from "../../types/types";
 import { useDeviceDetection } from "@/hooks/useDeviceDetection";
+import { useCurrencyStore } from "@store/currency/currency-store";
 
 interface OrderSummaryProps {
   className?: string;
@@ -190,7 +190,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
   cartItems = [],
 }) => {
   const deviceData = useDeviceDetection();
-  const { rateExchange } = useContext(CurrencyAndExchangeRateContext) || {};
+  const { rateExchange } = useCurrencyStore();
   const { currency, exchangeRate = 1, symbol } = rateExchange || {};
 
   const total = subtotal + shipping;

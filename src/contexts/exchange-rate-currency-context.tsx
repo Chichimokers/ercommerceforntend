@@ -1,8 +1,9 @@
 "use client";
 
-import { createContext, useState, useEffect, useCallback, ReactNode, useContext } from "react";
+import { createContext, useState, useEffect, useCallback, ReactNode } from "react";
 import { getCachedUserCurrencyAndRate } from "@/helpers/user-location";
 import { CurrencyData } from "@/types/types";
+import { useCurrencyStore } from "@store/currency/currency-store";
 
 interface CurrencyContextValue {
   rateExchange: CurrencyData | null;
@@ -47,7 +48,7 @@ const defaultContextValue: CurrencyContextValue = {
 export const CurrencyAndExchangeRateContext = createContext<CurrencyContextValue>(defaultContextValue);
 
 export const useCurrency = () => {
-  const context = useContext(CurrencyAndExchangeRateContext);
+  const context = useCurrencyStore();
   if (!context) {
     throw new Error("useCurrency must be used within a CurrencyAndExchangeRateProvider");
   }

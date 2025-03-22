@@ -14,7 +14,7 @@ import { FaBagShopping } from "react-icons/fa6";
 import { WeightIcon, Check, X, AlertTriangle } from "lucide-react";
 
 import { useProductContext } from "@/contexts/product-context";
-import { useCurrency } from "@/contexts/exchange-rate-currency-context";
+import { useCurrencyStore } from "@store/currency/currency-store";
 import useCartActions from "@/components/actions";
 
 import { CustomButton } from "@/components/buttons/custom-button";
@@ -250,7 +250,7 @@ export default function ProductDetailPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [shareTooltip, setShareTooltip] = useState("Copiar enlace");
 
-  const { rateExchange } = useCurrency();
+  const { rateExchange } = useCurrencyStore();
   const { products } = useProductContext();
 
   // Obtener datos del producto

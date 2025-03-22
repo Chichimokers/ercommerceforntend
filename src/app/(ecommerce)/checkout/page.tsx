@@ -3,7 +3,7 @@
 import { useCallback, useContext, useEffect, useMemo, useState, lazy, Suspense } from "react";
 import { Spinner } from "@heroui/react";
 import { useProductContext } from "@contexts/product-context";
-import { CartContext } from "@/contexts/cart-context";
+import { useCartStore } from "@store/cart/cart-store";
 import { PhoneNumberUtil } from "google-libphonenumber";
 import { useForm, FormProvider } from "react-hook-form";
 import { z } from "zod";
@@ -15,7 +15,6 @@ import { useSession } from "next-auth/react";
 import { FormField } from "@components/forms/form-field";
 import InputField from "@components/forms/input";
 import { formatCurrency } from "@components/format-currency";
-import { CurrencyAndExchangeRateContext } from "@/contexts/exchange-rate-currency-context";
 import Link from "next/link";
 
 const AddressForm = lazy(() => import("@components/AddressForm").then(mod => ({ default: mod.AddressForm })));
@@ -117,7 +116,7 @@ export default function BuyPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { products, isLoading } = useProductContext();
   const { data: session } = useSession();
-  const { rateExchange } = useContext(CurrencyAndExchangeRateContext) || {};
+  const { rateExchange } = useCurrencyStore();
   const [missingProducts, setMissingProducts] = useState<string[]>([]);
   const [isCartReady, setIsCartReady] = useState(false);
 
@@ -482,4 +481,6 @@ import { memo, useRef } from "react";
 import { CartItem } from "../../../types/interfaces"; import { CurrencyData, ProductBase } from "../../../types/types";
 import React from "react";
 import { CheckoutStepper } from "@components/stepper/stepper";
+import { useCurrencyStore } from "@store/currency/currency-store";
+import { CartContext } from "@contexts/cart-context";
 

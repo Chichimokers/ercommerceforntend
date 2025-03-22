@@ -19,12 +19,12 @@ import { CartItem } from "@/types/interfaces";
 import { ShoppingCartIcon } from "lucide-react";
 
 import Link from "next/link";
-import { CurrencyAndExchangeRateContext } from "@/contexts/exchange-rate-currency-context";
 import dynamic from "next/dynamic";
 import { CustomButton } from "../buttons/custom-button";
 import { useProductContext } from "@/contexts/product-context";
 import Image from "next/image";
 import { formatCurrency } from "@components/format-currency";
+import { useCurrencyStore } from "@store/currency/currency-store";
 
 const CartCard = dynamic(() => import("../cards/cart-cards"));
 
@@ -32,7 +32,7 @@ export default function DrawerCart({ className }: { className?: string }) {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const { cart } = useContext(CartContext) || {};
   const { cartProducts, mutateCartProducts } = useProductContext();
-  const { rateExchange } = useContext(CurrencyAndExchangeRateContext) || {};
+  const { rateExchange } = useCurrencyStore();
   const { currency, exchangeRate } = rateExchange || {};
   const [imageLoaded, setImageLoaded] = useState(false);
 

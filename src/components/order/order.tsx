@@ -1,15 +1,15 @@
-import React, { useContext, useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import Image from "next/image";
 import { Order, Item, CurrencyData } from "@/types/types";
 import { Chip, Button, Divider } from "@heroui/react";
 import { QRCodeCanvas } from "qrcode.react";
 import { MapPinIcon, Package2Icon, CalendarIcon, ClockIcon, ChevronDownIcon, ChevronUpIcon, CheckIcon, XIcon, AlertTriangleIcon } from "lucide-react";
-import { CurrencyAndExchangeRateContext } from "@contexts/exchange-rate-currency-context";
 import { formatCurrency } from "@components/format-currency";
 import PaymentMethodButton from "@hooks/usePaymentMethodSelector";
 import Collapse from "@components/collapse";
 import { useRouter } from "next/navigation";
 import { createPortal } from "react-dom";
+import { useCurrencyStore } from "@store/currency/currency-store";
 
 // Modal para mostrar el QR en tamaño grande
 const QRModal = ({
@@ -334,7 +334,7 @@ const OrderComponent = ({
   compact?: boolean;
   className?: string;
 }) => {
-  const { rateExchange } = useContext(CurrencyAndExchangeRateContext);
+  const { rateExchange } = useCurrencyStore();
   const [paymentMethod, setPaymentMethod] = useState("");
   const [isExpanded, setIsExpanded] = useState(false);
   const [showItems, setShowItems] = useState(false);

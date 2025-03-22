@@ -3,7 +3,7 @@
 import React, { useCallback, memo } from "react";
 import { Card, CardBody } from "@heroui/react";
 import Link from "next/link";
-import { useLocation } from "@contexts/location-context";
+import { useLocationStore } from "@store/location/location-store";
 import { useDeviceDetection } from "@/hooks/useDeviceDetection";
 import Image from "next/image";
 
@@ -27,7 +27,7 @@ const LightCategoryCard = memo(({
   itemsCount,
   onLocationNeeded
 }: CategoryCardProps) => {
-  const { location } = useLocation();
+  const { location, hasLocation } = useLocationStore();
 
   // Manejador de clics simplificado
   const handleCardClick = useCallback((e: React.MouseEvent) => {
@@ -85,7 +85,7 @@ const CategoryCard = ({
   itemsCount,
   imageUrl,
 }: CategoryCardProps) => {
-  const { location } = useLocation();
+  const { location, hasLocation } = useLocationStore();
   const deviceData = useDeviceDetection();
 
   // Determinar si debemos deshabilitar animaciones

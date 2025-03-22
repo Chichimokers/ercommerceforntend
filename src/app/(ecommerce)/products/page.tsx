@@ -13,8 +13,6 @@ import { AlertCircle } from "lucide-react";
 import LucideIcons from "@components/lazy-imports/lucide-icons";
 import { useInView } from "react-intersection-observer";
 import { throttle } from "lodash";
-import UltraLightMode, { UltraLightSkeleton } from '@/components/performance/ultra-light-mode';
-import { useDeviceCapabilities } from '@/hooks/useDeviceCapabilities';
 
 const ProductCard = dynamic(
   () => import("@/components/cards/product/product-card").then(mod => ({ default: mod.default })),

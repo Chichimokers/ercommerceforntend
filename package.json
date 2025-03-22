@@ -82,7 +82,8 @@
     "swr": "^2.3.3",
     "tailwind-variants": "^0.3.1",
     "use-debounce": "^10.0.4",
-    "zod": "^3.24.2"
+    "zod": "^3.24.2",
+    "zustand": "^5.0.3"
   },
   "devDependencies": {
     "@next/bundle-analyzer": "^15.2.1",

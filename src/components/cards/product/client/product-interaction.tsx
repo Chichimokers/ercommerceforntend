@@ -2,11 +2,11 @@
 
 import { ProductBase } from "@/types/types";
 import useCartActions from "@/components/actions";
-import { useContext, useMemo } from "react";
-import { CurrencyAndExchangeRateContext } from "@/contexts/exchange-rate-currency-context";
+import { useMemo } from "react";
 import { CartButtons } from "./cart-buttons";
 import QuantityAdjuster from "@components/buttons/quantity-selector";
 import { useDeviceDetection } from "@/hooks/useDeviceDetection";
+import { useCurrencyStore } from "@store/currency/currency-store";
 
 interface ProductInteractionProps {
   product: ProductBase;
@@ -16,7 +16,7 @@ interface ProductInteractionProps {
 export default function ProductInteraction({
   product,
 }: ProductInteractionProps) {
-  const { rateExchange } = useContext(CurrencyAndExchangeRateContext) || {};
+  const { rateExchange } = useCurrencyStore();
   const { isMobile } = useDeviceDetection();
 
   const {

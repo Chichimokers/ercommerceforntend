@@ -1,7 +1,7 @@
 "use client";
 import useSWR from "swr";
 import { useState, useContext, ChangeEvent, useEffect, useMemo } from "react";
-import { useLocation } from "@contexts/location-context";
+import { useLocationStore } from "@store/location/location-store";
 import { Alert, Select, SelectItem } from "@heroui/react";
 import { CustomButton } from "@components/buttons/custom-button";
 import { motion, AnimatePresence } from "framer-motion";
@@ -22,7 +22,7 @@ interface LocationModalProps {
 }
 
 export default function LocationModal({ open, onClose, initialProvince = '', initialMunicipality = '' }: LocationModalProps) {
-  const { location, setLocation } = useLocation();
+  const { location, setLocation } = useLocationStore();
   const { clearCart, cart } = useContext(CartContext) || {};
   const [province, setProvince] = useState<string>(location?.province || initialProvince);
   const [municipality, setMunicipality] = useState<string>(location?.municipality || initialMunicipality);
