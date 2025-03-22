@@ -23,7 +23,8 @@ export default function HeroSection() {
             className="object-cover"
           />
 
-          <div className="absolute inset-0 h-16 bg-gradient-to-b from-transparent to-blue-50 dark:from-transparent dark:to-gray-900"></div>
+          <div className="absolute bottom-0 -right-20 w-[30rem] h-[30rem] rounded-full bg-indigo-600/10 blur-3xl z-0"></div>
+          <div className="absolute bottom-0 left-0 h-16 bg-gradient from-transparent to-blue-50 dark:from-transparent dark:to-gray-900 z-0"></div>
 
           <div className="relative z-20 px-6 sm:px-10 py-10 sm:py-16 w-full max-w-7xl mx-auto flex flex-col items-center">
             <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.1] mb-4 sm:mb-6">
