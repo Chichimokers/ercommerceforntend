@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Dropdown,
   DropdownTrigger,
@@ -28,6 +28,8 @@ const AccountButton = React.memo(({ className }: { className?: string }) => {
   const { openLogin } = useModal();
   const pathname = usePathname();
   const isOrdersPage = pathname === "/orders";
+  const userRole = Number(session?.user.role);
+  
 
   return (
     <>
@@ -82,10 +84,33 @@ const AccountButton = React.memo(({ className }: { className?: string }) => {
             </DropdownItem>
             : null
           }
+          
+      
+  
 
           <DropdownItem key="help_and_feedback">
             Ayuda y retroalimentación
           </DropdownItem>
+
+          {(session && userRole === 2) ? (
+            <DropdownItem
+              key="admin"
+              href="/admin"
+              color="secondary"
+            >
+             Panel de administracion
+            </DropdownItem>
+          ):null}
+              {(session && userRole === 3) ? (
+            <DropdownItem
+              key="qrScan"
+              href="/admin/utils/qr-scan"
+              color="secondary"
+            >
+             Scanner Qr
+            </DropdownItem>
+          ):null}
+
           {session && (
             <DropdownItem
               key="logout"

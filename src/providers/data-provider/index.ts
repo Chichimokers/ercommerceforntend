@@ -12,12 +12,10 @@ const axiosInstance = axios.create({
   baseURL: API_URL,
 });
 
-// Add response interceptor for error handling
 axiosInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
     if (error.response?.status === 401) {
-      // Handle unauthorized access
       window.location.href = "/api/auth/signin";
     }
     return Promise.reject(error);

@@ -281,7 +281,7 @@ const ProductList = () => {
       title="Listado de Productos"
       headerButtons={
         <Space>
-          <CreateButton title="Crear"/>
+          <CreateButton title="Crear" variant="solid" color="blue"/>
         <div ref={searchRef} className="relative" style={{ width: '300px' }}>
           <Search
             placeholder="Buscar productos..."

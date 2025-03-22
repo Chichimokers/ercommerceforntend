@@ -19,6 +19,12 @@ export type ProductBase = {
 	};
 };
 
+export enum UserRole {
+	USER = 1,
+	ADMIN = 2,
+	DELIVERY = 3
+  }
+  
 export type Location = {
 	province: string;
 	municipality: string;

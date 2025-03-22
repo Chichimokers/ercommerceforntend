@@ -5,9 +5,10 @@ import { Order, BaseType, Province } from "../../../../types/types";
 import GenericList, { ExtendedColumnType } from "@components/admin/generic_admin_pages/genericListPage";
 import { useList } from "@refinedev/core";
 import { ColumnFilterItem } from "antd/es/table/interface";
+import { useSession } from "next-auth/react";
 
 const OrderList: React.FC = () => {
-  
+  const { data:session } = useSession()
   const { data: provinceData } = useList<Province>({ resource: 'province' });
   const provinceFilter: ColumnFilterItem[] = provinceData?.data.map(p => ({ text: p.name, value: p.name })) || [];
 
@@ -89,7 +90,7 @@ const OrderList: React.FC = () => {
     <GenericList<Order & BaseType>
       resource="orders"
       title="Órdenes"
-      actionButtons={{edit:false,delete:true,show:true}}
+      actionButtons={{edit:false,delete:(Number(session?.user.role) === 2 ) || false ,show:true}}
       canCreate={false}
       columns={columns}
       pageSize={10}
