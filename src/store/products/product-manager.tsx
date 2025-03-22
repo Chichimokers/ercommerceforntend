@@ -1,9 +1,19 @@
 "use client";
 
-import { useProductManager } from "./product-store";
+import { Suspense } from "react";
+import { useProductManager } from "@/store/products/product-store";
 
-export default function ProductManager() {
+// Componente interno que usa hooks que pueden suspender
+function ProductManagerInner() {
   useProductManager();
-
   return null;
+}
+
+// Componente exportado que envuelve con Suspense
+export default function ProductManager() {
+  return (
+    <Suspense fallback={null}>
+      <ProductManagerInner />
+    </Suspense>
+  );
 }
