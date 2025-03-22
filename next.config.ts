@@ -1,75 +1,71 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  //output: "standalone",
+  //output: 'export',
 
   reactStrictMode: true,
 
   async headers() {
     return [
       {
-        source: "/(.*)",
+        source: '/(.*)',
         headers: [
-          // Configuraciones de CORS o seguridad estricta
-          { key: "X-Frame-Options", value: "SAMEORIGIN" },
-          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
         ],
       },
     ];
   },
 
-  // Configuración de redirects o rewrites
   async redirects() {
     return [
-      // Redirecciones que pueden interferir
       {
-        source: "/old-path",
-        destination: "/new-path",
+        source: '/old-path',
+        destination: '/new-path',
         permanent: true,
       },
     ];
   },
 
-  // Optimización de imágenes
   images: {
     remotePatterns: [
       {
-        protocol: "https",
-        hostname: "picsum.photos",
+        protocol: 'https',
+        hostname: 'picsum.photos',
       },
       {
-        protocol: "https",
-        hostname: "dummyimage.com",
+        protocol: 'https',
+        hostname: 'dummyimage.com',
       },
       {
-        protocol: "https",
-        hostname: "placehold.co", // Nuevo dominio de placeholder
+        protocol: 'https',
+        hostname: 'placehold.co',
       },
       {
-        protocol: "https",
-        hostname: "placekitten.com",
+        protocol: 'https',
+        hostname: 'placekitten.com',
       },
       {
-        protocol: "https",
-        hostname: "dummyimage.com",
+        protocol: 'https',
+        hostname: 'dummyimage.com',
       },
       {
-        protocol: "https",
-        hostname: "picsum.photos",
+        protocol: 'https',
+        hostname: 'picsum.photos',
       },
       {
-        protocol: "https",
-        hostname: "via.placeholder.com",
+        protocol: 'https',
+        hostname: 'via.placeholder.com',
       },
       {
-        protocol: "http",
-        hostname: "localhost",
+        protocol: 'http',
+        hostname: 'localhost',
       },
       {
-        protocol: "https",
-        hostname: "esaki-jrr.com",
+        protocol: 'https',
+        hostname: 'esaki-jrr.com',
       },
     ],
-    formats: ["image/avif", "image/webp"],
+    formats: ['image/avif', 'image/webp'],
     minimumCacheTTL: 86400, // 1 día de caché
   },
 
@@ -86,18 +82,18 @@ const nextConfig = {
   // Compresión avanzada
   compress: true,
   webpack: (config: any) => {
-    const CompressionPlugin = require("compression-webpack-plugin");
+    const CompressionPlugin = require('compression-webpack-plugin');
 
     config.plugins.push(
       new CompressionPlugin({
-        algorithm: "gzip",
+        algorithm: 'gzip',
         test: /\.(js|css|html|svg|json)$/,
       })
     );
     config.plugins.push(
       new CompressionPlugin({
-        algorithm: "brotliCompress",
-        filename: "[path][base].br",
+        algorithm: 'brotliCompress',
+        filename: '[path][base].br',
         test: /\.(js|css|html|svg|json)$/,
       })
     );
@@ -105,9 +101,8 @@ const nextConfig = {
   },
 };
 
-// Corregir la importación del bundle analyzer
-const withBundleAnalyzer = require("@next/bundle-analyzer")({
-  enabled: process.env.ANALYZE === "true",
+const withBundleAnalyzer = require('@next/bundle-analyzer')({
+  enabled: process.env.ANALYZE === 'true',
 });
 
 module.exports = withBundleAnalyzer(nextConfig);

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useCallback, useEffect } from "react";
-import { Input, Link, Button, addToast } from "@heroui/react";
+import { Input, Button, addToast } from "@heroui/react";
 import { FaGoogle, FaLock } from "react-icons/fa";
 import { MdOutlineEmail } from "react-icons/md";
 import Image from "next/image";
@@ -11,6 +11,7 @@ import { EyeSlashFilledIcon } from "@components/images/eye-slash-icon";
 import { EyeFilledIcon } from "@components/images/eye-filled";
 import { useRouter } from "next/navigation";
 import { FormField } from "@components/forms/form-field";
+import Link from "next/link";
 
 // Detectar capacidades del dispositivo
 const useDeviceCapabilities = () => {
@@ -165,7 +166,7 @@ export default function Login() {
           "",
           "animate-fadeInDown"
         )}>
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent dark:from-blue-400 dark:to-indigo-300 text-center">
+          <h1 className="text-2xl font-bold text-blue-600 dark:text-blue-400 text-center">
             Bienvenido de vuelta
           </h1>
           <p className="text-center mt-2 text-gray-600 dark:text-gray-400 text-sm max-w-xs mx-auto">
@@ -263,7 +264,7 @@ export default function Login() {
           <Button
             fullWidth
             type="submit"
-            className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium py-3 px-4 rounded-xl shadow-md hover:shadow-lg transition-all duration-200"
+            className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-xl shadow-md hover:shadow-lg transition-all duration-200"
             isLoading={isLoading}
             size="lg"
           >

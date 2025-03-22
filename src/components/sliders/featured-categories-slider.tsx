@@ -3,73 +3,71 @@
 import { useRef, useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-// Datos de categorías destacadas
 const featuredCategories = [
   {
     id: "electronics",
     name: "Electrónica",
     image: "/categories/electronics.jpg",
-    color: "from-blue-500/20 to-blue-600/20",
-    darkColor: "from-blue-900/30 to-blue-800/30",
+    color: "bg-blue-600/20",
+    darkColor: "bg-blue-800/30",
     count: 542
   },
   {
     id: "groceries",
     name: "Alimentos",
     image: "/categories/groceries.jpg",
-    color: "from-green-500/20 to-green-600/20",
-    darkColor: "from-green-900/30 to-green-800/30",
+    color: "bg-green-600/20",
+    darkColor: "bg-green-800/30",
     count: 687
   },
   {
     id: "home",
     name: "Hogar",
     image: "/categories/home.jpg",
-    color: "from-amber-500/20 to-amber-600/20",
-    darkColor: "from-amber-900/30 to-amber-800/30",
+    color: "bg-amber-600/20",
+    darkColor: "bg-amber-800/30",
     count: 324
   },
   {
     id: "beauty",
     name: "Belleza",
     image: "/categories/beauty.jpg",
-    color: "from-pink-500/20 to-pink-600/20",
-    darkColor: "from-pink-900/30 to-pink-800/30",
+    color: "bg-pink-600/20",
+    darkColor: "bg-pink-800/30",
     count: 263
   },
   {
     id: "clothing",
     name: "Ropa",
     image: "/categories/clothing.jpg",
-    color: "from-purple-500/20 to-purple-600/20",
-    darkColor: "from-purple-900/30 to-purple-800/30",
+    color: "bg-purple-600/20",
+    darkColor: "bg-purple-800/30",
     count: 428
   },
   {
     id: "health",
     name: "Salud",
     image: "/categories/health.jpg",
-    color: "from-red-500/20 to-red-600/20",
-    darkColor: "from-red-900/30 to-red-800/30",
+    color: "bg-red-600/20",
+    darkColor: "bg-red-800/30",
     count: 195
   },
   {
     id: "toys",
     name: "Juguetes",
     image: "/categories/toys.jpg",
-    color: "from-indigo-500/20 to-indigo-600/20",
-    darkColor: "from-indigo-900/30 to-indigo-800/30",
+    color: "bg-indigo-600/20",
+    darkColor: "bg-indigo-800/30",
     count: 176
   },
   {
     id: "gifts",
     name: "Regalos",
     image: "/categories/gifts.jpg",
-    color: "from-teal-500/20 to-teal-600/20",
-    darkColor: "from-teal-900/30 to-teal-800/30",
+    color: "bg-teal-600/20",
+    darkColor: "bg-teal-800/30",
     count: 254
   }
 ];
@@ -82,7 +80,7 @@ const CategoryCard = ({ category }: { category: typeof featuredCategories[0] }) 
       className="group relative h-[180px] flex-shrink-0 overflow-hidden rounded-2xl transition-transform hover:scale-[1.03] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
     >
       {/* Fondo de la tarjeta */}
-      <div className={`absolute inset-0 bg-gradient-to-tr ${category.color} dark:${category.darkColor} group-hover:opacity-90 transition-opacity`}></div>
+      <div className={`absolute inset-0 ${category.color} dark:${category.darkColor} group-hover:opacity-90 transition-opacity`}></div>
 
       {/* Imagen de fondo con efecto de zoom */}
       <div className="absolute inset-0 overflow-hidden z-0">
@@ -99,11 +97,11 @@ const CategoryCard = ({ category }: { category: typeof featuredCategories[0] }) 
       </div>
 
       {/* Overlay para mejor legibilidad */}
-      <div className="absolute inset-0 z-10 bg-gradient-to-t from-black/60 to-transparent"></div>
+      <div className="absolute inset-0 z-10 bg-black/60"></div>
 
       {/* Contenido */}
       <div className="absolute bottom-0 left-0 right-0 p-4 z-20 flex flex-col items-start transition-transform group-hover:translate-y-[-5px]">
-        <h3 className="font-bold text-xl text-white drop-shadow-md">
+        <h3 className="font-bold text-xl text-white">
           {category.name}
         </h3>
         <span className="text-sm text-gray-200 bg-black/30 px-2 py-0.5 rounded-full mt-1">
@@ -143,20 +141,17 @@ const FeaturedCategoriesSlider = () => {
   const scrollRight = () => {
     if (!sliderRef.current) return;
 
-    const scrollAmount = sliderRef.current.clientWidth * 0.75; // 75% del ancho visible
+    const scrollAmount = sliderRef.current.clientWidth * 0.75;
     sliderRef.current.scrollBy({ left: scrollAmount, behavior: "smooth" });
   };
 
-  // Configurar evento de desplazamiento
   useEffect(() => {
     const slider = sliderRef.current;
 
     if (slider) {
       slider.addEventListener("scroll", handleScroll);
-      // Verificar el estado inicial de desplazamiento
       handleScroll();
 
-      // Verificar el estado de desplazamiento cuando cambie el tamaño de la ventana
       window.addEventListener("resize", handleScroll);
     }
 
@@ -170,19 +165,15 @@ const FeaturedCategoriesSlider = () => {
 
   return (
     <div className="relative">
-      {/* Botón de desplazamiento izquierdo */}
-      <motion.button
-        initial={{ opacity: 0 }}
-        animate={{ opacity: canScrollLeft ? 1 : 0 }}
+      <button
         className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 dark:bg-gray-800/90 rounded-full p-2 shadow-lg disabled:opacity-0 transition-opacity"
         onClick={scrollLeft}
         disabled={!canScrollLeft}
         aria-label="Desplazar a la izquierda"
       >
         <ChevronLeft size={24} className="text-gray-700 dark:text-gray-200" />
-      </motion.button>
+      </button>
 
-      {/* Contenedor del slider */}
       <div
         ref={sliderRef}
         className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide"
@@ -198,19 +189,15 @@ const FeaturedCategoriesSlider = () => {
         ))}
       </div>
 
-      {/* Botón de desplazamiento derecho */}
-      <motion.button
-        initial={{ opacity: 0 }}
-        animate={{ opacity: canScrollRight ? 1 : 0 }}
+      <button
         className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 dark:bg-gray-800/90 rounded-full p-2 shadow-lg disabled:opacity-0 transition-opacity"
         onClick={scrollRight}
         disabled={!canScrollRight}
         aria-label="Desplazar a la derecha"
       >
         <ChevronRight size={24} className="text-gray-700 dark:text-gray-200" />
-      </motion.button>
+      </button>
 
-      {/* Estilo para ocultar la barra de desplazamiento */}
       <style jsx global>{`
         .scrollbar-hide::-webkit-scrollbar {
           display: none;

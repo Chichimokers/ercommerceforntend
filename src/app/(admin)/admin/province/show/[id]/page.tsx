@@ -15,7 +15,7 @@ export default function ProvinceShow() {
   const { queryResult } = useShow<Province & BaseType>({
     resource: "province",
   });
-  
+
   const { data, isLoading } = queryResult;
   const record = data?.data;
 
@@ -29,7 +29,7 @@ export default function ProvinceShow() {
     <Show
       isLoading={isLoading}
       title="Detalles de la Provincia"
-    
+
     >
       {record && (
         <Card>
@@ -41,15 +41,15 @@ export default function ProvinceShow() {
               {record.name}
             </Descriptions.Item>
             <Descriptions.Item label="Fecha de Creación">
-              <DateField 
-                value={record.created_at} 
-                format="DD/MM/YYYY HH:mm:ss" 
+              <DateField
+                value={record.created_at}
+                format="DD/MM/YYYY HH:mm:ss"
               />
             </Descriptions.Item>
             <Descriptions.Item label="Última Actualización">
-              <DateField 
-                value={record.updated_at} 
-                format="DD/MM/YYYY HH:mm:ss" 
+              <DateField
+                value={record.updated_at}
+                format="DD/MM/YYYY HH:mm:ss"
               />
             </Descriptions.Item>
             <Descriptions.Item label="Estado">

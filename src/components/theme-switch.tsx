@@ -1,33 +1,23 @@
 "use client";
 
 import { FC, useState, useEffect } from "react";
-import { VisuallyHidden } from "@react-aria/visually-hidden";
-import { SwitchProps, Tooltip, useSwitch } from "@heroui/react";
+import { Button, Tooltip } from "@heroui/react";
 import { useTheme } from "next-themes";
-import clsx from "clsx";
-import { SunFilledIcon, MoonFilledIcon } from "@/components/icons";
 import { SunIcon, MoonIcon } from "lucide-react";
 
 export interface ThemeSwitchProps {
   className?: string;
-  classNames?: SwitchProps["classNames"];
 }
 
-export const ThemeSwitch: FC<ThemeSwitchProps> = ({
-  className,
-  classNames,
-}) => {
+export const ThemeSwitch: FC<ThemeSwitchProps> = ({ className }) => {
   const [isMounted, setIsMounted] = useState(false);
-
   const { theme, setTheme } = useTheme();
 
-  const onChange = () => {
+  const toggleTheme = () => {
     const newTheme = theme === "light" ? "dark" : "light";
-
     setTheme(newTheme);
-    // Guardar en localStorage
     localStorage.setItem("theme", newTheme);
-    // Actualizar el atributo class en el elemento html para Tailwind
+
     if (theme) {
       document.documentElement.classList.remove(theme);
     }
@@ -35,75 +25,32 @@ export const ThemeSwitch: FC<ThemeSwitchProps> = ({
   };
 
   useEffect(() => {
-    // Recuperar el tema guardado
     const savedTheme = localStorage.getItem("theme") || "light";
-
-    // Aplicar el tema inmediatamente
     setTheme(savedTheme);
     setIsMounted(true);
   }, [setTheme]);
 
-  const {
-    Component,
-    slots,
-    isSelected,
-    getBaseProps,
-    getInputProps,
-    getWrapperProps,
-  } = useSwitch({
-    isSelected: theme === "light",
-    onChange,
-  });
-
-  // Prevent Hydration Mismatch
   if (!isMounted) return <div className="w-10 h-10" />;
 
   return (
     <Tooltip
       className="h-auto"
-      content={
-        isSelected ? "Cambiar a modo oscuro" : "Cambiar a modo claro"
-      }
+      content={theme === "light" ? "Cambiar a modo oscuro" : "Cambiar a modo claro"}
       delay={200}
     >
-      <Component
-        aria-label={isSelected ? "Switch to dark mode" : "Switch to light mode"}
-        {...getBaseProps({
-          className: clsx(
-            "flex flex-col min-w-10 !p-0 justify-center items-center !w-10 !h-10 !rounded-full !border border-default-600 hover:border-default-400 bg-blue-50/50 dark:bg-gray-900/50 transition-none",
-            className,
-            classNames?.base
-          ),
-        })}
+      <Button
+        onPress={toggleTheme}
+        isIconOnly
+        className={`${className} !rounded-full w-10 h-10 !p-0 !border border-default-600 hover:bg-blue-50/50 dark:hover:bg-gray-900/50 hover:border-default-400 transition-none bg-blue-50/50 dark:bg-gray-900/50`}
+        variant="bordered"
+        aria-label={theme === "light" ? "Cambiar a modo oscuro" : "Cambiar a modo claro"}
       >
-        <VisuallyHidden>
-          <input {...getInputProps()} />
-        </VisuallyHidden>
-        <div
-          {...getWrapperProps()}
-          className={slots.wrapper({
-            class: clsx(
-              [
-                "bg-transparent",
-                "rounded-xl",
-                "flex items-center justify-center",
-                "group-data-[selected=true]:bg-transparent",
-                "!text-default-foreground hover:text-default-400",
-                "pt-px",
-                "px-0",
-                "mx-0",
-              ],
-              classNames?.wrapper,
-            ),
-          })}
-        >
-          {isSelected ? (
-            <MoonIcon size={22} opacity={0.8} />
-          ) : (
-            <SunIcon size={22} opacity={0.8} />
-          )}
-        </div>
-      </Component>
+        {theme === "light" ? (
+          <MoonIcon size={22} opacity={0.8} className="text-default-foreground" />
+        ) : (
+          <SunIcon size={22} opacity={0.8} className="text-default-foreground" />
+        )}
+      </Button>
     </Tooltip>
   );
 };

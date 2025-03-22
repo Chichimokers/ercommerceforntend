@@ -69,7 +69,6 @@ const CustomRadio = ({
   );
 };
 
-// Componente de Botón personalizado
 const CustomButton = ({
   children,
   onClick,
@@ -127,17 +126,15 @@ const PaymentMethodModal: React.FC<PaymentMethodModalProps> = ({
   const [isMounted, setIsMounted] = useState(false);
   const modalRef = useRef<HTMLDivElement>(null);
 
-  // Para asegurarnos de que solo se monte en el cliente
   useEffect(() => {
     setIsMounted(true);
     return () => setIsMounted(false);
   }, []);
 
-  // Efecto para manejar el bloqueo del scroll del body
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
-      document.body.style.paddingRight = '15px'; // Compensar scrollbar
+      document.body.style.paddingRight = '15px';
     } else {
       document.body.style.overflow = '';
       document.body.style.paddingRight = '';
@@ -149,14 +146,12 @@ const PaymentMethodModal: React.FC<PaymentMethodModalProps> = ({
     };
   }, [isOpen]);
 
-  // Actualizar método seleccionado cuando cambia el initialMethod
   useEffect(() => {
     if (initialMethod) {
       setSelectedMethod(initialMethod);
     }
   }, [initialMethod]);
 
-  // Reset cuando se abre el modal
   useEffect(() => {
     if (isOpen && !initialMethod) {
       setSelectedMethod("");
@@ -210,26 +205,22 @@ const PaymentMethodModal: React.FC<PaymentMethodModalProps> = ({
     }
   ];
 
-  // Si no está montado (SSR), no renderizar
   if (!isMounted) return null;
 
-  // Usar portal para renderizar el modal fuera de la jerarquía DOM normal
   return createPortal(
     <AnimatePresence>
       {isOpen && (
         <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
-          {/* Backdrop con blur */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-0 bg-black/40 backdrop-blur-sm"
+            className="fixed inset-0 bg-black/40"
             onClick={() => !isSubmitting && onOpenChange(false)}
             aria-hidden="true"
           />
 
-          {/* Modal */}
           <motion.div
             ref={modalRef}
             initial={{ opacity: 0, scale: 0.95, y: 10 }}
@@ -242,7 +233,6 @@ const PaymentMethodModal: React.FC<PaymentMethodModalProps> = ({
             aria-modal="true"
             aria-labelledby="payment-modal-title"
           >
-            {/* Header */}
             <div className="flex justify-between items-center p-5 border-b border-gray-200 dark:border-gray-700">
               <h2
                 id="payment-modal-title"
@@ -263,7 +253,6 @@ const PaymentMethodModal: React.FC<PaymentMethodModalProps> = ({
               )}
             </div>
 
-            {/* Body */}
             <div className="p-5 max-h-[60vh] overflow-y-auto">
               <div className="space-y-4">
                 {paymentMethods.map((method) => (
@@ -292,7 +281,6 @@ const PaymentMethodModal: React.FC<PaymentMethodModalProps> = ({
               </div>
             </div>
 
-            {/* Footer */}
             <div className="flex justify-end gap-3 p-5 border-t border-gray-200 dark:border-gray-700">
               <Button
                 color="danger"

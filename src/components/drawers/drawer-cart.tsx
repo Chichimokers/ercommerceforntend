@@ -13,27 +13,26 @@ import {
   Tooltip,
   Button
 } from "@heroui/react";
-import { CartContext } from "@/contexts/cart-context";
 import { FaTag } from "react-icons/fa";
 import { CartItem } from "@/types/interfaces";
 import { ShoppingCartIcon } from "lucide-react";
 
 import Link from "next/link";
-import { CurrencyAndExchangeRateContext } from "@/contexts/exchange-rate-currency-context";
 import dynamic from "next/dynamic";
 import { CustomButton } from "../buttons/custom-button";
 import { useProductContext } from "@/contexts/product-context";
 import Image from "next/image";
 import { formatCurrency } from "@components/format-currency";
+import { useCurrencyStore } from "@store/currency/currency-store";
+import { useCartStore } from "@store/cart/cart-store";
 
 const CartCard = dynamic(() => import("../cards/cart-cards"));
 
 export default function DrawerCart({ className }: { className?: string }) {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
-  const [backdrop, setBackdrop] = React.useState("blur");
-  const { cart } = useContext(CartContext) || {};
+  const { cart } = useCartStore() || {};
   const { cartProducts, mutateCartProducts } = useProductContext();
-  const { rateExchange } = useContext(CurrencyAndExchangeRateContext) || {};
+  const { rateExchange } = useCurrencyStore();
   const { currency, exchangeRate } = rateExchange || {};
   const [imageLoaded, setImageLoaded] = useState(false);
 
@@ -75,11 +74,12 @@ export default function DrawerCart({ className }: { className?: string }) {
 
   const { subtotal, discount, total } = cartTotals;
 
-  const handleBackdropChange = useCallback((backdrop: string) => {
-    setBackdrop(backdrop);
-    mutateCartProducts();
+  const handleBackdropChange = useCallback(() => {
+    if (!isOpen) {
+      mutateCartProducts();
+    }
     setTimeout(onOpen, 0);
-  }, [mutateCartProducts, onOpen]);
+  }, [mutateCartProducts, onOpen, isOpen]);
 
   const emptyCartContent = useMemo(() => (
     <div className="w-full flex flex-col items-center justify-center py-8">
@@ -91,7 +91,7 @@ export default function DrawerCart({ className }: { className?: string }) {
           src="/Empty_Cart.svg"
           onLoad={() => setImageLoaded(true)}
           fill
-          quality={Number(process.env.IMAGE_QUALITY) || 75}
+          quality={75}
           loading="lazy"
         />
       </div>
@@ -104,8 +104,10 @@ export default function DrawerCart({ className }: { className?: string }) {
   const cartItemsContent = useMemo(() =>
     cart?.map((item) => {
       const product = convertItem(item);
+      if (!product) return null;
+
       return product ? (
-        <React.Suspense key={product.id} fallback={<div>Cargando producto...</div>}>
+        <React.Suspense key={product.id} fallback={<div className="h-24 bg-gray-100 dark:bg-gray-800 rounded-md"></div>}>
           <CartCard productCart={product} />
         </React.Suspense>
       ) : null;
@@ -124,7 +126,6 @@ export default function DrawerCart({ className }: { className?: string }) {
     );
   }
 
-  // Valores formateados para mostrar
   const formattedSubtotal = formatCurrency(
     (exchangeRate ? subtotal * exchangeRate : subtotal),
     currency,
@@ -185,12 +186,11 @@ export default function DrawerCart({ className }: { className?: string }) {
             isInvisible={!cart?.length}
           >
             <Button
-              key={backdrop}
               isIconOnly
               className={`flex flex-col min-w-10 !p-0 justify-center items-center !w-10 !h-10 !rounded-full !border border-default-600 hover:border-default-400 bg-blue-50/50 dark:bg-gray-900/50 transition-none ${className}`}
               color="default"
               variant="bordered"
-              onPress={() => handleBackdropChange(backdrop)}
+              onPress={() => handleBackdropChange()}
             >
               <ShoppingCartIcon opacity={0.8} size={22} />
             </Button>
@@ -203,7 +203,7 @@ export default function DrawerCart({ className }: { className?: string }) {
         classNames={{
           closeButton: "absolute top-1 right-1",
         }}
-        backdrop="blur"
+        backdrop="opaque"
         isOpen={isOpen}
         onOpenChange={onOpenChange}
       >

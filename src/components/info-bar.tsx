@@ -1,6 +1,7 @@
+"use client";
+
 import React from "react";
-import { motion } from "framer-motion";
-import { FaPhoneAlt, FaEnvelope, FaHeadset, FaMapMarkerAlt } from "react-icons/fa";
+import { FaPhoneAlt, FaEnvelope, FaHeadset } from "react-icons/fa";
 import CurrencySelector from "@components/selects/currency-selector";
 import Link from "next/link";
 
@@ -29,26 +30,24 @@ const InfoItem = ({ icon, href, children, className = "" }: {
 
 const InfoBar = ({ className = "" }: { className?: string }) => {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: -10 }}
-      animate={{ opacity: 1, y: 0 }}
-      className={`backdrop-blur-sm bg-white/80 dark:bg-gray-900/80 border-b border-gray-200/50 dark:border-gray-700/50 
+    <div
+      className={`bg-white/95 dark:bg-gray-900/95 border-b border-gray-200/50 dark:border-gray-700/50 
                   text-gray-700 dark:text-gray-300 py-2 px-4 shadow-sm ${className}`}
     >
       <div className="container mx-auto flex justify-between items-center text-sm">
         <div className="flex items-center gap-4 overflow-x-auto scrollbar-hide">
-          <InfoItem icon={<FaPhoneAlt size={14} />} href={`tel:${process.env.PHONE}`}>
-            {process.env.PHONE}
+          <InfoItem icon={<FaPhoneAlt size={14} />} href={`tel:${process.env.NEXT_PUBLIC_PHONE || "+535 0939062"}`}>
+            {process.env.NEXT_PUBLIC_PHONE}
           </InfoItem>
 
           <div className="h-4 w-px bg-gray-300 dark:bg-gray-700 mx-1 hidden sm:block" />
 
           <InfoItem
             icon={<FaEnvelope size={14} />}
-            href="mailto:ayudaesaki@gmail.com"
+            href={`mailto:${process.env.NEXT_PUBLIC_EMAIL}`}
             className="hidden sm:flex"
           >
-            ayudaesaki@gmail.com
+            {process.env.NEXT_PUBLIC_EMAIL || "ayudaesaki@gmail.com"}
           </InfoItem>
 
           <div className="h-4 w-px bg-gray-300 dark:bg-gray-700 mx-1 hidden md:block" />
@@ -78,7 +77,7 @@ const InfoBar = ({ className = "" }: { className?: string }) => {
           </div>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 };
 

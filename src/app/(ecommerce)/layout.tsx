@@ -7,10 +7,11 @@ import { Navbar } from "@/components/navbar/nav";
 import LocationModal from "@components/modals/location-modal";
 
 const Footer = dynamic(() => import("@components/footer/footer"));
+const InfoBar = dynamic(() => import("@components/info-bar"));
 import { Overlay } from "@components/overlay";
-import InfoBar from "@components/info-bar";
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+
+export default function EcommerceLayout({ children }: { children: ReactNode }) {
   const [modalOpen, setModalOpen] = useState(false);
   const [showInfoBar, setShowInfoBar] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
@@ -19,29 +20,25 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     const controlInfoBar = () => {
       const currentScrollY = window.scrollY;
 
-      // Show the InfoBar when scrolling up or at the top
-      if (currentScrollY < lastScrollY || currentScrollY < 10) {
+      if (currentScrollY < lastScrollY || currentScrollY < 5) {
         setShowInfoBar(true);
       }
-      // Hide the InfoBar when scrolling down
-      else if (currentScrollY > lastScrollY && currentScrollY > 10) {
+      else if (currentScrollY > lastScrollY && currentScrollY > 5) {
         setShowInfoBar(false);
       }
 
-      // Update scroll position
       setLastScrollY(currentScrollY);
     };
 
     window.addEventListener("scroll", controlInfoBar);
 
-    // Cleanup
     return () => {
       window.removeEventListener("scroll", controlInfoBar);
     };
   }, [lastScrollY]);
 
   useEffect(() => {
-    if (!localStorage.getItem("location")) {
+    if (!location) {
       setModalOpen(true);
     }
   }
@@ -55,7 +52,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         className={`fixed top-16 left-0 right-0 z-30 transition-transform duration-300 ${showInfoBar ? "translate-y-0" : "-translate-y-full"
           }`}
       >
-        <InfoBar />
+        <React.Suspense fallback={<div className="h-12 bg-blue-100 dark:bg-gray-800 animate-pulse"></div>}>
+          <InfoBar />
+        </React.Suspense>
       </div>
 
       <main
@@ -68,9 +67,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
 
       <Footer />
 
-      <nav className="sticky bottom-0 left-0 w-full xm:hidden z-50">
-        <Navbar />
-      </nav>
+      <div className="sticky bottom-0 left-0 w-full xm:hidden mt-16 z-40">
+        <Navbar className="fixed bottom-0 left-0 right-0" />
+      </div>
     </>
   );
 }

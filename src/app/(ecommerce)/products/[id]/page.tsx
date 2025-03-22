@@ -14,7 +14,7 @@ import { FaBagShopping } from "react-icons/fa6";
 import { WeightIcon, Check, X, AlertTriangle } from "lucide-react";
 
 import { useProductContext } from "@/contexts/product-context";
-import { useCurrency } from "@/contexts/exchange-rate-currency-context";
+import { useCurrencyStore } from "@store/currency/currency-store";
 import useCartActions from "@/components/actions";
 
 import { CustomButton } from "@/components/buttons/custom-button";
@@ -24,6 +24,7 @@ import ErrorBoundary from "@components/error-boundary";
 import { SEO } from "@/components/seo";
 import { formatCurrency } from "@components/format-currency";
 import RelatedProductSection from "@components/sections/relationed-products";
+import { CurrencyData } from "../../../../types/types";
 
 interface ProductImageGalleryProps {
   images: string[];
@@ -108,7 +109,7 @@ const ProductPrice = ({
   discount?: { reduction: number };
   quantity: number;
   minForDiscount?: number;
-  rateExchange: any;
+  rateExchange: CurrencyData | null;
 }) => {
   return (
     <div className="mt-4">
@@ -132,7 +133,7 @@ const ProductPrice = ({
 
       {discount && minForDiscount && quantity < minForDiscount && (
         <div className="mt-2 text-sm text-blue-600 dark:text-blue-400">
-          Compra {minForDiscount} o más para obtener un {((discount.reduction * 100 * rateExchange?.exchangeRate) / displayPrice).toFixed(2)}% de descuento
+          Compra {minForDiscount} o más para obtener un {((discount.reduction * 100 * (rateExchange?.exchangeRate || 1)) / displayPrice).toFixed(2)}% de descuento
         </div>
       )}
     </div>
@@ -249,7 +250,7 @@ export default function ProductDetailPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [shareTooltip, setShareTooltip] = useState("Copiar enlace");
 
-  const { rateExchange } = useCurrency();
+  const { rateExchange } = useCurrencyStore();
   const { products } = useProductContext();
 
   // Obtener datos del producto

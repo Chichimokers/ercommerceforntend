@@ -36,13 +36,13 @@ interface ActionButtonsConfig {
 }
 
 // Funciones auxiliares
-const isLogicalFilter = (filter: CustomFilter): filter is LogicalFilter => 
+const isLogicalFilter = (filter: CustomFilter): filter is LogicalFilter =>
   !('type' in filter) || filter.type !== 'range' && filter.type !== 'search';
 
-const isRangeFilter = (filter: CustomFilter): filter is RangeFilter => 
+const isRangeFilter = (filter: CustomFilter): filter is RangeFilter =>
   'type' in filter && filter.type === 'range';
 
-const isSearchFilter = (filter: CustomFilter): filter is SearchFilter => 
+const isSearchFilter = (filter: CustomFilter): filter is SearchFilter =>
   'type' in filter && filter.type === 'search';
 
 // Componente de filtro de rango
@@ -66,10 +66,10 @@ const RangeFilterComponent: React.FC<RangeFilterProps> = ({
     if (!dataSource || dataSource.length === 0) {
       return { min: 0, max: 100 };
     }
-    
+
     let minVal = Infinity;
     let maxVal = -Infinity;
-    
+
     dataSource.forEach(item => {
       const val = Number(item[field]);
       if (!isNaN(val)) {
@@ -77,10 +77,10 @@ const RangeFilterComponent: React.FC<RangeFilterProps> = ({
         maxVal = Math.max(maxVal, val);
       }
     });
-    
-    return { 
-      min: minVal === Infinity ? 0 : minVal, 
-      max: maxVal === -Infinity ? 100 : maxVal 
+
+    return {
+      min: minVal === Infinity ? 0 : minVal,
+      max: maxVal === -Infinity ? 100 : maxVal
     };
   }, [dataSource, field]);
 
@@ -151,7 +151,7 @@ interface GenericListProps<T extends BaseType> {
   canCreate?: boolean;
   pageSize?: number;
   showActions?: boolean;
-  actionButtons?: ActionButtonsConfig; 
+  actionButtons?: ActionButtonsConfig;
 }
 
 
@@ -164,9 +164,9 @@ const GenericList = <T extends BaseType>({
   showActions = true,
   actionButtons = { show: true, edit: true, delete: true },
 }: GenericListProps<T>) => {
-  
+
   const [activeFilters, setActiveFilters] = useState<CustomFilter[]>([]);
-  const [activeSorter, setActiveSorter] = useState<{field: string, order: 'ascend' | 'descend'} | null>(null);
+  const [activeSorter, setActiveSorter] = useState<{ field: string, order: 'ascend' | 'descend' } | null>(null);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [pageSize_, setPageSize] = useState<number>(pageSize);
   
@@ -193,27 +193,28 @@ const GenericList = <T extends BaseType>({
       }));
   }, [columns]);
 
-  
+
   const processedData = useMemo(() => {
     if (!tableProps.dataSource || tableProps.dataSource.length === 0) {
       return [];
     }
 
+  
     let result = [...tableProps.dataSource];
-    
+
     if (activeFilters.length > 0) {
-      result = result.filter(item => 
+      result = result.filter(item =>
         activeFilters.every(filter => {
           if (isRangeFilter(filter)) {
             const value = Number(item[filter.field as keyof T]);
             return value >= filter.value[0] && value <= filter.value[1];
           }
-          
+
           if (isSearchFilter(filter)) {
             const itemValue = String(item[filter.field as keyof T] || '').toLowerCase();
             return itemValue.includes(filter.value.toLowerCase());
           }
-          
+
           if (isLogicalFilter(filter)) {
             const itemValue = item[filter.field as keyof T];
             if (Array.isArray(filter.value)) {
@@ -221,68 +222,68 @@ const GenericList = <T extends BaseType>({
             }
             return itemValue === filter.value;
           }
-          
+
           return true;
         }) // Added missing closing parenthesis for .every()
       ); // Added missing closing parenthesis for .filter()
     }
 
-  
+
     if (activeSorter) {
       const { field, order } = activeSorter;
       const isAscending = order === 'ascend';
-      
+
       result.sort((a, b) => {
         const aValue = a[field as keyof T];
         const bValue = b[field as keyof T];
-        
-  
+
+
         if (typeof aValue === 'number' && typeof bValue === 'number') {
           return isAscending ? aValue - bValue : bValue - aValue;
         }
-        
+
         if (typeof aValue === 'string' && typeof bValue === 'string') {
           return isAscending ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
         }
-        
+
         if (aValue instanceof Date && bValue instanceof Date) {
           return isAscending ? aValue.getTime() - bValue.getTime() : bValue.getTime() - aValue.getTime();
         }
-        
-  
+
+
         const aStr = String(aValue ?? '');
         const bStr = String(bValue ?? '');
         return isAscending ? aStr.localeCompare(bStr) : bStr.localeCompare(aStr);
       });
     }
-    
+
     return result;
   }, [tableProps.dataSource, activeFilters, activeSorter]);
 
-  
+
   const paginatedData = useMemo(() => {
     const startIndex = (currentPage - 1) * pageSize_;
     const endIndex = startIndex + pageSize_;
     return processedData.slice(startIndex, endIndex);
   }, [processedData, currentPage, pageSize_]);
 
-  
+
   const resetPagination = useCallback(() => {
     setCurrentPage(1);
   }, []);
 
-  
+
   const handleSearch = useCallback(() => {
     if (!searchField || !searchText.trim()) return;
-    
+
     const newFilters = activeFilters.filter(f => !isSearchFilter(f));
-    
+
     newFilters.push({
       field: searchField,
       type: 'search',
       value: searchText.trim()
     });
-    
+
     setActiveFilters(newFilters);
     resetPagination();
   }, [searchField, searchText, activeFilters, resetPagination]);
@@ -303,13 +304,13 @@ const GenericList = <T extends BaseType>({
 
     const enhancedColumns = columns.map(column => {
       const dataIndex = column.dataIndex as string;
-      
+
       if (column.rangeFilter) {
         const isFiltered = activeFilters.some(
           f => isRangeFilter(f) && f.field === dataIndex
         );
-     
-        
+
+
         return {
           ...column,
           filterDropdown: () => (
@@ -323,12 +324,12 @@ const GenericList = <T extends BaseType>({
                 resetPagination();
               }}
               onReset={() => {
-                setActiveFilters(prev => 
+                setActiveFilters(prev =>
                   prev.filter(f => !isRangeFilter(f) || f.field !== dataIndex)
                 );
                 resetPagination();
               }}
-           
+
               dataSource={tableProps.dataSource || []}
             />
           ),
@@ -339,17 +340,17 @@ const GenericList = <T extends BaseType>({
           sortOrder: activeSorter?.field === dataIndex ? activeSorter.order : null,
         };
       }
-      
+
 
       const standardFilter = activeFilters.find(
         f => isLogicalFilter(f) && f.field === dataIndex
       ) as LogicalFilter | undefined;
-      
+
       return {
         ...column,
-        filteredValue: standardFilter?.value ? 
-          (Array.isArray(standardFilter.value) ? standardFilter.value : [standardFilter.value]) 
-          : null, 
+        filteredValue: standardFilter?.value ?
+          (Array.isArray(standardFilter.value) ? standardFilter.value : [standardFilter.value])
+          : null,
         sorter: true,
         sortOrder: activeSorter?.field === dataIndex ? activeSorter.order : null,
       };
@@ -365,16 +366,16 @@ const GenericList = <T extends BaseType>({
         render: (_, record) => (
           <Space>
             {actionButtons.show && (
-              <ShowButton 
-                hideText 
-                recordItemId={record.id} 
+              <ShowButton
+                hideText
+                recordItemId={record.id}
                 resource={resource}
               />
             )}
             {actionButtons.edit && (
-              <EditButton 
-                hideText 
-                recordItemId={record.id} 
+              <EditButton
+                hideText
+                recordItemId={record.id}
                 resource={resource}
               />
             )}
@@ -392,10 +393,10 @@ const GenericList = <T extends BaseType>({
           </Space>
         ),
       };
-      
+
       return [...enhancedColumns, actionsColumn];
     }
-    
+
     return enhancedColumns;
   }, [columns, activeFilters, activeSorter, tableProps.dataSource, showActions, resource, resetPagination, actionButtons]);
 
@@ -406,7 +407,7 @@ const GenericList = <T extends BaseType>({
     sorter: SorterResult<T> | SorterResult<T>[],
   ) => {
     console.log('Table change:', { pagination, filters, sorter });
-    
+
     const standardFilters: LogicalFilter[] = [];
     Object.entries(filters).forEach(([field, value]) => {
       if (value && value.length > 0) {
@@ -418,24 +419,24 @@ const GenericList = <T extends BaseType>({
       }
     });
 
-    
-    const searchAndRangeFilters = activeFilters.filter(f => 
+
+    const searchAndRangeFilters = activeFilters.filter(f =>
       isRangeFilter(f) || isSearchFilter(f)
     );
 
-    
+
     const newFilters = [
       ...standardFilters,
       ...searchAndRangeFilters
     ];
-    
-    
+
+
     if (JSON.stringify(newFilters) !== JSON.stringify(activeFilters)) {
       setActiveFilters(newFilters);
       resetPagination();
     }
 
-    
+
     let newSorter = null;
     if (!Array.isArray(sorter) && sorter.column) {
       if (sorter.order) {
@@ -452,7 +453,7 @@ const GenericList = <T extends BaseType>({
         };
       }
     }
-    
+
     // Actualizar solo si cambia el sorter
     if (JSON.stringify(newSorter) !== JSON.stringify(activeSorter)) {
       setActiveSorter(newSorter);
@@ -463,7 +464,7 @@ const GenericList = <T extends BaseType>({
     if (pagination.current && pagination.current !== currentPage) {
       setCurrentPage(pagination.current);
     }
-    
+
     if (pagination.pageSize && pagination.pageSize !== pageSize_) {
       setPageSize(pagination.pageSize);
       setCurrentPage(1);
@@ -473,26 +474,26 @@ const GenericList = <T extends BaseType>({
   // Exportar datos
   const handleExport = useCallback(() => {
     if (processedData.length === 0) return;
-    
+
     try {
       const headers = Object.keys(processedData[0] || {}).join(',');
-      const rows = processedData.map(item => 
+      const rows = processedData.map(item =>
         Object.values(item)
           .map(val => typeof val === 'string' ? `"${val.replace(/"/g, '""')}"` : val)
           .join(',')
       );
-      
+
       const csvContent = [headers, ...rows].join('\n');
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
-      
+
       const link = document.createElement('a');
       link.href = url;
       link.setAttribute('download', `${resource}-export.csv`);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      
+
       setTimeout(() => URL.revokeObjectURL(url), 100);
     } catch (error) {
       console.error('Error exporting data:', error);
@@ -504,15 +505,15 @@ const GenericList = <T extends BaseType>({
     <List
       title={title}
       canCreate={canCreate}
-      
+
       headerButtons={({ defaultButtons }) => (
         <>
           {defaultButtons}
           <ExportButton onClick={handleExport} />
         </>
       )}
-      
-      createButtonProps={{variant:"solid",color:"blue"}}
+
+      createButtonProps={{ variant: "solid", color: "blue" }}
     >
       {/* Barra de búsqueda */}
       <div style={{ marginBottom: 16, display: 'flex', gap: 8 }}>
@@ -542,7 +543,7 @@ const GenericList = <T extends BaseType>({
           Limpiar
         </Button>
       </div>
-      
+
       {/* Debug */}
       {/* <div style={{marginBottom: '10px'}}>
         <p>Página actual: {currentPage}</p>
@@ -550,7 +551,7 @@ const GenericList = <T extends BaseType>({
         <p>Total items: {processedData.length}</p>
         <p>Items en página actual: {paginatedData.length}</p>
       </div> */}
-      
+
       <Table<T>
         rowKey="id"
         columns={getFinalColumns()}

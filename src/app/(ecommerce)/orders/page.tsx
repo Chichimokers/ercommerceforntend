@@ -1,12 +1,11 @@
 'use client';
 
 import dynamic from "next/dynamic";
-import useSWR, { mutate } from "swr";
-import { Accordion, AccordionItem, Divider, Spinner, Select, SelectItem, Badge, Chip, Button, Tooltip } from "@heroui/react";
+import useSWR from "swr";
+import { Accordion, AccordionItem, Divider, Spinner, Chip, Button } from "@heroui/react";
 import { Order } from "@/types/types";
 import { useSession } from "next-auth/react";
 import { useState, useMemo } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import {
   ShoppingBag,
   AlertTriangle,
@@ -113,14 +112,11 @@ const OrderSkeleton = () => (
 
 // Estado vacío elegante
 const EmptyOrdersState = ({ onGoShopping }: { onGoShopping: () => void }) => (
-  <motion.div
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ duration: 0.5 }}
+  <div
     className="flex flex-col items-center justify-center min-h-[60vh] text-center gap-6 p-4"
   >
     <div className="relative">
-      <div className="absolute inset-0 bg-blue-100 dark:bg-blue-900/30 rounded-full scale-150 blur-xl opacity-70" />
+      <div className="absolute inset-0 bg-blue-100 dark:bg-blue-900/30 rounded-full scale-150 opacity-70" />
       <div className="relative bg-white dark:bg-gray-800 rounded-full p-6 shadow-md">
         <ShoppingBag className="h-16 w-16 text-blue-500" />
       </div>
@@ -140,18 +136,15 @@ const EmptyOrdersState = ({ onGoShopping }: { onGoShopping: () => void }) => (
     >
       Explorar productos
     </Button>
-  </motion.div>
+  </div>
 );
 
 const ErrorState = ({ message, onRetry }: { message: string; onRetry: () => void }) => (
-  <motion.div
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ duration: 0.5 }}
+  <div
     className="flex flex-col items-center justify-center min-h-[60vh] text-center gap-6 p-4"
   >
     <div className="relative">
-      <div className="absolute inset-0 bg-red-100 dark:bg-red-900/30 rounded-full scale-150 blur-xl opacity-70" />
+      <div className="absolute inset-0 bg-red-100 dark:bg-red-900/30 rounded-full scale-150 opacity-70" />
       <div className="relative bg-white dark:bg-gray-800 rounded-full p-6 shadow-md">
         <AlertTriangle className="h-16 w-16 text-red-500" />
       </div>
@@ -178,14 +171,14 @@ const ErrorState = ({ message, onRetry }: { message: string; onRetry: () => void
     >
       {message === 'No orders found' ? 'Explorar productos' : 'Reintentar'}
     </Button>
-  </motion.div>
+  </div>
 );
 
 // Estado de carga elegante
 const LoadingState = () => (
   <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6">
     <div className="relative">
-      <div className="absolute inset-0 bg-blue-100 dark:bg-blue-900/30 rounded-full scale-150 blur-xl opacity-70 animate-pulse" />
+      <div className="absolute inset-0 bg-blue-100 dark:bg-blue-900/30 rounded-full scale-150 opacity-70 animate-pulse" />
       <div className="relative bg-white dark:bg-gray-800 rounded-full p-6 shadow-md">
         <Spinner size="lg" color="primary" />
       </div>
@@ -296,19 +289,16 @@ const OrdersPage = () => {
         throw new Error(errorData?.message || `Error: ${response.status}`);
       }
 
-      // Actualización optimista de la UI
       refreshOrders();
 
     } catch (error) {
       console.error("Error al cancelar la orden:", error);
-      // Aquí podrías mostrar un toast de error
     } finally {
       setShowCancelModal(false);
       setSelectedOrder(null);
     }
   };
 
-  // Función para mapear órdenes
   function mapOrder(orders: any[]): Order[] {
     if (!Array.isArray(orders)) return [];
 
@@ -318,7 +308,8 @@ const OrdersPage = () => {
       address: order.address,
       status: order.status,
       subtotal: Number(order.subtotal),
-      total: order.total ? Number(order.total) : undefined,
+      shipping_price: order.shipping_price ? Number(order.shipping_price) : 0,
+      total: (order.subtotal + order.shipping_price) || 0,
       phone: order.phone,
       province: order.province,
       receiver_name: order.receiver_name,
@@ -380,19 +371,8 @@ const OrdersPage = () => {
     refreshOrders();
   };
 
-  const clearAllFilters = () => {
-    setStatusFilter("all");
-    setSearchText("");
-    setSortOrder("newest");
-  };
-
-  const hasFiltersApplied = statusFilter !== "all" || searchText.trim() !== "";
-
   const NoResultsMessage = () => (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.4 }}
+    <div
       className="bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800/30 rounded-xl p-8 flex flex-col items-center justify-center text-center my-6"
     >
       <Search className="h-12 w-12 text-amber-500 mb-4" />
@@ -402,7 +382,7 @@ const OrdersPage = () => {
       <p className="text-gray-600 dark:text-gray-400 max-w-md mb-4">
         Prueba con otros criterios de filtrado o ajusta tu búsqueda para encontrar lo que buscas.
       </p>
-    </motion.div>
+    </div>
   );
 
   if (error) {
@@ -428,11 +408,8 @@ const OrdersPage = () => {
 
   return (
     <div className="mx-auto py-8 md:py-12 px-4 max-w-7xl">
-      <motion.div
+      <div
         className="mb-8 text-center"
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
       >
         <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-2 flex items-center justify-center">
           <CalendarDays className="mr-3 h-8 w-8 text-blue-500" />
@@ -441,14 +418,11 @@ const OrdersPage = () => {
         <p className="text-gray-500 dark:text-gray-400 md:text-lg">
           Revisa y gestiona todos tus pedidos en un solo lugar
         </p>
-      </motion.div>
+      </div>
 
-      <div className="mb-6 bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
-        <motion.div
+      <div className="mb-2 bg-white dark:bg-gray-800 p-2 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+        <div
           className="flex flex-col sm:flex-row gap-4"
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.1 }}
         >
           <div className="relative flex-1">
             <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
@@ -462,7 +436,7 @@ const OrdersPage = () => {
               className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-600 dark:focus:border-blue-600 transition-all"
             />
           </div>
-        </motion.div>
+        </div>
       </div>
 
       {/*<Tooltip content="Actualizar pedidos">
@@ -499,32 +473,25 @@ const OrdersPage = () => {
               startContent={<Search size={14} />}
               onClose={() => setSearchText('')}
             >
-              "{searchText}"
+              &quot;{searchText}&quot;
             </Chip>
           )}
         </div>
       </div>
 
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={`orders-${statusFilter}-${sortOrder}-${searchText}`}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.3 }}
-        >
-          {filteredAndSortedOrders.length > 0 ? (
-            <OrderList
-              orders={filteredAndSortedOrders}
-              onCancelOrder={handleCancelClick}
-            />
-          ) : (
-            <NoResultsMessage />
-          )}
-        </motion.div>
-      </AnimatePresence>
+      <div
+        key={`orders-${statusFilter}-${sortOrder}-${searchText}`}
+      >
+        {filteredAndSortedOrders.length > 0 ? (
+          <OrderList
+            orders={filteredAndSortedOrders}
+            onCancelOrder={handleCancelClick}
+          />
+        ) : (
+          <NoResultsMessage />
+        )}
+      </div>
 
-      {/* Modal de cancelación */}
       <CancelOrderModal
         isOpen={showCancelModal}
         onClose={() => setShowCancelModal(false)}

@@ -9,6 +9,9 @@ import { ConfigProvider, App, Layout as AntLayout, Space, Switch, Spin } from "a
 import { theme } from "antd";
 import { useTheme } from "next-themes";
 import { customDataProvider } from "@providers/data-provider";
+import { getSession } from "next-auth/react";
+
+import { Suspense, useEffect, useState } from "react";
 import esES from "antd/locale/es_ES";
 import dynamic from "next/dynamic";
 import "@refinedev/antd/dist/reset.css";
@@ -64,6 +67,7 @@ const CustomHeader = memo(() => {
         unCheckedChildren={<SunOutlined />}
       />
       <Space align="center">
+        <AccountButton />
         <AccountButton />
       </Space>
     </Header>

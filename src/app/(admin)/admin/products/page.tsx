@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, Suspense } from "react";
 import {
   useSelect,
   List,
@@ -13,13 +13,12 @@ import { useCustom } from "@refinedev/core";
 import { Table, Select, InputNumber, Row, Col, Space, Typography, Input, Button } from "antd";
 import type { GetListResponse } from "@refinedev/core";
 import { ProductBase, BaseType, Category, SubCategory } from "../../../../types/types";
-import { SearchSuggestions } from "@components/search-suggestions";
 import { useRouter } from "next/navigation";
 
 const { Text } = Typography;
 const { Search } = Input;
 
-const ProductList = () => {
+export default function ProductList() {
   const router = useRouter();
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -30,7 +29,7 @@ const ProductList = () => {
   const [selectedProvince, setSelectedProvince] = useState<string>();
   const [categories, setCategories] = useState<Category[]>([]);
   const [availableSubcategories, setAvailableSubcategories] = useState<SubCategory[]>([]);
-  
+
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [searchResults, setSearchResults] = useState<ProductBase[]>([]);
   const [isSearching, setIsSearching] = useState<boolean>(false);
@@ -88,12 +87,12 @@ const ProductList = () => {
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchTerm(value);
-    
+
     if (value.length >= 2) {
       const timeoutId = setTimeout(() => {
         searchProducts(value);
       }, 300);
-      
+
       return () => clearTimeout(timeoutId);
     } else {
       setShowSuggestions(false);
@@ -105,7 +104,7 @@ const ProductList = () => {
       searchProducts(searchTerm);
     }
   };
-  
+
   const { data: categoriesData, isLoading: categoriesLoading } = useCustom<Category[]>({
     url: "/category",
     method: "get",
@@ -122,13 +121,13 @@ const ProductList = () => {
       const filteredSubcategories = categories
         .filter(category => selectedCategories.includes(category.id))
         .flatMap(category => category.subCategories);
-      
+
       setAvailableSubcategories(filteredSubcategories);
-      
-      const validSubcategories = selectedSubcategories.filter(subId => 
+
+      const validSubcategories = selectedSubcategories.filter(subId =>
         filteredSubcategories.some(sub => sub.id === subId)
       );
-      
+
       if (validSubcategories.length !== selectedSubcategories.length) {
         setSelectedSubcategories(validSubcategories);
       }
@@ -196,31 +195,31 @@ const ProductList = () => {
 
   const products = data?.data?.products || [];
   const totalPages = data?.data?.urls?.totalPages || 0;
-  const totalCount = totalPages * pageSize; 
+  const totalCount = totalPages * pageSize;
 
   const columns = [
     { title: "Nombre", dataIndex: "name", key: "name" },
-    { 
-      title: "Precio", 
-      dataIndex: "price", 
+    {
+      title: "Precio",
+      dataIndex: "price",
       key: "price",
       render: (price: number) => `$${price.toLocaleString()}`,
     },
-    { 
-      title: "Peso", 
-      dataIndex: "weight", 
+    {
+      title: "Peso",
+      dataIndex: "weight",
       key: "weight",
       render: (weight: number) => `${weight.toLocaleString()} kg`,
     },
     { title: "Provincia", dataIndex: "province", key: "province" },
     {
-      title: "Categoría", 
-      dataIndex: "category", 
+      title: "Categoría",
+      dataIndex: "category",
       key: "category",
     },
-    { 
-      title: "Subcategoría", 
-      dataIndex: "subCategory", 
+    {
+      title: "Subcategoría",
+      dataIndex: "subCategory",
       key: "subCategory",
     },
     {
@@ -277,7 +276,7 @@ const ProductList = () => {
 
   return (
     <List
-    
+
       title="Listado de Productos"
       headerButtons={
         <Space>
@@ -408,5 +407,3 @@ const ProductList = () => {
     </List>
   );
 };
-
-export default ProductList;

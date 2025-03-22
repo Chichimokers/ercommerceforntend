@@ -3,7 +3,6 @@ import { Accordion, AccordionItem, Button, Dropdown, DropdownTrigger, DropdownMe
 import OrderComponent from "./order/order";
 import { Order } from "@/types/types";
 import { ShoppingBag, FilterIcon, Package2Icon, Calendar, ArrowDownAZ, ArrowDownWideNarrow } from "lucide-react";
-import { AnimatePresence, motion } from "framer-motion";
 
 interface OrderListProps {
   orders: Order[];
@@ -101,10 +100,7 @@ const OrderList: React.FC<OrderListProps> = ({
   // Si no hay órdenes, mostrar un mensaje
   if (!orders || orders.length === 0) {
     return (
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
+      <div
         className="flex flex-col items-center justify-center p-12 text-center"
       >
         <div className="bg-gray-100 dark:bg-gray-800 rounded-full p-6 mb-4">
@@ -116,7 +112,7 @@ const OrderList: React.FC<OrderListProps> = ({
         <p className="text-gray-500 dark:text-gray-400 mt-2 max-w-md">
           Aún no tienes ningún pedido en tu historial. Cuando realices compras, aparecerán aquí.
         </p>
-      </motion.div>
+      </div>
     );
   }
 
@@ -215,7 +211,7 @@ const OrderList: React.FC<OrderListProps> = ({
           onSelectionChange={(keys) => setSelectedKeys(keys as Set<string>)}
           className="gap-4 flex flex-col"
           itemClasses={{
-            base: "border p-0 border-gray-200 bg-white dark:bg-gray-800 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow mb-4",
+            base: "border p-0 border-gray-200 bg-white dark:bg-gray-800 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow",
             trigger: "px-4 py-3",
             content: "px-0 pt-0 pb-0"
           }}
@@ -258,26 +254,18 @@ const OrderList: React.FC<OrderListProps> = ({
 
       {/* Vista escritorio con grid */}
       <div className="hidden md:grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
-        <AnimatePresence>
-          {processedOrders.map((order, index) => (
-            <motion.div
+        {processedOrders.map((order, index) => (
+          <div
+            key={order.id}
+          >
+            <OrderComponent
               key={order.id}
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              transition={{
-                duration: 0.4,
-                delay: Math.min(index * 0.1, 0.5)
-              }}
-            >
-              <OrderComponent
-                key={order.id}
-                order={order}
-                onCancelOrder={onCancelOrder}
-                onProceedToPayment={onProceedToPayment}
-              />
-            </motion.div>
-          ))}
-        </AnimatePresence>
+              order={order}
+              onCancelOrder={onCancelOrder}
+              onProceedToPayment={onProceedToPayment}
+            />
+          </div>
+        ))}
       </div>
     </div>
   );

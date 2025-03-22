@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback, useEffect, useMemo } from "react";
+import React, { useState, useCallback } from "react";
 import { Button, Input, addToast, Checkbox } from "@heroui/react";
 import Image from "next/image";
 import { FaGoogle, FaLock, FaMailBulk, FaUser } from "react-icons/fa";
@@ -11,40 +11,14 @@ import VerificationModal from "@components/modals/verification-modal";
 import { useModal } from "@/contexts/modal-context";
 import { EyeSlashFilledIcon } from "@components/images/eye-slash-icon";
 import { EyeFilledIcon } from "@components/images/eye-filled";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { FormField } from "@components/forms/form-field";
 import { TermsModal } from "@components/modals/terms-modal";
 import Link from "next/link";
 import { PrivacyPolicyModal } from "@components/modals/privacy-policy-modal";
+import useDeviceCapabilities from "@hooks/useDeviceCapabilities";
 
-const useDeviceCapabilities = () => {
-  const [isLowPerformance, setIsLowPerformance] = useState(false);
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-    const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-      navigator.userAgent
-    );
-
-    const hasLimitedCPU = navigator.hardwareConcurrency && navigator.hardwareConcurrency < 4;
-
-    // Comprobar conexión lenta
-    const hasSlowConnection =
-      'connection' in navigator &&
-      // @ts-ignore - Algunas propiedades de navigator.connection no están en TypeScript
-      (navigator.connection?.saveData ||
-        // @ts-ignore
-        ['slow-2g', '2g', '3g'].includes(navigator.connection?.effectiveType));
-
-    setIsLowPerformance(prefersReducedMotion || hasSlowConnection || (isMobileDevice && hasLimitedCPU));
-  }, []);
-
-  return { isLowPerformance };
-};
 
 interface FormData {
   fullName: string;
@@ -60,7 +34,6 @@ export default function SignUp() {
     isVerifyOpen,
     openVerify,
     closeVerify,
-    setIsAuthorizationInProgress,
     data,
     setData,
   } = useModal();
@@ -130,7 +103,6 @@ export default function SignUp() {
     handleChange(field, value);
   }, [handleChange]);
 
-  // Submit handler optimizado
   const handleSubmit = useCallback(async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!validateForm()) return;
@@ -153,7 +125,7 @@ export default function SignUp() {
         description: "Hemos enviado un código de verificación a tu correo",
         color: "success",
         classNames: {
-          base: "bg-gradient-to-br from-green-50 to-green-100 dark:from-green-800 dark:to-green-900",
+          base: "bg-green-50 dark:bg-green-800",
           title: "text-green-800 dark:text-green-100",
           description: "text-green-600 dark:text-green-200",
         }
@@ -201,7 +173,7 @@ export default function SignUp() {
       description: "¡Tu cuenta ha sido activada correctamente!",
       color: "success",
       classNames: {
-        base: "bg-gradient-to-br from-green-50 to-green-100 dark:from-green-800 dark:to-green-900",
+        base: "bg-green-600 dark:bg-green-800",
         title: "text-green-800 dark:text-green-100",
         description: "text-green-600 dark:text-green-200",
       }
@@ -222,12 +194,10 @@ export default function SignUp() {
             fill
             alt="EsAki Logo"
             className="object-contain"
-            loading="eager"
-            priority={true}
           />
         </div>
         <div className={getAnimationClass("text-center", "animate-fadeInDown")}>
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent dark:from-blue-400 dark:to-indigo-300">
+          <h1 className="text-2xl font-bold text-blue-600 dark:text-blue-400">
             Crea tu cuenta
           </h1>
           <p className="text-center mt-2 text-gray-600 dark:text-gray-400 text-sm max-w-xs mx-auto">
@@ -260,7 +230,7 @@ export default function SignUp() {
             <Input
               startContent={<FaUser className="h-5 w-5 text-gray-500 flex-shrink-0" />}
               placeholder="John Doe"
-              className="rounded-xl border-gray-300 dark:border-gray-700 bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm"
+              className="rounded-xl border-gray-300 dark:border-gray-700 bg-white/70 dark:bg-gray-800/70"
               value={formData.fullName}
               onValueChange={(value) => handleInputChange("fullName", value)}
               autoComplete="name"
@@ -276,7 +246,7 @@ export default function SignUp() {
             <Input
               startContent={<FaMailBulk className="h-5 w-5 text-gray-500 flex-shrink-0" />}
               placeholder="tu@email.com"
-              className="rounded-xl border-gray-300 dark:border-gray-700 bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm"
+              className="rounded-xl border-gray-300 dark:border-gray-700 bg-white/70 dark:bg-gray-800/70"
               value={formData.email}
               onValueChange={(value) => handleInputChange("email", value)}
               autoComplete="email"
@@ -307,7 +277,7 @@ export default function SignUp() {
                   }
                 </button>
               }
-              className="rounded-xl border-gray-300 dark:border-gray-700 bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm"
+              className="rounded-xl border-gray-300 dark:border-gray-700 bg-white/70 dark:bg-gray-800/70"
               value={formData.password}
               onValueChange={(value) => handleInputChange("password", value)}
               autoComplete="new-password"
@@ -340,7 +310,7 @@ export default function SignUp() {
                   }
                 </button>
               }
-              className="rounded-xl border-gray-300 dark:border-gray-700 bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm"
+              className="rounded-xl border-gray-300 dark:border-gray-700 bg-white/70 dark:bg-gray-800/70"
               value={formData.confirmPassword}
               onValueChange={(value) => handleInputChange("confirmPassword", value)}
               autoComplete="new-password"
@@ -376,7 +346,7 @@ export default function SignUp() {
           <Button
             fullWidth
             type="submit"
-            className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium py-3 px-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
+            className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
             isLoading={isLoading}
             size="lg"
           >

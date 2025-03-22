@@ -2,7 +2,6 @@
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import Image from 'next/image';
-import { AnimatePresence, motion } from 'framer-motion';
 import { FaArrowLeft, FaArrowRight, FaSearchPlus, FaSearchMinus } from 'react-icons/fa';
 import { Button, Skeleton } from '@heroui/react';
 
@@ -134,39 +133,31 @@ const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
           <Skeleton className="absolute inset-0 z-0" />
         )}
 
-        {/* Imagen normal */}
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={currentIndex}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="relative w-full h-full"
-          >
-            <Image
-              ref={imageRef}
-              src={images[currentIndex]}
-              alt={`Imagen del producto ${currentIndex + 1}`}
-              fill
-              sizes="(max-width: 768px) 100vw, 50vw"
-              className={`
+        <div
+          key={currentIndex}
+          className="relative w-full h-full"
+        >
+          <Image
+            ref={imageRef}
+            src={images[currentIndex]}
+            alt={`Imagen del producto ${currentIndex + 1}`}
+            fill
+            sizes="(max-width: 768px) 50vw, 25vw"
+            className={`
                 object-contain
                 ${isZoomed ? 'opacity-0' : 'opacity-100'} 
                 transition-opacity duration-200
               `}
-              priority={!lazyLoad || currentIndex === 0}
-              loading={lazyLoad && currentIndex !== 0 ? 'lazy' : 'eager'}
-              onLoad={handleImageLoad}
-              onError={() => {
-                setLoading(false);
-                console.error("Error loading image:", images[currentIndex]);
-              }}
-            />
-          </motion.div>
-        </AnimatePresence>
+            priority={!lazyLoad || currentIndex === 0}
+            loading={lazyLoad && currentIndex !== 0 ? 'lazy' : 'eager'}
+            onLoad={handleImageLoad}
+            onError={() => {
+              setLoading(false);
+              console.error("Error loading image:", images[currentIndex]);
+            }}
+          />
+        </div>
 
-        {/* Imagen ampliada para zoom */}
         {enableZoom && imageLoaded && isZoomed && imgSrc && (
           <div
             className="absolute inset-0 z-10 transition-opacity duration-200"

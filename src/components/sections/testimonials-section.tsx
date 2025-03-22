@@ -54,8 +54,8 @@ const RatingStars = ({ rating }: { rating: number }) => {
           key={i}
           size={16}
           className={`${i < rating
-              ? "fill-yellow-400 text-yellow-400"
-              : "fill-gray-200 text-gray-200 dark:fill-gray-700 dark:text-gray-700"
+            ? "fill-yellow-400 text-yellow-400"
+            : "fill-gray-200 text-gray-200 dark:fill-gray-700 dark:text-gray-700"
             }`}
         />
       ))}
@@ -172,8 +172,8 @@ const TestimonialsSection = () => {
               key={index}
               onClick={() => setActiveIndex(index)}
               className={`w-2.5 h-2.5 rounded-full transition-all ${activeIndex === index
-                  ? 'bg-blue-500 w-6'
-                  : 'bg-gray-300 dark:bg-gray-600 hover:bg-blue-300 dark:hover:bg-blue-700'
+                ? 'bg-blue-500 w-6'
+                : 'bg-gray-300 dark:bg-gray-600 hover:bg-blue-300 dark:hover:bg-blue-700'
                 }`}
               aria-label={`Ir al testimonio ${index + 1}`}
             />
@@ -191,8 +191,8 @@ const TestimonialsSection = () => {
         <button
           onClick={() => setAutoplay(prev => !prev)}
           className={`ml-2 p-2 rounded-full text-xs font-medium ${autoplay
-              ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400'
-              : 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400'
+            ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400'
+            : 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400'
             }`}
         >
           {autoplay ? 'Auto' : 'Manual'}

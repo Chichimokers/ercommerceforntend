@@ -10,7 +10,6 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // VERIFICACIÓN DE AUTENTICACIÓN
   const sessionToken = request.cookies.get("next-auth.session-token")?.value ||
     request.cookies.get("__Secure-next-auth.session-token")?.value;
 
@@ -19,18 +18,28 @@ export async function middleware(request: NextRequest) {
   let role = null;
   let isAdmin = false;
 
-  // VERIFICACIÓN DEL CARRITO - usando la cookie 'cart'
-  const cartCookie = request.cookies.get("cart")?.value;
-
-  // Intentar parsear el carrito para verificar si está vacío
+  // Actualiza la sección de parseo de cookies del carrito
   let cartItems = [];
   let hasCart = false;
 
   try {
-    if (cartCookie) {
+    // Primero intentar con la cookie legacy (formato directo)
+    let cartCookie = request.cookies.get("cart-legacy")?.value;
+
+    // Si no existe, intentar con la cookie de Zustand
+    if (!cartCookie) {
+      cartCookie = request.cookies.get("cart")?.value;
+      if (cartCookie) {
+        // Extraer los items del formato Zustand
+        const zustandData = JSON.parse(cartCookie);
+        cartItems = zustandData?.state?.cart || [];
+      }
+    } else {
+      // Parsear directamente la cookie legacy
       cartItems = JSON.parse(cartCookie);
-      hasCart = Array.isArray(cartItems) && cartItems.length > 0;
     }
+
+    hasCart = Array.isArray(cartItems) && cartItems.length > 0;
   } catch (error) {
     console.error("Error parsing cart cookie:", error);
     hasCart = false;
@@ -74,7 +83,6 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // PROTECCIÓN DE CHECKOUT
   if (pathname.startsWith("/checkout")) {
     if (!isAuthenticated) {
       console.log("❌ Redirigiendo a login - no autenticado");
@@ -97,6 +105,13 @@ export async function middleware(request: NextRequest) {
         }
       });
     }
+  }
+
+  if (pathname.startsWith("/orders") && !isAuthenticated) {
+    return NextResponse.redirect(
+      new URL(`/login?to=${encodeURIComponent(pathname)}`, request.url),
+      302
+    );
   }
 
   return NextResponse.next();

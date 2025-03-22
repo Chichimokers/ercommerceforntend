@@ -1,57 +1,19 @@
 "use client";
 import useSWR from "swr";
 import { useState, useContext, ChangeEvent, useEffect, useMemo } from "react";
-import { useLocation } from "@contexts/location-context";
+import { useLocationStore } from "@store/location/location-store";
 import { Alert, Select, SelectItem } from "@heroui/react";
 import { CustomButton } from "@components/buttons/custom-button";
 import { motion, AnimatePresence } from "framer-motion";
 import { CartContext } from "@contexts/cart-context";
 import Image from "next/image";
+import { locationFetcher } from "@services/location";
+import { useCartStore } from "@store/cart/cart-store";
 
 interface Option {
   key: string;
   label: string;
 }
-
-const fetcher = async (url: string) => {
-  try {
-    let attempts = 0;
-    const maxAttempts = 3;
-
-    while (attempts < maxAttempts) {
-      try {
-        const res = await fetch(url, {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          cache: 'no-store'
-        });
-
-        if (!res.ok) {
-          const errorText = await res.text();
-          console.error(`API error (${res.status}):`, errorText);
-          throw new Error(`API error: ${res.status}`);
-        }
-
-        const data = await res.json();
-        console.log("API response success:", data);
-        return data;
-      } catch (fetchError) {
-        attempts++;
-        console.warn(`Fetch attempt ${attempts} failed:`, fetchError);
-
-        if (attempts < maxAttempts) {
-          await new Promise(resolve => setTimeout(resolve, 1000));
-        } else {
-          throw fetchError;
-        }
-      }
-    }
-  } catch (error) {
-    console.error("All fetch attempts failed:", error);
-    throw error;
-  }
-};
 
 interface LocationModalProps {
   open: boolean;
@@ -61,8 +23,8 @@ interface LocationModalProps {
 }
 
 export default function LocationModal({ open, onClose, initialProvince = '', initialMunicipality = '' }: LocationModalProps) {
-  const { location, setLocation } = useLocation();
-  const { clearCart, cart } = useContext(CartContext) || {};
+  const { location, setLocation } = useLocationStore();
+  const { clearCart, cart } = useCartStore() || {};
   const [province, setProvince] = useState<string>(location?.province || initialProvince);
   const [municipality, setMunicipality] = useState<string>(location?.municipality || initialMunicipality);
   const [changeLocation, setChangeLocation] = useState<boolean>(false);
@@ -77,7 +39,7 @@ export default function LocationModal({ open, onClose, initialProvince = '', ini
 
   const { data: provinces = [], isLoading: loadingProvinces, error: provincesError } = useSWR<Option[]>(
     open ? `${process.env.NEXT_PUBLIC_API_URL}public/provinces` : null,
-    fetcher,
+    locationFetcher,
     {
       revalidateOnFocus: false,
       onError: (err) => {
@@ -91,7 +53,7 @@ export default function LocationModal({ open, onClose, initialProvince = '', ini
     (open && province && province.trim() !== "")
       ? `${process.env.NEXT_PUBLIC_API_URL}public/municipalities/${province}`
       : null,
-    fetcher,
+    locationFetcher,
     {
       revalidateOnFocus: false,
       dedupingInterval: 5000,
@@ -161,7 +123,7 @@ export default function LocationModal({ open, onClose, initialProvince = '', ini
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
+            className="fixed inset-0 bg-black/50 z-50"
             onClick={onClose}
           />
 

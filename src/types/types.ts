@@ -44,8 +44,8 @@ export interface BaseType {
 	deleted_at: string | null;
 }
 export interface Province {
-	id:string;
-	name:string
+	id: string;
+	name: string
 }
 
 export interface Filters {
@@ -79,14 +79,14 @@ export type Order = {
 	address: string;
 	status: string;
 	subtotal: number;
-	total?: number;
+	total: number;
 	phone: string;
 	province: string;
 	receiver_name: string;
 	stripe_id?: string;
 	orderItems: Item[];
 	created_at: string;
-	shipping_cost?: number;
+	shipping_price: number;
 };
 
 export type Item = {

@@ -1,18 +1,18 @@
 'use client';
 
 import { HeroUIProvider, ToastProvider } from "@heroui/react"
-import { CurrencyAndExchangeRateProvider } from "@contexts/exchange-rate-currency-context"
 import { ModalProvider } from "@contexts/modal-context"
 import { SessionProvider } from "next-auth/react"
-import AuthLayout from "@components/layout/auth-layout"
 import { ProductProvider } from "@contexts/product-context"
-import { CartProvider } from "@contexts/cart-context"
+import { CartProvider } from "@providers/cart-provider";
 import { ThemeProvider } from "next-themes"
-import { LocationProvider } from "@contexts/location-context";
-import { ShippingProvider } from "@contexts/shipping-context";
 import React from "react";
 import AccessTokenSynchronizer from "@services/access-token-synchronizer";
-import CartSyncBackup from "@components/cart/cart-sync-backup";
+import { CartSyncBackup } from "@components/cart/cart-sync-backup";
+import CurrencyInitializer from "@store/currency/currency-initializer";
+import LocationInitializer from "@store/location/location-initializer";
+import ProductManager from "@store/products/product-manager";
+import CartDebugger from "@store/cart/cart-debugger";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -24,25 +24,21 @@ export function Providers({ children }: { children: React.ReactNode }) {
     >
       <SessionProvider>
         <AccessTokenSynchronizer>
-          <CurrencyAndExchangeRateProvider>
-            <LocationProvider>
-              <ShippingProvider>
-                <ProductProvider>
-                  <CartProvider>
-                    <CartSyncBackup />
-                    <ModalProvider>
-                      <HeroUIProvider>
-                        <ToastProvider />
-                        <AuthLayout>
-                          {children}
-                        </AuthLayout>
-                      </HeroUIProvider>
-                    </ModalProvider>
-                  </CartProvider>
-                </ProductProvider>
-              </ShippingProvider>
-            </LocationProvider>
-          </CurrencyAndExchangeRateProvider>
+          <CurrencyInitializer />
+          <LocationInitializer />
+          <ProductManager />
+          <CartDebugger />
+          <ProductProvider>
+            <CartProvider>
+              <CartSyncBackup />
+              <ModalProvider>
+                <HeroUIProvider>
+                  <ToastProvider />
+                  {children}
+                </HeroUIProvider>
+              </ModalProvider>
+            </CartProvider>
+          </ProductProvider>
         </AccessTokenSynchronizer >
       </SessionProvider>
     </ThemeProvider >

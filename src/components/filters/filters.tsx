@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useMemo, Dispatch, SetStateAction, memo } from "react";
+import { useEffect, useState, useCallback, useMemo, Dispatch, SetStateAction, memo, Suspense } from "react";
 import { Slider, Select, SelectItem, CheckboxGroup, Checkbox, Button } from "@heroui/react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useProductContext } from "@/contexts/product-context";
@@ -66,8 +66,36 @@ const parsePriceRange = (pricerange: string | null): [number, number] => {
     : DEFAULT_PRICE_RANGE;
 };
 
-const Filters = ({ onFilterChange, setIsInvalidFilters, className, onPendingFiltersChange }: FiltersProps) => {
-  const { categories, isLoading } = useProductContext();
+// Componente wrapper para Suspense
+const Filters = (props: FiltersProps) => {
+  return (
+    <Suspense fallback={
+      <div className={`${props.className || ''} opacity-0 animate-fade-in h-max mb-4 bg-white dark:bg-gray-900`}>
+        <div className="mb-2">
+          <div className="h-6 bg-gray-200 dark:bg-gray-700 w-1/3 rounded mb-2"></div>
+          <div className="space-y-2">
+            <div className="h-5 bg-gray-200 dark:bg-gray-700 w-full rounded"></div>
+            <div className="h-5 bg-gray-200 dark:bg-gray-700 w-full rounded"></div>
+          </div>
+        </div>
+        <div className="mb-4">
+          <div className="h-6 bg-gray-200 dark:bg-gray-700 w-1/3 rounded mb-2"></div>
+          <div className="h-5 bg-gray-200 dark:bg-gray-700 w-full rounded"></div>
+        </div>
+        <div className="mt-6 flex gap-2">
+          <div className="h-10 bg-blue-100 dark:bg-blue-900/30 flex-1 rounded"></div>
+          <div className="h-10 bg-gray-200 dark:bg-gray-700 w-24 rounded"></div>
+        </div>
+      </div>
+    }>
+      <FiltersContent {...props} />
+    </Suspense>
+  );
+};
+
+// Componente principal que contiene toda la lógica y usa useSearchParams
+const FiltersContent = ({ onFilterChange, setIsInvalidFilters, className, onPendingFiltersChange }: FiltersProps) => {
+  const { categories, isLoading, minPrice, maxPrice } = useProductContext();
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -76,8 +104,6 @@ const Filters = ({ onFilterChange, setIsInvalidFilters, className, onPendingFilt
 
   // NUEVO: Estado para cambios pendientes (antes de aplicar)
   const [pendingFilters, setPendingFilters] = useState<FilterStateType | null>(null);
-
-  const [isDraggingSlider, setIsDraggingSlider] = useState(false);
 
   // Usamos los filtros pendientes si existen, de lo contrario usamos los actuales
   const displayFilters = pendingFilters || filterState;
@@ -404,8 +430,8 @@ const Filters = ({ onFilterChange, setIsInvalidFilters, className, onPendingFilt
           }}
           className="max-w-md"
           value={displayFilters.priceRange}
-          maxValue={1000}
-          minValue={0}
+          maxValue={maxPrice && maxPrice > 0 ? maxPrice : 1000}
+          minValue={minPrice && minPrice > 0 ? minPrice : 0}
           step={20}
           onChange={handlePriceRangeChange}
         />
@@ -447,5 +473,7 @@ const Filters = ({ onFilterChange, setIsInvalidFilters, className, onPendingFilt
     </div>
   );
 };
+
+FiltersContent.displayName = 'FiltersContent';
 
 export default memo(Filters);

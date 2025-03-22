@@ -31,9 +31,9 @@ export const PrivacyPolicyModal = () => {
         onClose={onClose}
         size="3xl"
         scrollBehavior="inside"
-        backdrop="blur"
+        backdrop="opaque"
         classNames={{
-          backdrop: "bg-black/50 backdrop-blur-sm",
+          backdrop: "bg-black/50",
           base: "border border-gray-200 dark:border-gray-800 bg-white/95 dark:bg-gray-900/95",
           header: "border-b border-gray-200 dark:border-gray-800",
           footer: "border-t border-gray-200 dark:border-gray-800",
@@ -43,7 +43,7 @@ export const PrivacyPolicyModal = () => {
           {(onClose) => (
             <>
               <ModalHeader className="flex flex-col gap-1 text-gray-800 dark:text-gray-200">
-                <h2 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent dark:from-blue-400 dark:to-indigo-300">
+                <h2 className="text-xl font-bold bg-blue-600 bg-clip-text text-transparent dark:bg-blue-400">
                   Política de Privacidad
                 </h2>
                 <p className="text-sm font-normal text-gray-500 dark:text-gray-400">
@@ -149,7 +149,7 @@ export const PrivacyPolicyModal = () => {
                 <Button
                   color="primary"
                   onClick={onClose}
-                  className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
+                  className="bg-blue-600 hover:bg-blue-700"
                 >
                   Entendido
                 </Button>

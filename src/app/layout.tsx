@@ -4,6 +4,10 @@ import { Metadata, Viewport } from "next";
 import { Providers } from "./providers";
 import { ClientLayout } from "./client-layout";
 import { Inter } from 'next/font/google';
+import PerformanceModeController from '@/components/performance/performance-mode-controller';
+import MemoryManager from '@/components/performance/memory-manager';
+import TouchOptimizer from '@/components/performance/touch-optimizer';
+import { Suspense } from 'react';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -38,9 +42,22 @@ export const viewport: Viewport = {
   ],
   width: "device-width",
   initialScale: 1,
+  maximumScale: 1,
+  userScalable: true,
+  viewportFit: "cover",
 };
 
-export const dynamic = 'auto';
+/*function RefineComponentsWrapper({ children }: { children: React.ReactNode }) {
+  return (
+    <Suspense fallback={
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-2 border-t-blue-500 border-blue-200"></div>
+      </div>
+    }>
+      {children}
+    </Suspense>
+  );
+}*/
 
 export default function RootLayout({
   children,
@@ -51,6 +68,12 @@ export default function RootLayout({
     <html lang="es" suppressHydrationWarning className={inter.variable}>
       <Head />
       <body className="min-h-screen flex flex-col antialiased text-gray-800 dark:text-gray-200">
+        <Suspense fallback={null}>
+          <PerformanceModeController />
+          <MemoryManager />
+          <TouchOptimizer />
+        </Suspense>
+
         <Providers>
           <ClientLayout>
             {children}
