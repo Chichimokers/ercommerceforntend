@@ -42,7 +42,7 @@ const LoadingModal = ({
       hideCloseButton
       placement="center"
       isDismissable={false}
-      backdrop="blur"
+      backdrop="opaque"
       classNames={{
         base: "bg-transparent shadow-none",
         wrapper: "bg-transparent",

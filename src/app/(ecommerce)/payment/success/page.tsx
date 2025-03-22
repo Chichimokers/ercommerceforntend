@@ -7,13 +7,12 @@ import Link from "next/link";
 import { CheckCircle, ShoppingBag, ChevronRight, ArrowLeft, Clock } from "lucide-react";
 import { CheckoutStepper } from "@components/stepper/stepper";
 
-// Componente principal que NO usa useSearchParams
 export default function ThankYouPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-blue-50 dark:from-gray-900 dark:to-gray-800 py-12 px-4">
+    <div className="min-h-screen bg-white dark:bg-gray-900 py-12 px-4">
       <div className="max-w-3xl mx-auto">
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden">
-          <div className="bg-gradient-to-r from-blue-500 to-indigo-600 p-6 text-center">
+          <div className="bg-blue-600 p-6 text-center">
             <div className="bg-white dark:bg-gray-800 rounded-full w-20 h-20 mx-auto flex items-center justify-center">
               <CheckCircle size={40} className="text-green-500" />
             </div>
@@ -21,7 +20,6 @@ export default function ThankYouPage() {
             <p className="text-blue-100 mt-2">Tu pedido ha sido procesado correctamente</p>
           </div>
 
-          {/* Envolver el contenido con Suspense para manejar useSearchParams */}
           <Suspense fallback={
             <div className="p-6 flex flex-col items-center justify-center">
               <div className="animate-spin rounded-full h-8 w-8 border-2 border-t-blue-500 border-blue-200 mb-4"></div>
@@ -36,14 +34,12 @@ export default function ThankYouPage() {
   );
 }
 
-// Componente secundario que SÍ usa useSearchParams
 function ThankYouContent() {
   const searchParams = useSearchParams();
   const [mounted, setMounted] = React.useState(false);
-  const hasFetched = React.useRef(false); // Flag para controlar la ejecución
+  const hasFetched = React.useRef(false);
 
   const orderId = searchParams?.get('order_id') || 'N/A';
-  const total = searchParams?.get('total') || '0';
 
   React.useEffect(() => {
     if (!hasFetched.current) {

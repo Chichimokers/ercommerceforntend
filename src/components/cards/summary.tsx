@@ -254,7 +254,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
         className="w-full"
       >
         <Card
-          className={`w-full shadow-sm border border-gray-200 dark:border-gray-700 rounded-xl mx-auto ${!deviceData.isLowPerformance && !deviceData.isDataSaver ? 'bg-gradient-to-b from-white to-gray-50 dark:from-gray-800 dark:to-gray-800/90' : 'bg-white dark:bg-gray-800'}`}
+          className={`w-full shadow-sm border border-gray-200 dark:border-gray-700 rounded-xl mx-auto ${!deviceData.isLowPerformance && !deviceData.isDataSaver ? 'bg-white dark:bg-gray-800' : 'bg-white dark:bg-gray-800'}`}
           disableAnimation={deviceData.isLowPerformance}
         >
           <CardBody className="gap-3 p-4 sm:p-5">

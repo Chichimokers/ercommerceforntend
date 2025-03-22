@@ -108,13 +108,11 @@ body {
   from {
     transform: translateY(-20px);
     opacity: 0;
-    filter: blur(100%);
   }
 
   to {
     transform: translateY(0);
     opacity: 1;
-    filter: blur(0%);
   }
 }
 
@@ -122,13 +120,11 @@ body {
   from {
     transform: translateX(-100%);
     opacity: 0;
-    filter: blur(100%);
   }
 
   to {
     transform: translateX(0);
     opacity: 1;
-    filter: blur(0%);
   }
 }
 
@@ -136,13 +132,11 @@ body {
   from {
     transform: translateX(100%);
     opacity: 0;
-    filter: blur(100%);
   }
 
   to {
     transform: translateX(0);
     opacity: 1;
-    filter: blur(0%);
   }
 }
 
@@ -150,13 +144,11 @@ body {
   from {
     transform: translateX(0);
     opacity: 1;
-    filter: blur(0%);
   }
 
   to {
     transform: translateX(-100%);
     opacity: 0;
-    filter: blur(100%);
   }
 }
 
@@ -164,13 +156,11 @@ body {
   from {
     transform: translateX(0);
     opacity: 1;
-    filter: blur(0%);
   }
 
   to {
     transform: translateX(100%);
     opacity: 0;
-    filter: blur(100%);
   }
 }
 

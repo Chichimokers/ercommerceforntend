@@ -120,10 +120,9 @@ export default function OrderConfirmationPage() {
     return <div className="min-h-screen"></div>; // Pantalla vacía mientras se detecta el tema
   }
 
-  // Skeleton loader con una animación más suave
   if (!isLoaded) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-950 px-4 py-12">
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-900 px-4 py-12">
         <div className="w-full max-w-4xl animate-fadeIn">
           {/* Link de navegación */}
           <div className="flex items-center justify-between mb-6">
@@ -133,9 +132,9 @@ export default function OrderConfirmationPage() {
           {/* Card principal con skeleton */}
           <div className="bg-white dark:bg-gray-800 shadow-xl rounded-2xl overflow-hidden">
             {/* Skeleton del header */}
-            <div className="relative bg-gradient-to-r from-primary/80 to-blue-600/80 p-8 overflow-hidden">
+            <div className="relative bg-blue-600 p-8 overflow-hidden">
               <div className="flex flex-col md:flex-row items-center gap-6">
-                <div className="bg-white/20 backdrop-blur-sm p-4 rounded-full shrink-0 h-20 w-20 animate-pulse"></div>
+                <div className="bg-white/20 p-4 rounded-full shrink-0 h-20 w-20 animate-pulse"></div>
                 <div className="text-center md:text-left w-full">
                   <div className="h-10 bg-white/20 rounded-lg w-3/4 mb-3 animate-pulse"></div>
                   <div className="h-6 bg-white/20 rounded-lg w-1/2 animate-pulse"></div>
@@ -144,7 +143,7 @@ export default function OrderConfirmationPage() {
                     <div className="h-10 bg-white/20 rounded-lg w-24 animate-pulse"></div>
                   </div>
                 </div>
-                <div className="md:ml-auto bg-white/10 backdrop-blur-sm rounded-xl px-6 py-4 border border-white/20 w-36 h-24 animate-pulse"></div>
+                <div className="md:ml-auto bg-white/10 rounded-xl px-6 py-4 border border-white/20 w-36 h-24 animate-pulse"></div>
               </div>
             </div>
 
@@ -228,7 +227,7 @@ export default function OrderConfirmationPage() {
 
   // Contenido principal con una transición simple de opacidad, sin animaciones de agrandamiento
   return (
-    <section className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-950 px-4 py-12">
+    <section className="min-h-screen flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-900 px-4 py-12">
       <Toaster
         toastOptions={{
           className: "dark:bg-gray-800 dark:text-white",
@@ -246,12 +245,10 @@ export default function OrderConfirmationPage() {
         </div>
 
         <div className={`bg-white dark:bg-gray-800 shadow-xl rounded-2xl overflow-hidden transition-opacity duration-500 ${isVisibleContent ? 'opacity-100' : 'opacity-0'}`}>
-          {/* Header con animación de confeti */}
-          <div className="relative bg-gradient-to-r from-primary to-blue-600 p-8 text-white overflow-hidden">
-            <div className="absolute inset-0 bg-[url('/confetti-bg.svg')] opacity-10"></div>
+          <div className="relative bg-blue-600 p-8 text-white overflow-hidden">
 
             <div className="flex flex-col md:flex-row items-center gap-6">
-              <div className="bg-white/20 backdrop-blur-sm p-4 rounded-full shrink-0 shadow-lg">
+              <div className="bg-white/20 p-4 rounded-full shrink-0 shadow-lg">
                 <CheckCircleIcon className="h-12 w-12" />
               </div>
 
@@ -263,7 +260,7 @@ export default function OrderConfirmationPage() {
 
                 {order && (
                   <div className="mt-4 flex flex-wrap justify-center md:justify-start gap-3">
-                    <div className="bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2 flex items-center border border-white/20">
+                    <div className="bg-white/10 rounded-lg px-4 py-2 flex items-center border border-white/20">
                       <ClipboardCheck className="h-4 w-4 mr-2 opacity-80" />
                       <span className="font-medium">Pedido #{order.id.slice(0, 8).toUpperCase()}</span>
                     </div>
@@ -278,7 +275,7 @@ export default function OrderConfirmationPage() {
               </div>
 
               {order && (
-                <div className="md:ml-auto bg-white/10 backdrop-blur-sm rounded-xl px-6 py-4 border border-white/20 text-center">
+                <div className="md:ml-auto bg-white/10 rounded-xl px-6 py-4 border border-white/20 text-center">
                   <div className="text-white/70 text-sm font-medium mb-1">TOTAL</div>
                   <div className="text-2xl md:text-3xl font-bold">
                     {formatCurrency(

@@ -30,7 +30,6 @@ const CartCard = dynamic(() => import("../cards/cart-cards"));
 
 export default function DrawerCart({ className }: { className?: string }) {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
-  const [backdrop, setBackdrop] = React.useState("blur");
   const { cart } = useContext(CartContext) || {};
   const { cartProducts, mutateCartProducts } = useProductContext();
   const { rateExchange } = useContext(CurrencyAndExchangeRateContext) || {};
@@ -75,8 +74,7 @@ export default function DrawerCart({ className }: { className?: string }) {
 
   const { subtotal, discount, total } = cartTotals;
 
-  const handleBackdropChange = useCallback((backdrop: string) => {
-    setBackdrop(backdrop);
+  const handleBackdropChange = useCallback(() => {
     if (!isOpen) {
       mutateCartProducts();
     }
@@ -188,12 +186,11 @@ export default function DrawerCart({ className }: { className?: string }) {
             isInvisible={!cart?.length}
           >
             <Button
-              key={backdrop}
               isIconOnly
               className={`flex flex-col min-w-10 !p-0 justify-center items-center !w-10 !h-10 !rounded-full !border border-default-600 hover:border-default-400 bg-blue-50/50 dark:bg-gray-900/50 transition-none ${className}`}
               color="default"
               variant="bordered"
-              onPress={() => handleBackdropChange(backdrop)}
+              onPress={() => handleBackdropChange()}
             >
               <ShoppingCartIcon opacity={0.8} size={22} />
             </Button>
@@ -206,7 +203,7 @@ export default function DrawerCart({ className }: { className?: string }) {
         classNames={{
           closeButton: "absolute top-1 right-1",
         }}
-        backdrop="blur"
+        backdrop="opaque"
         isOpen={isOpen}
         onOpenChange={onOpenChange}
       >

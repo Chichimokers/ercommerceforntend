@@ -25,7 +25,7 @@ const QRModal = ({
 
   return createPortal(
     <div
-      className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fadeIn"
+      className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 animate-fadeIn"
       onClick={onClose}
     >
       <div
@@ -75,7 +75,7 @@ const OrderHeader = ({ order, isSticky = true }: { order: Order, isSticky?: bool
 
   return (
     <>
-      <div className={`${isSticky ? 'sticky top-0 z-10' : ''} p-4 bg-gray-50/95 dark:bg-gray-800/95 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700 flex justify-between items-start`}>
+      <div className={`${isSticky ? 'sticky top-0 z-10' : ''} p-4 bg-gray-50/95 dark:bg-gray-800/95 border-b border-gray-200 dark:border-gray-700 flex justify-between items-start`}>
         <div className="space-y-2">
           <div className="flex items-center gap-2">
             <h4 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white">
@@ -271,7 +271,7 @@ const OrderFooter = ({
   const router = useRouter();
 
   return (
-    <div className={`${isMobile ? '' : 'sticky bottom-0 z-10'} p-4 bg-gray-50/95 dark:bg-gray-800/95 backdrop-blur-sm border-t border-gray-200 dark:border-gray-700 shadow-sm`}>
+    <div className={`${isMobile ? '' : 'sticky bottom-0 z-10'} p-4 bg-gray-50/95 dark:bg-gray-800/95 border-t border-gray-200 dark:border-gray-700 shadow-sm`}>
       <div className="flex flex-col mb-4">
         <div className="flex justify-between items-center mb-2">
           <span className="text-sm text-gray-600 dark:text-gray-400">Subtotal:</span>

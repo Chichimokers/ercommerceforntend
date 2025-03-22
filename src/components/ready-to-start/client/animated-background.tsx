@@ -28,7 +28,6 @@ export default memo<AnimatedBackgroundProps>(function AnimatedBackground({
           ${isVisible ? 'animate-float' : ''}
         `}
         style={{
-          filter: 'blur(24px)',
           willChange: 'transform',
         }}
       />
@@ -42,7 +41,6 @@ export default memo<AnimatedBackgroundProps>(function AnimatedBackground({
           ${isVisible ? 'animate-float-reverse' : ''}
         `}
         style={{
-          filter: 'blur(24px)',
           willChange: 'transform',
           animationDelay: '1s'
         }}

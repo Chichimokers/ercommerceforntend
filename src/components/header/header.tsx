@@ -142,7 +142,7 @@ const MobileSearch = () => {
             animate={{ width: "90%", opacity: 1, y: 0 }}
             exit={{ width: 0, opacity: 0, y: -20 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="fixed top-[72px] left-0 mx-[5%] bg-white dark:bg-gray-800 shadow-xl rounded-2xl p-2 border border-blue-100 dark:border-gray-700 flex items-center backdrop-blur-sm"
+            className="fixed top-[72px] left-0 mx-[5%] bg-white dark:bg-gray-800 shadow-xl rounded-2xl p-2 border border-blue-100 dark:border-gray-700 flex items-center"
           >
             <Input
               ref={inputRef}
@@ -339,7 +339,6 @@ export const Header = ({ className, setModalOpen }: { className?: string, setMod
   return (
     <HerouiNavbar
       maxWidth="full"
-      isBlurred
       className={`${className} z-50 top-0 left-0 right-0 h-16 bg-white dark:bg-gray-900 transition-all duration-300 ${scrolled ? "shadow-md border-b border-gray-100 dark:border-gray-800" : "shadow-sm"
         }`}
     >

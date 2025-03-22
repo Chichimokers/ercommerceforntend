@@ -2,7 +2,7 @@
 
 import React, { useMemo, useState } from "react";
 import { Tabs, Tab } from "@heroui/react";
-import { FaStore, FaShoppingCart, FaUser, FaHome } from "react-icons/fa";
+import { FaStore, FaShoppingCart, FaHome } from "react-icons/fa";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { FaList } from "react-icons/fa6";
@@ -36,7 +36,7 @@ const useDeviceOptimization = () => {
 
 export const Navbar = ({ className = "" }: { className?: string }) => {
   const pathname = usePathname();
-  const { isLowPerformance, isTouchDevice } = useDeviceOptimization();
+  const { isLowPerformance } = useDeviceOptimization();
 
   const navItems = useMemo(() => [
     { key: "/", href: "/", icon: FaHome, label: "Inicio" },
@@ -61,8 +61,8 @@ export const Navbar = ({ className = "" }: { className?: string }) => {
       role="navigation"
       aria-label="Navegación principal"
       className={`
-        bg-gray-50/85 dark:bg-gray-900/85 
-        backdrop-blur-lg border-t border-divider 
+        bg-gray-50 dark:bg-gray-900 
+        border-t border-divider 
         h-16 flex w-full px-4 flex-col z-50
         ${className}
       `}

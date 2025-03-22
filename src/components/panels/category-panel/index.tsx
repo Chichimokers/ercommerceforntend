@@ -1,5 +1,4 @@
 import StatsCard, { colorVariants } from "./stats-card";
-import GradientBackground from "./gradient-background";
 import InteractiveContainer from "./client/interactive-container";
 import { MapPin, SparkleIcon, Package, Globe, ShoppingCart } from "lucide-react";
 import { getPublicStats } from "@lib/api/stats";

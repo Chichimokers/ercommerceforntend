@@ -1,17 +1,17 @@
 "use client";
 
 import React, { Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { AlertTriangle, ArrowLeft, RefreshCw, HelpCircle, ShoppingCart, ChevronRight } from "lucide-react";
 
 // Componente principal que NO usa useSearchParams directamente
 export default function PaymentErrorPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-red-50 dark:from-gray-900 dark:to-gray-800 py-12 px-4">
+    <div className="min-h-screen bg-red-50 dark:bg-gray-900 py-12 px-4">
       <div className="max-w-3xl mx-auto">
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden">
-          <div className="bg-gradient-to-r from-red-500 to-orange-600 p-6 text-center">
+          <div className="bg-red-500 p-6 text-center">
             <div className="bg-white dark:bg-gray-800 rounded-full w-20 h-20 mx-auto flex items-center justify-center">
               <AlertTriangle size={40} className="text-red-500" />
             </div>
@@ -38,7 +38,6 @@ export default function PaymentErrorPage() {
 
 // Componente secundario que SÍ usa useSearchParams
 function PaymentErrorContent() {
-  const router = useRouter();
   const searchParams = useSearchParams();
 
   const errorCode = searchParams?.get('code') || 'unknown';

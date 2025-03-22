@@ -131,7 +131,6 @@ export default function CurrencySelector({ selectlabel }: CurrencySelectorProps)
       <Modal
         hideCloseButton
         isOpen={showModal}
-        backdrop="blur"
         classNames={{
           base: "bg-transparent shadow-none",
           wrapper: "bg-transparent",

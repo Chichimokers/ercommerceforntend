@@ -9,7 +9,7 @@ import { useForm, FormProvider } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import toast, { Toaster } from "react-hot-toast";
-import { ShoppingCartIcon, UserCircleIcon, MapPinIcon, IdCard, AlertTriangle, CreditCard, CheckCircle, ShoppingCart, ClipboardCheck, ListOrderedIcon } from "lucide-react";
+import { ShoppingCartIcon, UserCircleIcon, MapPinIcon, IdCard, AlertTriangle } from "lucide-react";
 import Image from "next/image";
 import { useSession } from "next-auth/react";
 import { FormField } from "@components/forms/form-field";
@@ -18,10 +18,8 @@ import { formatCurrency } from "@components/format-currency";
 import { CurrencyAndExchangeRateContext } from "@/contexts/exchange-rate-currency-context";
 import Link from "next/link";
 
-// Cargar componentes menos críticos de forma diferida
 const AddressForm = lazy(() => import("@components/AddressForm").then(mod => ({ default: mod.AddressForm })));
 
-// Schema de validación definido fuera del componente para evitar recreaciones
 const formSchema = z.object({
   firstName: z.string().min(2, "Mínimo 2 caracteres"),
   lastName: z.string().min(2, "Mínimo 2 caracteres"),
@@ -58,7 +56,6 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-// Componentes memoizados para la lista de productos
 const ProductItem = memo(({ item, product, rateExchange }: { item: CartItem, product: ProductBase | undefined, rateExchange: CurrencyData | null }) => {
   if (!product) {
     return (
@@ -114,19 +111,6 @@ const ProductItem = memo(({ item, product, rateExchange }: { item: CartItem, pro
   );
 });
 ProductItem.displayName = 'ProductItem';
-
-const ProductSkeleton = () => (
-  <div className="flex items-center justify-between p-3 rounded-xl bg-gray-50 dark:bg-gray-900/50 animate-pulse">
-    <div className="flex items-center gap-3">
-      <div className="h-12 w-12 rounded-xl bg-gray-200 dark:bg-gray-700"></div>
-      <div>
-        <div className="h-4 w-32 bg-gray-200 dark:bg-gray-700 rounded"></div>
-        <div className="h-3 w-24 bg-gray-200 dark:bg-gray-700 rounded mt-2"></div>
-      </div>
-    </div>
-    <div className="h-4 w-16 bg-gray-200 dark:bg-gray-700 rounded"></div>
-  </div>
-);
 
 export default function BuyPage() {
   const { cart, clearCart } = useContext(CartContext) || { cart: [], setCart: () => { } };
@@ -189,7 +173,7 @@ export default function BuyPage() {
       province: '',
       municipality: ''
     },
-    mode: 'onBlur' // Validar al perder el foco para mejor experiencia
+    mode: 'onBlur'
   });
 
   const onSubmit = useCallback(async (data: FormValues) => {
@@ -415,7 +399,7 @@ export default function BuyPage() {
                     className={`w-full py-4 text-lg font-semibold transition-all duration-300 rounded-xl 
     ${isButtonDisabled
                         ? "bg-gray-300 dark:bg-gray-700 cursor-not-allowed"
-                        : "bg-gradient-to-r from-primary to-blue-600 hover:opacity-90 active:scale-[0.99] shadow-lg shadow-primary/30 dark:shadow-primary/20"
+                        : "bg-blue-600 hover:opacity-90 active:scale-[0.99] shadow-lg shadow-primary/30 dark:shadow-primary/20"
                       }`}
                     disabled={isButtonDisabled}
                   >
@@ -450,7 +434,7 @@ export default function BuyPage() {
           </div>
 
           {/* Resumen del pedido optimizado */}
-          <div className="p-6 rounded-2xl bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-850 shadow-xl border border-gray-200 dark:border-gray-700">
+          <div className="p-6 rounded-2xl bg-gray-50 dark:bg-gray-800 shadow-xl border border-gray-200 dark:border-gray-700">
             <h2 className="text-xl font-semibold mb-6 flex items-center gap-2 pb-3 border-b border-gray-200 dark:border-gray-700">
               <ShoppingCartIcon className="h-6 w-6 text-primary" />
               Resumen del Pedido

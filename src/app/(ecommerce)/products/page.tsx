@@ -377,7 +377,7 @@ function ProductPageContent({ deviceData, shouldOptimizeSeverely }: {
         </div>
 
         {totalPages > 1 && (
-          <div className="sticky bottom-0 w-full flex justify-center py-6 mt-6 bg-gradient-to-t from-white dark:from-gray-900 to-transparent">
+          <div className="sticky bottom-0 w-full flex justify-center py-6 mt-6">
             <Pagination
               total={totalPages}
               page={currentPage}

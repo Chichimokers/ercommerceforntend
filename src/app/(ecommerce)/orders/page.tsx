@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import useSWR from "swr";
-import { Accordion, AccordionItem, Divider, Spinner, Chip, Button, Tooltip } from "@heroui/react";
+import { Accordion, AccordionItem, Divider, Spinner, Chip, Button } from "@heroui/react";
 import { Order } from "@/types/types";
 import { useSession } from "next-auth/react";
 import { useState, useMemo } from "react";
@@ -116,7 +116,7 @@ const EmptyOrdersState = ({ onGoShopping }: { onGoShopping: () => void }) => (
     className="flex flex-col items-center justify-center min-h-[60vh] text-center gap-6 p-4"
   >
     <div className="relative">
-      <div className="absolute inset-0 bg-blue-100 dark:bg-blue-900/30 rounded-full scale-150 blur-xl opacity-70" />
+      <div className="absolute inset-0 bg-blue-100 dark:bg-blue-900/30 rounded-full scale-150 opacity-70" />
       <div className="relative bg-white dark:bg-gray-800 rounded-full p-6 shadow-md">
         <ShoppingBag className="h-16 w-16 text-blue-500" />
       </div>
@@ -144,7 +144,7 @@ const ErrorState = ({ message, onRetry }: { message: string; onRetry: () => void
     className="flex flex-col items-center justify-center min-h-[60vh] text-center gap-6 p-4"
   >
     <div className="relative">
-      <div className="absolute inset-0 bg-red-100 dark:bg-red-900/30 rounded-full scale-150 blur-xl opacity-70" />
+      <div className="absolute inset-0 bg-red-100 dark:bg-red-900/30 rounded-full scale-150 opacity-70" />
       <div className="relative bg-white dark:bg-gray-800 rounded-full p-6 shadow-md">
         <AlertTriangle className="h-16 w-16 text-red-500" />
       </div>
@@ -178,7 +178,7 @@ const ErrorState = ({ message, onRetry }: { message: string; onRetry: () => void
 const LoadingState = () => (
   <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6">
     <div className="relative">
-      <div className="absolute inset-0 bg-blue-100 dark:bg-blue-900/30 rounded-full scale-150 blur-xl opacity-70 animate-pulse" />
+      <div className="absolute inset-0 bg-blue-100 dark:bg-blue-900/30 rounded-full scale-150 opacity-70 animate-pulse" />
       <div className="relative bg-white dark:bg-gray-800 rounded-full p-6 shadow-md">
         <Spinner size="lg" color="primary" />
       </div>
@@ -289,12 +289,10 @@ const OrdersPage = () => {
         throw new Error(errorData?.message || `Error: ${response.status}`);
       }
 
-      // Actualización optimista de la UI
       refreshOrders();
 
     } catch (error) {
       console.error("Error al cancelar la orden:", error);
-      // Aquí podrías mostrar un toast de error
     } finally {
       setShowCancelModal(false);
       setSelectedOrder(null);

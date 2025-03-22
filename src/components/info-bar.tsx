@@ -31,7 +31,7 @@ const InfoItem = ({ icon, href, children, className = "" }: {
 const InfoBar = ({ className = "" }: { className?: string }) => {
   return (
     <div
-      className={`backdrop-blur-sm bg-white/80 dark:bg-gray-900/80 border-b border-gray-200/50 dark:border-gray-700/50 
+      className={`bg-white/95 dark:bg-gray-900/95 border-b border-gray-200/50 dark:border-gray-700/50 
                   text-gray-700 dark:text-gray-300 py-2 px-4 shadow-sm ${className}`}
     >
       <div className="container mx-auto flex justify-between items-center text-sm">

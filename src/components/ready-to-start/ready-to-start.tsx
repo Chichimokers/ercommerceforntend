@@ -1,9 +1,5 @@
-// No "use client" here - componente servidor
-
-import { Suspense } from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import ClientInteractivity from "./client/interactivity";
 
 export default function ReadyToStart() {
   return (
@@ -26,7 +22,7 @@ export default function ReadyToStart() {
 
       <div className="relative z-10 container mx-auto px-6 flex flex-col items-center text-center">
         <div className="max-w-3xl">
-          <h2 className="text-3xl md:text-5xl font-extrabold bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-300 bg-clip-text text-transparent mb-6">
+          <h2 className="text-3xl md:text-5xl font-extrabold bg-blue-600 dark:bg-blue-400 bg-clip-text text-transparent mb-6">
             ¿Todo listo para empezar?
           </h2>
 
