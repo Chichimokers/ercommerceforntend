@@ -2,7 +2,6 @@
 
 import { ReactNode, useEffect } from "react";
 import { useDisclosure } from "@heroui/react";
-import { useLocation } from "@contexts/location-context";
 import dynamic from "next/dynamic";
 
 const LocationModal = dynamic(
@@ -18,7 +17,6 @@ interface LocationHandlerProps {
 }
 
 export default function LocationHandler({ children }: LocationHandlerProps) {
-  const { location } = useLocation();
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   useEffect(() => {

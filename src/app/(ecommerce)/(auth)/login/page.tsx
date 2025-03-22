@@ -166,7 +166,7 @@ export default function Login() {
           "",
           "animate-fadeInDown"
         )}>
-          <h1 className="text-2xl font-bold bg-gradient-to-r text-blue-600 dark:text-blue-400 text-center">
+          <h1 className="text-2xl font-bold text-blue-600 dark:text-blue-400 text-center">
             Bienvenido de vuelta
           </h1>
           <p className="text-center mt-2 text-gray-600 dark:text-gray-400 text-sm max-w-xs mx-auto">
@@ -264,7 +264,7 @@ export default function Login() {
           <Button
             fullWidth
             type="submit"
-            className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium py-3 px-4 rounded-xl shadow-md hover:shadow-lg transition-all duration-200"
+            className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-xl shadow-md hover:shadow-lg transition-all duration-200"
             isLoading={isLoading}
             size="lg"
           >

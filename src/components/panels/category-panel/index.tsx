@@ -1,5 +1,4 @@
 import StatsCard, { colorVariants } from "./stats-card";
-import GradientBackground from "./gradient-background";
 import InteractiveContainer from "./client/interactive-container";
 import { MapPin, SparkleIcon, Package, Globe, ShoppingCart } from "lucide-react";
 import { getPublicStats } from "@lib/api/stats";
@@ -36,10 +35,6 @@ export default async function CategoryPanel() {
                 </span>.
                 Próximamente, estaremos expandiéndonos a más regiones.
               </p>
-
-              <div className="pt-2 sm:pt-3">
-                <LocationButton />
-              </div>
             </div>
 
             <div className="grid grid-cols-2 gap-2 sm:gap-4 mt-4 sm:mt-0">
@@ -122,5 +117,4 @@ export default async function CategoryPanel() {
   );
 }
 
-import LocationButton from "./client/location-button";
 import SimpleStatsCard from "./simple-stats-card";

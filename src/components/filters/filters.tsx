@@ -105,8 +105,6 @@ const FiltersContent = ({ onFilterChange, setIsInvalidFilters, className, onPend
   // NUEVO: Estado para cambios pendientes (antes de aplicar)
   const [pendingFilters, setPendingFilters] = useState<FilterStateType | null>(null);
 
-  const [isDraggingSlider, setIsDraggingSlider] = useState(false);
-
   // Usamos los filtros pendientes si existen, de lo contrario usamos los actuales
   const displayFilters = pendingFilters || filterState;
 

@@ -3,7 +3,7 @@
 import { useCallback, useContext, useEffect, useMemo, useState, lazy, Suspense } from "react";
 import { Spinner } from "@heroui/react";
 import { useProductContext } from "@contexts/product-context";
-import { CartContext } from "@/contexts/cart-context";
+import { useCartStore } from "@store/cart/cart-store";
 import { PhoneNumberUtil } from "google-libphonenumber";
 import { useForm, FormProvider } from "react-hook-form";
 import { z } from "zod";
@@ -15,13 +15,10 @@ import { useSession } from "next-auth/react";
 import { FormField } from "@components/forms/form-field";
 import InputField from "@components/forms/input";
 import { formatCurrency } from "@components/format-currency";
-import { CurrencyAndExchangeRateContext } from "@/contexts/exchange-rate-currency-context";
 import Link from "next/link";
 
-// Cargar componentes menos críticos de forma diferida
 const AddressForm = lazy(() => import("@components/AddressForm").then(mod => ({ default: mod.AddressForm })));
 
-// Schema de validación definido fuera del componente para evitar recreaciones
 const formSchema = z.object({
   firstName: z.string().min(2, "Mínimo 2 caracteres"),
   lastName: z.string().min(2, "Mínimo 2 caracteres"),
@@ -58,7 +55,6 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-// Componentes memoizados para la lista de productos
 const ProductItem = memo(({ item, product, rateExchange }: { item: CartItem, product: ProductBase | undefined, rateExchange: CurrencyData | null }) => {
   if (!product) {
     return (
@@ -115,13 +111,12 @@ const ProductItem = memo(({ item, product, rateExchange }: { item: CartItem, pro
 });
 ProductItem.displayName = 'ProductItem';
 
-// Componente principal optimizado
 export default function BuyPage() {
-  const { cart, clearCart } = useContext(CartContext) || { cart: [], setCart: () => { } };
+  const { cart, clearCart } = useCartStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { products, isLoading } = useProductContext();
   const { data: session } = useSession();
-  const { rateExchange } = useContext(CurrencyAndExchangeRateContext) || {};
+  const { rateExchange } = useCurrencyStore();
   const [missingProducts, setMissingProducts] = useState<string[]>([]);
   const [isCartReady, setIsCartReady] = useState(false);
 
@@ -177,12 +172,10 @@ export default function BuyPage() {
       province: '',
       municipality: ''
     },
-    mode: 'onBlur' // Validar al perder el foco para mejor experiencia
+    mode: 'onBlur'
   });
 
-  // Optimización de la función de envío
   const onSubmit = useCallback(async (data: FormValues) => {
-    // Prevenir múltiples envíos
     if (formSubmitRef.current) return;
     formSubmitRef.current = true;
 
@@ -193,7 +186,6 @@ export default function BuyPage() {
         quantity: item.cantidad
       }));
 
-      // Objeto de orden optimizado
       const orderData = {
         products: orderProducts,
         municipality: data.municipality,
@@ -271,14 +263,6 @@ export default function BuyPage() {
     missingProducts.length > 0, // 👈 Aquí está la condición solicitada
     [isSubmitting, cart, missingProducts]);
 
-  const buttonText = useMemo(() =>
-    isSubmitting
-      ? "Procesando pago..."
-      : missingProducts.length > 0
-        ? "Productos no disponibles"
-        : "Confirmar Pedido",
-    [isSubmitting, missingProducts]);
-
   // Pantalla de carga optimizada
   if (isLoading) {
     return (
@@ -313,6 +297,8 @@ export default function BuyPage() {
             </p>
           </div>
         )}
+
+        <CheckoutStepper step_active="place_order" />
 
         <div className="grid lg:grid-cols-2 gap-8">
           <div className="p-6 rounded-2xl bg-white dark:bg-gray-800 shadow-md border border-default-200 transition-all duration-300 hover:shadow-2xl">
@@ -409,14 +395,31 @@ export default function BuyPage() {
                 <div className="mt-8 w-full">
                   <button
                     type="submit"
-                    className={`w-full py-6 text-lg font-semibold transition-all rounded-xl 
-                      ${isButtonDisabled
+                    className={`w-full py-4 text-lg font-semibold transition-all duration-300 rounded-xl 
+    ${isButtonDisabled
                         ? "bg-gray-300 dark:bg-gray-700 cursor-not-allowed"
-                        : "bg-gradient-to-r from-primary to-blue-600 hover:from-blue-600 hover:to-primary"
+                        : "bg-blue-600 hover:opacity-90 active:scale-[0.99] shadow-lg shadow-primary/30 dark:shadow-primary/20"
                       }`}
                     disabled={isButtonDisabled}
                   >
-                    {buttonText}
+                    {isSubmitting ? (
+                      <span className="flex items-center justify-center">
+                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Procesando...
+                      </span>
+                    ) : missingProducts.length > 0 ? (
+                      "Productos no disponibles"
+                    ) : (
+                      <span className="flex items-center justify-center">
+                        Confirmar Pedido
+                        <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                        </svg>
+                      </span>
+                    )}
                   </button>
 
                   {missingProducts.length > 0 && (
@@ -430,12 +433,19 @@ export default function BuyPage() {
           </div>
 
           {/* Resumen del pedido optimizado */}
-          <div className="p-6 rounded-2xl bg-white dark:bg-gray-800 shadow-md border border-default-200">
-            <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
+          <div className="p-6 rounded-2xl bg-gray-50 dark:bg-gray-800 shadow-xl border border-gray-200 dark:border-gray-700">
+            <h2 className="text-xl font-semibold mb-6 flex items-center gap-2 pb-3 border-b border-gray-200 dark:border-gray-700">
               <ShoppingCartIcon className="h-6 w-6 text-primary" />
               Resumen del Pedido
             </h2>
-            <div className="space-y-4 max-h-[500px] overflow-y-auto">
+
+            {/* Contador de productos */}
+            <div className="inline-block px-3 py-1 bg-primary/10 dark:bg-primary/20 text-primary rounded-full text-sm font-medium mb-4">
+              {cart?.length || 0} {cart?.length === 1 ? 'producto' : 'productos'}
+            </div>
+
+            <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600">
+              {/* Productos existentes */}
               {cart?.map((item) => (
                 <ProductItem
                   key={item.id}
@@ -445,10 +455,19 @@ export default function BuyPage() {
                 />
               ))}
             </div>
-            <div className="mt-8 pt-6 border-t border-default-200">
+
+            <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
               <div className="flex justify-between items-center mb-4">
-                <span className="text-default-600">Subtotal:</span>
-                <span className="font-semibold">{formatCurrency((subtotal * (rateExchange?.exchangeRate || 1)), rateExchange?.currency, rateExchange?.symbol)}</span>
+                <span className="text-gray-600 dark:text-gray-400">Subtotal:</span>
+                <span className="font-semibold text-xl">{formatCurrency((subtotal * (rateExchange?.exchangeRate || 1)), rateExchange?.currency, rateExchange?.symbol)}</span>
+              </div>
+
+              {/* Caja informativa */}
+              <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4 mt-4 text-sm">
+                <p className="flex items-start text-blue-800 dark:text-blue-300">
+                  <span className="mr-2 mt-0.5">ℹ️</span>
+                  Al continuar, podrás elegir el método de pago después de confirmar tu pedido.
+                </p>
               </div>
             </div>
           </div>
@@ -460,4 +479,8 @@ export default function BuyPage() {
 
 import { memo, useRef } from "react";
 import { CartItem } from "../../../types/interfaces"; import { CurrencyData, ProductBase } from "../../../types/types";
+import React from "react";
+import { CheckoutStepper } from "@components/stepper/stepper";
+import { useCurrencyStore } from "@store/currency/currency-store";
+import { CartContext } from "@contexts/cart-context";
 

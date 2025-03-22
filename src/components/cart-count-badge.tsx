@@ -5,9 +5,10 @@ import { Badge } from "@heroui/react";
 import { FaShoppingCart } from "react-icons/fa";
 import { CartContext } from "@/contexts/cart-context";
 import { CustomButton } from "./buttons/custom-button";
+import { useCartStore } from "@store/cart/cart-store";
 
 export default function CartCountBadge() {
-  const { cart } = useContext(CartContext) || {};
+  const { cart } = useCartStore();
 
   return (
     <div className="md:hidden">

@@ -1,14 +1,11 @@
 "use client";
 
-import React, { useCallback, useEffect, useState, memo } from "react";
+import React, { useCallback, memo } from "react";
 import { Card, CardBody } from "@heroui/react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useLocation } from "@contexts/location-context";
+import { useLocationStore } from "@store/location/location-store";
 import { useDeviceDetection } from "@/hooks/useDeviceDetection";
 import Image from "next/image";
-
-// Este hook se elimina a favor del hook centralizado useDeviceDetection
 
 interface CategoryCardProps {
   className?: string;
@@ -30,11 +27,8 @@ const LightCategoryCard = memo(({
   itemsCount,
   onLocationNeeded
 }: CategoryCardProps) => {
-  const { location } = useLocation();
-  // Agregamos el useRouter aunque no lo usemos para mantener la consistencia de hooks
-  const router = useRouter();
+  const { location, hasLocation } = useLocationStore();
 
-  // Manejador de clics simplificado
   const handleCardClick = useCallback((e: React.MouseEvent) => {
     if (!location || !location.province || !location.municipality) {
       if (onLocationNeeded) {
@@ -90,8 +84,7 @@ const CategoryCard = ({
   itemsCount,
   imageUrl,
 }: CategoryCardProps) => {
-  const { location } = useLocation();
-  const router = useRouter();
+  const { location, hasLocation } = useLocationStore();
   const deviceData = useDeviceDetection();
 
   // Determinar si debemos deshabilitar animaciones
@@ -112,10 +105,8 @@ const CategoryCard = ({
     }
   }, [location, onLocationNeeded]);
 
-  // Manejar eventos touch de manera eficiente y sin bloquear el thread principal
-  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+  const handleTouchStart = useCallback(() => {
     if (deviceData.isLowPerformance) {
-      // Para dispositivos de bajo rendimiento, no permitimos eventos táctiles complejos
       return;
     }
     // Para dispositivos normales, solo evitamos que otros handlers capturen el evento
@@ -157,16 +148,16 @@ const CategoryCard = ({
 
   // Clases para el fondo con efectos
   const bgEffectClasses = `
-    absolute inset-0 bg-gradient-to-br from-blue-50/40 via-white/80 to-blue-50/40 
-    dark:from-blue-900/20 dark:via-gray-800/80 dark:to-blue-900/20
+    absolute inset-0 bg-blue-50/40
+    dark:bg-blue-900/20
     ${disableAnimations ? '' : 'opacity-0 group-hover:opacity-100 transition-opacity duration-300'}
   `;
 
   // Clases para el brillo (solo en dispositivos de alto rendimiento)
   const glowEffectClasses = `
     absolute -inset-full h-[400%] w-[400%] opacity-0 
-    ${!disableAnimations && 'group-hover:opacity-20 blur-xl'}
-    ${deviceData.isLowPerformance ? 'hidden' : 'bg-gradient-conic from-blue-600 via-transparent to-blue-600'}
+    ${!disableAnimations && 'group-hover:opacity-20 '}
+    ${deviceData.isLowPerformance ? 'hidden' : 'bg-blue-600'}
   `;
 
   // Clases para el icono

@@ -6,20 +6,15 @@
 
 
 
-/* Ocultar scrollbars para Chrome, Safari y Opera */
 .custom-scrollbar::-webkit-scrollbar {
   display: none;
 }
 
-/* Ocultar scrollbars para IE, Edge y Firefox */
 .custom-scrollbar {
   -ms-overflow-style: none;
-  /* IE y Edge */
   scrollbar-width: none;
-  /* Firefox */
 }
 
-/* Variables CSS para modo bajo rendimiento */
 :root {
   --animation-duration: 300ms;
   --transition-duration: 300ms;
@@ -27,15 +22,11 @@
   --low-performance-image-quality: 50;
 }
 
-/* Ocultar la barra de desplazamiento en dispositivos móviles */
 @media (max-width: 768px) {
   body {
     -ms-overflow-style: none;
-    /* IE y Edge */
     scrollbar-width: none;
-    /* Firefox */
     overflow: -moz-scrollbars-none;
-    /* Firefox legacy */
   }
 
   body::-webkit-scrollbar {
@@ -48,29 +39,24 @@
   background-color: var(--panel-background-color);
 }
 
-/* Estilizar la barra de desplazamiento en pantallas grandes */
 @media (min-width: 769px) {
   body::-webkit-scrollbar {
     width: 8px;
-    /* Grosor de la barra */
   }
 
   body::-webkit-scrollbar-track {
     background: #f5f5f5;
-    /* Color de fondo */
     border-radius: 10px;
   }
 
   body::-webkit-scrollbar-thumb {
     background: #b3b3b3;
-    /* Color del thumb (deslizador) */
     border-radius: 10px;
     transition: background 0.3s;
   }
 
   body::-webkit-scrollbar-thumb:hover {
     background: #888;
-    /* Cambio de color al pasar el cursor */
   }
 }
 
@@ -79,12 +65,9 @@
   --color-hover-bg-dark: rgba(0, 119, 255, 0.3);
 }
 
-/* globals.css */
 :root {
   --background-light: f9fafb;
-  /* Color de fondo en modo claro */
   --background-dark: #111827;
-  /* Color de fondo en modo oscuro */
 }
 
 html.light {
@@ -108,13 +91,11 @@ body {
   from {
     transform: translateY(-20px);
     opacity: 0;
-    filter: blur(100%);
   }
 
   to {
     transform: translateY(0);
     opacity: 1;
-    filter: blur(0%);
   }
 }
 
@@ -122,13 +103,11 @@ body {
   from {
     transform: translateX(-100%);
     opacity: 0;
-    filter: blur(100%);
   }
 
   to {
     transform: translateX(0);
     opacity: 1;
-    filter: blur(0%);
   }
 }
 
@@ -136,13 +115,11 @@ body {
   from {
     transform: translateX(100%);
     opacity: 0;
-    filter: blur(100%);
   }
 
   to {
     transform: translateX(0);
     opacity: 1;
-    filter: blur(0%);
   }
 }
 
@@ -150,13 +127,11 @@ body {
   from {
     transform: translateX(0);
     opacity: 1;
-    filter: blur(0%);
   }
 
   to {
     transform: translateX(-100%);
     opacity: 0;
-    filter: blur(100%);
   }
 }
 
@@ -164,13 +139,11 @@ body {
   from {
     transform: translateX(0);
     opacity: 1;
-    filter: blur(0%);
   }
 
   to {
     transform: translateX(100%);
     opacity: 0;
-    filter: blur(100%);
   }
 }
 
@@ -482,5 +455,13 @@ body {
   /* Efecto de presionado con CSS, no JavaScript */
   .hover-lift:active {
     transform: translateY(0) scale(0.98);
+  }
+}
+
+.input-focus-effect {
+  @apply transition-all border border-gray-200 dark:border-gray-700;
+  &:focus-within {
+    @apply border-primary dark:border-primary ring-2 ring-primary/20 dark:ring-primary/30;
+    transform: translateY(-2px);
   }
 }

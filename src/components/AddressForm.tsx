@@ -1,6 +1,6 @@
 'use client';
 
-import { useLocation } from '@contexts/location-context';
+import { useLocationStore } from '@store/location/location-store';
 import { useFormContext } from 'react-hook-form';
 import { locationFetcher } from '@services/location';
 import useSWR from 'swr';
@@ -13,7 +13,7 @@ interface Option {
 
 export const AddressForm = () => {
   const { register, formState: { errors }, setValue } = useFormContext();
-  const { location } = useLocation();
+  const { location } = useLocationStore();
 
   const [province, setProvince] = useState<string>(location?.province || "");
   const [municipality, setMunicipality] = useState<string>(location?.municipality || "");

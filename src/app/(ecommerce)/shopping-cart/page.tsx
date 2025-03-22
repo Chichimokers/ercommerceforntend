@@ -8,11 +8,12 @@ import CartCard from "@/components/cards/cart-cards";
 import SmCartCard from "@/components/cards/sm-cart-card";
 import OrderSummary from "@components/cards/summary";
 import EmptyCart from "@components/empty/empty-cart";
-import { useLocation } from "@contexts/location-context";
+import { useLocationStore } from "@store/location/location-store";
 import useSWR from "swr";
 import { ArrowLeft, ShoppingBag } from "lucide-react";
 import Link from "next/link";
 import { useDeviceDetection } from "@/hooks/useDeviceDetection";
+import { useCartStore } from "@store/cart/cart-store";
 
 interface ShippingPriceRequest {
   total_weight: number;
@@ -58,11 +59,11 @@ const OrderSummarySkeleton = memo(() => (
 OrderSummarySkeleton.displayName = 'OrderSummarySkeleton';
 
 export default function ShoppingCartPage() {
-  const { cart, clearCart } = useContext(CartContext) || {};
-  const { cartProducts, isLoading, mutateCartProducts } = useProductContext();
+  const { cart, clearCart } = useCartStore();
+  const { cartProducts, mutateCartProducts } = useProductContext();
   const [isMounted, setIsMounted] = useState(false);
   const [isInitialRender, setIsInitialRender] = useState(true);
-  const { location } = useLocation();
+  const { location } = useLocationStore();
 
   const deviceData = useDeviceDetection();
   const isMobile = deviceData.isMobile;
@@ -154,7 +155,7 @@ export default function ShoppingCartPage() {
   }, []);
 
   const cartItems = useMemo(() => {
-    if (!cart || !cartProducts.length) return [];
+    if (cart.length === 0) return [];
 
     return cartProducts.filter(product =>
       cart.some(item => item.id === product.id)

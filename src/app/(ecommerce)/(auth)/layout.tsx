@@ -20,7 +20,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         <div className="container mx-auto flex flex-col items-center">
           <nav className="w-full max-w-md">
             <div
-              className="flex items-center gap-1 bg-white/70 dark:bg-gray-900/70 py-1.5 px-2 rounded-xl backdrop-blur-md shadow-lg shadow-blue-900/5 dark:shadow-blue-500/5 border border-white/50 dark:border-gray-800"
+              className="flex items-center gap-1 bg-white/70 dark:bg-gray-900/70 py-1.5 px-2 rounded-xl shadow-lg shadow-blue-900/5 dark:shadow-blue-500/5 border border-white/50 dark:border-gray-800"
             >
               <AuthLink href="/login" label="Iniciar Sesión" active={pathname === "/login"} />
               <AuthLink href="/register" label="Registrarse" active={pathname === "/register"} />
@@ -34,7 +34,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           key={pathname}
           className="w-full max-w-lg"
         >
-          <div className="bg-white/80 dark:bg-gray-900/80 rounded-2xl backdrop-blur-xl overflow-hidden shadow-xl shadow-blue-900/10 dark:shadow-blue-500/5 border border-white/60 dark:border-gray-800/60">
+          <div className="bg-white/80 dark:bg-gray-900/80 rounded-2xl overflow-hidden shadow-xl shadow-blue-900/10 dark:shadow-blue-500/5 border border-white/60 dark:border-gray-800/60">
             {mounted && children}
           </div>
         </div>

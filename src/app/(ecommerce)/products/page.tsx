@@ -13,8 +13,6 @@ import { AlertCircle } from "lucide-react";
 import LucideIcons from "@components/lazy-imports/lucide-icons";
 import { useInView } from "react-intersection-observer";
 import { throttle } from "lodash";
-import UltraLightMode, { UltraLightSkeleton } from '@/components/performance/ultra-light-mode';
-import { useDeviceCapabilities } from '@/hooks/useDeviceCapabilities';
 
 const ProductCard = dynamic(
   () => import("@/components/cards/product/product-card").then(mod => ({ default: mod.default })),
@@ -377,7 +375,7 @@ function ProductPageContent({ deviceData, shouldOptimizeSeverely }: {
         </div>
 
         {totalPages > 1 && (
-          <div className="sticky bottom-0 w-full flex justify-center py-6 mt-6 bg-gradient-to-t from-white dark:from-gray-900 to-transparent">
+          <div className="sticky bottom-0 w-full flex justify-center py-6 mt-6">
             <Pagination
               total={totalPages}
               page={currentPage}

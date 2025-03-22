@@ -17,7 +17,7 @@ export default function DiscountBadge({
   const discountAmount = discount.reduction * (rateExchange?.exchangeRate || 1);
 
   return (
-    <Chip color="warning" className="absolute top-2 right-2">
+    <Chip color="warning" size="sm" className="absolute top-2 right-2">
       -{formatCurrency(
         discountAmount,
         rateExchange?.currency,

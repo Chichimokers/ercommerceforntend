@@ -4,12 +4,13 @@ import React, { useMemo, useContext, useState } from "react";
 import Image from "next/image";
 import { ProductBase } from "@/types/types";
 import { CartContext } from "@/contexts/cart-context";
-import { CurrencyAndExchangeRateContext } from "@/contexts/exchange-rate-currency-context";
 import { formatCurrency } from "@components/format-currency";
 import { Badge, Chip, Tooltip } from "@heroui/react";
 import { DeleteItemButton } from "../buttons/delete-product-button";
 import useCartActions from "../actions";
 import QuantityAdjuster from "../buttons/quantity-selector";
+import { useCurrencyStore } from "@store/currency/currency-store";
+import { useCartStore } from "@store/cart/cart-store";
 
 interface SmCartCardProps {
   product: ProductBase;
@@ -17,8 +18,8 @@ interface SmCartCardProps {
 }
 
 const SmCartCard = React.memo(({ product, className = "" }: SmCartCardProps) => {
-  const { cart } = useContext(CartContext) || {};
-  const { rateExchange } = useContext(CurrencyAndExchangeRateContext) || {};
+  const { cart } = useCartStore() || {};
+  const { rateExchange } = useCurrencyStore();
   const [imageStatus, setImageStatus] = useState<'loading' | 'error' | 'loaded'>('loading');
   const { isInCart, handleRemoveFromCart, handleQuantityInc, handleQuantityDec } = useCartActions(product);
 

@@ -1,14 +1,136 @@
-import React, { useContext, useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import Image from "next/image";
 import { Order, Item, CurrencyData } from "@/types/types";
-import { Chip, Button, Badge, Divider } from "@heroui/react";
-import CustomQRCode from "../qr-code";
+import { Chip, Button, Divider } from "@heroui/react";
+import { QRCodeCanvas } from "qrcode.react";
 import { MapPinIcon, Package2Icon, CalendarIcon, ClockIcon, ChevronDownIcon, ChevronUpIcon, CheckIcon, XIcon, AlertTriangleIcon } from "lucide-react";
-import { CurrencyAndExchangeRateContext } from "@contexts/exchange-rate-currency-context";
 import { formatCurrency } from "@components/format-currency";
 import PaymentMethodButton from "@hooks/usePaymentMethodSelector";
 import Collapse from "@components/collapse";
 import { useRouter } from "next/navigation";
+import { createPortal } from "react-dom";
+import { useCurrencyStore } from "@store/currency/currency-store";
+
+// Modal para mostrar el QR en tamaño grande
+const QRModal = ({
+  isOpen,
+  onClose,
+  orderId
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  orderId: string
+}) => {
+  if (!isOpen) return null;
+
+  return createPortal(
+    <div
+      className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 animate-fadeIn"
+      onClick={onClose}
+    >
+      <div
+        className="bg-white dark:bg-gray-800 rounded-xl p-6 max-w-sm w-full shadow-2xl relative animate-scaleIn"
+        onClick={(e) => e.stopPropagation()} /* Evitar que se cierre al hacer clic dentro */
+      >
+        <button
+          onClick={onClose}
+          className="absolute top-3 right-3 p-2 rounded-full bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+          aria-label="Cerrar"
+        >
+          <XIcon size={20} />
+        </button>
+
+        <div className="text-center mb-4">
+          <h3 className="font-semibold text-lg text-gray-900 dark:text-white">QR de la orden</h3>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            Código #{orderId.slice(0, 6)}
+          </p>
+        </div>
+
+        <div className="flex justify-center bg-white p-4 rounded-lg mb-4">
+          <QRCodeCanvas
+            value={orderId}
+            size={280}
+            bgColor="#FFFFFF"
+            level="H"
+            className="mx-auto"
+          />
+        </div>
+
+        <p className="text-sm text-center text-gray-500 dark:text-gray-400">
+          Acerca la cámara de tu dispositivo para escanear
+        </p>
+      </div>
+    </div>,
+    document.body
+  );
+};
+
+// Modificación del componente OrderHeader para incluir la funcionalidad del modal
+const OrderHeader = ({ order, isSticky = true }: { order: Order, isSticky?: boolean }) => {
+  const orderDate = order.created_at ? new Date(order.created_at) : null;
+  const formattedDate = orderDate ? orderDate.toLocaleDateString('es-ES') : 'Fecha no disponible';
+  const formattedTime = orderDate ? orderDate.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }) : '';
+  const [qrModalOpen, setQrModalOpen] = useState(false);
+
+  return (
+    <>
+      <div className={`${isSticky ? 'sticky top-0 z-10' : ''} p-4 bg-gray-50/95 dark:bg-gray-800/95 border-b border-gray-200 dark:border-gray-700 flex justify-between items-start`}>
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <h4 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white">
+              Orden #{order.id.slice(0, 6)}
+            </h4>
+          </div>
+          <div className="flex flex-col space-y-1">
+            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 flex items-center gap-1">
+              <MapPinIcon className="w-3.5 h-3.5 text-gray-500" /> {order.province}
+            </p>
+            {orderDate && (
+              <>
+                <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                  <CalendarIcon className="w-3 h-3" /> {formattedDate}
+                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                  <ClockIcon className="w-3 h-3" /> {formattedTime}
+                </p>
+              </>
+            )}
+          </div>
+          <OrderStatus status={order.status} />
+        </div>
+
+        {/* QR con interacción para abrir modal */}
+        <div
+          className="p-2 bg-blue-50 rounded-lg shadow-sm cursor-pointer hover:scale-105 transition-all active:scale-95"
+          onClick={() => setQrModalOpen(true)}
+          aria-label="Ampliar código QR"
+        >
+          <div className="relative">
+            <QRCodeCanvas
+              value={order.id}
+              size={96}
+              bgColor="#FFFFFF"
+              level="H"
+            />
+            <div className="absolute inset-0 bg-white/0 hover:bg-white/10 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-blue-600">
+                <path d="m15 3 6 6m0 0-6 6m6-6H8a5 5 0 0 0 0 10h5"></path>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Modal del QR */}
+      <QRModal
+        isOpen={qrModalOpen}
+        onClose={() => setQrModalOpen(false)}
+        orderId={order.id}
+      />
+    </>
+  );
+};
 
 const OrderItem = React.memo(({ item, rateExchange }: { item: Item, rateExchange: CurrencyData | null }) => {
   const itemPrice = (): number => {
@@ -80,44 +202,6 @@ const OrderStatus = ({ status }: { status: string }) => {
   );
 };
 
-// Componente de encabezado del pedido
-const OrderHeader = ({ order, isSticky = true }: { order: Order, isSticky?: boolean }) => {
-  const orderDate = order.created_at ? new Date(order.created_at) : null;
-  const formattedDate = orderDate ? orderDate.toLocaleDateString('es-ES') : 'Fecha no disponible';
-  const formattedTime = orderDate ? orderDate.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }) : '';
-
-  return (
-    <div className={`${isSticky ? 'sticky top-0 z-10' : ''} p-4 bg-gray-50/95 dark:bg-gray-800/95 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700 flex justify-between items-start`}>
-      <div className="space-y-2">
-        <div className="flex items-center gap-2">
-          <h4 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white">
-            Orden #{order.id.slice(0, 6)}
-          </h4>
-        </div>
-        <div className="flex flex-col space-y-1">
-          <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 flex items-center gap-1">
-            <MapPinIcon className="w-3.5 h-3.5 text-gray-500" /> {order.province}
-          </p>
-          {orderDate && (
-            <>
-              <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
-                <CalendarIcon className="w-3 h-3" /> {formattedDate}
-              </p>
-              <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
-                <ClockIcon className="w-3 h-3" /> {formattedTime}
-              </p>
-            </>
-          )}
-        </div>
-        <OrderStatus status={order.status} />
-      </div>
-      <div className="p-2 bg-blue-50 rounded-lg shadow-sm">
-        <CustomQRCode value={order.id} />
-      </div>
-    </div>
-  );
-};
-
 const OrderProductList = ({
   items,
   rateExchange,
@@ -171,10 +255,7 @@ const OrderProductList = ({
 const OrderFooter = ({
   order,
   onCancelOrder,
-  onProceedToPayment,
   rateExchange,
-  paymentMethod,
-  isExpanded,
   isMobile
 }: {
   order: Order;
@@ -188,14 +269,9 @@ const OrderFooter = ({
   isMobile: boolean;
 }) => {
   const router = useRouter();
-  const handleProceedToPayment = useCallback(() => {
-    if (onProceedToPayment && paymentMethod) {
-      onProceedToPayment(order.id);
-    }
-  }, [order.id, onProceedToPayment, paymentMethod]);
 
   return (
-    <div className={`${isMobile ? '' : 'sticky bottom-0 z-10'} p-4 bg-gray-50/95 dark:bg-gray-800/95 backdrop-blur-sm border-t border-gray-200 dark:border-gray-700 shadow-sm`}>
+    <div className={`${isMobile ? '' : 'sticky bottom-0 z-10'} p-4 bg-gray-50/95 dark:bg-gray-800/95 border-t border-gray-200 dark:border-gray-700 shadow-sm`}>
       <div className="flex flex-col mb-4">
         <div className="flex justify-between items-center mb-2">
           <span className="text-sm text-gray-600 dark:text-gray-400">Subtotal:</span>
@@ -258,7 +334,7 @@ const OrderComponent = ({
   compact?: boolean;
   className?: string;
 }) => {
-  const { rateExchange } = useContext(CurrencyAndExchangeRateContext);
+  const { rateExchange } = useCurrencyStore();
   const [paymentMethod, setPaymentMethod] = useState("");
   const [isExpanded, setIsExpanded] = useState(false);
   const [showItems, setShowItems] = useState(false);

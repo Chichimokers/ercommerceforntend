@@ -4,10 +4,11 @@ import { DeleteItemButton } from "../buttons/delete-product-button";
 import { ProductBase } from "@/types/types";
 import { CartContext } from "@/contexts/cart-context";
 import useCartActions from "../actions";
-import { CurrencyAndExchangeRateContext } from "@/contexts/exchange-rate-currency-context";
 import QuantityAdjuster from "../buttons/quantity-selector";
 import { formatCurrency } from "@components/format-currency";
 import { useProductContext } from "@contexts/product-context";
+import { useCurrencyStore } from "@store/currency/currency-store";
+import { useCartStore } from "@store/cart/cart-store";
 
 const CartCard = React.memo(
   ({
@@ -17,7 +18,7 @@ const CartCard = React.memo(
     productCart: ProductBase;
     className?: string;
   }) => {
-    const { cart } = useContext(CartContext) || {};
+    const { cart } = useCartStore() || {};
     const { isInCart, handleRemoveFromCart, handleQuantityInc, handleQuantityDec } = useCartActions(productCart);
     const { cartProducts } = useProductContext();
     const product = useMemo(() => cartProducts.find((p) => p.id === productCart.id), [cartProducts, productCart.id]);
@@ -27,7 +28,7 @@ const CartCard = React.memo(
       return cart?.find((item: { id: string }) => item.id === product?.id)?.cantidad || 0;
     }, [cart, product]);
 
-    const { rateExchange } = useContext(CurrencyAndExchangeRateContext) || {};
+    const { rateExchange } = useCurrencyStore();
 
     const unitPrice = useMemo(() => {
       if (!product || !rateExchange) return 0;

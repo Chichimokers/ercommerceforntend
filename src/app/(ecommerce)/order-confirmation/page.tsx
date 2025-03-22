@@ -1,14 +1,15 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { CheckCircleIcon, ShoppingBag, ClipboardCheck, Truck, CreditCard, Calendar, Clock, Receipt } from "lucide-react";
+import { CheckCircleIcon, ShoppingBag, ClipboardCheck, Truck, Calendar, Clock, Receipt } from "lucide-react";
 import Link from "next/link";
 import { Toaster } from "react-hot-toast";
 import { Button } from "@heroui/react";
 import { formatCurrency } from "@components/format-currency";
-import { CurrencyAndExchangeRateContext } from "@contexts/exchange-rate-currency-context";
 import PaymentMethodButton from "@hooks/usePaymentMethodSelector";
 import { useRouter } from "next/navigation";
+import { CheckoutStepper } from "@components/stepper/stepper";
+import { useCurrencyStore } from "@store/currency/currency-store";
 
 interface Order {
   receiver_name: string;
@@ -25,7 +26,7 @@ interface Order {
 export default function OrderConfirmationPage() {
   const [order, setOrder] = useState<Order | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
-  const { rateExchange } = React.useContext(CurrencyAndExchangeRateContext);
+  const { rateExchange } = useCurrencyStore();
   const [isVisibleContent, setIsVisibleContent] = useState(false);
   const router = useRouter();
   const [themeLoaded, setThemeLoaded] = useState(false);
@@ -69,33 +70,6 @@ export default function OrderConfirmationPage() {
   const statusColor = order?.status
     ? statusColors[order.status as keyof typeof statusColors] || statusColors.default
     : statusColors.default;
-
-  // Obtener el estado actual del pedido para el timeline
-  const currentStatus = order?.status || 'pending';
-
-  // Definir los pasos del timeline basados en el estado actual
-  const timelineSteps = [
-    {
-      name: 'Pedido realizado',
-      active: true,
-      icon: ClipboardCheck
-    },
-    {
-      name: 'Pendiente de pago',
-      active: ['accepted', 'paid', 'retired'].includes(currentStatus),
-      icon: CreditCard
-    },
-    {
-      name: 'Pago confirmado',
-      active: ['paid', 'retired'].includes(currentStatus),
-      icon: CheckCircleIcon
-    },
-    {
-      name: 'Enviado',
-      active: ['retired'].includes(currentStatus),
-      icon: Truck
-    }
-  ];
 
   useEffect(() => {
     // Esperar a que el tema esté completamente cargado (dark/light)
@@ -146,10 +120,9 @@ export default function OrderConfirmationPage() {
     return <div className="min-h-screen"></div>; // Pantalla vacía mientras se detecta el tema
   }
 
-  // Skeleton loader con una animación más suave
   if (!isLoaded) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-950 px-4 py-12">
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-900 px-4 py-12">
         <div className="w-full max-w-4xl animate-fadeIn">
           {/* Link de navegación */}
           <div className="flex items-center justify-between mb-6">
@@ -159,9 +132,9 @@ export default function OrderConfirmationPage() {
           {/* Card principal con skeleton */}
           <div className="bg-white dark:bg-gray-800 shadow-xl rounded-2xl overflow-hidden">
             {/* Skeleton del header */}
-            <div className="relative bg-gradient-to-r from-primary/80 to-blue-600/80 p-8 overflow-hidden">
+            <div className="relative bg-blue-600 p-8 overflow-hidden">
               <div className="flex flex-col md:flex-row items-center gap-6">
-                <div className="bg-white/20 backdrop-blur-sm p-4 rounded-full shrink-0 h-20 w-20 animate-pulse"></div>
+                <div className="bg-white/20 p-4 rounded-full shrink-0 h-20 w-20 animate-pulse"></div>
                 <div className="text-center md:text-left w-full">
                   <div className="h-10 bg-white/20 rounded-lg w-3/4 mb-3 animate-pulse"></div>
                   <div className="h-6 bg-white/20 rounded-lg w-1/2 animate-pulse"></div>
@@ -170,7 +143,7 @@ export default function OrderConfirmationPage() {
                     <div className="h-10 bg-white/20 rounded-lg w-24 animate-pulse"></div>
                   </div>
                 </div>
-                <div className="md:ml-auto bg-white/10 backdrop-blur-sm rounded-xl px-6 py-4 border border-white/20 w-36 h-24 animate-pulse"></div>
+                <div className="md:ml-auto bg-white/10 rounded-xl px-6 py-4 border border-white/20 w-36 h-24 animate-pulse"></div>
               </div>
             </div>
 
@@ -254,7 +227,7 @@ export default function OrderConfirmationPage() {
 
   // Contenido principal con una transición simple de opacidad, sin animaciones de agrandamiento
   return (
-    <section className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-950 px-4 py-12">
+    <section className="min-h-screen flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-900 px-4 py-12">
       <Toaster
         toastOptions={{
           className: "dark:bg-gray-800 dark:text-white",
@@ -272,12 +245,10 @@ export default function OrderConfirmationPage() {
         </div>
 
         <div className={`bg-white dark:bg-gray-800 shadow-xl rounded-2xl overflow-hidden transition-opacity duration-500 ${isVisibleContent ? 'opacity-100' : 'opacity-0'}`}>
-          {/* Header con animación de confeti */}
-          <div className="relative bg-gradient-to-r from-primary to-blue-600 p-8 text-white overflow-hidden">
-            <div className="absolute inset-0 bg-[url('/confetti-bg.svg')] opacity-10"></div>
+          <div className="relative bg-blue-600 p-8 text-white overflow-hidden">
 
             <div className="flex flex-col md:flex-row items-center gap-6">
-              <div className="bg-white/20 backdrop-blur-sm p-4 rounded-full shrink-0 shadow-lg">
+              <div className="bg-white/20 p-4 rounded-full shrink-0 shadow-lg">
                 <CheckCircleIcon className="h-12 w-12" />
               </div>
 
@@ -289,7 +260,7 @@ export default function OrderConfirmationPage() {
 
                 {order && (
                   <div className="mt-4 flex flex-wrap justify-center md:justify-start gap-3">
-                    <div className="bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2 flex items-center border border-white/20">
+                    <div className="bg-white/10 rounded-lg px-4 py-2 flex items-center border border-white/20">
                       <ClipboardCheck className="h-4 w-4 mr-2 opacity-80" />
                       <span className="font-medium">Pedido #{order.id.slice(0, 8).toUpperCase()}</span>
                     </div>
@@ -303,9 +274,8 @@ export default function OrderConfirmationPage() {
                 )}
               </div>
 
-              {/* Precio grande a la derecha */}
               {order && (
-                <div className="md:ml-auto bg-white/10 backdrop-blur-sm rounded-xl px-6 py-4 border border-white/20 text-center">
+                <div className="md:ml-auto bg-white/10 rounded-xl px-6 py-4 border border-white/20 text-center">
                   <div className="text-white/70 text-sm font-medium mb-1">TOTAL</div>
                   <div className="text-2xl md:text-3xl font-bold">
                     {formatCurrency(
@@ -319,54 +289,12 @@ export default function OrderConfirmationPage() {
             </div>
           </div>
 
-          {/* Timeline del progreso del pedido */}
-          <div className="px-6 py-5 bg-gray-50 dark:bg-gray-900/30 border-b border-gray-200 dark:border-gray-700">
-            <div className="flex items-center justify-between w-full">
-              {timelineSteps.map((step, index) => (
-                <React.Fragment key={step.name}>
-                  {/* Paso del timeline - sin animación de escala */}
-                  <div className="flex flex-col items-center">
-                    <div
-                      className={`flex items-center justify-center w-10 h-10 rounded-full
-                        ${step.active
-                          ? 'bg-primary text-white'
-                          : 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
-                        }`}
-                    >
-                      <step.icon className="w-5 h-5" />
-                    </div>
-                    <span className={`hidden sm:block text-xs mt-2 font-medium 
-                      ${step.active
-                        ? 'text-primary dark:text-primary-400'
-                        : 'text-gray-500 dark:text-gray-400'
-                      }`}
-                    >
-                      {step.name}
-                    </span>
-                  </div>
+          <CheckoutStepper step_active="order_placed" />
 
-                  {/* Línea conectora (excepto después del último paso) */}
-                  {index < timelineSteps.length - 1 && (
-                    <div className="flex-1 h-1 mx-2">
-                      <div
-                        className={`h-full ${step.active && timelineSteps[index + 1].active
-                          ? 'bg-primary dark:bg-primary-400'
-                          : 'bg-gray-200 dark:bg-gray-700'
-                          }`}
-                      ></div>
-                    </div>
-                  )}
-                </React.Fragment>
-              ))}
-            </div>
-          </div>
-
-          {/* Cuerpo con la información del pedido - sin animaciones de translación/escala */}
           <div className="p-6 md:p-8">
             {order ? (
               <>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  {/* Información de envío */}
                   <div className="space-y-5">
                     <h3 className="text-lg font-semibold border-b border-gray-200 dark:border-gray-700 pb-2 mb-3 flex items-center">
                       <Truck className="h-5 w-5 mr-2 text-primary" />

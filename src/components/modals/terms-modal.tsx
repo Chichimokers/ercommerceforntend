@@ -31,9 +31,9 @@ export const TermsModal = () => {
         onClose={onClose}
         size="3xl"
         scrollBehavior="inside"
-        backdrop="blur"
+        backdrop="opaque"
         classNames={{
-          backdrop: "bg-black/50 backdrop-blur-sm",
+          backdrop: "bg-black/50",
           base: "border border-gray-200 dark:border-gray-800 bg-white/95 dark:bg-gray-900/95",
           header: "border-b border-gray-200 dark:border-gray-800",
           footer: "border-t border-gray-200 dark:border-gray-800",
@@ -43,7 +43,7 @@ export const TermsModal = () => {
           {(onClose) => (
             <>
               <ModalHeader className="flex flex-col gap-1 text-gray-800 dark:text-gray-200">
-                <h2 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent dark:from-blue-400 dark:to-indigo-300">
+                <h2 className="text-xl font-bold bg-blue-600 bg-clip-text text-transparent dark:bg-blue-400">
                   Términos y Condiciones
                 </h2>
                 <p className="text-sm font-normal text-gray-500 dark:text-gray-400">
@@ -56,7 +56,7 @@ export const TermsModal = () => {
                     <section>
                       <h3 className="text-lg font-semibold mb-2 text-gray-800 dark:text-gray-100">1. Introducción</h3>
                       <p>
-                        Estos Términos y Condiciones ("Términos") rigen el uso del sitio web y servicios de EsAki ("nosotros", "nuestro" o "la Compañía"),
+                        Estos Términos y Condiciones (&quot;Términos&quot;) rigen el uso del sitio web y servicios de EsAki (&quot;nosotros&quot;, &quot;nuestro&quot; o &quot;la Compañía&quot;),
                         disponible en https://esaki-jrr.com. Al acceder o utilizar nuestro servicio, usted acepta estar sujeto a estos Términos.
                         Si no está de acuerdo con alguna parte de estos términos, no podrá acceder al servicio.
                       </p>
@@ -65,9 +65,9 @@ export const TermsModal = () => {
                     <section>
                       <h3 className="text-lg font-semibold mb-2 text-gray-800 dark:text-gray-100">2. Definiciones</h3>
                       <p>
-                        <strong>"Usuario"</strong>: cualquier persona que acceda o utilice el servicio.<br />
-                        <strong>"Producto"</strong>: bienes o servicios ofrecidos en nuestra plataforma.<br />
-                        <strong>"Contenido"</strong>: información, textos, gráficos, imágenes u otros materiales cargados, descargados o que aparecen en nuestro servicio.
+                        <strong>&quot;Usuario&quot;</strong>: cualquier persona que acceda o utilice el servicio.<br />
+                        <strong>&quot;Producto&quot;</strong>: bienes o servicios ofrecidos en nuestra plataforma.<br />
+                        <strong>&quot;Contenido&quot;</strong>: información, textos, gráficos, imágenes u otros materiales cargados, descargados o que aparecen en nuestro servicio.
                       </p>
                     </section>
 
@@ -152,7 +152,7 @@ export const TermsModal = () => {
                 <Button
                   color="primary"
                   onClick={onClose}
-                  className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
+                  className="bg-blue-600 hover:bg-blue-700"
                 >
                   Entendido
                 </Button>

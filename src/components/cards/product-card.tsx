@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useContext, useMemo, useCallback, useState, useEffect } from "react"
+import React, { useMemo, useCallback, useState, useEffect } from "react"
 import { Card, CardBody, CardFooter, Chip } from "@heroui/react"
 import { FaShoppingCart } from "react-icons/fa"
 import Link from "next/link"
@@ -9,10 +9,10 @@ import Image from "next/image"
 import type { CurrencyData, ProductBase } from "@/types/types"
 import StarRating from "../star-rating"
 import useCartActions from "../actions"
-import { CurrencyAndExchangeRateContext } from "@/contexts/exchange-rate-currency-context"
 import { CustomButton } from "../buttons/custom-button"
 import QuantityAdjuster from "@components/buttons/quantity-selector"
 import { formatCurrency } from "@components/format-currency"
+import { useCurrencyStore } from "@store/currency/currency-store"
 
 // Constantes para configuración y optimización
 const PLACEHOLDER = "/placeholder.webp";
@@ -340,7 +340,6 @@ const LightProductCard = React.memo(function LightProductCard({
   product,
   prefetch,
   onNavigate,
-  rateExchange,
   formattedPrice,
   isInCart,
   handleAddToCart,
@@ -408,7 +407,7 @@ const ProductCard = React.memo(function ProductCard({
   onNavigate?: () => void
 }) {
   // Contexto y hooks - usar una sola vez
-  const { rateExchange } = useContext(CurrencyAndExchangeRateContext) || {};
+  const { rateExchange } = useCurrencyStore();
   const {
     handleQuantityInc,
     handleQuantityDec,

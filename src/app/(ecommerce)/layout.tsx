@@ -38,7 +38,7 @@ export default function EcommerceLayout({ children }: { children: ReactNode }) {
   }, [lastScrollY]);
 
   useEffect(() => {
-    if (!localStorage.getItem("location")) {
+    if (!location) {
       setModalOpen(true);
     }
   }
