@@ -13,6 +13,7 @@ import useSWR from "swr";
 import { ArrowLeft, ShoppingBag } from "lucide-react";
 import Link from "next/link";
 import { useDeviceDetection } from "@/hooks/useDeviceDetection";
+import { useCartStore } from "@store/cart/cart-store";
 
 interface ShippingPriceRequest {
   total_weight: number;
@@ -58,7 +59,7 @@ const OrderSummarySkeleton = memo(() => (
 OrderSummarySkeleton.displayName = 'OrderSummarySkeleton';
 
 export default function ShoppingCartPage() {
-  const { cart, clearCart } = useContext(CartContext) || {};
+  const { cart, clearCart } = useCartStore();
   const { cartProducts, mutateCartProducts } = useProductContext();
   const [isMounted, setIsMounted] = useState(false);
   const [isInitialRender, setIsInitialRender] = useState(true);
@@ -154,7 +155,7 @@ export default function ShoppingCartPage() {
   }, []);
 
   const cartItems = useMemo(() => {
-    if (!cart || !cartProducts.length) return [];
+    if (cart.length === 0) return [];
 
     return cartProducts.filter(product =>
       cart.some(item => item.id === product.id)

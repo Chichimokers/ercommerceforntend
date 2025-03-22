@@ -112,7 +112,7 @@ const ProductItem = memo(({ item, product, rateExchange }: { item: CartItem, pro
 ProductItem.displayName = 'ProductItem';
 
 export default function BuyPage() {
-  const { cart, clearCart } = useContext(CartContext) || { cart: [], setCart: () => { } };
+  const { cart, clearCart } = useCartStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { products, isLoading } = useProductContext();
   const { data: session } = useSession();

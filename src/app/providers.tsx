@@ -4,14 +4,15 @@ import { HeroUIProvider, ToastProvider } from "@heroui/react"
 import { ModalProvider } from "@contexts/modal-context"
 import { SessionProvider } from "next-auth/react"
 import { ProductProvider } from "@contexts/product-context"
-import { CartProvider } from "@contexts/cart-context"
+import { CartProvider } from "@providers/cart-provider";
 import { ThemeProvider } from "next-themes"
 import React from "react";
 import AccessTokenSynchronizer from "@services/access-token-synchronizer";
-import CartSyncBackup from "@components/cart/cart-sync-backup";
+import { CartSyncBackup } from "@components/cart/cart-sync-backup";
 import CurrencyInitializer from "@store/currency/currency-initializer";
 import LocationInitializer from "@store/location/location-initializer";
 import ProductManager from "@store/products/product-manager";
+import CartDebugger from "@store/cart/cart-debugger";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -26,6 +27,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
           <CurrencyInitializer />
           <LocationInitializer />
           <ProductManager />
+          <CartDebugger />
           <ProductProvider>
             <CartProvider>
               <CartSyncBackup />

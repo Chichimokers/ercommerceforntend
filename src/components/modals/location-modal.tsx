@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { CartContext } from "@contexts/cart-context";
 import Image from "next/image";
 import { locationFetcher } from "@services/location";
+import { useCartStore } from "@store/cart/cart-store";
 
 interface Option {
   key: string;
@@ -23,7 +24,7 @@ interface LocationModalProps {
 
 export default function LocationModal({ open, onClose, initialProvince = '', initialMunicipality = '' }: LocationModalProps) {
   const { location, setLocation } = useLocationStore();
-  const { clearCart, cart } = useContext(CartContext) || {};
+  const { clearCart, cart } = useCartStore() || {};
   const [province, setProvince] = useState<string>(location?.province || initialProvince);
   const [municipality, setMunicipality] = useState<string>(location?.municipality || initialMunicipality);
   const [changeLocation, setChangeLocation] = useState<boolean>(false);

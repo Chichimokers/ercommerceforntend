@@ -25,12 +25,13 @@ import { useProductContext } from "@/contexts/product-context";
 import Image from "next/image";
 import { formatCurrency } from "@components/format-currency";
 import { useCurrencyStore } from "@store/currency/currency-store";
+import { useCartStore } from "@store/cart/cart-store";
 
 const CartCard = dynamic(() => import("../cards/cart-cards"));
 
 export default function DrawerCart({ className }: { className?: string }) {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
-  const { cart } = useContext(CartContext) || {};
+  const { cart } = useCartStore() || {};
   const { cartProducts, mutateCartProducts } = useProductContext();
   const { rateExchange } = useCurrencyStore();
   const { currency, exchangeRate } = rateExchange || {};

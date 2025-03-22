@@ -3,7 +3,6 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { CartItem } from "@/types/interfaces";
-import debounce from "lodash.debounce";
 import Cookies from 'js-cookie';
 
 // Cookie settings
@@ -24,12 +23,25 @@ const customStorage = {
   },
 
   setItem: (name: string, value: string) => {
-    // Guardar en localStorage
+    // Guardar en localStorage con formato de Zustand
     localStorage.setItem(name, value);
 
-    // Guardar en cookies (con límite de ~4KB)
     try {
+      // Parsear el valor para obtener los items del carrito
+      const parsedValue = JSON.parse(value);
+      const cartItems = parsedValue.state.cart || [];
+
+      // Guardar en cookies en dos formatos
+
+      // 1. Formato Zustand (para la persistencia del store)
       Cookies.set(name, value, {
+        expires: COOKIE_EXPIRY,
+        path: COOKIE_PATH,
+        sameSite: 'lax'
+      });
+
+      // 2. Formato legacy (para el middleware) - NUEVO
+      Cookies.set("cart-legacy", JSON.stringify(cartItems), {
         expires: COOKIE_EXPIRY,
         path: COOKIE_PATH,
         sameSite: 'lax'
@@ -37,11 +49,10 @@ const customStorage = {
 
       // Dispatch event para debugging
       if (typeof window !== 'undefined') {
-        const parsedValue = JSON.parse(value);
         window.dispatchEvent(new CustomEvent('cartSynced', {
           detail: {
             source: 'zustand',
-            items: parsedValue.state.items.length
+            items: cartItems.length
           }
         }));
       }
@@ -51,9 +62,10 @@ const customStorage = {
   },
 
   removeItem: (name: string) => {
-    // Limpiar de ambos almacenamientos
+    // Limpiar de todos los almacenamientos
     localStorage.removeItem(name);
     Cookies.remove(name, { path: COOKIE_PATH });
+    Cookies.remove("cart-legacy", { path: COOKIE_PATH });
   }
 };
 
@@ -165,7 +177,7 @@ export function useCart() {
   } = useCartStore();
 
   return {
-    cart: cart,
+    cart,
     AddCartItem: addItem,
     DelCartItem: (product: { id: string }) => removeItem(product.id),
     increaseQuantity: (product: { id: string }, mount: number) => increaseQuantity(product.id, mount),

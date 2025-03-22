@@ -4,9 +4,10 @@ import { Badge } from "@heroui/react";
 import { useContext } from "react";
 import React from "react";
 import { CartContext } from "@/contexts/cart-context";
+import { useCartStore } from "@store/cart/cart-store";
 
 const IconButton = React.memo(({ className }: { className?: string }) => {
-  const { cart } = useContext(CartContext) || {};
+  const { cart } = useCartStore() || {};
   return (
     <Badge
       style={{ right: "6px", top: "6px" }}

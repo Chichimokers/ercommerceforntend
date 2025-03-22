@@ -16,6 +16,7 @@ import { parseQueryToFilters } from "@/hooks/parseQuerys";
 import { useCategories } from "@/hooks/useCategories";
 import { useProducts, useCartProducts } from "@/hooks/useProducts";
 import { useLocationStore } from "@store/location/location-store";
+import { useCartStore } from "@/store/cart/cart-store";
 
 interface ProductContextType {
   products: ProductBase[];
@@ -82,6 +83,7 @@ const ProductProviderContent: React.FC<{ children: React.ReactNode }> = ({
   const [page, setPage] = useState(1);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [hasMoreProducts, setHasMoreProducts] = useState(false);
+  const [cartProducts, setCartProducts] = useState<ProductBase[]>([]);
 
   const getQueryParams = useCallback(() => {
     return Object.fromEntries(searchParams.entries());
@@ -117,9 +119,9 @@ const ProductProviderContent: React.FC<{ children: React.ReactNode }> = ({
   } = useProducts(baseUrl, filters, page, location);
 
   const {
-    data: cartProducts = [],
+    data: cartProductsData = [],
     isLoading: isLoadingCart,
-    mutate: mutateCartProducts,
+    mutate: mutateCartProductsOld,
   } = useCartProducts(baseUrl, productsData?.products);
   const { data: categories = [] } = useCategories(baseUrl);
 
@@ -140,6 +142,47 @@ const ProductProviderContent: React.FC<{ children: React.ReactNode }> = ({
       setHasMoreProducts(productsData.products.length < totalItems);
     }
   }, [productsData]);
+
+  const mutateCartProducts = useCallback(async () => {
+    const cartItems = useCartStore.getState().cart;
+
+    if (!cartItems?.length) {
+      setCartProducts([]);
+      return;
+    }
+
+    const cartIds = cartItems.map(item => item.id);
+
+    const availableProducts = productsData?.products.filter((product: ProductBase) =>
+      cartIds.includes(product.id)
+    ) || [];
+
+    const missingIds = cartIds.filter(id =>
+      !availableProducts.some((product: ProductBase) => product.id === id)
+    );
+
+    if (!missingIds.length) {
+      setCartProducts(availableProducts);
+      return;
+    }
+
+    // Buscar los productos faltantes en la API
+    try {
+      const promises = missingIds.map(id =>
+        fetch(`${baseUrl}/public/product-details?id=${id}`)
+          .then(res => res.ok ? res.json() : null)
+          .catch(() => null)
+      );
+
+      const fetchedProducts = await Promise.all(promises);
+      const validFetchedProducts = fetchedProducts.filter(Boolean);
+
+      // Combinar los productos disponibles localmente con los obtenidos de la API
+      setCartProducts([...availableProducts, ...validFetchedProducts]);
+    } catch (error) {
+      console.error("Error fetching cart products:", error);
+    }
+  }, [productsData, baseUrl, setCartProducts]);
 
   const contextValue = useMemo(() => ({
     products: productsData?.products || [],

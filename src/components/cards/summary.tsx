@@ -1,5 +1,5 @@
 import { CardBody, Card, Tooltip, Divider, Button } from "@heroui/react";
-import React, { memo } from "react";
+import React from "react";
 import { formatCurrency } from "@components/format-currency";
 import { Box, Truck, Info, ShoppingBag } from "lucide-react";
 import Link from "next/link";
@@ -22,7 +22,6 @@ export const OrderSummarySkeleton = () => {
   // Usar el hook de detección de dispositivo para optimizar el skeleton
   const deviceData = useDeviceDetection();
 
-  // Para dispositivos de muy bajo rendimiento, usamos un skeleton aún más simplificado
   if (deviceData.isLowPerformance) {
     return (
       <div className="w-full p-4 border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-800">
@@ -42,7 +41,6 @@ export const OrderSummarySkeleton = () => {
   return (
     <Card className="w-full shadow-sm border border-gray-200 dark:border-gray-700 rounded-xl mx-auto">
       <CardBody className="gap-3 p-4 sm:p-5">
-        {/* Esqueleto para el encabezado */}
         <div className="flex justify-between items-center mb-1">
           <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-1/2 animate-pulse"></div>
           <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded w-16 animate-pulse"></div>
@@ -50,7 +48,6 @@ export const OrderSummarySkeleton = () => {
 
         <Divider className="my-1.5" />
 
-        {/* Esqueleto para los elementos del resumen */}
         <div className="space-y-3">
           <div className="flex justify-between items-center py-1.5">
             <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-20 animate-pulse"></div>
@@ -77,109 +74,6 @@ export const OrderSummarySkeleton = () => {
   );
 };
 
-// Versión ligera del resumen para dispositivos de bajo rendimiento
-const LightOrderSummary = memo(({
-  subtotal,
-  weight,
-  shipping,
-  error,
-  cartItems = [],
-  exchangeRate = 1,
-  currency = 'USD',
-  symbol = '$'
-}: OrderSummaryProps & {
-  exchangeRate?: number;
-  currency?: string;
-  symbol?: string;
-}) => {
-  const total = subtotal + shipping;
-
-  return (
-    <div className="w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
-      <div className="flex justify-between items-center mb-3">
-        <h2 className="text-base font-bold text-gray-900 dark:text-white">
-          Resumen del pedido
-        </h2>
-        <span className="bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-xs font-medium px-2 py-0.5 rounded">
-          {weight.toFixed(1)} kg
-        </span>
-      </div>
-
-      <div className="my-2 border-t border-gray-200 dark:border-gray-700" />
-
-      <div className="space-y-1.5">
-        <LightSummaryItem
-          label="Subtotal"
-          amount={subtotal * exchangeRate}
-        />
-        <LightSummaryItem
-          label="Envío"
-          amount={shipping * exchangeRate}
-          icon={<Truck size={14} />}
-        />
-      </div>
-
-      <div className="pt-3 mt-1 border-t border-gray-200 dark:border-gray-700">
-        <div className="flex justify-between items-center">
-          <span className="font-semibold text-gray-900 dark:text-white">
-            Total
-          </span>
-          <span className="text-base font-bold text-blue-600 dark:text-blue-400">
-            {formatCurrency(total * exchangeRate, currency, symbol)}
-          </span>
-        </div>
-      </div>
-
-      <div className="mt-4">
-        <Button
-          as={Link}
-          href="/checkout"
-          size="md"
-          color="primary"
-          className="w-full font-medium"
-          isDisabled={!!error || cartItems.length === 0}
-          disableAnimation={true}
-        >
-          Proceder al pago
-        </Button>
-      </div>
-
-      {error && (
-        <div className="mt-2 p-2 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-xs rounded">
-          Error al calcular el envío.
-        </div>
-      )}
-    </div>
-  );
-});
-
-// Versión ligera del elemento de resumen para dispositivos lentos
-const LightSummaryItem = memo(({
-  label,
-  amount,
-  icon
-}: {
-  label: string;
-  amount: number;
-  icon?: React.ReactNode;
-}) => (
-  <div className="flex justify-between items-center py-1.5">
-    <div className="flex items-center gap-2">
-      {icon && <span className="text-gray-500 dark:text-gray-400">{icon}</span>}
-      <span className="text-sm text-gray-700 dark:text-gray-300">
-        {label}
-      </span>
-    </div>
-    <span className="text-sm font-medium">
-      {formatCurrency(amount, 'USD', '$')}
-    </span>
-  </div>
-));
-
-LightSummaryItem.displayName = 'LightSummaryItem';
-
-LightOrderSummary.displayName = 'LightOrderSummary';
-
 const OrderSummary: React.FC<OrderSummaryProps> = ({
   className,
   subtotal,
@@ -195,23 +89,6 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
 
   const total = subtotal + shipping;
 
-  // Renderizar versión ligera para dispositivos de bajo rendimiento
-  if (deviceData.isLowPerformance || deviceData.effectiveType === 'slow-2g' || deviceData.isDataSaver) {
-    return (
-      <LightOrderSummary
-        subtotal={subtotal}
-        weight={weight}
-        shipping={shipping}
-        error={error}
-        cartItems={cartItems}
-        exchangeRate={exchangeRate}
-        currency={currency}
-        symbol={symbol}
-      />
-    );
-  }
-
-  // Componente de elemento individual del resumen con funcionalidades completas
   const SummaryItem = ({
     label,
     amount,
@@ -258,7 +135,6 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
           disableAnimation={deviceData.isLowPerformance}
         >
           <CardBody className="gap-3 p-4 sm:p-5">
-            {/* Encabezado */}
             <div className="flex justify-between items-center mb-1">
               <h2 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
                 <ShoppingBag size={18} className="text-blue-500" />
@@ -272,7 +148,6 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
 
             <Divider className="my-1.5" />
 
-            {/* Detalles del resumen */}
             <div className="space-y-1">
               <SummaryItem
                 label="Subtotal"
