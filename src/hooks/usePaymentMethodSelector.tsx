@@ -61,17 +61,44 @@ const PaymentMethodButton = ({
 
       toast.loading(`Procesando pago con ${getMethodName(method)}...`, { id: 'payment-toast' });
 
+      // 1. Verificar sesión antes de intentar el pago
+      const sessionResponse = await fetch('/api/auth/session');
+      if (!sessionResponse.ok) {
+        throw new Error("Sesión inválida o expirada. Por favor vuelva a iniciar sesión.");
+      }
+
+      // 2. Realizar la petición con opciones mejoradas
       const response = await fetch(`/api/payment`, {
         method: 'POST',
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ orderId, paymentMethod: method }),
+        credentials: 'include', // Incluir cookies
+        cache: 'no-store', // Evitar problemas de caché
       });
 
+      // 3. Analizar la respuesta con mejor manejo de errores
       const responseText = await response.text();
-      let responseData;
 
+      // Detectar si la respuesta es HTML (contiene etiquetas HTML)
+      const looksLikeHtml = responseText.includes('<!DOCTYPE html>') ||
+        responseText.includes('<html') ||
+        responseText.includes('<body');
+
+      if (looksLikeHtml) {
+        console.error("Servidor devolvió HTML:", responseText.substring(0, 200) + "...");
+
+        // Si la respuesta incluye una redirección a login, probablemente es error de sesión
+        if (responseText.includes('/login') || responseText.includes('iniciar sesión')) {
+          throw new Error("La sesión ha expirado. Por favor vuelva a iniciar sesión.");
+        }
+
+        throw new Error("El servidor devolvió HTML en lugar de una respuesta JSON válida");
+      }
+
+      // Intentar parsear JSON solo si no es HTML
+      let responseData;
       try {
         responseData = JSON.parse(responseText);
       } catch (e) {
@@ -91,9 +118,15 @@ const PaymentMethodButton = ({
         throw new Error(responseData.error || 'Error al procesar el pago');
       }
 
+      // 4. Manejo especial de redirecciones para PayPal
       if (responseData.redirectUrl) {
         toast.success(`Redirigiendo a pasarela de pago...`, { id: 'payment-toast' });
-        window.location.href = responseData.redirectUrl;
+
+        // Usar setTimeout para asegurar que el toast se muestre antes de la redirección
+        setTimeout(() => {
+          window.location.href = responseData.redirectUrl;
+        }, 500);
+
         return responseData;
       }
 
@@ -113,15 +146,19 @@ const PaymentMethodButton = ({
         return handlePayment(method, retryCount + 1);
       }
 
-      toast.error(
-        `Error al procesar el pago: ${error instanceof Error ? error.message : 'Error de conexión'}`,
-        { id: 'payment-toast' }
-      );
+      // Mensaje de error más amigable para el usuario
+      const errorMessage = error instanceof Error
+        ? error.message
+        : 'Error de conexión con el servidor';
+
+      toast.error(`Error al procesar el pago: ${errorMessage}`, { id: 'payment-toast' });
+
       if (onError) {
         onError(error);
       }
       return null;
     } finally {
+      // Evitar desactivar loading si estamos en proceso de redirección a pasarelas externas
       if (!window.location.href.includes('stripe.com') && !window.location.href.includes('paypal.com')) {
         setIsLoading(false);
         setIsModalOpen(false);
