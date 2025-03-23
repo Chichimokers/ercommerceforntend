@@ -11,7 +11,7 @@ import {
   Spinner,
   Tooltip,
 } from "@heroui/react";
-import { FaMoneyBill } from "react-icons/fa";
+import { WalletIcon } from "lucide-react";
 
 interface CurrencySelectorProps {
   selectlabel?: string;
@@ -98,7 +98,7 @@ export default function CurrencySelector({ selectlabel }: CurrencySelectorProps)
     <>
       <div className="flex w-full flex-wrap md:flex-nowrap gap-4">
         <Select
-          startContent={<FaMoneyBill className="text-blue-600" />}
+          startContent={<WalletIcon className="text-blue-600" />}
           aria-label="Seleccione una moneda"
           className="max-w-xs rounded-lg border border-default-200"
           labelPlacement="outside-left"

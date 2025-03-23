@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { CustomButton } from "@/components/buttons/custom-button";
-import { FaShoppingCart, FaArrowRight } from "react-icons/fa";
+import { ShoppingCart, ArrowRight } from "lucide-react";
 
 const EmptyCart = () => {
   return (
@@ -14,7 +14,7 @@ const EmptyCart = () => {
         <div
           className="bg-blue-100 dark:bg-blue-900 p-6 rounded-full"
         >
-          <FaShoppingCart className="h-12 w-12 text-blue-500 dark:text-blue-300" />
+          <ShoppingCart className="h-12 w-12 text-blue-500 dark:text-blue-300" />
         </div>
         <div
           className="absolute -top-2 -right-2 bg-red-500 rounded-full h-6 w-6 flex items-center justify-center text-white text-xs font-bold"
@@ -37,7 +37,7 @@ const EmptyCart = () => {
           className="flex items-center gap-2 px-6 py-3 text-base"
         >
           Ver productos
-          <FaArrowRight className="h-4 w-4" />
+          <ArrowRight className="h-4 w-4" />
         </CustomButton>
       </Link>
     </div>

@@ -1,7 +1,7 @@
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
-import { FiInfo, FiShoppingCart } from "react-icons/fi";
+import { Info, ShoppingCart } from "lucide-react";
 import FeatureItem from "./feature-item";
 
 const HeroButtons = dynamic(() => import("./client/hero-buttons"), {
@@ -42,7 +42,7 @@ export default function HeroSection() {
               <div className="bg-blue-50/70 dark:bg-gray-900/70 p-4 sm:p-6 md:p-8 rounded-2xl border border-white/20 dark:border-gray-800/50 shadow-xl">
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                   <FeatureItem
-                    icon={<FiShoppingCart className="text-lg sm:text-xl text-blue-600 dark:text-blue-300" />}
+                    icon={<ShoppingCart className="text-lg sm:text-xl text-blue-600 dark:text-blue-300" />}
                     bgColor="bg-blue-500/20"
                     title="Productos Selectos"
                     description="La mejor selección para tus seres queridos"
@@ -88,12 +88,12 @@ function ButtonsFallback() {
   return (
     <>
       <div className="w-full sm:w-auto bg-blue-600 text-white px-6 sm:px-8 py-2.5 sm:py-3 rounded-full font-medium shadow-lg flex items-center justify-center gap-2 text-sm sm:text-base">
-        <FiShoppingCart className="text-lg" />
+        <ShoppingCart className="text-lg" />
         <span>Explorar Productos</span>
       </div>
 
       <Link href="/about" className="w-full sm:w-auto bg-white/10 backdrop-blur-sm text-white border border-white/30 px-6 py-2.5 sm:py-3 rounded-full font-medium flex items-center justify-center gap-2 text-sm sm:text-base">
-        <FiInfo className="text-lg" />
+        <Info className="text-lg" />
         <span>Conocer más</span>
       </Link>
     </>

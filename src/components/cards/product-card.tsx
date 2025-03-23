@@ -2,9 +2,8 @@
 
 import React, { useMemo, useCallback, useState, useEffect } from "react"
 import { Card, CardBody, CardFooter, Chip } from "@heroui/react"
-import { FaShoppingCart } from "react-icons/fa"
+import { ShoppingCart, Trash2 } from "lucide-react"
 import Link from "next/link"
-import { FaBucket } from "react-icons/fa6"
 import Image from "next/image"
 import type { CurrencyData, ProductBase } from "@/types/types"
 import StarRating from "../star-rating"
@@ -301,7 +300,7 @@ export const AddToCartButton = React.memo(function AddToCartButton({
         isDisabled={disabled}
         aria-label="Añadir al carrito"
       >
-        <FaShoppingCart className="h-4 w-4" />
+        <ShoppingCart className="h-4 w-4" />
       </CustomButton>
     </div>
   );
@@ -329,7 +328,7 @@ export const RemoveFromCartButton = React.memo(function RemoveFromCartButton({
         onClick={onClick}
         aria-label="Eliminar del carrito"
       >
-        <FaBucket className="h-4 w-4" />
+        <Trash2 className="h-4 w-4" />
       </CustomButton>
     </div>
   );

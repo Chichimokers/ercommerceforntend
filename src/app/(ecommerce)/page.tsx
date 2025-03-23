@@ -3,6 +3,7 @@ import dynamic from "next/dynamic";
 import SectionSkeleton from "@components/sections/section-skeleton";
 import AuthCheckClient from "@components/auth/auth-check";
 import ProductProvider from "@components/sections/product-provider";
+import { PromisesPanel } from "@components/panels/promises-panel";
 
 const HeroSection = dynamic(() => import("@components/sections/hero-section/index"), {
   loading: () => <SectionSkeleton height="500px" />
@@ -28,6 +29,8 @@ export default async function IndexPage() {
           <CategoryPanel />
         </Suspense>
       </ProductProvider>
+
+      <PromisesPanel />
 
       <AuthCheckClient fallback={
         <Suspense fallback={<SectionSkeleton height="400px" />}>

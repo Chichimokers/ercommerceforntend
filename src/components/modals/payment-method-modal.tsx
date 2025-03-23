@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
-import { SiVisa, SiMastercard, SiPaypal } from "react-icons/si";
+import { VisaIcon, MastercardIcon, PaypalIcon } from "@components/icons/icons";
 import { CreditCard, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@heroui/react";
@@ -185,21 +185,21 @@ const PaymentMethodModal: React.FC<PaymentMethodModalProps> = ({
     {
       id: "visa",
       name: "VISA",
-      icon: <SiVisa className="text-blue-700 text-2xl" />,
+      icon: <VisaIcon className="text-blue-700 text-2xl" />,
       description: "Tarjeta de crédito o débito VISA",
       color: "bg-blue-50 dark:bg-blue-900/20"
     },
     {
       id: "mastercard",
       name: "Mastercard",
-      icon: <SiMastercard className="text-red-600 text-2xl" />,
+      icon: <MastercardIcon className="text-red-600 text-2xl" />,
       description: "Tarjeta de crédito o débito Mastercard",
       color: "bg-red-50 dark:bg-red-900/20"
     },
     {
       id: "paypal",
       name: "PayPal",
-      icon: <SiPaypal className="text-blue-800 text-2xl" />,
+      icon: <PaypalIcon className="text-blue-800 text-2xl" />,
       description: "Cuenta PayPal",
       color: "bg-indigo-50 dark:bg-indigo-900/20"
     }

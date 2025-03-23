@@ -13,7 +13,7 @@ import {
   Tooltip,
   Button
 } from "@heroui/react";
-import { FaTag } from "react-icons/fa";
+import { Tag } from "lucide-react";
 import { CartItem } from "@/types/interfaces";
 import { ShoppingCartIcon } from "lucide-react";
 
@@ -157,7 +157,7 @@ export default function DrawerCart({ className }: { className?: string }) {
               {discount > 0 && (
                 <>
                   <span className="font-medium text-green-600 dark:text-green-400 flex items-center">
-                    <FaTag className="mr-1" size={12} />
+                    <Tag className="mr-1" size={12} />
                     Ahorro: <strong>{formattedDiscount}</strong>
                   </span>
                   <span className="font-medium mt-1 border-t pt-1">

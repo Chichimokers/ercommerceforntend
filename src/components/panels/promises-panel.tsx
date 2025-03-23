@@ -1,4 +1,4 @@
-import { FaExchangeAlt, FaHandshake, FaShieldAlt, FaTh } from "react-icons/fa";
+import { BoxesIcon, ShieldCheckIcon, Handshake, LucideGitCompareArrows } from "lucide-react";
 import dynamic from "next/dynamic";
 
 const PromisesCard = dynamic(() => import("../cards/promises-card"), {
@@ -38,22 +38,22 @@ export const PromisesPanel = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
             <PromisesCard
               description="Explora productos y proveedores para tu negocio entre millones de ofertas en todo el mundo."
-              icon={<FaTh />}
+              icon={<BoxesIcon />}
               title="Millones de ofertas comerciales"
             />
             <PromisesCard
               description="Asegura la calidad de producción con proveedores verificados, con tus pedidos protegidos desde el pago hasta la entrega."
-              icon={<FaShieldAlt />}
+              icon={<ShieldCheckIcon />}
               title="Calidad y transacciones garantizadas"
             />
             <PromisesCard
               description="Obtén descuentos exclusivos, protección mejorada y soporte adicional para impulsar tu negocio en cada paso."
-              icon={<FaHandshake />}
+              icon={<Handshake />}
               title="Experiencia comercial personalizada"
             />
             <PromisesCard
               description="Realiza pedidos sin complicaciones, desde la búsqueda de productos hasta la gestión de pagos y cumplimiento."
-              icon={<FaExchangeAlt />}
+              icon={<LucideGitCompareArrows />}
               title="Solución comercial integral"
             />
           </div>

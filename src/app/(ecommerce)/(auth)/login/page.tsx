@@ -2,8 +2,8 @@
 
 import React, { useState, useCallback, useEffect } from "react";
 import { Input, Button, addToast } from "@heroui/react";
-import { FaGoogle, FaLock } from "react-icons/fa";
-import { MdOutlineEmail } from "react-icons/md";
+import { OutlineEmailIcon, GoogleIcon } from "@components/icons/icons";
+import { Lock } from "lucide-react";
 import Image from "next/image";
 import { useFormValidation } from "@/hooks/useFormValidation";
 import { signIn } from "next-auth/react";
@@ -198,7 +198,7 @@ export default function Login() {
           <FormField label="Correo Electrónico" error={errors.email} className="mb-5">
             <Input
               startContent={
-                <MdOutlineEmail className="h-5 w-5 text-gray-500 flex-shrink-0" />
+                <OutlineEmailIcon className="h-5 w-5 text-gray-500 flex-shrink-0" />
               }
               placeholder="tu@email.com"
               className="rounded-xl border-gray-300 dark:border-gray-700 bg-white/70 dark:bg-gray-800/70"
@@ -220,7 +220,7 @@ export default function Login() {
           <FormField label="Contraseña" error={errors.password} className="mb-2">
             <Input
               startContent={
-                <FaLock className="h-5 w-5 text-gray-500 flex-shrink-0" />
+                <Lock className="h-5 w-5 text-gray-500 flex-shrink-0" />
               }
               placeholder="••••••••"
               type={isVisible ? "text" : "password"}
@@ -286,7 +286,7 @@ export default function Login() {
             variant="bordered"
             className="bg-white dark:bg-gray-800/70 hover:bg-gray-50 dark:hover:bg-gray-700/70 border border-gray-300 dark:border-gray-700 text-gray-800 dark:text-gray-200 font-medium py-3 px-4 rounded-xl transition-all duration-200"
             onClick={() => handleSocialSignin("google")}
-            startContent={<FaGoogle className="text-lg text-red-500 mr-2" />}
+            startContent={<GoogleIcon className="text-lg text-red-500 mr-2" />}
             isDisabled={isLoading}
             size="lg"
             type="button"

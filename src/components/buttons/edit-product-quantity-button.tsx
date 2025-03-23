@@ -1,4 +1,4 @@
-import { FaMinus, FaPlus } from "react-icons/fa";
+import { Minus, Plus } from "lucide-react";
 import React, { MouseEventHandler } from "react";
 
 export const EditProductQuantityButton = React.memo(
@@ -29,7 +29,7 @@ export const EditProductQuantityButton = React.memo(
           transition-all duration-300
         `}
       >
-        {isPlus ? <FaPlus size={12} /> : <FaMinus size={12} />}
+        {isPlus ? <Plus size={16} /> : <Minus size={16} />}
       </button>
     );
   }

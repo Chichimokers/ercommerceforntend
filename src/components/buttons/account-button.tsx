@@ -9,7 +9,7 @@ import {
 } from "@heroui/react";
 import { signOut, useSession } from "next-auth/react";
 import { useModal } from "@/contexts/modal-context";
-import { FaUser } from "react-icons/fa6";
+import { User2 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -52,7 +52,7 @@ const AccountButton = React.memo(({ className }: { className?: string }) => {
                   className={`w-full h-full rounded-full flex items-center justify-center text-white text-xl font-bold 
                 ${session?.user?.name ? generateColorFromName(session.user.name) : 'bg-default-200'}`}
                 >
-                  {session?.user?.name ? session.user.name[0].toUpperCase() : <FaUser size={20} opacity={0.6} />}
+                  {session?.user?.name ? session.user.name[0].toUpperCase() : <User2 size={20} opacity={0.6} />}
                 </div>
               </div>
             </DropdownTrigger>

@@ -2,7 +2,7 @@
 
 import React, { useContext } from "react";
 import { Badge } from "@heroui/react";
-import { FaShoppingCart } from "react-icons/fa";
+import { ShoppingCart } from "lucide-react";
 import { CartContext } from "@/contexts/cart-context";
 import { CustomButton } from "./buttons/custom-button";
 import { useCartStore } from "@store/cart/cart-store";
@@ -26,7 +26,7 @@ export default function CartCountBadge() {
           variant="bordered"
           onClick={() => { }} // Puedes definir alguna acción, si la requieres
         >
-          <FaShoppingCart opacity={0.6} size={20} />
+          <ShoppingCart opacity={0.6} size={20} />
         </CustomButton>
       </Badge>
     </div>
