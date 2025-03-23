@@ -4,7 +4,7 @@ import ProductImage from "./product-image";
 import StockBadge from "./badges/stock-badge";
 import DiscountBadge from "./badges/discount-badge";
 import PriceDisplay from "./price-display";
-import StarRating from "@/components/star-rating";
+//import StarRating from "@/components/star-rating";
 import ProductInteraction from "./client/product-interaction";
 import useCartActions from "@components/actions";
 import { useCurrencyStore } from "@store/currency/currency-store";

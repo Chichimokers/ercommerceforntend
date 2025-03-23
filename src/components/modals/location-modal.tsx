@@ -37,6 +37,47 @@ export default function LocationModal({ open, onClose, initialProvince = '', ini
     }
   }, [open, location]);
 
+  useEffect(() => {
+    // Función para manejar el bloqueo de scroll
+    const handleScrollLock = () => {
+      if (open) {
+        // Guardar la posición actual del scroll
+        const scrollY = window.scrollY;
+
+        // Aplicar estilos para bloquear el scroll manteniendo la posición
+        document.body.style.position = 'fixed';
+        document.body.style.top = `-${scrollY}px`;
+        document.body.style.width = '100%';
+        document.body.style.overflowY = 'hidden';
+      } else {
+        // Recuperar la posición del scroll
+        const scrollY = document.body.style.top;
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.width = '';
+        document.body.style.overflowY = '';
+
+        // Restaurar la posición del scroll
+        window.scrollTo(0, parseInt(scrollY || '0') * -1);
+      }
+    };
+
+    // Ejecutar cuando cambia el estado 'open'
+    handleScrollLock();
+
+    // Limpiar al desmontar
+    return () => {
+      if (open) {
+        const scrollY = document.body.style.top;
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.width = '';
+        document.body.style.overflowY = '';
+        window.scrollTo(0, parseInt(scrollY || '0') * -1);
+      }
+    };
+  }, [open]);
+
   const { data: provinces = [], isLoading: loadingProvinces, error: provincesError } = useSWR<Option[]>(
     open ? `${process.env.NEXT_PUBLIC_API_URL}public/provinces` : null,
     locationFetcher,
