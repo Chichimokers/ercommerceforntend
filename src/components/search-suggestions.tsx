@@ -45,7 +45,7 @@ export const SearchSuggestions = ({
         >
           <div className="p-4 text-center">
             <p className="text-gray-600 dark:text-gray-400">
-              No se encontraron resultados para "{searchTerm}"
+              No se encontraron resultados para &quot;{searchTerm}&quot;
             </p>
             <Link
               href={`/search?q=${encodeURIComponent(searchTerm)}`}
@@ -108,15 +108,6 @@ export const SearchSuggestions = ({
                   <p className="text-sm font-semibold text-blue-600 dark:text-blue-400">
                     ${product.price}
                   </p>
-                  {product.quantity > 0 ? (
-                    <span className="text-xs bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 px-2 py-0.5 rounded-full">
-                      En stock
-                    </span>
-                  ) : (
-                    <span className="text-xs bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300 px-2 py-0.5 rounded-full">
-                      Agotado
-                    </span>
-                  )}
                 </div>
               </div>
             </Link>
@@ -131,7 +122,7 @@ export const SearchSuggestions = ({
             className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
             onClick={() => onSelect(searchTerm)}
           >
-            Ver todos los resultados para "{searchTerm}" →
+            Ver todos los resultados para &quot;{searchTerm}&quot; →
           </Link>
         </div>
       )}
