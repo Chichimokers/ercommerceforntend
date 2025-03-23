@@ -30,7 +30,9 @@ export default async function IndexPage() {
         </Suspense>
       </ProductProvider>
 
-      <PromisesPanel />
+      <Suspense fallback={<SectionSkeleton height="300px" />} >
+        <PromisesPanel />
+      </Suspense>
 
       <AuthCheckClient fallback={
         <Suspense fallback={<SectionSkeleton height="400px" />}>

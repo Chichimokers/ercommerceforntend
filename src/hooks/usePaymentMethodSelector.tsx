@@ -7,7 +7,6 @@ import { toast } from "sonner";
 import dynamic from "next/dynamic";
 import { Button } from "@heroui/react";
 
-// Importamos el modal con carga dinámica para el cliente
 const PaymentMethodModal = dynamic(
   () => import("@components/modals/payment-method-modal"),
   { ssr: false }
@@ -36,11 +35,9 @@ const PaymentMethodButton = ({
   const [isMounted, setIsMounted] = useState(false);
   const [modalAttempt, setModalAttempt] = useState(0);
 
-  // Este efecto asegura que el componente solo se ejecute completamente en el cliente
   useEffect(() => {
     setIsMounted(true);
 
-    // Depuración para identificar cualquier estado inesperado
     console.log("PaymentMethodButton montado");
 
     return () => {
@@ -49,8 +46,14 @@ const PaymentMethodButton = ({
     };
   }, []);
 
-  // Procesar el pago con el método seleccionado
-  const handlePayment = async (method: string) => {
+  function isNetworkError(error) {
+    return error instanceof TypeError &&
+      (error.message.includes('network') ||
+        error.message.includes('fetch') ||
+        error.message.includes('Body'));
+  }
+
+  const handlePayment = async (method: string, retryCount = 0) => {
     try {
       console.log("Procesando pago con método:", method);
       setIsLoading(true);
@@ -59,28 +62,30 @@ const PaymentMethodButton = ({
       toast.loading(`Procesando pago con ${getMethodName(method)}...`, { id: 'payment-toast' });
 
       const response = await fetch(`/api/payment`, {
-
         method: 'POST',
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ orderId, paymentMethod: method }),
-        credentials: 'include',
       });
 
-      if (!response.ok) {
-        const responseText = await response.text();
-        let errorMessage;
-        try {
-          const errorData = JSON.parse(responseText);
-          errorMessage = errorData.error || `Error en la respuesta: ${response.status}`;
-        } catch {
-          errorMessage = responseText || `Error en la respuesta: ${response.status}`;
-        }
-        throw new Error(errorMessage);
+      const responseText = await response.text();
+      let responseData;
+
+      try {
+        responseData = JSON.parse(responseText);
+      } catch (e) {
+        console.error("Respuesta no es JSON válido:", responseText.substring(0, 500));
+        throw new Error(
+          response.ok
+            ? "Respuesta inesperada del servidor"
+            : `Error ${response.status}: ${response.statusText}`
+        );
       }
 
-      const responseData = await response.json();
+      if (!response.ok) {
+        throw new Error(responseData?.error || `Error en la respuesta: ${response.status}`);
+      }
 
       if (!responseData.success) {
         throw new Error(responseData.error || 'Error al procesar el pago');
@@ -99,8 +104,17 @@ const PaymentMethodButton = ({
       return responseData.data;
     } catch (error) {
       console.error('Error al procesar el pago:', error);
+
+      if (isNetworkError(error) && retryCount < 2) {
+        console.log(`Reintentando petición (${retryCount + 1}/2)...`);
+        toast.loading(`Reintentando conexión...`, { id: 'payment-toast' });
+
+        await new Promise(r => setTimeout(r, 500 * (retryCount + 1)));
+        return handlePayment(method, retryCount + 1);
+      }
+
       toast.error(
-        `Error al procesar el pago: ${error instanceof Error ? error.message : 'Error desconocido'}`,
+        `Error al procesar el pago: ${error instanceof Error ? error.message : 'Error de conexión'}`,
         { id: 'payment-toast' }
       );
       if (onError) {

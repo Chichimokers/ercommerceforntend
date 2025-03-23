@@ -60,6 +60,9 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    // SOLUCIÓN: Clonar la respuesta antes de consumirla
+    const responseCopy = response.clone();
+
     try {
       const data = await response.json();
 
@@ -73,7 +76,8 @@ export async function POST(req: NextRequest) {
         message: `Pago con método ${paymentMethod} procesado correctamente`
       });
     } catch (error) {
-      const text = await response.text();
+      // Usar la copia en lugar de intentar consumir el mismo cuerpo de nuevo
+      const text = await responseCopy.text();
       const metaMatch = text.match(/<meta http-equiv="refresh" content="[\d]+;URL=([^"]+)"/i);
       if (metaMatch && metaMatch[1]) {
         return NextResponse.redirect(metaMatch[1]);

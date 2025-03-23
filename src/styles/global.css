@@ -19,7 +19,6 @@
   --animation-duration: 300ms;
   --transition-duration: 300ms;
   --fallback-bg-color: #ffffff;
-  --low-performance-image-quality: 50;
 }
 
 @media (max-width: 768px) {
