@@ -14,7 +14,9 @@ jobs:
     steps:
       - name: Clonar repositorio
         uses: actions/checkout@v3
-
+      - name: Limpiar imágenes huérfanas (opcional)
+        run: |
+          docker system prune -a --volumes --force # Elimina imágenes sin uso para ahorrar espacio
       - name: Construir imagen con etiqueta latest
         run: |
           docker build -f DockerFile.vps -t esakifront:latest .
@@ -23,9 +25,7 @@ jobs:
         run: |
           docker rm -f esakifront || true  # Fuerza eliminación si existe
 
-      - name: Limpiar imágenes huérfanas (opcional)
-        run: |
-          docker system prune -a --volumes --force # Elimina imágenes sin uso para ahorrar espacio
+
 
       - name: Ejecutar nuevo contenedor
         run: |
