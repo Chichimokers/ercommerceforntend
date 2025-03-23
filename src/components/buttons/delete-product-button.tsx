@@ -1,4 +1,4 @@
-import { FaXmark } from "react-icons/fa6";
+import { XIcon } from "lucide-react";
 
 type DeleteItemButtonProps = {
   onPress?: React.MouseEventHandler<HTMLButtonElement>;
@@ -13,7 +13,7 @@ export function DeleteItemButton({ onPress, className }: DeleteItemButtonProps) 
       className={`${className} flex h-[24px] w-[24px] items-center justify-center rounded-full bg-neutral-500`}
       type="button"
     >
-      <FaXmark className="mx-[1px] h-4 w-4 text-white dark:text-black" />
+      <XIcon className="mx-[1px] h-4 w-4 text-white dark:text-black" />
     </button>
   );
 }

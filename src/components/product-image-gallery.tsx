@@ -2,7 +2,8 @@
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import Image from 'next/image';
-import { FaArrowLeft, FaArrowRight, FaSearchPlus, FaSearchMinus } from 'react-icons/fa';
+import { SearchPlusIcon, SearchMinusIcon } from './icons/icons';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { Button, Skeleton } from '@heroui/react';
 
 interface ProductImageGalleryProps {
@@ -171,23 +172,20 @@ const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
           />
         )}
 
-        {/* Indicador de zoom */}
         {enableZoom && imageLoaded && !isZoomed && (
           <div className="absolute bottom-3 right-3 z-10 bg-black/60 text-white p-2 rounded-full opacity-70 hover:opacity-100 transition-opacity">
-            <FaSearchPlus size={16} aria-hidden="true" />
+            <SearchPlusIcon size={16} aria-hidden="true" />
             <span className="sr-only">Clic para ampliar</span>
           </div>
         )}
 
-        {/* Indicador de zoom activo */}
         {enableZoom && imageLoaded && isZoomed && (
           <div className="absolute bottom-3 right-3 z-20 bg-black/60 text-white p-2 rounded-full opacity-70 hover:opacity-100 transition-opacity">
-            <FaSearchMinus size={16} aria-hidden="true" />
+            <SearchMinusIcon size={16} aria-hidden="true" />
             <span className="sr-only">Clic para reducir</span>
           </div>
         )}
 
-        {/* Flechas de navegación */}
         {images.length > 1 && (
           <>
             <Button
@@ -197,7 +195,7 @@ const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
               onClick={handlePrevious}
               aria-label="Imagen anterior"
             >
-              <FaArrowLeft className="text-gray-700 dark:text-gray-300" />
+              <ArrowLeft className="text-gray-700 dark:text-gray-300" />
             </Button>
             <Button
               isIconOnly
@@ -206,7 +204,7 @@ const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
               onClick={handleNext}
               aria-label="Imagen siguiente"
             >
-              <FaArrowRight className="text-gray-700 dark:text-gray-300" />
+              <ArrowRight className="text-gray-700 dark:text-gray-300" />
             </Button>
           </>
         )}

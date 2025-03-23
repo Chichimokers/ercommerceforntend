@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { FaPhoneAlt, FaEnvelope, FaHeadset } from "react-icons/fa";
+import { Phone, Mail, Headset } from "lucide-react";
 import CurrencySelector from "@components/selects/currency-selector";
 import Link from "next/link";
 
@@ -36,14 +36,14 @@ const InfoBar = ({ className = "" }: { className?: string }) => {
     >
       <div className="container mx-auto flex justify-between items-center text-sm">
         <div className="flex items-center gap-4 overflow-x-auto scrollbar-hide">
-          <InfoItem icon={<FaPhoneAlt size={14} />} href={`tel:${process.env.NEXT_PUBLIC_PHONE || "+535 0939062"}`}>
+          <InfoItem icon={<Phone size={14} />} href={`tel:${process.env.NEXT_PUBLIC_PHONE || "+535 0939062"}`}>
             {process.env.NEXT_PUBLIC_PHONE}
           </InfoItem>
 
           <div className="h-4 w-px bg-gray-300 dark:bg-gray-700 mx-1 hidden sm:block" />
 
           <InfoItem
-            icon={<FaEnvelope size={14} />}
+            icon={<Mail size={14} />}
             href={`mailto:${process.env.NEXT_PUBLIC_EMAIL}`}
             className="hidden sm:flex"
           >
@@ -53,7 +53,7 @@ const InfoBar = ({ className = "" }: { className?: string }) => {
           <div className="h-4 w-px bg-gray-300 dark:bg-gray-700 mx-1 hidden md:block" />
 
           <InfoItem
-            icon={<FaHeadset size={14} />}
+            icon={<Headset size={14} />}
             href="/support"
             className="hidden md:flex"
           >

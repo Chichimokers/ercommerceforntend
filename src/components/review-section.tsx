@@ -2,9 +2,10 @@
 
 import React, { useState } from 'react';
 import { useSession } from 'next-auth/react';
-import { Button, Card, CardBody, CardHeader, Divider, Input, Textarea, Avatar, Pagination, Chip } from '@heroui/react';
+import { Button, Card, CardBody, CardHeader, Textarea, Avatar, Pagination, Chip } from '@heroui/react';
 import StarRating from './star-rating';
-import { FaUser, FaCheck, FaPen, FaStar, FaSpinner } from 'react-icons/fa';
+
+import { User2, CheckCircle2, StarIcon, CircleGauge } from 'lucide-react';
 import { formatDistance } from 'date-fns';
 import { es } from 'date-fns/locale';
 
@@ -139,7 +140,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
             </div>
             <div className="flex mt-2">
               {[...Array(5)].map((_, i) => (
-                <FaStar
+                <StarIcon
                   key={i}
                   className={`w-5 h-5 ${i < Math.floor(averageRating)
                     ? "text-yellow-400"
@@ -162,7 +163,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
               return (
                 <div key={stars} className="flex items-center">
                   <span className="text-sm text-gray-600 dark:text-gray-400 w-10">
-                    {stars} <FaStar className="inline w-3 h-3 text-yellow-400" />
+                    {stars} <StarIcon className="inline w-3 h-3 text-yellow-400" />
                   </span>
                   <div className="flex-1 h-2 mx-2 bg-gray-200 dark:bg-gray-700 rounded-full">
                     <div
@@ -261,7 +262,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
 
         {loading ? (
           <div className="flex justify-center py-8">
-            <FaSpinner className="w-8 h-8 text-gray-400 animate-spin" />
+            <CircleGauge className="w-8 h-8 text-gray-400 animate-spin" />
           </div>
         ) : reviews.length === 0 ? (
           <div className="text-center py-8 text-gray-500 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
@@ -276,7 +277,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
                     <div className="flex items-center">
                       <Avatar
                         name={review.userName}
-                        fallback={<FaUser className="text-gray-400" />}
+                        fallback={<User2 className="text-gray-400" />}
                         className="mr-3"
                       />
                       <div>
@@ -299,7 +300,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
                     </div>
                     {review.verified && (
                       <Chip color="success" size="sm">
-                        <FaCheck className="mr-1 w-3 h-3" />
+                        <CheckCircle2 className="mr-1 w-3 h-3" />
                         Compra verificada
                       </Chip>
                     )}

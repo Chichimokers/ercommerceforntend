@@ -1,4 +1,4 @@
-import { FaTh } from "react-icons/fa";
+import { BoxesIcon } from "lucide-react";
 import { getCategoryIcon } from "../../filters/categories";
 import CategoryCard from "@/components/cards/category-cards";
 
@@ -18,7 +18,7 @@ export default function CategoryGrid({
       <div className="flex-shrink-0">
         <CategoryCard
           className="w-32 h-32 sm:w-40 sm:h-40 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl"
-          icon={<FaTh size={32} />}
+          icon={<BoxesIcon size={32} />}
           size="md"
           text="Todos"
           url="/products/"

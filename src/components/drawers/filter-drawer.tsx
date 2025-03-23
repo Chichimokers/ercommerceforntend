@@ -5,7 +5,7 @@ import {
   DrawerBody,
   useDisclosure,
 } from "@heroui/react";
-import { FaFilter } from "react-icons/fa6";
+import { Filter } from "lucide-react";
 import dynamic from "next/dynamic";
 import { CustomButton } from "../buttons/custom-button";
 import { useFilters } from "@/hooks/useFilters";
@@ -34,7 +34,7 @@ const FilterDrawer = React.memo(function FilterDrawer({ className }: { className
         className={buttonClasses}
         aria-label="Abrir filtros"
       >
-        <FaFilter size={16} className="ml-0" />
+        <Filter size={16} className="ml-0" />
       </CustomButton>
 
       <Drawer

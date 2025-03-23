@@ -2,7 +2,7 @@ import { Card, CardBody, Spinner } from "@heroui/react";
 import { useMemo } from "react";
 import ProductsSlider from "../sliders/products-slider";
 import { useRelatedProducts } from "@/hooks/useRelatedProducts";
-import { FaExclamationCircle, FaInfoCircle } from "react-icons/fa";
+import { CircleAlert, Info } from "lucide-react";
 
 type RelatedProductSectionProps = {
   id: string;
@@ -55,9 +55,9 @@ export default function RelatedProductSection({
 
     if (error) {
       return (
-        <Message 
-          className="text-red-500" 
-          icon={<FaExclamationCircle className="w-10 h-10 text-red-500" />}
+        <Message
+          className="text-red-500"
+          icon={<CircleAlert className="w-10 h-10 text-red-500" />}
         >
           Hubo un problema al cargar los productos relacionados. Por favor,
           intenta nuevamente más tarde.
@@ -67,8 +67,8 @@ export default function RelatedProductSection({
 
     if (renderProducts.length === 0) {
       return (
-        <Message 
-          icon={<FaInfoCircle className="w-10 h-10" />}
+        <Message
+          icon={<Info className="w-10 h-10" />}
         >
           No hay productos similares para mostrar
         </Message>
