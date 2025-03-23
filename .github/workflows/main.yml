@@ -25,7 +25,7 @@ jobs:
 
       - name: Limpiar imágenes huérfanas (opcional)
         run: |
-          docker image prune -f  # Elimina imágenes sin uso para ahorrar espacio
+          docker system prune -a --volumes --force # Elimina imágenes sin uso para ahorrar espacio
 
       - name: Ejecutar nuevo contenedor
         run: |
