@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
-
+//Un comentario random
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
   console.log("\n🚀 Middleware ejecutándose para:", pathname);
