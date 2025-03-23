@@ -46,7 +46,7 @@ const PaymentMethodButton = ({
     };
   }, []);
 
-  function isNetworkError(error) {
+  function isNetworkError(error: any) {
     return error instanceof TypeError &&
       (error.message.includes('network') ||
         error.message.includes('fetch') ||
