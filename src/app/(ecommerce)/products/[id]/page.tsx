@@ -159,7 +159,7 @@ const ActionButtons = ({
   isMobile: boolean;
 }) => {
   return (
-    <div className={`mt-6 flex ${isMobile ? 'flex-col' : ''} gap-3`}>
+    <div className="mt-6">
       <div className={isMobile ? 'w-full mb-2' : ''}>
         <QuantityAdjuster
           quantity={quantity}
@@ -174,29 +174,30 @@ const ActionButtons = ({
           aria-label="Ajustar cantidad"
         />
       </div>
+      <div className={`mt-6 flex ${isMobile ? 'flex-col' : ''} gap-3`}>
+        <CustomButton
+          onClick={isInCart ? onRemoveFromCart : onAddToCart}
+          className={`${isMobile ? 'w-full' : 'flex-1'} py-3`}
+          variant="filled"
+          color={isInCart ? "danger" : "primary"}
+          aria-label={isInCart ? "Remover del carrito" : "Añadir al carrito"}
+        >
+          <ShoppingCart className="mr-2" aria-hidden="true" />
+          <span>{isInCart ? "Remover del carrito" : "Añadir al carrito"}</span>
+        </CustomButton>
 
-      <CustomButton
-        onClick={isInCart ? onRemoveFromCart : onAddToCart}
-        className={`${isMobile ? 'w-full' : 'flex-1'} py-3`}
-        variant="filled"
-        color={isInCart ? "danger" : "primary"}
-        aria-label={isInCart ? "Remover del carrito" : "Añadir al carrito"}
-      >
-        <ShoppingCart className="mr-2" aria-hidden="true" />
-        <span>{isInCart ? "Remover del carrito" : "Añadir al carrito"}</span>
-      </CustomButton>
-
-      <CustomButton
-        onClick={onAddToCart}
-        isDisabled={product.quantity === 0}
-        className={`${isMobile ? 'w-full' : 'flex-1'} py-3`}
-        variant="filled"
-        color="success"
-        aria-label="Comprar ahora"
-      >
-        <ShoppingBag className="mr-2" aria-hidden="true" />
-        <span>Comprar ahora</span>
-      </CustomButton>
+        <CustomButton
+          onClick={onAddToCart}
+          isDisabled={product.quantity === 0}
+          className={`${isMobile ? 'w-full' : 'flex-1'} py-3`}
+          variant="filled"
+          color="success"
+          aria-label="Comprar ahora"
+        >
+          <ShoppingBag className="mr-2" aria-hidden="true" />
+          <span>Comprar ahora</span>
+        </CustomButton>
+      </div>
     </div>
   );
 };
@@ -399,27 +400,27 @@ export default function ProductDetailPage() {
       <div className="container mx-auto px-4 py-6 sm:py-8">
         <Breadcrumbs items={breadcrumbItems} className="mb-6" />
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Columna de imágenes */}
-          <div>
-            <ErrorBoundary fallback={
-              <div className="bg-gray-100 dark:bg-gray-800 rounded-xl p-8 flex items-center justify-center h-[400px]">
-                <p>No se pudieron cargar las imágenes</p>
-              </div>
-            }>
-              <div className="sticky top-20">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          {/* Columna de imágenes - ahora ocupa el espacio completo */}
+          <div className="lg:col-span-4">
+            <ErrorBoundary fallback={<div className="bg-gray-100 dark:bg-gray-800 rounded-xl p-8 flex items-center justify-center h-[400px]">
+              <p>No se pudieron cargar las imágenes</p>
+            </div>}>
+              <div className="sticky top-20 w-full"> {/* Quitar flex justify-center */}
+                {/* Quitar el div con max-w-md */}
                 <ProductImageGallery
                   images={[product.image || '/placeholder.jpg']}
                   selectedIndex={selectedImage}
                   onSelect={setSelectedImage}
                   enableZoom={!isLowPerformance && !isMobile}
+                  className="w-full"
                 />
               </div>
             </ErrorBoundary>
           </div>
 
           {/* Columna de información del producto */}
-          <div className="space-y-6">
+          <div className="lg:col-span-8 space-y-6">
             <div className={isLowPerformance ? "" : "animate-fadeInUp"}>
               <div className="flex flex-wrap justify-between items-start gap-2 mb-4">
                 <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white flex-grow">
