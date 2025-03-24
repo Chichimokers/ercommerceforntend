@@ -19,6 +19,7 @@ import { SEO } from "@/components/seo";
 import { formatCurrency } from "@components/format-currency";
 import RelatedProductSection from "@components/sections/relationed-products";
 import { CurrencyData } from "../../../../types/types";
+import { useCartStore } from "@store/cart/cart-store";
 
 interface ProductImageGalleryProps {
   images: string[];
@@ -158,6 +159,7 @@ const ActionButtons = ({
   getLocalStorageData: any;
   isMobile: boolean;
 }) => {
+  const router = useRouter();
   return (
     <div className="mt-6">
       <div className={isMobile ? 'w-full mb-2' : ''}>
@@ -187,7 +189,24 @@ const ActionButtons = ({
         </CustomButton>
 
         <CustomButton
-          onClick={onAddToCart}
+          onClick={() => {
+            // Usar directamente la función addItem del store para establecer exactamente la cantidad deseada
+            const { addItem } = useCartStore.getState();
+
+            // Si está en el carrito, quitarlo primero
+            if (isInCart) {
+              router.push("/shopping-cart");
+            } else {
+              setTimeout(() => {
+                // Agregar directamente con la cantidad actual
+                if (product && product.id) {
+                  addItem({ id: product.id, price: product.price }, quantity);
+                }
+                router.push("/shopping-cart");
+              }, 0);
+            }
+
+          }}
           isDisabled={product.quantity === 0}
           className={`${isMobile ? 'w-full' : 'flex-1'} py-3`}
           variant="filled"
@@ -202,7 +221,6 @@ const ActionButtons = ({
   );
 };
 
-// Componente para mostrar información del producto
 const ProductInfo = ({ product }: { product: any }) => {
   return (
     <div className="mt-6 border-t border-b border-gray-200 dark:border-gray-700 py-4">
