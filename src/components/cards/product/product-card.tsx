@@ -31,7 +31,7 @@ export default function ProductCard({
   const { quantity } = useCartActions(product);
 
   const cardBaseClasses = `
-    h-full rounded-xl overflow-hidden
+    h-full rounded-3xl overflow-hidden
     bg-white dark:bg-gray-800/80 
     border border-gray-200 dark:border-gray-700
     transition-all duration-300 hover:border-default-400 

@@ -387,8 +387,8 @@ function SearchPageContent() {
         </div>
       </div>
 
-      <div className="container mx-auto md:px-4 py-6">
-        <div className="flex flex-col md:flex-row gap-6">
+      <div className="p-2">
+        <div className="flex flex-col md:flex-row gap-2">
           <aside
             className={`md:block md:w-64 shrink-0 ${showFilters ? 'block' : 'hidden'}`}
           >
@@ -612,7 +612,7 @@ function SearchPageContent() {
                             sizes="96px"
                             className="object-cover group-hover:scale-110 transition-all duration-300"
                           />
-                          {product.quantity <= 0 && (
+                          {product.quantity === 0 && (
                             <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
                               <span className="text-white text-xs font-medium px-2 py-1 bg-red-500/80 rounded">
                                 Agotado
