@@ -17,6 +17,7 @@ export async function middleware(request: NextRequest) {
 
   let role = null;
   let isAdmin = false;
+  let isDelivery = false;
 
   let cartItems = [];
   let hasCart = false;
@@ -50,6 +51,7 @@ export async function middleware(request: NextRequest) {
 
     role = token?.user?.role;
     isAdmin = String(role) === "2";
+    isDelivery = String(role) === "3";
 
     console.log(`🔑 Rol del usuario: ${role} (¿Es admin?: ${isAdmin})`);
   } catch (error) {
@@ -126,7 +128,7 @@ export async function middleware(request: NextRequest) {
       );
     }
 
-    if (!isAdmin) {
+    if (!isAdmin || !isDelivery) {
       const accessDeniedUrl = new URL("/access-denied", request.url).toString();
 
       return new Response(null, {
