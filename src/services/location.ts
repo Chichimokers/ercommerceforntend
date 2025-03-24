@@ -19,7 +19,7 @@ export const locationFetcher = async (url: string) => {
         }
 
         const data = await res.json();
-        console.log('API response success:', data);
+        //console.log('API response success:', data);
         return data;
       } catch (fetchError) {
         attempts++;

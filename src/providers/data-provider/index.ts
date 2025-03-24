@@ -6,7 +6,6 @@ import { getSession } from "next-auth/react";
 import { cacheService } from "@services/cache-service";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
-console.log(API_URL);
 
 const axiosInstance = axios.create({
   baseURL: API_URL,
@@ -53,7 +52,7 @@ export const customDataProvider: DataProvider = {
         data: data.data || data,
         total: data.total || (Array.isArray(data.data) ? data.data.length : 0),
       };
-      
+
       cacheService.set(cacheKey, result, { ttl: 300, tags: [resource] });
       return result;
     } catch (error) {
@@ -71,7 +70,7 @@ export const customDataProvider: DataProvider = {
 
       const { data } = await axiosInstance.get<ApiResponse<TData>>(`/${resource}/${id}`);
       const result: GetOneResponse<TData> = { data: data.data || data };
-      
+
       cacheService.set(cacheKey, result, { ttl: 300, tags: [resource] });
       return result;
     } catch (error) {
@@ -79,7 +78,7 @@ export const customDataProvider: DataProvider = {
       throw error;
     }
   },
-  
+
   create: async <TData extends BaseRecord = BaseRecord, TVariables = {}>(params: CreateParams<TVariables>): Promise<CreateResponse<TData>> => {
     try {
       const { resource, variables } = params;
@@ -107,10 +106,10 @@ export const customDataProvider: DataProvider = {
         payload = formData;
         headers = { "Content-Type": "multipart/form-data" };
       }
-      
+
       const { data } = await axiosInstance.post<ApiResponse<TData>>(`/${resource}`, payload, { headers });
       const result: CreateResponse<TData> = { data: data.data || data };
-      
+
       // Invalidate related caches
       cacheService.invalidateByTag(resource);
       return result;
@@ -133,7 +132,7 @@ export const customDataProvider: DataProvider = {
         Object.keys(variablesObj).forEach((key) => {
           const value = variablesObj[key];
           if (key === "applyDiscount") return;
-          
+
           if (key === "image") {
             if (value instanceof File) {
               formData.append("image", value);
@@ -154,7 +153,7 @@ export const customDataProvider: DataProvider = {
 
       const { data } = await axiosInstance.patch<ApiResponse<TData>>(`/${resource}/${id}`, payload, { headers });
       const result: UpdateResponse<TData> = { data: data.data || data };
-      
+
       // Invalidate related caches
       cacheService.invalidateByTag(resource);
       cacheService.invalidateByKey(`${resource}-${id}`);
@@ -178,7 +177,7 @@ export const customDataProvider: DataProvider = {
         const { data } = await axiosInstance.delete<ApiResponse<TData>>(`/${resource}/${id}`);
         result = { data: data.data || data };
       }
-      
+
       // Invalidate related caches
       cacheService.invalidateByTag(resource);
       cacheService.invalidateByKey(`${resource}-${id}`);
@@ -205,7 +204,7 @@ export const customDataProvider: DataProvider = {
       };
 
       let response;
-      
+
       switch (method) {
         case 'get':
           response = await axiosInstance.get<ApiResponse<TData>>(`${path}`, requestConfig);
@@ -225,7 +224,7 @@ export const customDataProvider: DataProvider = {
         default:
           throw new Error(`Unsupported HTTP method: ${method}`);
       }
-      
+
       return {
         data: response?.data?.data || response?.data,
         total: response?.data?.total || (response?.data ? (Array.isArray(response.data) ? response.data.length : 1) : 0),

@@ -13,7 +13,7 @@ export async function GET() {
   try {
     const now = Date.now();
     if (cachedData && (now - cachedData.timestamp) < (CACHE_DURATION * 1000)) {
-      console.log("Returning cached exchange rate data");
+      //console.log("Returning cached exchange rate data");
       return NextResponse.json({
         usdRate: cachedData.result.tasas?.USD || null,
         timestamp: new Date(cachedData.timestamp).toISOString(),
@@ -21,7 +21,7 @@ export async function GET() {
       });
     }
 
-    console.log("Fetching fresh exchange rate data");
+    //console.log("Fetching fresh exchange rate data");
     const apiUrl = `https://tasas.eltoque.com/v1/trmi`;
     const token = process.env.NEXT_PUBLIC_ELTOQUE_TOKEN;
 

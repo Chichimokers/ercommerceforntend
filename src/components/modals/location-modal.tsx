@@ -1,11 +1,10 @@
 "use client";
 import useSWR from "swr";
-import { useState, useContext, ChangeEvent, useEffect, useMemo } from "react";
+import { useState, ChangeEvent, useEffect, useMemo } from "react";
 import { useLocationStore } from "@store/location/location-store";
-import { Alert, Select, SelectItem } from "@heroui/react";
+import { addToast, Alert, Select, SelectItem } from "@heroui/react";
 import { CustomButton } from "@components/buttons/custom-button";
 import { motion, AnimatePresence } from "framer-motion";
-import { CartContext } from "@contexts/cart-context";
 import Image from "next/image";
 import { locationFetcher } from "@services/location";
 import { useCartStore } from "@store/cart/cart-store";
@@ -20,11 +19,18 @@ interface LocationModalProps {
   onClose: () => void;
   initialProvince?: string;
   initialMunicipality?: string;
+  forceSelection?: boolean;
 }
 
-export default function LocationModal({ open, onClose, initialProvince = '', initialMunicipality = '' }: LocationModalProps) {
+export default function LocationModal({
+  open,
+  onClose,
+  initialProvince = '',
+  initialMunicipality = '',
+  forceSelection = false
+}: LocationModalProps) {
   const { location, setLocation } = useLocationStore();
-  const { clearCart, cart } = useCartStore() || {};
+  const { cart } = useCartStore() || {};
   const [province, setProvince] = useState<string>(location?.province || initialProvince);
   const [municipality, setMunicipality] = useState<string>(location?.municipality || initialMunicipality);
   const [changeLocation, setChangeLocation] = useState<boolean>(false);
@@ -38,34 +44,27 @@ export default function LocationModal({ open, onClose, initialProvince = '', ini
   }, [open, location]);
 
   useEffect(() => {
-    // Función para manejar el bloqueo de scroll
     const handleScrollLock = () => {
       if (open) {
-        // Guardar la posición actual del scroll
         const scrollY = window.scrollY;
 
-        // Aplicar estilos para bloquear el scroll manteniendo la posición
         document.body.style.position = 'fixed';
         document.body.style.top = `-${scrollY}px`;
         document.body.style.width = '100%';
         document.body.style.overflowY = 'hidden';
       } else {
-        // Recuperar la posición del scroll
         const scrollY = document.body.style.top;
         document.body.style.position = '';
         document.body.style.top = '';
         document.body.style.width = '';
         document.body.style.overflowY = '';
 
-        // Restaurar la posición del scroll
         window.scrollTo(0, parseInt(scrollY || '0') * -1);
       }
     };
 
-    // Ejecutar cuando cambia el estado 'open'
     handleScrollLock();
 
-    // Limpiar al desmontar
     return () => {
       if (open) {
         const scrollY = document.body.style.top;
@@ -139,6 +138,9 @@ export default function LocationModal({ open, onClose, initialProvince = '', ini
     }
   }, [municipalities]);
 
+  const provinceLabel = (provinceList.find((prov) => prov.key == province))?.label;
+  const municipalityLabel = (municipalityList.find((mun) => mun.key == municipality))?.label;
+
   const handleProvinceChange = (event: ChangeEvent<HTMLSelectElement>) => {
     setProvince(event.target.value);
     setMunicipality("");
@@ -149,10 +151,37 @@ export default function LocationModal({ open, onClose, initialProvince = '', ini
   };
 
   const handleConfirm = () => {
-    setLocation({ province, municipality });
-    if (clearCart && changeLocation && cart?.length) clearCart();
-    setChangeLocation(false);
-    onClose();
+    if (province && municipality) {
+      // Forzar actualización de estado y cookie
+      const newLocation = {
+        province,
+        municipality,
+        provinceName: provinceLabel,
+        municipalityName: municipalityLabel
+      };
+
+      // Establecer en el store
+      setLocation(newLocation);
+
+      // Forzar actualización de la cookie manualmente
+      const storageValue = JSON.stringify({
+        state: { location: newLocation, hasLocation: true }
+      });
+      document.cookie = `user-location-storage=${encodeURIComponent(storageValue)}; path=/; max-age=31536000; SameSite=Lax`;
+
+      // Cerrar modal y notificar
+      onClose();
+      addToast({
+        title: "Ubicación actualizada",
+        description: `${provinceLabel}, ${municipalityLabel}`,
+        color: "success"
+      });
+
+      // Opcional: recargar la página si estábamos en modo forzado
+      if (forceSelection) {
+        window.location.href = '/products';
+      }
+    }
   };
 
   return (
@@ -165,7 +194,7 @@ export default function LocationModal({ open, onClose, initialProvince = '', ini
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
             className="fixed inset-0 bg-black/50 z-50"
-            onClick={onClose}
+            onClick={forceSelection ? undefined : onClose}
           />
 
           <motion.div
@@ -179,7 +208,13 @@ export default function LocationModal({ open, onClose, initialProvince = '', ini
               <div className="flex items-center justify-center mb-4">
                 <Image alt={"Mapa de Cuba"} src="/cuba.png" width={300} height={100} />
               </div>
-              <h2 className="text-medium font-light text-gray-800 dark:text-gray-200 mb-4">Serán mostrados los productos que puedan ser entregados en la provincia que seleccione.</h2>
+
+              {/* Cambiar el mensaje según si es forzado o no */}
+              <h2 className="text-medium font-light text-gray-800 dark:text-gray-200 mb-4">
+                {forceSelection
+                  ? "Para ver los productos disponibles, es necesario seleccionar tu ubicación."
+                  : "Serán mostrados los productos que puedan ser entregados en la provincia que seleccione."}
+              </h2>
 
               {/*fetchError && (
                 <Alert variant="solid" color="danger" className="mb-4">
@@ -244,17 +279,23 @@ export default function LocationModal({ open, onClose, initialProvince = '', ini
               }
 
               <div className="mt-6 flex justify-end gap-2">
-                <CustomButton onClick={onClose} className="bg-transparent hover:bg-default-100 !text-default-600">
-                  Cancelar
-                </CustomButton>
+                {/* Mostrar el botón de cancelar solo si no es forzado */}
+                {!forceSelection && (
+                  <CustomButton onClick={onClose} className="bg-transparent hover:bg-default-100 !text-default-600">
+                    Cancelar
+                  </CustomButton>
+                )}
                 <CustomButton onClick={handleConfirm} isDisabled={!province || !municipality}>
                   Confirmar
                 </CustomButton>
               </div>
 
-              <button onClick={onClose} className="absolute top-3 right-3 text-default-500 hover:bg-default-200 w-8 h-8 rounded-full">
-                ✖
-              </button>
+              {/* Mostrar el botón X de cierre solo si no es forzado */}
+              {!forceSelection && (
+                <button onClick={onClose} className="absolute top-3 right-3 text-default-500 hover:bg-default-200 w-8 h-8 rounded-full">
+                  ✖
+                </button>
+              )}
             </div>
           </motion.div>
         </>

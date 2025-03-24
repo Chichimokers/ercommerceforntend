@@ -50,16 +50,6 @@ const InfoBar = ({ className = "" }: { className?: string }) => {
             {process.env.NEXT_PUBLIC_EMAIL || "ayudaesaki@gmail.com"}
           </InfoItem>
 
-          <div className="h-4 w-px bg-gray-300 dark:bg-gray-700 mx-1 hidden md:block" />
-
-          <InfoItem
-            icon={<Headset size={14} />}
-            href="/support"
-            className="hidden md:flex"
-          >
-            Soporte 24/7
-          </InfoItem>
-
           {/*<div className="h-4 w-px bg-gray-300 dark:bg-gray-700 mx-1 hidden lg:block" />
 
           <InfoItem

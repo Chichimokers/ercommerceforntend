@@ -18,19 +18,15 @@ export async function middleware(request: NextRequest) {
   let role = null;
   let isAdmin = false;
 
-  // Actualiza la sección de parseo de cookies del carrito
   let cartItems = [];
   let hasCart = false;
 
   try {
-    // Primero intentar con la cookie legacy (formato directo)
     let cartCookie = request.cookies.get("cart-legacy")?.value;
 
-    // Si no existe, intentar con la cookie de Zustand
     if (!cartCookie) {
       cartCookie = request.cookies.get("cart")?.value;
       if (cartCookie) {
-        // Extraer los items del formato Zustand
         const zustandData = JSON.parse(cartCookie);
         cartItems = zustandData?.state?.cart || [];
       }
@@ -61,6 +57,68 @@ export async function middleware(request: NextRequest) {
     console.error("❌ Error al verificar role:", error);
   }
 
+  let hasLocation = false;
+  try {
+    const locationCookie = request.cookies.get("user-location-storage")?.value;
+
+    if (locationCookie) {
+      console.log("📍 Cookie de ubicación encontrada");
+
+      try {
+        const locationData = JSON.parse(decodeURIComponent(locationCookie));
+
+        // Extraer ubicación de cualquiera de las estructuras posibles
+        const location =
+          locationData?.state?.location ||
+          locationData?.location ||
+          (locationData?.province ? locationData : null);
+
+        // Comprobar si la ubicación tiene datos válidos
+        hasLocation = !!(
+          location?.province &&
+          location?.municipality &&
+          location.province.trim() !== "" &&
+          location.municipality.trim() !== ""
+        );
+
+        const isUuid = (value: string) =>
+          /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
+
+        if (
+          !hasLocation &&
+          location?.province &&
+          location?.municipality &&
+          isUuid(location.province) &&
+          isUuid(location.municipality)
+        ) {
+          console.log("📍 Ubicación con UUIDs detectada, considerando válida");
+          hasLocation = true;
+        }
+
+        console.log("📍 Estado de ubicación:", hasLocation ?
+          `Ubicación válida - ${location?.province?.substring(0, 8)}..., ${location?.municipality?.substring(0, 8)}...` :
+          "No configurada o incompleta");
+      } catch (e) {
+        console.error("📍 Error al analizar cookie de ubicación:", e);
+        hasLocation = false;
+      }
+    } else {
+      console.log("📍 No hay cookie de ubicación");
+
+      // SOLUCIÓN TEMPORAL: Si no hay cookie pero estamos en desarrollo, permitir acceso
+      if (process.env.NODE_ENV === 'development') {
+        const host = request.headers.get('host') || '';
+        if (host.includes('localhost') || host.includes('127.0.0.1')) {
+          console.log("📍 Entorno de desarrollo detectado, permitiendo acceso");
+          hasLocation = true;
+        }
+      }
+    }
+  } catch (error) {
+    console.error("❌ Error general al verificar ubicación:", error);
+    hasLocation = false;
+  }
+
   if (pathname.startsWith("/admin")) {
     if (!isAuthenticated) {
       return NextResponse.redirect(
@@ -85,15 +143,13 @@ export async function middleware(request: NextRequest) {
 
   if (pathname.startsWith("/checkout")) {
     if (!isAuthenticated) {
-      console.log("❌ Redirigiendo a login - no autenticado");
       return NextResponse.redirect(
-        new URL(`/login?to=${encodeURIComponent(pathname)}`, request.url),
+        new URL(`/login?to=${encodeURIComponent(pathname)}&from=protected`, request.url),
         302
       );
     }
 
     if (!hasCart) {
-      console.log("⛔ REDIRIGIENDO a shopping-cart - carrito vacío");
       const cartUrl = new URL("/shopping-cart", request.url).toString();
 
       return new Response(null, {
@@ -114,6 +170,16 @@ export async function middleware(request: NextRequest) {
     );
   }
 
+  if (pathname.startsWith("/products") && !pathname.includes("/products/")) {
+    if (!hasLocation) {
+      console.log("📍 Redirigiendo a selección de ubicación forzada");
+      return NextResponse.redirect(
+        new URL(`/?locationRequired=true`, request.url),
+        302
+      );
+    }
+  }
+
   return NextResponse.next();
 }
 
@@ -124,6 +190,7 @@ export const config = {
     "/orders",
     "/orders/:path*",
     "/checkout",
-    "/access-denied"
+    "/access-denied",
+    "/products",
   ],
 };

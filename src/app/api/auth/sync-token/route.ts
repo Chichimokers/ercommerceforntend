@@ -4,15 +4,15 @@ import { createAccessTokenCookie } from '@/helpers/cookie-handler';
 
 export async function GET(request: NextRequest) {
   try {
-    console.log("⚙️ Inicio de sincronización de token");
+    //console.log("⚙️ Inicio de sincronización de token");
 
     const token = await getToken({
       req: request,
       secret: process.env.NEXTAUTH_SECRET,
     });
 
-    console.log("🔍 Token obtenido:", token ? "Sí" : "No");
-    console.log(token)
+    //console.log("🔍 Token obtenido:", token ? "Sí" : "No");
+    //console.log(token)
 
     if (!token || !token.access_token) {
       console.error("❌ No hay token disponible para sincronizar");
@@ -22,14 +22,14 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    console.log("💾 Guardando access_token en cookie");
+    //console.log("💾 Guardando access_token en cookie");
     createAccessTokenCookie(
       token.access_token as string,
       token.accessTokenExpires as number,
       token.user?.role as string
     );
 
-    console.log("✅ Token sincronizado exitosamente");
+    //console.log("✅ Token sincronizado exitosamente");
     return NextResponse.json({
       success: true,
       tokenInfo: {

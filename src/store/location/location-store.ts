@@ -6,6 +6,7 @@ import { persist } from "zustand/middleware";
 interface Location {
   province: string;
   municipality: string;
+  [key: string]: any;
 }
 
 interface LocationStore {
@@ -34,13 +35,18 @@ export const useLocationStore = create<LocationStore>()(
 
       // Acciones
       setLocation: (newLocation: Location) => {
-        if (!newLocation.province || !newLocation.municipality) {
-          console.warn("Intentando establecer una ubicación incompleta");
-        }
+        const isComplete = Boolean(
+          newLocation.province &&
+          newLocation.municipality &&
+          newLocation.province.trim() !== "" &&
+          newLocation.municipality.trim() !== ""
+        );
+
+        //console.log("Estableciendo ubicación:", newLocation, "isComplete:", isComplete);
 
         set({
           location: newLocation,
-          hasLocation: Boolean(newLocation.province && newLocation.municipality)
+          hasLocation: isComplete
         });
       },
 
@@ -53,14 +59,79 @@ export const useLocationStore = create<LocationStore>()(
 
       isLocationComplete: () => {
         const { location } = get();
-        return Boolean(location.province && location.municipality);
+        return Boolean(
+          location.province &&
+          location.municipality &&
+          location.province.trim() !== "" &&
+          location.municipality.trim() !== ""
+        );
       }
     }),
     {
-      // Configuración de persistencia
       name: "user-location-storage",
-      // Solo persistir la ubicación
-      partialize: (state) => ({ location: state.location })
+      // Configuración explícita de almacenamiento
+      storage: {
+        getItem: (name) => {
+          try {
+            const value = localStorage.getItem(name);
+            return value ? JSON.parse(value) : null;
+          } catch (e) {
+            console.error("Error al leer ubicación:", e);
+            return null;
+          }
+        },
+        setItem: (name, value) => {
+          try {
+            const serialized = JSON.stringify(value);
+            localStorage.setItem(name, serialized);
+            // También establecer como cookie para el middleware
+            document.cookie = `${name}=${encodeURIComponent(serialized)}; path=/; max-age=31536000; SameSite=Lax`;
+          } catch (e) {
+            console.error("Error al guardar ubicación:", e);
+          }
+        },
+        removeItem: (name) => {
+          try {
+            localStorage.removeItem(name);
+            // También eliminar la cookie
+            document.cookie = `${name}=; path=/; max-age=0`;
+          } catch (e) {
+            console.error("Error al eliminar ubicación:", e);
+          }
+        }
+      },
+      // Solo persistir estas propiedades
+      partialize: (state) => ({
+        location: state.location,
+        hasLocation: state.hasLocation
+      }) as unknown as LocationStore,
+      // Verificar consistencia al cargar
+      onRehydrateStorage: () => (state) => {
+        if (state) {
+          // Re-calcular hasLocation basado en los valores
+          const isComplete = Boolean(
+            state.location?.province &&
+            state.location?.municipality &&
+            state.location.province.trim() !== "" &&
+            state.location.municipality.trim() !== ""
+          );
+
+          // Actualizar si es necesario
+          if (state.hasLocation !== isComplete) {
+            /*console.log("Corrigiendo hasLocation:", {
+              prev: state.hasLocation,
+              corrected: isComplete,
+              location: state.location
+            });*/
+            state.hasLocation = isComplete;
+          }
+
+          /*console.log("🔄 Estado de ubicación rehidratado:",
+            isComplete ? `${state.location.province}, ${state.location.municipality}` :
+              "No configurada o incompleta"
+          );*/
+        }
+      }
     }
   )
 );
@@ -81,7 +152,6 @@ export function useRequireLocation(): {
   };
 }
 
-// Hook para simplificar la configuración de la ubicación
 export function useSetLocation() {
   const { setLocation } = useLocationStore();
 

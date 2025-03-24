@@ -38,10 +38,7 @@ const PaymentMethodButton = ({
   useEffect(() => {
     setIsMounted(true);
 
-    console.log("PaymentMethodButton montado");
-
     return () => {
-      console.log("PaymentMethodButton desmontado");
       setIsMounted(false);
     };
   }, []);
@@ -55,7 +52,7 @@ const PaymentMethodButton = ({
 
   const handlePayment = async (method: string, retryCount = 0) => {
     try {
-      console.log("Procesando pago con método:", method);
+      //console.log("Procesando pago con método:", method);
       setIsLoading(true);
       setSelectedMethod(method);
 
@@ -139,7 +136,7 @@ const PaymentMethodButton = ({
       console.error('Error al procesar el pago:', error);
 
       if (isNetworkError(error) && retryCount < 2) {
-        console.log(`Reintentando petición (${retryCount + 1}/2)...`);
+        //console.log(`Reintentando petición (${retryCount + 1}/2)...`);
         toast.loading(`Reintentando conexión...`, { id: 'payment-toast' });
 
         await new Promise(r => setTimeout(r, 500 * (retryCount + 1)));
@@ -185,12 +182,11 @@ const PaymentMethodButton = ({
   };
 
   const handleOpenModal = () => {
-    console.log("Intento de abrir modal:", modalAttempt + 1);
+    //console.log("Intento de abrir modal:", modalAttempt + 1);
     setModalAttempt(prev => prev + 1);
 
     setTimeout(() => {
       setIsModalOpen(true);
-      console.log("Modal abierto:", true);
     }, 50);
   };
 

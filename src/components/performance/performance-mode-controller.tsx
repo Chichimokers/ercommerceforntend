@@ -1,4 +1,4 @@
-"use client";
+/*"use client";
 
 import { useEffect } from 'react';
 import { useDeviceCapabilities } from '@/hooks/useDeviceCapabilities';
@@ -59,4 +59,4 @@ export default function PerformanceModeController() {
 
   // Este componente no renderiza nada visible
   return null;
-}
+}*/

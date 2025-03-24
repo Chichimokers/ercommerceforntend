@@ -5,16 +5,41 @@ import dynamic from "next/dynamic";
 import React, { ReactNode, useState, useEffect } from "react";
 import { Navbar } from "@/components/navbar/nav";
 import LocationModal from "@components/modals/location-modal";
+import { useSearchParams, usePathname, useRouter } from "next/navigation";
+import { useLocationStore } from "@/store/location/location-store";
 
 const Footer = dynamic(() => import("@components/footer/footer"));
 const InfoBar = dynamic(() => import("@components/info-bar"));
 import { Overlay } from "@components/overlay";
 
-
 export default function EcommerceLayout({ children }: { children: ReactNode }) {
   const [modalOpen, setModalOpen] = useState(false);
+  const [forceLocationSelection, setForceLocationSelection] = useState(false);
   const [showInfoBar, setShowInfoBar] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
+
+  const { hasLocation } = useLocationStore();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const router = useRouter();
+
+  useEffect(() => {
+    const locationRequired = searchParams.get('locationRequired') === 'true';
+
+    if (locationRequired) {
+      setModalOpen(true);
+      setForceLocationSelection(true);
+
+      const newUrl = pathname;
+      router.replace(newUrl, { scroll: false });
+    }
+  }, [searchParams, pathname, router]);
+
+  useEffect(() => {
+    if (!hasLocation) {
+      setModalOpen(true);
+    }
+  }, [hasLocation]);
 
   useEffect(() => {
     const controlInfoBar = () => {
@@ -37,12 +62,18 @@ export default function EcommerceLayout({ children }: { children: ReactNode }) {
     };
   }, [lastScrollY]);
 
-  useEffect(() => {
-    if (!location) {
-      setModalOpen(true);
+  const handleCloseModal = () => {
+    if (forceLocationSelection && !hasLocation) {
+      return;
     }
-  }
-    , []);
+
+    setModalOpen(false);
+
+    if (forceLocationSelection && hasLocation) {
+      setForceLocationSelection(false);
+      router.push('/products');
+    }
+  };
 
   return (
     <>
@@ -61,8 +92,12 @@ export default function EcommerceLayout({ children }: { children: ReactNode }) {
         className="flex-grow container mx-auto max-w-full min-h-[70vh] pt-[114px]"
       >
         {children}
-        {modalOpen && <Overlay onClick={() => setModalOpen(false)} />}
-        <LocationModal open={modalOpen} onClose={() => setModalOpen(false)} />
+        {modalOpen && <Overlay onClick={forceLocationSelection ? undefined : () => setModalOpen(false)} />}
+        <LocationModal
+          open={modalOpen}
+          onClose={handleCloseModal}
+          forceSelection={forceLocationSelection}
+        />
       </main>
 
       <Footer />
