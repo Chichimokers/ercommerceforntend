@@ -4,13 +4,7 @@ import React, { useState, useCallback, useEffect, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Card, CardBody, Spinner, Tab, Tabs, Tooltip, Badge } from "@heroui/react";
 import { Breadcrumbs } from "@components/breadcrumb/breadcrumbs";
-import {
-  FaShoppingCart,
-  FaTruck,
-  FaShare,
-  FaExclamationTriangle
-} from "react-icons/fa";
-import { FaBagShopping } from "react-icons/fa6";
+import { ShoppingCart, Truck, Share2, TriangleAlert, ShoppingBag } from "lucide-react";
 import { WeightIcon, Check, X, AlertTriangle } from "lucide-react";
 
 import { useProductContext } from "@/contexts/product-context";
@@ -165,7 +159,7 @@ const ActionButtons = ({
   isMobile: boolean;
 }) => {
   return (
-    <div className={`mt-6 flex ${isMobile ? 'flex-col' : ''} gap-3`}>
+    <div className="mt-6">
       <div className={isMobile ? 'w-full mb-2' : ''}>
         <QuantityAdjuster
           quantity={quantity}
@@ -180,29 +174,30 @@ const ActionButtons = ({
           aria-label="Ajustar cantidad"
         />
       </div>
+      <div className={`mt-6 flex ${isMobile ? 'flex-col' : ''} gap-3`}>
+        <CustomButton
+          onClick={isInCart ? onRemoveFromCart : onAddToCart}
+          className={`${isMobile ? 'w-full' : 'flex-1'} py-3`}
+          variant="filled"
+          color={isInCart ? "danger" : "primary"}
+          aria-label={isInCart ? "Remover del carrito" : "Añadir al carrito"}
+        >
+          <ShoppingCart className="mr-2" aria-hidden="true" />
+          <span>{isInCart ? "Remover del carrito" : "Añadir al carrito"}</span>
+        </CustomButton>
 
-      <CustomButton
-        onClick={isInCart ? onRemoveFromCart : onAddToCart}
-        className={`${isMobile ? 'w-full' : 'flex-1'} py-3`}
-        variant="filled"
-        color={isInCart ? "danger" : "primary"}
-        aria-label={isInCart ? "Remover del carrito" : "Añadir al carrito"}
-      >
-        <FaShoppingCart className="mr-2" aria-hidden="true" />
-        <span>{isInCart ? "Remover del carrito" : "Añadir al carrito"}</span>
-      </CustomButton>
-
-      <CustomButton
-        onClick={onAddToCart}
-        isDisabled={product.quantity === 0}
-        className={`${isMobile ? 'w-full' : 'flex-1'} py-3`}
-        variant="filled"
-        color="success"
-        aria-label="Comprar ahora"
-      >
-        <FaBagShopping className="mr-2" aria-hidden="true" />
-        <span>Comprar ahora</span>
-      </CustomButton>
+        <CustomButton
+          onClick={onAddToCart}
+          isDisabled={product.quantity === 0}
+          className={`${isMobile ? 'w-full' : 'flex-1'} py-3`}
+          variant="filled"
+          color="success"
+          aria-label="Comprar ahora"
+        >
+          <ShoppingBag className="mr-2" aria-hidden="true" />
+          <span>Comprar ahora</span>
+        </CustomButton>
+      </div>
     </div>
   );
 };
@@ -213,7 +208,7 @@ const ProductInfo = ({ product }: { product: any }) => {
     <div className="mt-6 border-t border-b border-gray-200 dark:border-gray-700 py-4">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="flex items-center">
-          <FaTruck className="text-gray-500 mr-2" size={16} aria-hidden="true" />
+          <Truck className="text-gray-500 mr-2" size={16} aria-hidden="true" />
           <span>Envío desde: <strong>{product.province}</strong></span>
         </div>
 
@@ -362,13 +357,12 @@ export default function ProductDetailPage() {
       });
   }, []);
 
-  // Renderizado condicional para estados de carga y error
   if (error) {
     return (
       <div className="container mx-auto px-4 py-12">
         <div className="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 p-6 rounded-lg">
           <div className="flex items-center">
-            <FaExclamationTriangle className="text-red-500 mr-4 text-2xl" />
+            <TriangleAlert className="text-red-500 mr-4 text-2xl" />
             <div>
               <h2 className="text-red-700 dark:text-red-300 text-xl font-bold">Ha ocurrido un error</h2>
               <p className="text-red-600 dark:text-red-400 mt-2">{error}</p>
@@ -406,27 +400,27 @@ export default function ProductDetailPage() {
       <div className="container mx-auto px-4 py-6 sm:py-8">
         <Breadcrumbs items={breadcrumbItems} className="mb-6" />
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Columna de imágenes */}
-          <div>
-            <ErrorBoundary fallback={
-              <div className="bg-gray-100 dark:bg-gray-800 rounded-xl p-8 flex items-center justify-center h-[400px]">
-                <p>No se pudieron cargar las imágenes</p>
-              </div>
-            }>
-              <div className="sticky top-20">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          {/* Columna de imágenes - ahora ocupa el espacio completo */}
+          <div className="lg:col-span-4">
+            <ErrorBoundary fallback={<div className="bg-gray-100 dark:bg-gray-800 rounded-xl p-8 flex items-center justify-center h-[400px]">
+              <p>No se pudieron cargar las imágenes</p>
+            </div>}>
+              <div className="sticky top-20 w-full"> {/* Quitar flex justify-center */}
+                {/* Quitar el div con max-w-md */}
                 <ProductImageGallery
                   images={[product.image || '/placeholder.jpg']}
                   selectedIndex={selectedImage}
                   onSelect={setSelectedImage}
                   enableZoom={!isLowPerformance && !isMobile}
+                  className="w-full"
                 />
               </div>
             </ErrorBoundary>
           </div>
 
           {/* Columna de información del producto */}
-          <div className="space-y-6">
+          <div className="lg:col-span-8 space-y-6">
             <div className={isLowPerformance ? "" : "animate-fadeInUp"}>
               <div className="flex flex-wrap justify-between items-start gap-2 mb-4">
                 <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white flex-grow">
@@ -439,7 +433,7 @@ export default function ProductDetailPage() {
                     aria-label="Compartir producto"
                     className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 transition-colors"
                   >
-                    <FaShare className="text-gray-600 dark:text-gray-400" />
+                    <Share2 className="text-gray-600 dark:text-gray-400" />
                   </button>
                 </Tooltip>
               </div>

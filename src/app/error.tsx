@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import Link from 'next/link';
 import { Button } from '@heroui/react';
-import { FiAlertTriangle, FiRefreshCw, FiHome, FiArrowLeft } from 'react-icons/fi';
+import { AlertTriangle, RefreshCw, Home, ArrowLeft } from 'lucide-react';
 
 export default function Error({
   error,
@@ -26,7 +26,7 @@ export default function Error({
                 <div className="flex flex-col sm:flex-row items-center">
                   <div className="flex-shrink-0 mx-auto sm:mx-0 mb-4 sm:mb-0 sm:mr-4">
                     <div className="bg-red-100 dark:bg-red-900/30 rounded-full p-4">
-                      <FiAlertTriangle className="h-8 w-8 text-red-600 dark:text-red-400" aria-hidden="true" />
+                      <AlertTriangle className="h-8 w-8 text-red-600 dark:text-red-400" aria-hidden="true" />
                     </div>
                   </div>
 
@@ -58,7 +58,7 @@ export default function Error({
                   <Button
                     onClick={() => reset()}
                     color="primary"
-                    startContent={<FiRefreshCw className="h-5 w-5" />}
+                    startContent={<RefreshCw className="h-5 w-5" />}
                     className="font-medium"
                   >
                     Intentar de nuevo
@@ -69,7 +69,7 @@ export default function Error({
                     href="/"
                     variant="bordered"
                     color="default"
-                    startContent={<FiHome className="h-5 w-5" />}
+                    startContent={<Home className="h-5 w-5" />}
                     className="font-medium"
                   >
                     Ir a inicio
@@ -78,7 +78,7 @@ export default function Error({
                   <Button
                     onClick={() => window.history.back()}
                     variant="light"
-                    startContent={<FiArrowLeft className="h-5 w-5" />}
+                    startContent={<ArrowLeft className="h-5 w-5" />}
                     className="font-medium"
                   >
                     Volver atrás

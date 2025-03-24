@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { HiChevronRight, HiHome } from 'react-icons/hi';
+import { ChevronRight, Home } from 'lucide-react';
 
 export type BreadcrumbItem = {
   label: string;
@@ -22,7 +22,7 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
   homeHref = '/',
   showHomeIcon = true,
   className = '',
-  separatorIcon = <HiChevronRight className="text-gray-400" />
+  separatorIcon = <ChevronRight className="text-gray-400" />
 }) => {
   const pathname = usePathname();
 
@@ -37,7 +37,7 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
               href={homeHref}
               className="flex items-center text-gray-500 hover:text-primary-500 transition-colors"
             >
-              <HiHome className="w-4 h-4 mr-1" />
+              <Home className="w-4 h-4 mr-1" />
               <span className="sr-only md:not-sr-only">Inicio</span>
             </Link>
             <span className="mx-2 text-gray-400">{separatorIcon}</span>

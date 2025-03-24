@@ -58,7 +58,7 @@ export default function EcommerceLayout({ children }: { children: ReactNode }) {
       </div>
 
       <main
-        className="flex-grow container mx-auto max-w-[1920px] min-h-[70vh] pt-[114px]"
+        className="flex-grow container mx-auto max-w-full min-h-[70vh] pt-[114px]"
       >
         {children}
         {modalOpen && <Overlay onClick={() => setModalOpen(false)} />}

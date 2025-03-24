@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
 
     let url = `${API_URL}visa-mastercard/create-payment`;
     if (paymentMethod === 'paypal') {
-      url = `${API_URL}paypal/create-payment`;
+      url = `${API_URL}paypal/create-order`;
     }
 
     const controller = new AbortController();
@@ -60,6 +60,8 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    const responseCopy = response.clone();
+
     try {
       const data = await response.json();
 
@@ -73,7 +75,7 @@ export async function POST(req: NextRequest) {
         message: `Pago con método ${paymentMethod} procesado correctamente`
       });
     } catch (error) {
-      const text = await response.text();
+      const text = await responseCopy.text();
       const metaMatch = text.match(/<meta http-equiv="refresh" content="[\d]+;URL=([^"]+)"/i);
       if (metaMatch && metaMatch[1]) {
         return NextResponse.redirect(metaMatch[1]);

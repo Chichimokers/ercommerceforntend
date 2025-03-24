@@ -2,10 +2,9 @@
 
 import React, { useMemo, useState } from "react";
 import { Tabs, Tab } from "@heroui/react";
-import { FaStore, FaShoppingCart, FaHome } from "react-icons/fa";
+import { Store, ShoppingCart, Home, ListTodo } from "lucide-react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { FaList } from "react-icons/fa6";
 import { useIsomorphicLayoutEffect } from "framer-motion";
 
 const useDeviceOptimization = () => {
@@ -39,10 +38,10 @@ export const Navbar = ({ className = "" }: { className?: string }) => {
   const { isLowPerformance } = useDeviceOptimization();
 
   const navItems = useMemo(() => [
-    { key: "/", href: "/", icon: FaHome, label: "Inicio" },
-    { key: "/products", href: "/products", icon: FaStore, label: "Tienda" },
-    { key: "/shopping-cart", href: "/shopping-cart", icon: FaShoppingCart, label: "Carrito" },
-    { key: "/orders", href: "/orders", icon: FaList, label: "Pedidos" }
+    { key: "/", href: "/", icon: Home, label: "Inicio" },
+    { key: "/products", href: "/products", icon: Store, label: "Tienda" },
+    { key: "/shopping-cart", href: "/shopping-cart", icon: ShoppingCart, label: "Carrito" },
+    { key: "/orders", href: "/orders", icon: ListTodo, label: "Pedidos" }
   ], []);
 
   const selectedKey = useMemo(() => {

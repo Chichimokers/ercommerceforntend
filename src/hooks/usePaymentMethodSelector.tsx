@@ -1,50 +1,12 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { FaCreditCard } from "react-icons/fa";
-import { SiVisa, SiMastercard, SiPaypal } from "react-icons/si";
+import { CreditCard } from "lucide-react";
+import { VisaIcon, MastercardIcon, PaypalIcon } from "@components/icons/icons";
 import { toast } from "sonner";
 import dynamic from "next/dynamic";
 import { Button } from "@heroui/react";
-import { useSession } from "next-auth/react";
 
-const CustomButton = ({
-  onClick,
-  children,
-  isLoading,
-  className,
-  startIcon,
-
-}: {
-  onClick: () => void;
-  children: React.ReactNode;
-  isLoading?: boolean;
-  className?: string;
-  startIcon?: React.ReactNode;
-}) => (
-  <button
-    type="button"
-    onClick={onClick}
-    disabled={isLoading}
-    className={`
-      flex items-center justify-center gap-2 px-4 py-2 
-      bg-blue-600 hover:bg-blue-700 active:bg-blue-800
-      text-white font-medium rounded-lg transition-colors
-      w-full md:w-auto disabled:opacity-70 disabled:cursor-not-allowed
-      ${className || ''}
-    `}
-  >
-    {isLoading ? (
-      <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-      </svg>
-    ) : startIcon}
-    {children}
-  </button>
-);
-
-// Importamos el modal con carga dinámica para el cliente
 const PaymentMethodModal = dynamic(
   () => import("@components/modals/payment-method-modal"),
   { ssr: false }
@@ -73,11 +35,9 @@ const PaymentMethodButton = ({
   const [isMounted, setIsMounted] = useState(false);
   const [modalAttempt, setModalAttempt] = useState(0);
 
-  // Este efecto asegura que el componente solo se ejecute completamente en el cliente
   useEffect(() => {
     setIsMounted(true);
 
-    // Depuración para identificar cualquier estado inesperado
     console.log("PaymentMethodButton montado");
 
     return () => {
@@ -86,8 +46,14 @@ const PaymentMethodButton = ({
     };
   }, []);
 
-  // Procesar el pago con el método seleccionado
-  const handlePayment = async (method: string) => {
+  function isNetworkError(error: any) {
+    return error instanceof TypeError &&
+      (error.message.includes('network') ||
+        error.message.includes('fetch') ||
+        error.message.includes('Body'));
+  }
+
+  const handlePayment = async (method: string, retryCount = 0) => {
     try {
       console.log("Procesando pago con método:", method);
       setIsLoading(true);
@@ -95,37 +61,72 @@ const PaymentMethodButton = ({
 
       toast.loading(`Procesando pago con ${getMethodName(method)}...`, { id: 'payment-toast' });
 
-      const response = await fetch(`/api/payment`, {
+      // 1. Verificar sesión antes de intentar el pago
+      const sessionResponse = await fetch('/api/auth/session');
+      if (!sessionResponse.ok) {
+        throw new Error("Sesión inválida o expirada. Por favor vuelva a iniciar sesión.");
+      }
 
+      // 2. Realizar la petición con opciones mejoradas
+      const response = await fetch(`/api/payment`, {
         method: 'POST',
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ orderId, paymentMethod: method }),
-        credentials: 'include',
+        credentials: 'include', // Incluir cookies
+        cache: 'no-store', // Evitar problemas de caché
       });
 
-      if (!response.ok) {
-        const responseText = await response.text();
-        let errorMessage;
-        try {
-          const errorData = JSON.parse(responseText);
-          errorMessage = errorData.error || `Error en la respuesta: ${response.status}`;
-        } catch {
-          errorMessage = responseText || `Error en la respuesta: ${response.status}`;
+      // 3. Analizar la respuesta con mejor manejo de errores
+      const responseText = await response.text();
+
+      // Detectar si la respuesta es HTML (contiene etiquetas HTML)
+      const looksLikeHtml = responseText.includes('<!DOCTYPE html>') ||
+        responseText.includes('<html') ||
+        responseText.includes('<body');
+
+      if (looksLikeHtml) {
+        console.error("Servidor devolvió HTML:", responseText.substring(0, 200) + "...");
+
+        // Si la respuesta incluye una redirección a login, probablemente es error de sesión
+        if (responseText.includes('/login') || responseText.includes('iniciar sesión')) {
+          throw new Error("La sesión ha expirado. Por favor vuelva a iniciar sesión.");
         }
-        throw new Error(errorMessage);
+
+        throw new Error("El servidor devolvió HTML en lugar de una respuesta JSON válida");
       }
 
-      const responseData = await response.json();
+      // Intentar parsear JSON solo si no es HTML
+      let responseData;
+      try {
+        responseData = JSON.parse(responseText);
+      } catch (e) {
+        console.error("Respuesta no es JSON válido:", responseText.substring(0, 500));
+        throw new Error(
+          response.ok
+            ? "Respuesta inesperada del servidor"
+            : `Error ${response.status}: ${response.statusText}`
+        );
+      }
+
+      if (!response.ok) {
+        throw new Error(responseData?.error || `Error en la respuesta: ${response.status}`);
+      }
 
       if (!responseData.success) {
         throw new Error(responseData.error || 'Error al procesar el pago');
       }
 
+      // 4. Manejo especial de redirecciones para PayPal
       if (responseData.redirectUrl) {
         toast.success(`Redirigiendo a pasarela de pago...`, { id: 'payment-toast' });
-        window.location.href = responseData.redirectUrl;
+
+        // Usar setTimeout para asegurar que el toast se muestre antes de la redirección
+        setTimeout(() => {
+          window.location.href = responseData.redirectUrl;
+        }, 500);
+
         return responseData;
       }
 
@@ -136,15 +137,28 @@ const PaymentMethodButton = ({
       return responseData.data;
     } catch (error) {
       console.error('Error al procesar el pago:', error);
-      toast.error(
-        `Error al procesar el pago: ${error instanceof Error ? error.message : 'Error desconocido'}`,
-        { id: 'payment-toast' }
-      );
+
+      if (isNetworkError(error) && retryCount < 2) {
+        console.log(`Reintentando petición (${retryCount + 1}/2)...`);
+        toast.loading(`Reintentando conexión...`, { id: 'payment-toast' });
+
+        await new Promise(r => setTimeout(r, 500 * (retryCount + 1)));
+        return handlePayment(method, retryCount + 1);
+      }
+
+      // Mensaje de error más amigable para el usuario
+      const errorMessage = error instanceof Error
+        ? error.message
+        : 'Error de conexión con el servidor';
+
+      toast.error(`Error al procesar el pago: ${errorMessage}`, { id: 'payment-toast' });
+
       if (onError) {
         onError(error);
       }
       return null;
     } finally {
+      // Evitar desactivar loading si estamos en proceso de redirección a pasarelas externas
       if (!window.location.href.includes('stripe.com') && !window.location.href.includes('paypal.com')) {
         setIsLoading(false);
         setIsModalOpen(false);
@@ -163,10 +177,10 @@ const PaymentMethodButton = ({
 
   const getPaymentIcon = () => {
     switch (selectedMethod) {
-      case "visa": return <SiVisa className="text-lg text-white" />;
-      case "mastercard": return <SiMastercard className="text-lg text-white" />;
-      case "paypal": return <SiPaypal className="text-lg text-white" />;
-      default: return <FaCreditCard className="text-lg text-white" />;
+      case "visa": return <VisaIcon className="text-lg text-white" />;
+      case "mastercard": return <MastercardIcon className="text-lg text-white" />;
+      case "paypal": return <PaypalIcon className="text-lg text-white" />;
+      default: return <CreditCard className="text-lg text-white" />;
     }
   };
 

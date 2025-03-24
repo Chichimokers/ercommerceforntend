@@ -8,8 +8,7 @@ import { useCallback, useEffect, useMemo, memo, useState, useRef, Suspense } fro
 import Link from "next/link";
 import { useCategories } from "@hooks/useCategories";
 import { useDeviceDetection } from "@/hooks/useDeviceDetection";
-import { FaArrowLeft, FaShoppingBag } from "react-icons/fa";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, ArrowLeft, ShoppingBag } from "lucide-react";
 import LucideIcons from "@components/lazy-imports/lucide-icons";
 import { useInView } from "react-intersection-observer";
 import { throttle } from "lodash";
@@ -49,7 +48,7 @@ const FilterPanel = dynamic(() =>
 const EmptyState = memo(({ onReset }: { onReset: () => void }) => (
   <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
     <div className="rounded-full bg-blue-50 dark:bg-blue-900/20 p-8 mb-6">
-      <FaShoppingBag className="h-12 w-12 text-blue-500" />
+      <ShoppingBag className="h-12 w-12 text-blue-500" />
     </div>
     <h3 className="text-2xl font-bold tracking-tight mb-2 text-gray-800 dark:text-gray-100">
       No se encontraron productos
@@ -62,7 +61,7 @@ const EmptyState = memo(({ onReset }: { onReset: () => void }) => (
       onClick={onReset}
       color="primary"
       size="lg"
-      startContent={<FaArrowLeft className="h-4 w-4" />}
+      startContent={<ArrowLeft className="h-4 w-4" />}
       className="font-medium"
     >
       Ver todos los productos

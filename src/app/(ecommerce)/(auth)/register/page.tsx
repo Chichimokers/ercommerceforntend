@@ -3,7 +3,8 @@
 import React, { useState, useCallback } from "react";
 import { Button, Input, addToast, Checkbox } from "@heroui/react";
 import Image from "next/image";
-import { FaGoogle, FaLock, FaMailBulk, FaUser } from "react-icons/fa";
+import { GoogleIcon, OutlineEmailIcon } from "@components/icons/icons";
+import { Lock, User2Icon } from "lucide-react";
 import { useFormValidation } from "@/hooks/useFormValidation";
 import { signUp } from "@/services/authService";
 import { UserData } from "@/types/types";
@@ -228,7 +229,7 @@ export default function SignUp() {
         <div className={getAnimationClass("", "animate-fadeInUp delay-100")}>
           <FormField label="Nombre completo" error={errors.fullName} className="mb-4">
             <Input
-              startContent={<FaUser className="h-5 w-5 text-gray-500 flex-shrink-0" />}
+              startContent={<User2Icon className="h-5 w-5 text-gray-500 flex-shrink-0" />}
               placeholder="John Doe"
               className="rounded-xl border-gray-300 dark:border-gray-700 bg-white/70 dark:bg-gray-800/70"
               value={formData.fullName}
@@ -244,7 +245,7 @@ export default function SignUp() {
         <div className={getAnimationClass("", "animate-fadeInUp delay-200")}>
           <FormField label="Correo electrónico" error={errors.email} className="mb-4">
             <Input
-              startContent={<FaMailBulk className="h-5 w-5 text-gray-500 flex-shrink-0" />}
+              startContent={<OutlineEmailIcon className="h-5 w-5 text-gray-500 flex-shrink-0" />}
               placeholder="tu@email.com"
               className="rounded-xl border-gray-300 dark:border-gray-700 bg-white/70 dark:bg-gray-800/70"
               value={formData.email}
@@ -261,7 +262,7 @@ export default function SignUp() {
         <div className={getAnimationClass("", "animate-fadeInUp delay-300")}>
           <FormField label="Contraseña" error={errors.password} className="mb-4">
             <Input
-              startContent={<FaLock className="h-5 w-5 text-gray-500 flex-shrink-0" />}
+              startContent={<Lock className="h-5 w-5 text-gray-500 flex-shrink-0" />}
               placeholder="••••••••"
               type={isVisibleP ? "text" : "password"}
               endContent={
@@ -294,7 +295,7 @@ export default function SignUp() {
         <div className={getAnimationClass("", "animate-fadeInUp delay-400")}>
           <FormField label="Confirmar contraseña" error={errors.confirmPassword} className="mb-4">
             <Input
-              startContent={<FaLock className="h-5 w-5 text-gray-500 flex-shrink-0" />}
+              startContent={<Lock className="h-5 w-5 text-gray-500 flex-shrink-0" />}
               placeholder="••••••••"
               type={isVisibleCP ? "text" : "password"}
               endContent={
@@ -328,10 +329,10 @@ export default function SignUp() {
               onValueChange={(value) => handleInputChange("acceptTerms", value)}
               color="primary"
               className={errors.acceptTerms ? "text-danger" : ""}
-              size="sm"
+              size="md"
               aria-label="Aceptar términos y condiciones"
             />
-            <span className="text-sm text-gray-700 dark:text-gray-300 ml-2">
+            <span className="text-sm text-gray-700 dark:text-gray-300">
               Acepto los <TermsModal /> y la <PrivacyPolicyModal />
             </span>
           </div>
@@ -366,7 +367,7 @@ export default function SignUp() {
             variant="bordered"
             className="bg-white dark:bg-gray-800/70 hover:bg-gray-50 dark:hover:bg-gray-700/70 border border-gray-300 dark:border-gray-700 text-gray-800 dark:text-gray-200 font-medium py-3 px-4 rounded-xl transition-all duration-200"
             onClick={() => handleSocialSignUp("google")}
-            startContent={<FaGoogle className="text-lg text-red-500 mr-2" />}
+            startContent={<GoogleIcon className="text-lg text-red-500 mr-2" />}
             isDisabled={isLoading}
             size="lg"
             type="button"

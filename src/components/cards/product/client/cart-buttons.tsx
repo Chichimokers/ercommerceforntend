@@ -2,8 +2,7 @@
 "use client";
 
 import { CustomButton } from "@/components/buttons/custom-button";
-import { FaBucket } from "react-icons/fa6";
-import { FaShoppingCart } from "react-icons/fa";
+import { Trash2, ShoppingCart } from "lucide-react";
 import { ProductBase } from "@/types/types";
 import { memo } from "react";
 import { Tooltip } from "@heroui/react";
@@ -67,7 +66,7 @@ function AddToCartButton({
         isDisabled={disabled}
         aria-label="Añadir al carrito"
       >
-        <FaShoppingCart className="h-4 w-4" />
+        <ShoppingCart size={18} />
       </CustomButton>
     </div>
   );
@@ -101,7 +100,7 @@ function RemoveFromCartButton({
         onClick={onClick}
         aria-label={`Eliminar ${product.name} del carrito`}
       >
-        <FaBucket className="h-4 w-4" />
+        <Trash2 size={18} />
       </CustomButton>
     </div>
   );

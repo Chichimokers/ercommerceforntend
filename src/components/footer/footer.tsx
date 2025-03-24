@@ -1,8 +1,8 @@
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react";
 import { TermsModal } from "@components/modals/terms-modal";
 import { PrivacyPolicyModal } from "@components/modals/privacy-policy-modal";
+import { MastercardIcon, PaypalIcon, VisaIcon } from "@components/icons/icons";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -118,12 +118,11 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* Bottom section with payment methods and copyright */}
         <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-800 flex flex-col md:flex-row justify-between items-center">
           <div className="flex items-center space-x-4">
-            <Image src="/icons/visa.svg" alt="Visa" width={32} height={20} className="object-contain" />
-            <Image src="/icons/mastercard.svg" alt="Mastercard" width={32} height={20} className="object-contain" />
-            <Image src="/icons/paypal.svg" alt="PayPal" width={32} height={20} className="object-contain" />
+            <VisaIcon width={40} height={40} />
+            <MastercardIcon width={40} height={40} />
+            <PaypalIcon width={40} height={40} />
           </div>
 
           <div className="mt-4 md:mt-0 text-sm text-gray-500 dark:text-gray-400">

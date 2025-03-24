@@ -1,40 +1,31 @@
-import {
-    FaMusic, FaBook, FaTshirt, FaLaptop, FaHome, FaQuestion,
-    FaUtensils, FaHeart, FaDumbbell, FaBaby, FaToolbox, FaSeedling,
-    FaCamera, FaCar, FaPaw, FaGamepad, FaPlane, FaBriefcase, FaDragon
-} from "react-icons/fa";
-import React from "react";
-import { IconType } from "react-icons/lib";
+import { Music, Book, Shirt, Laptop, Home, BoxesIcon, Utensils, Heart, Dumbbell, Baby, Camera, Car, PawPrint, Gamepad2, Plane, Briefcase, BabyIcon, LucideProps } from "lucide-react";
+import { ForwardRefExoticComponent, RefAttributes } from "react";
 
 type IconMap = {
-    [key: string]: IconType;
-    default: IconType;
+    [key: string]: ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>;
+    default: ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>;
 }
 
-// Mapa de palabras clave a iconos
 const keywordIconMap: IconMap = {
-    musica: FaMusic,
-    libro: FaBook,
-    ropa: FaTshirt,
-    electronica: FaLaptop,
-    hogar: FaHome,
-    comida: FaUtensils,
-    salud: FaHeart,
-    deporte: FaDumbbell,
-    bebe: FaBaby,
-    bricolaje: FaToolbox,
-    jardin: FaSeedling,
-    foto: FaCamera,
-    coche: FaCar,
-    mascota: FaPaw,
-    juego: FaGamepad,
-    viaje: FaPlane,
-    trabajo: FaBriefcase,
-    juguetes: FaDragon,
-    default: FaQuestion
+    musica: Music,
+    libro: Book,
+    ropa: Shirt,
+    electronica: Laptop,
+    hogar: Home,
+    comida: Utensils,
+    salud: Heart,
+    deporte: Dumbbell,
+    bebe: Baby,
+    foto: Camera,
+    coche: Car,
+    mascota: PawPrint,
+    juego: Gamepad2,
+    viaje: Plane,
+    trabajo: Briefcase,
+    juguetes: BabyIcon,
+    default: BoxesIcon,
 };
 
-// Función de coincidencia aproximada
 export const getCategoryIcon = (categoryName: string) => {
 
     const cleanText = (text: string): string => {

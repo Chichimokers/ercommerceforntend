@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
-import { SiVisa, SiMastercard, SiPaypal } from "react-icons/si";
+import { VisaIcon, MastercardIcon, PaypalIcon } from "@components/icons/icons";
 import { CreditCard, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@heroui/react";
@@ -158,7 +158,6 @@ const PaymentMethodModal: React.FC<PaymentMethodModalProps> = ({
     }
   }, [isOpen, initialMethod]);
 
-  // Manejar cierre con ESC
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && !isSubmitting) {
@@ -185,23 +184,20 @@ const PaymentMethodModal: React.FC<PaymentMethodModalProps> = ({
     {
       id: "visa",
       name: "VISA",
-      icon: <SiVisa className="text-blue-700 text-2xl" />,
+      icon: <VisaIcon width={50} height={50} />,
       description: "Tarjeta de crédito o débito VISA",
-      color: "bg-blue-50 dark:bg-blue-900/20"
     },
     {
       id: "mastercard",
       name: "Mastercard",
-      icon: <SiMastercard className="text-red-600 text-2xl" />,
+      icon: <MastercardIcon width={50} height={50} />,
       description: "Tarjeta de crédito o débito Mastercard",
-      color: "bg-red-50 dark:bg-red-900/20"
     },
     {
       id: "paypal",
       name: "PayPal",
-      icon: <SiPaypal className="text-blue-800 text-2xl" />,
+      icon: <PaypalIcon width={50} height={50} />,
       description: "Cuenta PayPal",
-      color: "bg-indigo-50 dark:bg-indigo-900/20"
     }
   ];
 
@@ -264,7 +260,7 @@ const PaymentMethodModal: React.FC<PaymentMethodModalProps> = ({
                     disabled={isSubmitting}
                   >
                     <div className="flex items-start gap-4">
-                      <div className={`p-3 rounded-full ${method.color} flex items-center justify-center`}>
+                      <div className="flex items-center justify-center">
                         {method.icon}
                       </div>
                       <div>

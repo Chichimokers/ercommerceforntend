@@ -2,7 +2,8 @@
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import Image from 'next/image';
-import { FaArrowLeft, FaArrowRight, FaSearchPlus, FaSearchMinus } from 'react-icons/fa';
+import { SearchPlusIcon, SearchMinusIcon } from './icons/icons';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { Button, Skeleton } from '@heroui/react';
 
 interface ProductImageGalleryProps {
@@ -11,6 +12,7 @@ interface ProductImageGalleryProps {
   onSelect?: (index: number) => void;
   lazyLoad?: boolean;
   enableZoom?: boolean;
+  className?: string;
 }
 
 const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
@@ -18,7 +20,8 @@ const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
   selectedIndex = 0,
   onSelect,
   lazyLoad = true,
-  enableZoom = false
+  enableZoom = false,
+  className = '',
 }) => {
   const [currentIndex, setCurrentIndex] = useState(selectedIndex);
   const [loading, setLoading] = useState(true);
@@ -30,20 +33,17 @@ const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
   const imageContainerRef = useRef<HTMLDivElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
 
-  // Asegurar que tenemos al menos una imagen
   if (!images.length) {
     images = ['/placeholder.jpg'];
   }
 
-  // Resetear estado de zoom al cambiar de imagen
   useEffect(() => {
     setIsZoomed(false);
     setImageLoaded(false);
     setLoading(true);
-    setImgSrc(''); // Importante: resetear la URL de la imagen
+    setImgSrc('');
   }, [currentIndex]);
 
-  // Manejar cambios de índice de manera segura
   const handleIndexChange = useCallback((newIndex: number) => {
     if (isZoomed) setIsZoomed(false);
 
@@ -64,17 +64,13 @@ const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
     handleIndexChange(currentIndex + 1);
   }, [currentIndex, handleIndexChange]);
 
-  // Capturar la URL real de la imagen - CLAVE PARA SOLUCIONAR EL PROBLEMA
   const handleImageLoad = useCallback((e: React.SyntheticEvent<HTMLImageElement>) => {
     setLoading(false);
     setImageLoaded(true);
 
-    // Obtenemos la URL real de la imagen ya cargada por Next.js
-    // Esta es la solución al problema de imagen negra
     if (e.currentTarget.src) {
       setImgSrc(e.currentTarget.src);
     } else {
-      // Fallback a la URL original si no podemos obtener la URL optimizada
       setImgSrc(images[currentIndex]);
     }
   }, [currentIndex, images]);
@@ -115,8 +111,7 @@ const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
   }, [isZoomed, enableZoom]);
 
   return (
-    <div className="relative">
-      {/* Contenedor principal de la imagen */}
+    <div className={`${className} w-full`}>
       <div
         ref={imageContainerRef}
         className={`
@@ -142,7 +137,7 @@ const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
             src={images[currentIndex]}
             alt={`Imagen del producto ${currentIndex + 1}`}
             fill
-            sizes="(max-width: 768px) 50vw, 25vw"
+            sizes="(max-width: 768px) 100vw, 25vw"
             className={`
                 object-contain
                 ${isZoomed ? 'opacity-0' : 'opacity-100'} 
@@ -171,23 +166,20 @@ const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
           />
         )}
 
-        {/* Indicador de zoom */}
         {enableZoom && imageLoaded && !isZoomed && (
           <div className="absolute bottom-3 right-3 z-10 bg-black/60 text-white p-2 rounded-full opacity-70 hover:opacity-100 transition-opacity">
-            <FaSearchPlus size={16} aria-hidden="true" />
+            <SearchPlusIcon size={16} aria-hidden="true" />
             <span className="sr-only">Clic para ampliar</span>
           </div>
         )}
 
-        {/* Indicador de zoom activo */}
         {enableZoom && imageLoaded && isZoomed && (
           <div className="absolute bottom-3 right-3 z-20 bg-black/60 text-white p-2 rounded-full opacity-70 hover:opacity-100 transition-opacity">
-            <FaSearchMinus size={16} aria-hidden="true" />
+            <SearchMinusIcon size={16} aria-hidden="true" />
             <span className="sr-only">Clic para reducir</span>
           </div>
         )}
 
-        {/* Flechas de navegación */}
         {images.length > 1 && (
           <>
             <Button
@@ -197,7 +189,7 @@ const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
               onClick={handlePrevious}
               aria-label="Imagen anterior"
             >
-              <FaArrowLeft className="text-gray-700 dark:text-gray-300" />
+              <ArrowLeft className="text-gray-700 dark:text-gray-300" />
             </Button>
             <Button
               isIconOnly
@@ -206,7 +198,7 @@ const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
               onClick={handleNext}
               aria-label="Imagen siguiente"
             >
-              <FaArrowRight className="text-gray-700 dark:text-gray-300" />
+              <ArrowRight className="text-gray-700 dark:text-gray-300" />
             </Button>
           </>
         )}
@@ -214,7 +206,7 @@ const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
 
       {/* Miniaturas */}
       {images.length > 1 && (
-        <div className="grid grid-flow-col auto-cols-max gap-2 overflow-x-auto pb-2 snap-x scrollbar-thin">
+        <div className="grid grid-flow-col auto-cols-max gap-2 overflow-x-auto pb-2 snap-x scrollbar-thin w-full">
           {images.map((src, index) => (
             <button
               key={index}

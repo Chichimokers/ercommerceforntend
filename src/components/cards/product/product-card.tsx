@@ -4,7 +4,7 @@ import ProductImage from "./product-image";
 import StockBadge from "./badges/stock-badge";
 import DiscountBadge from "./badges/discount-badge";
 import PriceDisplay from "./price-display";
-import StarRating from "@/components/star-rating";
+//import StarRating from "@/components/star-rating";
 import ProductInteraction from "./client/product-interaction";
 import useCartActions from "@components/actions";
 import { useCurrencyStore } from "@store/currency/currency-store";
@@ -31,7 +31,7 @@ export default function ProductCard({
   const { quantity } = useCartActions(product);
 
   const cardBaseClasses = `
-    h-full rounded-xl overflow-hidden
+    h-full rounded-3xl overflow-hidden
     bg-white dark:bg-gray-800/80 
     border border-gray-200 dark:border-gray-700
     transition-all duration-300 hover:border-default-400 

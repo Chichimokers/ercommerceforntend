@@ -1,4 +1,4 @@
-import { FaStar, FaStarHalfAlt, FaRegStar } from "react-icons/fa";
+import { Star, StarHalf } from "lucide-react";
 
 interface StarRatingProps {
   value?: number; // número entre 0 y 5
@@ -22,13 +22,13 @@ const StarRating = ({
 
   for (let i = 1; i <= 5; i++) {
     if (i <= roundedRating) {
-      stars.push(<FaStar key={i} className="text-yellow-400" size={size} />);
+      stars.push(<Star fill="yellow" key={i} className="text-yellow-400" size={size} />);
     } else if (i - 0.5 === roundedRating) {
       stars.push(
-        <FaStarHalfAlt key={i} className="text-yellow-400" size={size} />
+        <StarHalf fill="yellow" key={i} className="text-yellow-400" size={size} />
       );
     } else {
-      stars.push(<FaRegStar key={i} className="text-yellow-400" size={size} />);
+      stars.push(<Star key={i} className="text-yellow-400" size={size} />);
     }
   }
 
