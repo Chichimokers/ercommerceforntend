@@ -1,7 +1,7 @@
 "use client";
 
 import { useProductContext } from "@/contexts/product-context";
-import { Pagination, Spinner, Chip, Button, Tooltip } from "@heroui/react";
+import { Pagination, Spinner, Chip, Button, Tooltip, addToast } from "@heroui/react";
 import dynamic from "next/dynamic";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, memo, useState, useRef, Suspense } from "react";
@@ -290,6 +290,25 @@ function ProductPageContent({ deviceData, shouldOptimizeSeverely }: {
       return () => section.removeEventListener('scroll', handleScroll);
     }
   }, [loadMoreItems]);
+
+  useEffect(() => {
+    const isEmpty = searchParams.get('empty');
+    if (isEmpty === 'true') {
+      const hasShownToast = sessionStorage.getItem('emptyCartToastShown');
+      if (!hasShownToast) {
+        addToast({
+          title: "Carrito vacío",
+          description: "Añade productos al carrito para realizar el checkout",
+          color: "warning"
+        });
+        sessionStorage.setItem('emptyCartToastShown', 'true');
+
+        const params = new URLSearchParams(searchParams.toString());
+        params.delete("empty");
+        router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+      }
+    }
+  }, [searchParams, pathname, router]);
 
   const renderContent = useCallback(() => {
     if (isLoading) {

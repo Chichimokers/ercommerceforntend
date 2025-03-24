@@ -4,6 +4,7 @@ import GoogleProvider from "next-auth/providers/google";
 import FacebookProvider from "next-auth/providers/facebook";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { decodeJWT } from "@/helpers/jwt-decode";
+import { cookies } from "next/headers";
 
 let refreshingTokenPromise: Promise<any> | null = null;
 
@@ -24,10 +25,10 @@ async function refreshaccesstokenWithLock(token: any) {
 // Función para renovar el token de acceso
 async function refreshaccesstoken(token: any) {
   try {
-    console.log(
+    /*console.log(
       "Intentando renovar token de acceso. Refresh token:",
       token.refresh_token?.slice(0, 5) + "..."
-    );
+    );*/
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}auth/refresh-token`,
       {
@@ -42,18 +43,18 @@ async function refreshaccesstoken(token: any) {
     );
 
     const data = await response.json();
-    console.log("Respuesta de renovación:", {
+    /*console.log("Respuesta de renovación:", {
       status: response.status,
       data: { ...data, access_token: data.access_token?.slice(0, 15) + "..." },
-    });
+    });*/
 
     if (!response.ok) throw data;
 
     const payload = await decodeJWT(data.access_token);
-    console.log(
+    /*console.log(
       "Token renovado exitosamente. Nuevo exp:",
       new Date(payload.exp * 1000).toLocaleString()
-    );
+    );*/
 
     return {
       ...token,
@@ -98,11 +99,11 @@ export const authOptions: NextAuthOptions = {
         }
       },
       profile: (profile) => {
-        console.log("Perfil de Google recibido:", {
+        /*console.log("Perfil de Google recibido:", {
           id: profile.sub,
           email: profile.email,
           name: profile.name
-        });
+        });*/
 
         return {
           id: profile.sub,
@@ -144,7 +145,7 @@ export const authOptions: NextAuthOptions = {
           }
 
           const data = await res.json();
-          console.log(`Estos son los datos que me llegan: `, JSON.stringify(data))
+          //console.log(`Estos son los datos que me llegan: `, JSON.stringify(data))
           const { access_token, refresh_token } = data;
           const payload = await decodeJWT(access_token);
 
@@ -204,11 +205,11 @@ export const authOptions: NextAuthOptions = {
       }
 
       if (account && user) {
-        console.log("Nueva autenticación detectada", {
+        /*console.log("Nueva autenticación detectada", {
           provider: account.provider,
           userId: user.name,
           tokenExp: new Date((account.expires_at || 0) * 1000).toLocaleString(),
-        });
+        });*/
 
         const finalToken =
           account.provider === "credentials"
@@ -234,12 +235,12 @@ export const authOptions: NextAuthOptions = {
         token.accessTokenExpires &&
         Date.now() < token.accessTokenExpires - 30000
       ) {
-        console.log("Token aún válido, no se requiere renovación");
-        console.log(`Tiempo restante ${(token.accessTokenExpires - Date.now()) / 1000}s`)
+        //console.log("Token aún válido, no se requiere renovación");
+        //console.log(`Tiempo restante ${(token.accessTokenExpires - Date.now()) / 1000}s`)
         return token;
       }
 
-      console.log("Iniciando renovación de token");
+      //console.log("Iniciando renovación de token");
       try {
         const newToken = await refreshaccesstokenWithLock(token);
         return newToken;
@@ -249,7 +250,7 @@ export const authOptions: NextAuthOptions = {
       }
     },
     async session({ session, token }) {
-      console.log("Actualizando sesión", { user: token.user?.email });
+      //console.log("Actualizando sesión", { user: token.user?.email });
       session.idToken = token.idToken as string;
       session.user = {
         id: token.user?.id ?? "",
@@ -265,12 +266,41 @@ export const authOptions: NextAuthOptions = {
       }
       return session;
     },
+
+    async redirect({ url, baseUrl }) {
+      // Si la URL de redirección es al checkout, verificar el carrito
+      if (url.startsWith(`${baseUrl}/checkout`)) {
+        try {
+          // Intentar obtener el carrito desde la cookie
+          const cartCookie = (await cookies()).get("cart")?.value || (await cookies()).get("cart-legacy")?.value;
+          const hasItems = cartCookie && (
+            (cartCookie.includes('"cart":') && JSON.parse(cartCookie)?.state?.cart?.length > 0) ||
+            (!cartCookie.includes('"cart":') && JSON.parse(cartCookie)?.length > 0)
+          );
+
+          if (!hasItems) {
+            // Si no hay items, redireccionar a productos
+            return `${baseUrl}/products?empty=true`;
+          }
+        } catch (e) {
+          console.error("Error verificando carrito en callback:", e);
+        }
+      }
+
+      // Comportamiento predeterminado: redireccionar a la URL solicitada
+      if (url.startsWith(baseUrl)) return url;
+      else if (url.startsWith("/")) return `${baseUrl}${url}`;
+      return baseUrl;
+    }
   },
 
-  // Agregar evento personalizado para establecer cookies
   events: {
     async signIn({ user, account, profile }) {
-      // Evento disparado al iniciar sesión
+      /*console.log("Evento signIn ejecutado", {
+        user: user.email,
+        account,
+        profile,
+      });*/
     },
     async session({ session, token }) {
       // Usar esta función para sincronizar el access token con una cookie

@@ -32,7 +32,7 @@ export default function MemoryManager() {
               try {
                 global.gc();
               } catch (e) {
-                console.log('No se pudo ejecutar GC');
+                console.error('No se pudo ejecutar GC');
               }
             }
           } else {

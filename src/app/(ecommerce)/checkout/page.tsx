@@ -350,7 +350,7 @@ export default function BuyPage() {
                       />
                     </FormField>
                     <FormField
-                      label="Teléfono Auxiliar"
+                      label="Teléfono Auxiliar (opcional)"
                       error={methods.formState.errors.aux_phone?.message}
                     >
                       <InputField

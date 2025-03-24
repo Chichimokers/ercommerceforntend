@@ -1,5 +1,4 @@
-import { useCallback, useContext, useState, useMemo, useEffect } from "react";
-import { CartContext } from "@/contexts/cart-context";
+import { useCallback, useState, useMemo, useEffect } from "react";
 import { useProductContext } from "@/contexts/product-context";
 import { useCartStore } from "@store/cart/cart-store";
 
@@ -38,7 +37,6 @@ const useCartActions = (product: { id: string; price: number }) => {
   }, [removeItem, product?.id, handleMutation]);
 
   const handleQuantityChange = useCallback((operation: 'inc' | 'dec') => {
-    console.log(operation)
     const handler = isInCart
       ? (amount: number) => (operation === 'inc' ? increaseQuantity : decreaseQuantity)?.(product.id, amount)
       : operation === 'inc' ? (amount: number) => setQuantity(prev => Math.max(1, prev + amount))

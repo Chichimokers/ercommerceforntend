@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { createPortal } from "react-dom";
 
-export const Overlay = ({ onClick }: { onClick: () => void }) => {
+export const Overlay = ({ onClick }: { onClick: (() => void) | undefined }) => {
   return createPortal(
     <motion.div
       initial={{ opacity: 0 }}
