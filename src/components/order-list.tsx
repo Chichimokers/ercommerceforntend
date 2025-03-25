@@ -4,6 +4,22 @@ import OrderComponent from "./order/order";
 import { Order } from "@/types/types";
 import { ShoppingBag, FilterIcon, Package2Icon, Calendar, ArrowDownAZ, ArrowDownWideNarrow } from "lucide-react";
 
+// Mapa de traducción de estados (inglés a español)
+const STATUS_TRANSLATIONS: Record<string, string> = {
+  pending: "Pendiente",
+  paid: "Pagada",
+  payd: "Pagada",
+  completed: "Completada",
+  accepted: "Aceptada",
+  cancelled: "Cancelada",
+  retired: "Retirada"
+};
+
+// Función auxiliar para traducir un estado
+const translateStatus = (status: string): string => {
+  return STATUS_TRANSLATIONS[status] || status;
+};
+
 interface OrderListProps {
   orders: Order[];
   onCancelOrder: (orderId: string) => void;
@@ -11,6 +27,7 @@ interface OrderListProps {
   isLoading?: boolean;
 }
 
+// Componente OrderStatusChip actualizado para usar el mismo sistema de traducción
 const OrderStatusChip = ({ status }: { status: string }) => {
   const statusConfig: Record<string, { color: "primary" | "danger" | "warning" | "success" | "default", label: string }> = {
     accepted: { color: "primary", label: "Aceptada" },
@@ -18,11 +35,12 @@ const OrderStatusChip = ({ status }: { status: string }) => {
     retired: { color: "danger", label: "Retirada" },
     pending: { color: "warning", label: "Pendiente" },
     payd: { color: "success", label: "Pagada" },
-    paid: { color: "success", label: "Pagada" }
+    paid: { color: "success", label: "Pagada" },
+    completed: { color: "success", label: "Completado" },
   };
 
   const { color, label } = statusConfig[status] ||
-    { color: "default", label: status || "Desconocido" };
+    { color: "default", label: translateStatus(status) }; // Usar la función de traducción como fallback
 
   return (
     <Chip
@@ -49,7 +67,7 @@ const OrderList: React.FC<OrderListProps> = ({
   // Órdenes procesadas (filtradas y ordenadas)
   const processedOrders = useMemo(() => {
     // Filtrar por estado
-    let filteredOrders = filterStatus
+    const filteredOrders = filterStatus
       ? orders.filter(order => order.status === filterStatus)
       : orders;
 
@@ -130,7 +148,7 @@ const OrderList: React.FC<OrderListProps> = ({
         </div>
 
         <div className="flex items-center gap-2">
-          {/* Filtro por estado - implementación compatible */}
+          {/* Filtro por estado - ahora con traducciones */}
           <Dropdown>
             <DropdownTrigger>
               <Button
@@ -143,7 +161,9 @@ const OrderList: React.FC<OrderListProps> = ({
                   </Chip>
                 )}
               >
-                {filterStatus ? `Filtrado: ${filterStatus}` : "Filtrar"}
+                {filterStatus
+                  ? `Filtrado: ${translateStatus(filterStatus)}`
+                  : "Filtrar"}
               </Button>
             </DropdownTrigger>
             <DropdownMenu
@@ -162,7 +182,7 @@ const OrderList: React.FC<OrderListProps> = ({
                 ...uniqueStatuses.map((status) => (
                   <DropdownItem key={status} textValue={status}>
                     <div className="flex items-center justify-between w-full">
-                      <span className="capitalize">{status}</span>
+                      <span className="capitalize">{translateStatus(status)}</span>
                       <Chip size="sm">{statusCounts[status] || 0}</Chip>
                     </div>
                   </DropdownItem>
@@ -252,9 +272,8 @@ const OrderList: React.FC<OrderListProps> = ({
         </Accordion>
       </div>
 
-      {/* Vista escritorio con grid */}
       <div className="hidden md:grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
-        {processedOrders.map((order, index) => (
+        {processedOrders.map((order) => (
           <div
             key={order.id}
           >

@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { resendVerification, sendVerification } from "@/services/authService";
 import { signIn } from "next-auth/react";
-import { CheckCircle, AlertCircle, MailIcon, Loader, Lock } from "lucide-react";
+import { CheckCircle, AlertCircle, MailIcon, Loader } from "lucide-react";
 
 interface VerificationModalProps {
   isOpen: boolean;
@@ -16,42 +16,6 @@ interface VerificationModalProps {
     [key: string]: any;
   };
 }
-
-// Componente separado para el campo OTP individual
-const OtpDigitInput = ({
-  focus, value, onChange, onKeyDown, onFocus, onPaste, isInvalid, index
-}: {
-  focus: boolean;
-  value: string;
-  onChange: (value: string) => void;
-  onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => void;
-  onFocus: () => void;
-  onPaste: (e: React.ClipboardEvent<HTMLInputElement>) => void;
-  isInvalid: boolean;
-  index: number;
-}) => (
-  <input
-    type="text"
-    autoFocus={focus && index === 0}
-    className={`w-12 h-16 text-center text-xl font-bold rounded-lg outline-none transition-all duration-200
-      ${isInvalid
-        ? "border-2 border-red-500 bg-red-50 dark:bg-red-900/20"
-        : "border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800"}
-      focus:border-blue-500 dark:focus:border-blue-400 focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-blue-400/20`}
-    maxLength={1}
-    value={value}
-    onChange={e => {
-      const val = e.target.value;
-      // Solo permitir letras minúsculas y números
-      if (/^[a-z0-9]$/.test(val) || val === '') {
-        onChange(val);
-      }
-    }}
-    onKeyDown={onKeyDown}
-    onFocus={onFocus}
-    onPaste={onPaste}
-  />
-);
 
 export default function VerificationModal({
   isOpen,
@@ -73,10 +37,8 @@ export default function VerificationModal({
   const [isResending, setIsResending] = useState(false);
   const [canResend, setCanResend] = useState(false);
 
-  // Refs para manejar el enfoque directo en los inputs
   const inputRefs = useRef<(HTMLInputElement | null)[]>(Array(6).fill(null));
 
-  // Reiniciar estados al abrir el modal
   useEffect(() => {
     if (isOpen) {
       setVerificationCode(Array(6).fill(''));
@@ -85,7 +47,6 @@ export default function VerificationModal({
       setShowSuccess(false);
       setTimeRemaining(INITIAL_TIME);
 
-      // Enfocar el primer input automáticamente al abrir
       setTimeout(() => {
         if (inputRefs.current[0]) {
           inputRefs.current[0].focus();
@@ -351,7 +312,6 @@ export default function VerificationModal({
             exit={{ opacity: 0, scale: 0.9 }}
             className="bg-white dark:bg-gray-800 rounded-xl w-full max-w-md overflow-hidden relative shadow-2xl"
           >
-            {/* Animación de éxito */}
             {showSuccess && (
               <motion.div
                 initial={{ opacity: 0 }}
