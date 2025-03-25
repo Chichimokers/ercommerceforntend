@@ -1,11 +1,11 @@
 "use client";
 import { Authenticated, Refine } from "@refinedev/core";
-import { ThemedLayoutV2, ThemedSiderV2, useNotificationProvider } from "@refinedev/antd";
+import { ThemedLayoutV2, useNotificationProvider } from "@refinedev/antd";
 import { AntdRegistry } from "@ant-design/nextjs-registry";
 import NextRouterProvider from "@refinedev/nextjs-router/app";
 import { authProvider } from "@/providers/auth-provider";
-import { AppstoreOutlined, SunOutlined, MoonOutlined } from "@ant-design/icons";
-import { ConfigProvider, App, Layout as AntLayout, Space, Switch, Spin } from "antd";
+import { SunOutlined, MoonOutlined } from "@ant-design/icons";
+import { ConfigProvider, App, Layout as AntLayout, Space, Switch } from "antd";
 import { theme } from "antd";
 import { useTheme } from "next-themes";
 import { customDataProvider } from "@providers/data-provider";
@@ -15,10 +15,9 @@ import "@refinedev/antd/dist/reset.css";
 import { i18nProvider } from '@providers/i18n-refine-provider';
 import { useSession } from "next-auth/react";
 import React, { useEffect, useMemo, memo } from "react";
-import Image from "next/image";
 import { resources } from "@components/admin/resources";
 import accessControlProvider from "@components/admin/access_control";
-import { Spinner } from "@heroui/react";
+import CustomSider from "@components/admin/custom_sider";
 
 const FloatButtonsGroupComponent = dynamic(
   () => import("@/components/admin/float_buttons/floatButtonGroups"),
@@ -65,46 +64,10 @@ const CustomHeader = memo(() => {
       />
       <Space align="center">
         <AccountButton />
-        <AccountButton />
       </Space>
     </Header>
   );
 });
-
-const CustomSider = () => (
-  <ThemedSiderV2
-    fixed
-    Title={({ collapsed }) => (
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          padding: collapsed ? "0 12px" : "0 16px",
-        }}
-      >
-        {collapsed ? (
-          <AppstoreOutlined style={{ fontSize: "24px", color: "#3b82f6" }} />
-        ) : (
-          <Image
-            alt="Company Logo"
-            loading="lazy"
-            width={160}
-            height={60}
-            quality={50}
-            src="/logonav.png"
-            className="w-auto object-contain flex-shrink-0"
-          />
-        )}
-      </div>
-    )}
-    render={({ items, logout }) => (
-      <>
-        {items}
-        {logout}
-      </>
-    )}
-  />
-);
 
 function Layout({ children }: { children: React.ReactNode }) {
   const { resolvedTheme } = useTheme();
@@ -171,33 +134,11 @@ function Layout({ children }: { children: React.ReactNode }) {
   }, [resolvedTheme]);
 
 
-  if (status === "loading") {
-    return (
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          height: "100vh",
-          width: "100vw",
-          flexDirection: "column",
-        }}
-      >
-        <Image
-          src="/logonav.png"
-          alt="Cargando..."
-          width={200}
-          height={200}
-          priority
-        />
-        <Spinner size="md" style={{ marginTop: 20 }} />
-      </div>
-    );
-  }
 
   return (
     <AntdRegistry>
       <ConfigProvider locale={esES} theme={themeConfig}> 
+        <App>
           <Refine
             routerProvider={NextRouterProvider}
             dataProvider={customDataProvider}
@@ -226,6 +167,7 @@ function Layout({ children }: { children: React.ReactNode }) {
               <FloatButtonsGroupComponent />
             </Authenticated>
           </Refine>
+          </App>
       </ConfigProvider>
     </AntdRegistry>
   );
