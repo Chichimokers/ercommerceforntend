@@ -15,6 +15,8 @@ interface OrderSummaryProps {
   isLoadingPrice?: boolean;
   error?: any;
   cartItems?: ProductBase[];
+  meetsMinimumAmount?: boolean; // Nueva propiedad
+  minimumAmount?: number; // Nueva propiedad
 }
 
 // Componente Skeleton para usar durante la carga
@@ -82,6 +84,8 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
   isLoadingPrice = false,
   error = null,
   cartItems = [],
+  meetsMinimumAmount = true, // Valor predeterminado
+  minimumAmount = 0 // Valor predeterminado
 }) => {
   const deviceData = useDeviceDetection();
   const { rateExchange } = useCurrencyStore();
@@ -126,89 +130,95 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
   );
 
   return (
-    <div className={`flex justify-center w-full ${className}`}>
-      <div
-        className="w-full"
-      >
-        <Card
-          className={`w-full shadow-sm border border-gray-200 dark:border-gray-700 rounded-xl mx-auto ${!deviceData.isLowPerformance && !deviceData.isDataSaver ? 'bg-white dark:bg-gray-800' : 'bg-white dark:bg-gray-800'}`}
-          disableAnimation={deviceData.isLowPerformance}
-        >
-          <CardBody className="gap-3 p-4 sm:p-5">
-            <div className="flex justify-between items-center mb-1">
-              <h2 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                <ShoppingBag size={18} className="text-blue-500" />
-                Resumen del pedido
-              </h2>
-              <span className="bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-xs font-medium px-2.5 py-1 rounded-md flex items-center">
-                <Box size={12} className="mr-1" />
-                {weight.toFixed(2)} kg
-              </span>
+    <Card
+      className={`${className} w-full shadow-sm border border-gray-200 dark:border-gray-700 rounded-xl mx-auto ${!deviceData.isLowPerformance && !deviceData.isDataSaver ? 'bg-white dark:bg-gray-800' : 'bg-white dark:bg-gray-800'}`}
+      disableAnimation={deviceData.isLowPerformance}
+    >
+      <CardBody className="gap-3 p-4 sm:p-5">
+        <div className="flex justify-between items-center mb-1">
+          <h2 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+            <ShoppingBag size={18} className="text-blue-500" />
+            Resumen del pedido
+          </h2>
+          <span className="bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-xs font-medium px-2.5 py-1 rounded-md flex items-center">
+            <Box size={12} className="mr-1" />
+            {weight.toFixed(2)} kg
+          </span>
+        </div>
+
+        <Divider className="my-1.5" />
+
+        <div className="space-y-1">
+          <SummaryItem
+            label="Subtotal"
+            amount={subtotal}
+          />
+          <SummaryItem
+            label="Envío"
+            amount={shipping}
+            hasTooltip
+            tooltipText="Costo de envío calculado según peso y ubicación"
+            icon={<Truck size={14} />}
+          />
+        </div>
+
+        <div className="pt-3 mt-1 border-t border-gray-200 dark:border-gray-700">
+          <div className="flex justify-between items-center">
+            <span className="font-semibold text-gray-900 dark:text-white">
+              Total
+            </span>
+            <span
+              className="text-base sm:text-lg font-bold text-blue-600 dark:text-blue-400"
+            >
+              {formatCurrency(total * exchangeRate, currency, symbol)}
+            </span>
+          </div>
+        </div>
+
+        {/* Mensaje de advertencia si no cumple con el mínimo */}
+        {!meetsMinimumAmount && cartItems.length > 0 && (
+          <div className="mb-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+            <p className="text-sm text-yellow-700 dark:text-yellow-400 font-medium">
+              El pedido mínimo debe ser de ${minimumAmount.toFixed(2)}
+            </p>
+            <p className="text-xs text-yellow-600 dark:text-yellow-500 mt-1">
+              Te faltan ${(minimumAmount - subtotal).toFixed(2)} para completar el mínimo requerido.
+            </p>
+          </div>
+        )}
+
+        <div className="mt-4">
+          <Button
+            as={Link}
+            href="/checkout"
+            size="lg"
+            color="primary"
+            className="w-full font-medium shadow-sm transition-all duration-300 hover:shadow-md hover:opacity-95"
+            isDisabled={isLoadingPrice || !!error || cartItems.length === 0}
+            startContent={<ShoppingBag size={18} />}
+            disableAnimation={deviceData.isLowPerformance}
+          >
+            Proceder al pago
+          </Button>
+
+          {/* Solo mostrar información adicional en dispositivos de alto rendimiento */}
+          {!deviceData.isLowPerformance && !deviceData.isDataSaver && (
+            <div className="mt-3 text-xs text-gray-500 dark:text-gray-400 text-center flex justify-center items-center gap-1">
+              <Info size={12} />
+              Se incluye el coste de embalaje y gestión
             </div>
+          )}
+        </div>
 
-            <Divider className="my-1.5" />
-
-            <div className="space-y-1">
-              <SummaryItem
-                label="Subtotal"
-                amount={subtotal}
-              />
-              <SummaryItem
-                label="Envío"
-                amount={shipping}
-                hasTooltip
-                tooltipText="Costo de envío calculado según peso y ubicación"
-                icon={<Truck size={14} />}
-              />
-            </div>
-
-            <div className="pt-3 mt-1 border-t border-gray-200 dark:border-gray-700">
-              <div className="flex justify-between items-center">
-                <span className="font-semibold text-gray-900 dark:text-white">
-                  Total
-                </span>
-                <span
-                  className="text-base sm:text-lg font-bold text-blue-600 dark:text-blue-400"
-                >
-                  {formatCurrency(total * exchangeRate, currency, symbol)}
-                </span>
-              </div>
-            </div>
-
-            <div className="mt-4">
-              <Button
-                as={Link}
-                href="/checkout"
-                size="lg"
-                color="primary"
-                className="w-full font-medium shadow-sm transition-all duration-300 hover:shadow-md hover:opacity-95"
-                isDisabled={isLoadingPrice || !!error || cartItems.length === 0}
-                startContent={<ShoppingBag size={18} />}
-                disableAnimation={deviceData.isLowPerformance}
-              >
-                Proceder al pago
-              </Button>
-
-              {/* Solo mostrar información adicional en dispositivos de alto rendimiento */}
-              {!deviceData.isLowPerformance && !deviceData.isDataSaver && (
-                <div className="mt-3 text-xs text-gray-500 dark:text-gray-400 text-center flex justify-center items-center gap-1">
-                  <Info size={12} />
-                  Se incluye el coste de embalaje y gestión
-                </div>
-              )}
-            </div>
-
-            {error && (
-              <div
-                className="mt-2 p-2 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-xs rounded"
-              >
-                Error al calcular el envío. Por favor intenta nuevamente.
-              </div>
-            )}
-          </CardBody>
-        </Card>
-      </div>
-    </div>
+        {error && (
+          <div
+            className="mt-2 p-2 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-xs rounded"
+          >
+            Error al calcular el envío. Por favor intenta nuevamente.
+          </div>
+        )}
+      </CardBody>
+    </Card>
   );
 };
 

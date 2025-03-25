@@ -15,6 +15,8 @@ import Link from "next/link";
 import { useDeviceDetection } from "@/hooks/useDeviceDetection";
 import { useCartStore } from "@store/cart/cart-store";
 
+const MINIMUM_ORDER_AMOUNT = 85; // Mínimo requerido en dólares
+
 interface ShippingPriceRequest {
   total_weight: number;
   municipality: string;
@@ -142,6 +144,10 @@ export default function ShoppingCartPage() {
     }, 0);
   }, [cart, cartProducts]);
 
+  const meetsMinimumAmount = useMemo(() => {
+    return subtotal >= MINIMUM_ORDER_AMOUNT;
+  }, [subtotal]);
+
   useEffect(() => {
     setIsMounted(true);
 
@@ -259,6 +265,8 @@ export default function ShoppingCartPage() {
                   isLoadingPrice={isLoadingPrice}
                   cartItems={cartItems}
                   error={error}
+                  meetsMinimumAmount={meetsMinimumAmount} // Nueva propiedad
+                  minimumAmount={MINIMUM_ORDER_AMOUNT} // Pasar el mínimo requerido
                 />
               )}
 
