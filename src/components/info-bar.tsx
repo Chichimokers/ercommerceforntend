@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Phone, Mail, Headset } from "lucide-react";
+import { Phone, Mail } from "lucide-react";
 import CurrencySelector from "@components/selects/currency-selector";
 import Link from "next/link";
 

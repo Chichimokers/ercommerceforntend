@@ -9,7 +9,6 @@ import { useFormValidation } from "@/hooks/useFormValidation";
 import { signUp } from "@/services/authService";
 import { UserData } from "@/types/types";
 import VerificationModal from "@components/modals/verification-modal";
-import { useModal } from "@/contexts/modal-context";
 import { EyeSlashFilledIcon } from "@components/images/eye-slash-icon";
 import { EyeFilledIcon } from "@components/images/eye-filled";
 import { useRouter } from "next/navigation";
@@ -28,17 +27,18 @@ interface FormData {
 }
 
 export default function SignUp() {
-  const {
-    isVerifyOpen,
-    openVerify,
-    closeVerify,
-    data,
-    setData,
-  } = useModal();
+  // Estados locales para reemplazar useModal
+  const [isVerifyModalOpen, setIsVerifyModalOpen] = useState(false);
+  const [userData, setUserData] = useState<UserData | null>(null);
+
   const [submitError, setSubmitError] = useState("");
   const [isVisibleP, setIsVisibleP] = useState(false);
   const [isVisibleCP, setIsVisibleCP] = useState(false);
   const router = useRouter();
+
+  // Funciones para manejar el modal
+  const openVerifyModal = useCallback(() => setIsVerifyModalOpen(true), []);
+  const closeVerifyModal = useCallback(() => setIsVerifyModalOpen(false), []);
 
   const toggleVisibilityP = useCallback(() => setIsVisibleP(prev => !prev), []);
   const toggleVisibilityCP = useCallback(() => setIsVisibleCP(prev => !prev), []);
@@ -85,11 +85,11 @@ export default function SignUp() {
     validateForm,
   } = useFormValidation(
     {
-      fullName: data?.username || "",
-      email: data?.email || "",
-      password: data?.password || "",
-      confirmPassword: data?.password || "",
-      acceptTerms: !data ? false : true,
+      fullName: userData?.username || "",
+      email: userData?.email || "",
+      password: userData?.password || "",
+      confirmPassword: userData?.password || "",
+      acceptTerms: !!userData,
     },
     validationRules
   );
@@ -115,8 +115,12 @@ export default function SignUp() {
       };
 
       await signUp(user);
-      setData(user);
-      openVerify();
+
+      // Guardar datos de usuario localmente
+      setUserData(user);
+
+      // Abrir modal de verificación
+      openVerifyModal();
 
       addToast({
         title: "Registro exitoso",
@@ -140,7 +144,7 @@ export default function SignUp() {
     } finally {
       setIsLoading(false);
     }
-  }, [validateForm, formData, setIsLoading, setData, openVerify]);
+  }, [validateForm, formData, setIsLoading, openVerifyModal]);
 
   const handleSocialSignUp = useCallback(async (provider: "google" | "facebook") => {
     try {
@@ -172,9 +176,9 @@ export default function SignUp() {
         description: "text-green-600 dark:text-green-200",
       }
     });
-    closeVerify();
+    closeVerifyModal();
     router.push("/");
-  }, [closeVerify, router]);
+  }, [closeVerifyModal, router]);
 
   return (
     <div className={"w-full p-5 sm:p-8"}>
@@ -377,10 +381,10 @@ export default function SignUp() {
       </form>
 
       <VerificationModal
-        isOpen={isVerifyOpen}
-        onClose={closeVerify}
+        isOpen={isVerifyModalOpen}
+        onClose={closeVerifyModal}
         onVerifyCode={handleVerificationSuccess}
-        userData={data}
+        userData={userData || undefined}
       />
     </div>
   );
