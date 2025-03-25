@@ -130,19 +130,20 @@ const RangeFilterComponent: React.FC<RangeFilterProps> = ({
           />
         </Space>
       </Form.Item>
-      <Space>
-        <Button type="primary" onClick={handleApply}>
-          Aplicar
-        </Button>
+      <Space align="baseline" >
         <Button onClick={handleReset}>
           Restablecer
+        </Button>
+            
+        <Button style={{marginLeft:"25px"}} size="middle" type="primary" variant="solid" color="blue" onClick={handleApply}>
+          Aplicar
         </Button>
       </Space>
     </Form>
   );
 };
 
-// Props del componente principal
+
 interface GenericListProps<T extends BaseType> {
   resource: string;
   title: string;
@@ -153,7 +154,7 @@ interface GenericListProps<T extends BaseType> {
   actionButtons?: ActionButtonsConfig;
 }
 
-// Componente principal
+
 const GenericList = <T extends BaseType>({
   resource,
   title,
@@ -168,8 +169,8 @@ const GenericList = <T extends BaseType>({
   const [activeSorter, setActiveSorter] = useState<{ field: string, order: 'ascend' | 'descend' } | null>(null);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [pageSize_, setPageSize] = useState<number>(pageSize);
-
-  // Estados para la barra de búsqueda
+  
+  
   const [searchField, setSearchField] = useState<string>("");
   const [searchText, setSearchText] = useState<string>("");
 
@@ -182,7 +183,7 @@ const GenericList = <T extends BaseType>({
     sorters: { mode: "off" },
   });
 
-  // Obtener campos disponibles para búsqueda
+  
   const searchableFields = useMemo(() => {
     return columns
       .filter(col => col.dataIndex && typeof col.dataIndex === 'string')
@@ -198,7 +199,7 @@ const GenericList = <T extends BaseType>({
       return [];
     }
 
-
+  
     let result = [...tableProps.dataSource];
 
     if (activeFilters.length > 0) {
@@ -223,8 +224,8 @@ const GenericList = <T extends BaseType>({
           }
 
           return true;
-        })
-      );
+        }) // Added missing closing parenthesis for .every()
+      ); // Added missing closing parenthesis for .filter()
     }
 
 
@@ -355,7 +356,7 @@ const GenericList = <T extends BaseType>({
       };
     });
 
-    // Añadir columna de acciones si es necesario
+    
     if (showActions) {
       const actionsColumn: ColumnType<T> = {
         title: 'Acciones',
@@ -527,7 +528,7 @@ const GenericList = <T extends BaseType>({
           placeholder="Buscar..."
           value={searchText}
           onChange={e => setSearchText(e.target.value)}
-          onKeyPress={handleSearchKeyPress}
+          onKeyDown={handleSearchKeyPress}
           style={{ width: 300 }}
           suffix={
             <Button
@@ -557,6 +558,7 @@ const GenericList = <T extends BaseType>({
         dataSource={paginatedData}
         loading={tableProps.loading}
         onChange={handleTableChange}
+        bordered
         pagination={{
           current: currentPage,
           pageSize: pageSize_,
