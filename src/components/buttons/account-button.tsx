@@ -8,12 +8,10 @@ import {
   Tooltip,
 } from "@heroui/react";
 import { signOut, useSession } from "next-auth/react";
-import { useModal } from "@/contexts/modal-context";
 import { User2 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-// Función para generar color basado en el nombre
 const generateColorFromName = (name: string) => {
   const colors = [
     'bg-red-500', 'bg-blue-500', 'bg-green-500',
@@ -25,7 +23,6 @@ const generateColorFromName = (name: string) => {
 
 const AccountButton = React.memo(({ className }: { className?: string }) => {
   const { data: session } = useSession();
-  const { openLogin } = useModal();
   const pathname = usePathname();
   const isOrdersPage = pathname === "/orders";
 
@@ -65,19 +62,8 @@ const AccountButton = React.memo(({ className }: { className?: string }) => {
               <p className="font-semibold">{session.user.email}</p>
             </DropdownItem>
           )}
-          {!session ? (
-            <>
-              <DropdownItem
-                color="primary"
-                key="sign in"
-                onPress={() => openLogin()}
-              >
-                Iniciar sesión
-              </DropdownItem>
-            </>
-          ) : null}
           {!isOrdersPage ?
-            <DropdownItem as={Link} key="orders" href="/orders">
+            <DropdownItem as={Link} key="orders" href="/orders" className="hidden xm:block">
               Ordenes
             </DropdownItem>
             : null

@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useMemo, Dispatch, SetStateAction, memo, Suspense } from "react";
+import { useEffect, useState, useCallback, useMemo, SetStateAction, memo, Suspense } from "react";
 import { Slider, Select, SelectItem, CheckboxGroup, Checkbox, Button } from "@heroui/react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useProductContext } from "@/contexts/product-context";
@@ -7,7 +7,6 @@ import { FilterState } from "@/types/types";
 
 interface FiltersProps {
   onFilterChange?: (filters: FilterState) => void;
-  setIsInvalidFilters: Dispatch<SetStateAction<boolean>>;
   className?: string;
   onPendingFiltersChange?: (pendingFilters: FilterStateType | null) => void;
 }
@@ -94,10 +93,11 @@ const Filters = (props: FiltersProps) => {
 };
 
 // Componente principal que contiene toda la lógica y usa useSearchParams
-const FiltersContent = ({ onFilterChange, setIsInvalidFilters, className, onPendingFiltersChange }: FiltersProps) => {
+const FiltersContent = ({ onFilterChange, className, onPendingFiltersChange }: FiltersProps) => {
   const { categories, isLoading, minPrice, maxPrice } = useProductContext();
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { isInvalidFilters, setIsInvalidFilters } = useStateDispatch<SetStateAction<boolean>>(false);
 
   // Estado de filtros aplicados (sincronizados con URL)
   const [filterState, setFilterState] = useState<FilterStateType>(() => DEFAULT_FILTER_STATE);
@@ -401,6 +401,10 @@ const FiltersContent = ({ onFilterChange, setIsInvalidFilters, className, onPend
         className="mb-2"
         isRequired
         isInvalid={displayFilters.categories.names.length === 0}
+        classNames={{
+          label: "select-none",
+          wrapper: "touch-manipulation"
+        }}
       >
         {categoryOptions.map(category => (
           <CategoryCheckbox key={category} category={category} />
@@ -477,3 +481,12 @@ const FiltersContent = ({ onFilterChange, setIsInvalidFilters, className, onPend
 FiltersContent.displayName = 'FiltersContent';
 
 export default memo(Filters);
+
+function useStateDispatch<T>(initialState: T) {
+  const [state, setState] = useState<T>(initialState);
+  return {
+    isInvalidFilters: state,
+    setIsInvalidFilters: setState
+  };
+}
+

@@ -31,12 +31,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
           <ProductProvider>
             <CartProvider>
               <CartSyncBackup />
-              <ModalProvider>
-                <HeroUIProvider>
-                  <ToastProvider />
-                  {children}
-                </HeroUIProvider>
-              </ModalProvider>
+              <HeroUIProvider>
+                <ToastProvider />
+                {children}
+              </HeroUIProvider>
             </CartProvider>
           </ProductProvider>
         </AccessTokenSynchronizer >

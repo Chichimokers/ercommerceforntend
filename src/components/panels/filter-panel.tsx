@@ -10,7 +10,6 @@ const Filters = dynamic(() => import("../filters/filters"), {
 
 export const FilterPanel = () => {
   const { setFilters, applyFilters } = useFilters();
-  const [isInvalidFilters, setIsInvalidFilters] = useState<boolean>(false);
 
   return (
     <div className="relative px-4 filter-panel hidden md:block md:w-64 h-[calc(100vh-114px)] overflow-y-auto hover:overflow-y-scroll z-20 shadow-sm scrollbar-hide border-r border-default-50 transition-all duration-300">
@@ -22,7 +21,6 @@ export const FilterPanel = () => {
           <React.Suspense fallback={<FiltersSkeleton />}>
             <Filters
               onFilterChange={setFilters}
-              setIsInvalidFilters={setIsInvalidFilters}
               className="transition-opacity duration-300 ease-in-out bg-white dark:bg-gray-900"
             />
           </React.Suspense>

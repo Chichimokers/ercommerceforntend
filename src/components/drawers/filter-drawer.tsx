@@ -45,8 +45,6 @@ const FilterDrawer = React.memo(function FilterDrawer({ className }: { className
         backdrop="opaque"
         size="sm"
         placement="left"
-        isDismissable={false}
-        isKeyboardDismissDisabled
         isOpen={isOpen}
         onOpenChange={onOpenChange}
       >
@@ -58,7 +56,10 @@ const FilterDrawer = React.memo(function FilterDrawer({ className }: { className
               </DrawerHeader>
               <DrawerBody>
                 <React.Suspense fallback={<div></div>}>
-                  <Filters onFilterChange={setFilters} setIsInvalidFilters={setIsInvalidFilters} />
+                  <Filters
+                    onFilterChange={setFilters}
+                    className="transition-opacity duration-300 ease-in-out bg-white dark:bg-gray-900"
+                  />
                 </React.Suspense>
               </DrawerBody>
             </>

@@ -339,7 +339,7 @@ export const Header = ({ className, setModalOpen }: { className?: string, setMod
   return (
     <HerouiNavbar
       maxWidth="full"
-      className={`${className} z-50 top-0 left-0 right-0 h-16 bg-white dark:bg-gray-900 transition-all duration-300 ${scrolled ? "shadow-md border-b border-gray-100 dark:border-gray-800" : "shadow-sm"
+      className={`${className} z-40 top-0 left-0 right-0 h-16 bg-white dark:bg-gray-900 transition-all duration-300 ${scrolled ? "shadow-md border-b border-gray-100 dark:border-gray-800" : "shadow-sm"
         }`}
     >
       <NavbarContent className="flex-shrink-0 sm:flex-1 md:flex-initial" justify="start">

@@ -9,7 +9,6 @@ import { useFormValidation } from "@/hooks/useFormValidation";
 import { signUp } from "@/services/authService";
 import { UserData } from "@/types/types";
 import VerificationModal from "@components/modals/verification-modal";
-import { useModal } from "@/contexts/modal-context";
 import { EyeSlashFilledIcon } from "@components/images/eye-slash-icon";
 import { EyeFilledIcon } from "@components/images/eye-filled";
 import { useRouter } from "next/navigation";
@@ -18,8 +17,6 @@ import { FormField } from "@components/forms/form-field";
 import { TermsModal } from "@components/modals/terms-modal";
 import Link from "next/link";
 import { PrivacyPolicyModal } from "@components/modals/privacy-policy-modal";
-import useDeviceCapabilities from "@hooks/useDeviceCapabilities";
-
 
 interface FormData {
   fullName: string;
@@ -30,18 +27,18 @@ interface FormData {
 }
 
 export default function SignUp() {
-  const { isLowPerformance } = useDeviceCapabilities();
-  const {
-    isVerifyOpen,
-    openVerify,
-    closeVerify,
-    data,
-    setData,
-  } = useModal();
+  // Estados locales para reemplazar useModal
+  const [isVerifyModalOpen, setIsVerifyModalOpen] = useState(false);
+  const [userData, setUserData] = useState<UserData | null>(null);
+
   const [submitError, setSubmitError] = useState("");
   const [isVisibleP, setIsVisibleP] = useState(false);
   const [isVisibleCP, setIsVisibleCP] = useState(false);
   const router = useRouter();
+
+  // Funciones para manejar el modal
+  const openVerifyModal = useCallback(() => setIsVerifyModalOpen(true), []);
+  const closeVerifyModal = useCallback(() => setIsVerifyModalOpen(false), []);
 
   const toggleVisibilityP = useCallback(() => setIsVisibleP(prev => !prev), []);
   const toggleVisibilityCP = useCallback(() => setIsVisibleCP(prev => !prev), []);
@@ -88,11 +85,11 @@ export default function SignUp() {
     validateForm,
   } = useFormValidation(
     {
-      fullName: data?.username || "",
-      email: data?.email || "",
-      password: data?.password || "",
-      confirmPassword: data?.password || "",
-      acceptTerms: !data ? false : true,
+      fullName: userData?.username || "",
+      email: userData?.email || "",
+      password: userData?.password || "",
+      confirmPassword: userData?.password || "",
+      acceptTerms: !!userData,
     },
     validationRules
   );
@@ -118,8 +115,12 @@ export default function SignUp() {
       };
 
       await signUp(user);
-      setData(user);
-      openVerify();
+
+      // Guardar datos de usuario localmente
+      setUserData(user);
+
+      // Abrir modal de verificación
+      openVerifyModal();
 
       addToast({
         title: "Registro exitoso",
@@ -143,7 +144,7 @@ export default function SignUp() {
     } finally {
       setIsLoading(false);
     }
-  }, [validateForm, formData, setIsLoading, setData, openVerify]);
+  }, [validateForm, formData, setIsLoading, openVerifyModal]);
 
   const handleSocialSignUp = useCallback(async (provider: "google" | "facebook") => {
     try {
@@ -164,10 +165,6 @@ export default function SignUp() {
     }
   }, [setIsLoading]);
 
-  const getAnimationClass = useCallback((baseClass: string, animClass: string) => {
-    return isLowPerformance ? baseClass : `${baseClass} ${animClass}`;
-  }, [isLowPerformance]);
-
   const handleVerificationSuccess = useCallback(() => {
     addToast({
       title: "Verificación exitosa",
@@ -179,17 +176,16 @@ export default function SignUp() {
         description: "text-green-600 dark:text-green-200",
       }
     });
-    closeVerify();
+    closeVerifyModal();
     router.push("/");
-  }, [closeVerify, router]);
+  }, [closeVerifyModal, router]);
 
   return (
-    <div className={getAnimationClass("w-full p-5 sm:p-8", "animate-fadeIn")}>
+    <div className={"w-full p-5 sm:p-8"}>
       <div className="flex flex-col items-center gap-4 mb-6">
-        <div className={getAnimationClass(
-          "relative w-20 h-20 mb-2",
-          "animate-scaleIn"
-        )}>
+        <div className={
+          "relative w-20 h-20 mb-2"
+        }>
           <Image
             src="/logo.png"
             fill
@@ -197,7 +193,7 @@ export default function SignUp() {
             className="object-contain"
           />
         </div>
-        <div className={getAnimationClass("text-center", "animate-fadeInDown")}>
+        <div className="text-center">
           <h1 className="text-2xl font-bold text-blue-600 dark:text-blue-400">
             Crea tu cuenta
           </h1>
@@ -208,10 +204,9 @@ export default function SignUp() {
       </div>
 
       {submitError && (
-        <div className={getAnimationClass(
-          "mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-300 text-sm",
-          "animate-slideDown"
-        )}>
+        <div className={
+          "mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-300 text-sm"
+        }>
           <div className="flex items-center">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
@@ -222,11 +217,11 @@ export default function SignUp() {
       )}
 
       <form
-        className={getAnimationClass("space-y-5", "animate-fadeIn")}
+        className="space-y-5"
         onSubmit={handleSubmit}
         noValidate
       >
-        <div className={getAnimationClass("", "animate-fadeInUp delay-100")}>
+        <div>
           <FormField label="Nombre completo" error={errors.fullName} className="mb-4">
             <Input
               startContent={<User2Icon className="h-5 w-5 text-gray-500 flex-shrink-0" />}
@@ -242,7 +237,7 @@ export default function SignUp() {
           </FormField>
         </div>
 
-        <div className={getAnimationClass("", "animate-fadeInUp delay-200")}>
+        <div>
           <FormField label="Correo electrónico" error={errors.email} className="mb-4">
             <Input
               startContent={<OutlineEmailIcon className="h-5 w-5 text-gray-500 flex-shrink-0" />}
@@ -259,7 +254,7 @@ export default function SignUp() {
           </FormField>
         </div>
 
-        <div className={getAnimationClass("", "animate-fadeInUp delay-300")}>
+        <div>
           <FormField label="Contraseña" error={errors.password} className="mb-4">
             <Input
               startContent={<Lock className="h-5 w-5 text-gray-500 flex-shrink-0" />}
@@ -292,7 +287,7 @@ export default function SignUp() {
           </FormField>
         </div>
 
-        <div className={getAnimationClass("", "animate-fadeInUp delay-400")}>
+        <div>
           <FormField label="Confirmar contraseña" error={errors.confirmPassword} className="mb-4">
             <Input
               startContent={<Lock className="h-5 w-5 text-gray-500 flex-shrink-0" />}
@@ -322,7 +317,7 @@ export default function SignUp() {
           </FormField>
         </div>
 
-        <div className={getAnimationClass("mb-6", "animate-fadeInUp delay-500")}>
+        <div className={"mb-6"}>
           <div className={`flex items-center ${errors.acceptTerms ? "pb-5" : ""}`}>
             <Checkbox
               isSelected={formData.acceptTerms}
@@ -343,41 +338,37 @@ export default function SignUp() {
           )}
         </div>
 
-        <div className={getAnimationClass("", "animate-fadeInUp delay-600")}>
-          <Button
-            fullWidth
-            type="submit"
-            className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
-            isLoading={isLoading}
-            size="lg"
-          >
-            {isLoading ? "Creando cuenta..." : "Crear cuenta"}
-          </Button>
-        </div>
+        <Button
+          fullWidth
+          type="submit"
+          className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
+          isLoading={isLoading}
+          size="lg"
+        >
+          {isLoading ? "Creando cuenta..." : "Crear cuenta"}
+        </Button>
 
-        <div className={getAnimationClass("flex items-center my-6", "animate-fadeInUp delay-700")}>
+        <div className={"flex items-center my-6"}>
           <hr className="flex-1 border-gray-300 dark:border-gray-700" />
           <span className="px-4 text-sm text-gray-500 dark:text-gray-400">O regístrate con</span>
           <hr className="flex-1 border-gray-300 dark:border-gray-700" />
         </div>
 
-        <div className={getAnimationClass("", "animate-fadeInUp delay-800")}>
-          <Button
-            fullWidth
-            variant="bordered"
-            className="bg-white dark:bg-gray-800/70 hover:bg-gray-50 dark:hover:bg-gray-700/70 border border-gray-300 dark:border-gray-700 text-gray-800 dark:text-gray-200 font-medium py-3 px-4 rounded-xl transition-all duration-200"
-            onClick={() => handleSocialSignUp("google")}
-            startContent={<GoogleIcon className="text-lg text-red-500 mr-2" />}
-            isDisabled={isLoading}
-            size="lg"
-            type="button"
-          >
-            Continuar con Google
-          </Button>
-        </div>
+        <Button
+          fullWidth
+          variant="bordered"
+          className="bg-white dark:bg-gray-800/70 hover:bg-gray-50 dark:hover:bg-gray-700/70 border border-gray-300 dark:border-gray-700 text-gray-800 dark:text-gray-200 font-medium py-3 px-4 rounded-xl transition-all duration-200"
+          onClick={() => handleSocialSignUp("google")}
+          startContent={<GoogleIcon className="text-lg text-red-500 mr-2" />}
+          isDisabled={isLoading}
+          size="lg"
+          type="button"
+        >
+          Continuar con Google
+        </Button>
 
         <div
-          className={getAnimationClass("text-center mt-8 text-sm text-gray-600 dark:text-gray-400", "animate-fadeInUp delay-900")}
+          className={"text-center mt-8 text-sm text-gray-600 dark:text-gray-400"}
         >
           ¿Ya tienes una cuenta?{" "}
           <Link
@@ -390,10 +381,10 @@ export default function SignUp() {
       </form>
 
       <VerificationModal
-        isOpen={isVerifyOpen}
-        onClose={closeVerify}
+        isOpen={isVerifyModalOpen}
+        onClose={closeVerifyModal}
         onVerifyCode={handleVerificationSuccess}
-        userData={data}
+        userData={userData || undefined}
       />
     </div>
   );

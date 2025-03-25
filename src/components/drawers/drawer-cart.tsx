@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useContext, useMemo, useState } from "react";
+import React, { Suspense, useCallback, useMemo, useState } from "react";
 import {
   Drawer,
   DrawerContent,
@@ -25,6 +25,7 @@ import Image from "next/image";
 import { formatCurrency } from "@components/format-currency";
 import { useCurrencyStore } from "@store/currency/currency-store";
 import { useCartStore } from "@store/cart/cart-store";
+import FiltersSkeleton from "@components/skeletons/filters-skeleton";
 
 const CartCard = dynamic(() => import("../cards/cart-cards"));
 
@@ -209,7 +210,7 @@ export default function DrawerCart({ className }: { className?: string }) {
       >
         <DrawerContent>
           {(onClose) => (
-            <>
+            <Suspense fallback={<FiltersSkeleton />}>
               <DrawerHeader className="flex flex-col gap-1 mt-6">
                 <div className="flex flex-row justify-between items-center">
                   <h1>Carro de Compras</h1>
@@ -228,7 +229,13 @@ export default function DrawerCart({ className }: { className?: string }) {
                 </div>
               </DrawerHeader>
               <DrawerBody>
-                {renderCartItems}
+                <Suspense
+                  fallback={
+                    <FiltersSkeleton />
+                  }
+                >
+                  {renderCartItems}
+                </Suspense>
               </DrawerBody>
 
               <DrawerFooter>
@@ -241,7 +248,7 @@ export default function DrawerCart({ className }: { className?: string }) {
                   </CustomButton>
                 </Link>
               </DrawerFooter>
-            </>
+            </Suspense>
           )}
         </DrawerContent>
       </Drawer>

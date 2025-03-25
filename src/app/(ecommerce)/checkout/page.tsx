@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useContext, useEffect, useMemo, useState, lazy, Suspense } from "react";
+import { useCallback, useEffect, useMemo, useState, lazy, Suspense } from "react";
 import { Spinner } from "@heroui/react";
 import { useProductContext } from "@contexts/product-context";
 import { useCartStore } from "@store/cart/cart-store";
@@ -27,19 +27,15 @@ const formSchema = z.object({
   district: z.string().min(3, "Mínimo 3 caracteres"),
   street: z.string().min(3, "Mínimo 3 caracteres"),
   houseNumber: z.string().min(1, "Requerido"),
-  idCard: z.string().min(10, "Mínimo 10 caracteres"),
-  phone: z.string().refine((value) => {
-    try {
-      const phoneUtil = PhoneNumberUtil.getInstance();
-      const number = phoneUtil.parse(value, "CU");
-      return phoneUtil.isValidNumber(number);
-    } catch {
-      return false;
-    }
-  }, "Teléfono inválido"),
-  aux_phone: z.union([
-    z.string().trim().length(0),
-    z.string().refine((value) => {
+  idCard: z.string()
+    .min(11, "Mínimo 11 caracteres")
+    .max(11, "Máximo 11 caracteres")
+    .regex(/^\d+$/, "Solo se permiten números"),
+  phone: z.string()
+    .min(8, "Debe tener 8 dígitos")
+    .max(8, "Debe tener 8 dígitos")
+    .regex(/^\d+$/, "Solo se permiten números")
+    .refine((value) => {
       try {
         const phoneUtil = PhoneNumberUtil.getInstance();
         const number = phoneUtil.parse(value, "CU");
@@ -47,7 +43,23 @@ const formSchema = z.object({
       } catch {
         return false;
       }
-    }, "Teléfono inválido")
+    }, "Formato de teléfono cubano inválido"),
+
+  aux_phone: z.union([
+    z.string().trim().length(0),
+    z.string()
+      .min(8, "Debe tener 8 dígitos")
+      .max(8, "Debe tener 8 dígitos")
+      .regex(/^\d+$/, "Solo se permiten números")
+      .refine((value) => {
+        try {
+          const phoneUtil = PhoneNumberUtil.getInstance();
+          const number = phoneUtil.parse(value, "CU");
+          return phoneUtil.isValidNumber(number);
+        } catch {
+          return false;
+        }
+      }, "Formato de teléfono cubano inválido")
   ])
     .optional()
     .transform(val => val === "" ? undefined : val)
@@ -310,7 +322,6 @@ export default function BuyPage() {
               <form onSubmit={methods.handleSubmit(onSubmit)} className="space-y-6">
                 <div className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Campos del formulario optimizados */}
                     <FormField
                       label="Nombre"
                       error={methods.formState.errors.firstName?.message}
@@ -324,7 +335,6 @@ export default function BuyPage() {
                         className="group rounded-xl dark:bg-gray-900/50 bg-gray-100"
                       />
                     </FormField>
-                    {/* Resto de campos... */}
                     <FormField
                       label="Apellidos"
                       error={methods.formState.errors.lastName?.message}
@@ -343,10 +353,19 @@ export default function BuyPage() {
                       error={methods.formState.errors.phone?.message}
                     >
                       <InputField
-                        {...methods.register("phone")}
+                        {...methods.register("phone", {
+                          onChange: (e) => {
+                            const value = e.target.value.replace(/\D/g, '');
+                            e.target.value = value.substring(0, 11);
+                          }
+                        })}
                         startContent={<span className="text-default-400">+53</span>}
-                        placeholder="########"
+                        placeholder="51234567"
                         className="rounded-xl dark:bg-gray-900/50 bg-gray-100"
+                        type="tel"
+                        pattern="[0-9]*"
+                        inputMode="numeric"
+                        maxLength={8}
                       />
                     </FormField>
                     <FormField
@@ -354,10 +373,19 @@ export default function BuyPage() {
                       error={methods.formState.errors.aux_phone?.message}
                     >
                       <InputField
-                        {...methods.register("aux_phone")}
+                        {...methods.register("aux_phone", {
+                          onChange: (e) => {
+                            const value = e.target.value.replace(/\D/g, '');
+                            e.target.value = value.substring(0, 11);
+                          }
+                        })}
                         startContent={<span className="text-default-400">+53</span>}
-                        placeholder="########"
+                        placeholder="52345678"
                         className="rounded-xl dark:bg-gray-900/50 bg-gray-100"
+                        type="tel"
+                        pattern="[0-9]*"
+                        inputMode="numeric"
+                        maxLength={8}
                       />
                     </FormField>
                     <FormField
@@ -373,6 +401,14 @@ export default function BuyPage() {
                         }
                         placeholder="03030355697"
                         className="rounded-xl dark:bg-gray-900/50 bg-gray-50"
+                        type="text"
+                        pattern="[0-9]*"
+                        inputMode="numeric"
+                        maxLength={11}
+                        onChange={(e) => {
+                          const value = e.target.value.replace(/\D/g, '');
+                          e.target.value = value.substring(0, 11);
+                        }}
                       />
                     </FormField>
                   </div>
@@ -482,5 +518,4 @@ import { CartItem } from "../../../types/interfaces"; import { CurrencyData, Pro
 import React from "react";
 import { CheckoutStepper } from "@components/stepper/stepper";
 import { useCurrencyStore } from "@store/currency/currency-store";
-import { CartContext } from "@contexts/cart-context";
 

@@ -174,7 +174,7 @@ export default function ProductPage() {
       {!deviceData.isMobile ? (
         <FilterPanel />
       ) : (
-        <div className="hidden md:block w-64 bg-gray-100 dark:bg-gray-800/50"></div>
+        <FilterDrawer />
       )}
 
       {deviceData.isMobile && !shouldOptimizeSeverely && (
