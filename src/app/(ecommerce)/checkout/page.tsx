@@ -527,7 +527,7 @@ export default function BuyPage() {
             </h2>
 
             {/* Contador de productos */}
-            <div className="inline-block px-3 py-1 bg-primary/10 dark:bg-primary/20 text-primary rounded-full text-sm font-medium mb-4">
+            <div className="inline-block px-3 py-1 bg-primary/10 dark:bg-primary/20 text-default-700 rounded-full text-sm font-medium mb-4">
               {cart?.length || 0} {cart?.length === 1 ? 'producto' : 'productos'}
             </div>
 
