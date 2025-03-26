@@ -2,7 +2,7 @@
 
 import { Header } from "@/components/header/header";
 import dynamic from "next/dynamic";
-import React, { ReactNode, useState, useEffect } from "react";
+import React, { ReactNode, useState, useEffect, useRef } from "react";
 import { Navbar } from "@/components/navbar/nav";
 import LocationModal from "@components/modals/location-modal";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
@@ -17,11 +17,40 @@ export default function EcommerceLayout({ children }: { children: ReactNode }) {
   const [forceLocationSelection, setForceLocationSelection] = useState(false);
   const [showInfoBar, setShowInfoBar] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
+  const [locationChecked, setLocationChecked] = useState(false);
+  const initialHydrationRef = useRef(false);
 
   const { hasLocation } = useLocationStore();
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
+
+  useEffect(() => {
+    if (!initialHydrationRef.current) {
+      initialHydrationRef.current = true;
+
+      const timer = setTimeout(() => {
+        const state = useLocationStore.getState();
+        console.log("Estado rehidratado:", state.location, "hasLocation:", state.hasLocation);
+
+        const isComplete = Boolean(
+          state.location?.province &&
+          state.location?.municipality &&
+          state.location.province.trim() !== "" &&
+          state.location.municipality.trim() !== ""
+        );
+
+        if (state.hasLocation !== isComplete) {
+          console.warn("Corrigiendo inconsistencia en estado de ubicación");
+          state.setLocation(state.location);
+        }
+
+        setLocationChecked(true);
+      }, 100);
+
+      return () => clearTimeout(timer);
+    }
+  }, []);
 
   useEffect(() => {
     const locationRequired = searchParams.get('locationRequired') === 'true';
@@ -36,10 +65,11 @@ export default function EcommerceLayout({ children }: { children: ReactNode }) {
   }, [searchParams, pathname, router]);
 
   useEffect(() => {
-    if (!hasLocation) {
+    if (locationChecked && !hasLocation) {
+      console.log("Abriendo modal de ubicación porque no hay ubicación guardada");
       setModalOpen(true);
     }
-  }, [hasLocation]);
+  }, [hasLocation, locationChecked]);
 
   useEffect(() => {
     const controlInfoBar = () => {
