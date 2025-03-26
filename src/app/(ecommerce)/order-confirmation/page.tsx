@@ -47,30 +47,6 @@ export default function OrderConfirmationPage() {
     })
     : "";
 
-  // Mapeo de estados a español
-  const spanishStatus = {
-    accepted: 'Aceptada',
-    cancelled: 'Cancelada',
-    retired: 'Retirada',
-    pending: 'Pendiente',
-    paid: 'Pagada',
-    default: 'Pendiente',
-  } as const;
-
-  // Colores para los estados
-  const statusColors = {
-    accepted: 'bg-blue-100 text-blue-800 dark:bg-blue-800/20 dark:text-blue-300 border-blue-300 dark:border-blue-700',
-    cancelled: 'bg-red-100 text-red-800 dark:bg-red-800/20 dark:text-red-300 border-red-300 dark:border-red-700',
-    retired: 'bg-purple-100 text-purple-800 dark:bg-purple-800/20 dark:text-purple-300 border-purple-300 dark:border-purple-700',
-    pending: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-800/20 dark:text-yellow-300 border-yellow-300 dark:border-yellow-700',
-    paid: 'bg-green-100 text-green-800 dark:bg-green-800/20 dark:text-green-300 border-green-300 dark:border-green-700',
-    default: 'bg-gray-100 text-gray-800 dark:bg-gray-800/20 dark:text-gray-300 border-gray-300 dark:border-gray-700',
-  } as const;
-
-  const statusColor = order?.status
-    ? statusColors[order.status as keyof typeof statusColors] || statusColors.default
-    : statusColors.default;
-
   useEffect(() => {
     // Esperar a que el tema esté completamente cargado (dark/light)
     const themeLoadCheck = setTimeout(() => {
@@ -263,12 +239,6 @@ export default function OrderConfirmationPage() {
                     <div className="bg-white/10 rounded-lg px-4 py-2 flex items-center border border-white/20">
                       <ClipboardCheck className="h-4 w-4 mr-2 opacity-80" />
                       <span className="font-medium">Pedido #{order.id.slice(0, 8).toUpperCase()}</span>
-                    </div>
-
-                    <div className={`${statusColor} rounded-lg px-4 py-2 flex items-center border`}>
-                      <span className="text-sm font-medium capitalize">
-                        {spanishStatus[order?.status as keyof typeof spanishStatus] || "Pendiente"}
-                      </span>
                     </div>
                   </div>
                 )}
