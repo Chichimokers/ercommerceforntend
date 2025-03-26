@@ -8,29 +8,56 @@ import { formatCurrency } from "@components/format-currency";
 import PaymentMethodButton from "@hooks/usePaymentMethodSelector";
 import Collapse from "@components/collapse";
 import { useRouter } from "next/navigation";
-import { createPortal } from "react-dom";
 import { useCurrencyStore } from "@store/currency/currency-store";
 
-// Modal para mostrar el QR en tamaño grande
+// Opción 2: Eliminar completamente los portales
 const QRModal = ({
   isOpen,
   onClose,
-  orderId
+  orderId,
+  isMounted,
 }: {
   isOpen: boolean;
   onClose: () => void;
-  orderId: string
+  orderId: string;
+  isMounted: boolean;
 }) => {
-  if (!isOpen) return null;
+  // Estado adicional para seguir si el contenido del modal debe renderizarse
+  const [shouldRender, setShouldRender] = useState(false);
 
-  return createPortal(
+  // Efecto para manejar el scroll
+  useEffect(() => {
+    if (!isOpen || !isMounted) return;
+
+    setShouldRender(true);
+    const scrollY = window.scrollY;
+    document.body.style.position = 'fixed';
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.width = '100%';
+    document.body.style.overflowY = 'hidden';
+
+    return () => {
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
+      document.body.style.overflowY = '';
+      window.scrollTo(0, scrollY);
+
+      setTimeout(() => setShouldRender(false), 300);
+    };
+  }, [isOpen, isMounted]);
+
+  if (!shouldRender) return null;
+
+  return (
     <div
-      className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 animate-fadeIn"
+      className={`fixed inset-0 bg-black/60 z-[9999] flex items-center justify-center p-4 
+        ${isOpen && isMounted ? 'animate-fadeIn' : 'animate-fadeOut'}`}
       onClick={onClose}
     >
       <div
         className="bg-white dark:bg-gray-800 rounded-xl p-6 max-w-sm w-full shadow-2xl relative animate-scaleIn"
-        onClick={(e) => e.stopPropagation()} /* Evitar que se cierre al hacer clic dentro */
+        onClick={(e) => e.stopPropagation()}
       >
         <button
           onClick={onClose}
@@ -61,17 +88,21 @@ const QRModal = ({
           Acerca la cámara de tu dispositivo para escanear
         </p>
       </div>
-    </div>,
-    document.body
+    </div>
   );
 };
 
-// Modificación del componente OrderHeader para incluir la funcionalidad del modal
 const OrderHeader = ({ order, isSticky = true }: { order: Order, isSticky?: boolean }) => {
   const orderDate = order.created_at ? new Date(order.created_at) : null;
   const formattedDate = orderDate ? orderDate.toLocaleDateString('es-ES') : 'Fecha no disponible';
   const formattedTime = orderDate ? orderDate.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }) : '';
   const [qrModalOpen, setQrModalOpen] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+    return () => setIsMounted(false);
+  }, []);
 
   return (
     <>
@@ -122,11 +153,11 @@ const OrderHeader = ({ order, isSticky = true }: { order: Order, isSticky?: bool
         </div>
       </div>
 
-      {/* Modal del QR */}
       <QRModal
         isOpen={qrModalOpen}
         onClose={() => setQrModalOpen(false)}
         orderId={order.id}
+        isMounted={isMounted}
       />
     </>
   );

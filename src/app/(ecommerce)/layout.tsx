@@ -7,10 +7,10 @@ import { Navbar } from "@/components/navbar/nav";
 import LocationModal from "@components/modals/location-modal";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
 import { useLocationStore } from "@/store/location/location-store";
+import { OverlayNext } from "@components/overlay";
 
 const Footer = dynamic(() => import("@components/footer/footer"));
 const InfoBar = dynamic(() => import("@components/info-bar"));
-import { Overlay } from "@components/overlay";
 
 export default function EcommerceLayout({ children }: { children: ReactNode }) {
   const [modalOpen, setModalOpen] = useState(false);
@@ -92,7 +92,7 @@ export default function EcommerceLayout({ children }: { children: ReactNode }) {
         className="flex-grow container mx-auto max-w-full min-h-[70vh] pt-[114px]"
       >
         {children}
-        {modalOpen && <Overlay onClick={forceLocationSelection ? undefined : () => setModalOpen(false)} />}
+        {modalOpen && <OverlayNext onClick={forceLocationSelection ? undefined : () => setModalOpen(false)} />}
         <LocationModal
           open={modalOpen}
           onClose={handleCloseModal}
