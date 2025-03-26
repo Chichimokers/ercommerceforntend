@@ -3,6 +3,40 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
+// Función auxiliar para detectar el entorno
+const isBrowser = typeof window !== 'undefined';
+
+// Métodos seguros para interactuar con localStorage
+const safeLocalStorage = {
+  getItem: (key: string): string | null => {
+    if (!isBrowser) return null;
+    try {
+      return localStorage.getItem(key);
+    } catch (error) {
+      console.error('Error al leer localStorage:', error);
+      return null;
+    }
+  },
+  setItem: (key: string, value: string): void => {
+    if (!isBrowser) return;
+    try {
+      localStorage.setItem(key, value);
+      document.cookie = `${key}=${encodeURIComponent(value)}; path=/; max-age=31536000; SameSite=Lax`;
+    } catch (error) {
+      console.error('Error al escribir localStorage:', error);
+    }
+  },
+  removeItem: (key: string): void => {
+    if (!isBrowser) return;
+    try {
+      localStorage.removeItem(key);
+      document.cookie = `${key}=; path=/; max-age=0`;
+    } catch (error) {
+      console.error('Error al eliminar de localStorage:', error);
+    }
+  }
+};
+
 interface Location {
   province: string;
   municipality: string;
@@ -72,32 +106,15 @@ export const useLocationStore = create<LocationStore>()(
       // Configuración explícita de almacenamiento
       storage: {
         getItem: (name) => {
-          try {
-            const value = localStorage.getItem(name);
-            return value ? JSON.parse(value) : null;
-          } catch (e) {
-            console.error("Error al leer ubicación:", e);
-            return null;
-          }
+          const value = safeLocalStorage.getItem(name);
+          return value ? JSON.parse(value) : null;
         },
         setItem: (name, value) => {
-          try {
-            const serialized = JSON.stringify(value);
-            localStorage.setItem(name, serialized);
-            // También establecer como cookie para el middleware
-            document.cookie = `${name}=${encodeURIComponent(serialized)}; path=/; max-age=31536000; SameSite=Lax`;
-          } catch (e) {
-            console.error("Error al guardar ubicación:", e);
-          }
+          const serialized = JSON.stringify(value);
+          safeLocalStorage.setItem(name, serialized);
         },
         removeItem: (name) => {
-          try {
-            localStorage.removeItem(name);
-            // También eliminar la cookie
-            document.cookie = `${name}=; path=/; max-age=0`;
-          } catch (e) {
-            console.error("Error al eliminar ubicación:", e);
-          }
+          safeLocalStorage.removeItem(name);
         }
       },
       // Solo persistir estas propiedades
