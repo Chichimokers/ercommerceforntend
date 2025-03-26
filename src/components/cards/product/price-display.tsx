@@ -28,7 +28,7 @@ export default function PriceDisplay({
           currency: currency || DEFAULT_CURRENCY,
           minimumFractionDigits: 2,
           maximumFractionDigits: 2,
-        }).format(finalPrice)}
+        }).format(discount && discount.min && quantity >= discount.min ? finalPrice : price)}
       </p>
 
       {discount && discount.min && quantity >= discount.min && (
