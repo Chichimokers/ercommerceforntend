@@ -2,7 +2,7 @@
 
 import React, { useState, useCallback, useEffect, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Card, CardBody, Spinner, Tab, Tabs, Tooltip, Badge } from "@heroui/react";
+import { Card, CardBody, Spinner, Tab, Tabs, Tooltip, Badge, Chip } from "@heroui/react";
 import { Breadcrumbs } from "@components/breadcrumb/breadcrumbs";
 import { ShoppingCart, Truck, Share2, TriangleAlert, ShoppingBag } from "lucide-react";
 import { WeightIcon, Check, X, AlertTriangle } from "lucide-react";
@@ -116,9 +116,9 @@ const ProductPrice = ({
           <span className="text-lg text-gray-500 line-through">
             {formatCurrency(displayPrice, rateExchange?.currency, rateExchange?.symbol)}
           </span>
-          <Badge color="danger" className="text-xs font-medium px-2">
+          <div className="text-sm font-extralight">
             (-{discount && discount?.reduction && ((discount.reduction * 100 * (rateExchange?.exchangeRate || 1)) / displayPrice).toFixed(2)}%)
-          </Badge>
+          </div>
         </div>
       ) : (
         <span className="text-2xl md:text-3xl font-bold text-primary">
