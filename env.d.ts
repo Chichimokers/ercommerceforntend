@@ -9,5 +9,7 @@ namespace NodeJS {
     NEXT_PUBLIC_PHONE: string;
     NEXT_PUBLIC_EMAIL: string;
     ANALYZE: string;
+    NEXT_PUBLIC_RECAPTCHA_SITE_KEY: string;
+    RECAPTCHA_SECRET_KEY: string;
   }
 }
