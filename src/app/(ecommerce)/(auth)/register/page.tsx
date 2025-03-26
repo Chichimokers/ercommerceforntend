@@ -8,7 +8,6 @@ import { Lock, User2Icon } from "lucide-react";
 import { useFormValidation } from "@/hooks/useFormValidation";
 import { signUp } from "@/services/authService";
 import { UserData } from "@/types/types";
-import VerificationModal from "@components/modals/verification-modal";
 import { EyeSlashFilledIcon } from "@components/images/eye-slash-icon";
 import { EyeFilledIcon } from "@components/images/eye-filled";
 import { useRouter } from "next/navigation";
@@ -17,6 +16,13 @@ import { FormField } from "@components/forms/form-field";
 import { TermsModal } from "@components/modals/terms-modal";
 import Link from "next/link";
 import { PrivacyPolicyModal } from "@components/modals/privacy-policy-modal";
+import { OverlayNext } from "@components/overlay";
+import dynamic from "next/dynamic";
+
+const VerificationModal = dynamic(
+  () => import("@/components/modals/verification-modal"),
+  { ssr: false }
+);
 
 interface FormData {
   fullName: string;
@@ -380,6 +386,7 @@ export default function SignUp() {
         </div>
       </form>
 
+      {isVerifyModalOpen && <OverlayNext onClick={() => setIsVerifyModalOpen(false)} />}
       <VerificationModal
         isOpen={isVerifyModalOpen}
         onClose={closeVerifyModal}

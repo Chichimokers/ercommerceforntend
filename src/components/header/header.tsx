@@ -22,7 +22,7 @@ import { ProductBase } from "../../types/types";
 import { motion } from "framer-motion";
 import { XIcon } from "lucide-react";
 import { CustomButton } from "@components/buttons/custom-button";
-import { Overlay } from "@components/overlay";
+import { OverlayNext } from "@components/overlay";
 import { LocationButton } from "@components/buttons/location-button";
 
 const AccountButton = dynamic(
@@ -120,7 +120,7 @@ const MobileSearch = () => {
 
   return (
     <>
-      {isOpen && <Overlay onClick={() => setIsOpen(false)} />}
+      {isOpen && <OverlayNext onClick={() => setIsOpen(false)} />}
 
       <div className="relative z-50" ref={searchRef}>
         {!isOpen ? (

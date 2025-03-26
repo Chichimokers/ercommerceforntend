@@ -6,6 +6,7 @@ import { VisaIcon, MastercardIcon, PaypalIcon } from "@components/icons/icons";
 import { CreditCard, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@heroui/react";
+import { OverlayNext } from "@components/overlay";
 
 interface PaymentMethodModalProps {
   isOpen: boolean;
@@ -115,12 +116,13 @@ const CustomButton = ({
   );
 };
 
-const PaymentMethodModal: React.FC<PaymentMethodModalProps> = ({
+// Cambiar la declaración de tipo
+const PaymentMethodModal = ({
   isOpen,
   onOpenChange,
   onSelectMethod,
   initialMethod = ""
-}) => {
+}: PaymentMethodModalProps) => {
   const [selectedMethod, setSelectedMethod] = useState<string>(initialMethod);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
@@ -203,104 +205,104 @@ const PaymentMethodModal: React.FC<PaymentMethodModalProps> = ({
 
   if (!isMounted) return null;
 
-  return createPortal(
-    <AnimatePresence>
-      {isOpen && (
-        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="fixed inset-0 bg-black/40"
-            onClick={() => !isSubmitting && onOpenChange(false)}
-            aria-hidden="true"
-          />
+  const modalContent = isOpen && (
+    <div className="fixed inset-0 z-[99999]" style={{ isolation: 'isolate', pointerEvents: 'auto' }}>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.2 }}
+        className="fixed inset-0 bg-black/60 backdrop-filter backdrop-blur-sm"
+        onClick={() => !isSubmitting && onOpenChange(false)}
+        aria-hidden="true"
+      />
 
-          <motion.div
-            ref={modalRef}
-            initial={{ opacity: 0, scale: 0.95, y: 10 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 10 }}
-            transition={{ duration: 0.25, ease: "easeOut" }}
-            className="relative bg-white dark:bg-gray-800 rounded-xl shadow-lg w-full max-w-md mx-auto overflow-hidden z-10"
-            onClick={e => e.stopPropagation()}
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="payment-modal-title"
-          >
-            <div className="flex justify-between items-center p-5 border-b border-gray-200 dark:border-gray-700">
-              <h2
-                id="payment-modal-title"
-                className="text-lg font-semibold text-gray-800 dark:text-white flex items-center gap-2"
+      <div className="fixed inset-0 flex items-center justify-center p-4">
+        <motion.div
+          ref={modalRef}
+          initial={{ opacity: 0, scale: 0.95, y: 10 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.95, y: 10 }}
+          transition={{ duration: 0.25, ease: "easeOut" }}
+          className="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-md mx-auto overflow-hidden"
+          onClick={e => e.stopPropagation()}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="payment-modal-title"
+          style={{ zIndex: 100000 }}
+        >
+          <div className="flex justify-between items-center p-5 border-b border-gray-200 dark:border-gray-700">
+            <h2
+              id="payment-modal-title"
+              className="text-lg font-semibold text-gray-800 dark:text-white flex items-center gap-2"
+            >
+              <CreditCard className="text-blue-500" size={20} />
+              <span>Selecciona un método de pago</span>
+            </h2>
+
+            {!isSubmitting && (
+              <button
+                onClick={() => onOpenChange(false)}
+                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+                aria-label="Cerrar"
               >
-                <CreditCard className="text-blue-500" size={20} />
-                <span>Selecciona un método de pago</span>
-              </h2>
+                <X size={20} />
+              </button>
+            )}
+          </div>
 
-              {!isSubmitting && (
-                <button
-                  onClick={() => onOpenChange(false)}
-                  className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
-                  aria-label="Cerrar"
+          <div className="p-5 max-h-[60vh] overflow-y-auto">
+            <div className="space-y-4">
+              {paymentMethods.map((method) => (
+                <CustomRadio
+                  key={method.id}
+                  value={method.id}
+                  selectedValue={selectedMethod}
+                  onChange={setSelectedMethod}
+                  disabled={isSubmitting}
                 >
-                  <X size={20} />
-                </button>
-              )}
-            </div>
-
-            <div className="p-5 max-h-[60vh] overflow-y-auto">
-              <div className="space-y-4">
-                {paymentMethods.map((method) => (
-                  <CustomRadio
-                    key={method.id}
-                    value={method.id}
-                    selectedValue={selectedMethod}
-                    onChange={setSelectedMethod}
-                    disabled={isSubmitting}
-                  >
-                    <div className="flex items-start gap-4">
-                      <div className="flex items-center justify-center">
-                        {method.icon}
+                  <div className="flex items-start gap-4">
+                    <div className="flex items-center justify-center">
+                      {method.icon}
+                    </div>
+                    <div>
+                      <div className="font-medium text-gray-800 dark:text-gray-100">
+                        {method.name}
                       </div>
-                      <div>
-                        <div className="font-medium text-gray-800 dark:text-gray-100">
-                          {method.name}
-                        </div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400">
-                          {method.description}
-                        </div>
+                      <div className="text-sm text-gray-500 dark:text-gray-400">
+                        {method.description}
                       </div>
                     </div>
-                  </CustomRadio>
-                ))}
-              </div>
+                  </div>
+                </CustomRadio>
+              ))}
             </div>
+          </div>
 
-            <div className="flex justify-end gap-3 p-5 border-t border-gray-200 dark:border-gray-700">
-              <Button
-                color="danger"
-                className="bg-transparent hover:bg-default-200"
-                onPress={() => !isSubmitting && onOpenChange(false)}
-                disabled={isSubmitting}
-              >
-                Cancelar
-              </Button>
-              <CustomButton
-                color="primary"
-                onClick={handleConfirm}
-                disabled={!selectedMethod || isSubmitting}
-                loading={isSubmitting}
-              >
-                Confirmar y pagar
-              </CustomButton>
-            </div>
-          </motion.div>
-        </div>
-      )}
-    </AnimatePresence>,
-    document.body
+          <div className="flex justify-end gap-3 p-5 border-t border-gray-200 dark:border-gray-700">
+            <Button
+              color="danger"
+              className="bg-transparent hover:bg-default-200"
+              onPress={() => !isSubmitting && onOpenChange(false)}
+              disabled={isSubmitting}
+            >
+              Cancelar
+            </Button>
+            <CustomButton
+              color="primary"
+              onClick={handleConfirm}
+              disabled={!selectedMethod || isSubmitting}
+              loading={isSubmitting}
+            >
+              Confirmar y pagar
+            </CustomButton>
+          </div>
+        </motion.div>
+      </div>
+    </div>
   );
+
+  return createPortal(modalContent, document.body);
 };
 
 export default PaymentMethodModal;

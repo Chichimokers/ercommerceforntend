@@ -4,7 +4,8 @@ import React, { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { resendVerification, sendVerification } from "@/services/authService";
 import { signIn } from "next-auth/react";
-import { CheckCircle, AlertCircle, MailIcon, Loader, Lock } from "lucide-react";
+import { CheckCircle, AlertCircle, MailIcon, Loader } from "lucide-react";
+import { Portal } from "@/components/ui/portal"; // Importar el componente Portal
 
 interface VerificationModalProps {
   isOpen: boolean;
@@ -17,75 +18,41 @@ interface VerificationModalProps {
   };
 }
 
-// Componente separado para el campo OTP individual
-const OtpDigitInput = ({
-  focus, value, onChange, onKeyDown, onFocus, onPaste, isInvalid, index
-}: {
-  focus: boolean;
-  value: string;
-  onChange: (value: string) => void;
-  onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => void;
-  onFocus: () => void;
-  onPaste: (e: React.ClipboardEvent<HTMLInputElement>) => void;
-  isInvalid: boolean;
-  index: number;
-}) => (
-  <input
-    type="text"
-    autoFocus={focus && index === 0}
-    className={`w-12 h-16 text-center text-xl font-bold rounded-lg outline-none transition-all duration-200
-      ${isInvalid
-        ? "border-2 border-red-500 bg-red-50 dark:bg-red-900/20"
-        : "border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800"}
-      focus:border-blue-500 dark:focus:border-blue-400 focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-blue-400/20`}
-    maxLength={1}
-    value={value}
-    onChange={e => {
-      const val = e.target.value;
-      // Solo permitir letras minúsculas y números
-      if (/^[a-z0-9]$/.test(val) || val === '') {
-        onChange(val);
-      }
-    }}
-    onKeyDown={onKeyDown}
-    onFocus={onFocus}
-    onPaste={onPaste}
-  />
-);
-
 export default function VerificationModal({
   isOpen,
   onClose,
   onVerifyCode,
   userData,
 }: VerificationModalProps) {
-  const INITIAL_TIME = 120;
+  const INITIAL_TIME = 120; // 2 minutos
   const TIME_PENALTY = 30;
+
+  // Reemplazar el estado timeRemaining por estos dos
+  const [expirationTime, setExpirationTime] = useState<number | null>(null);
+  const [timeRemaining, setTimeRemaining] = useState(INITIAL_TIME);
 
   const [verificationCode, setVerificationCode] = useState(Array(6).fill(''));
   const [focusedInput, setFocusedInput] = useState(0);
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [timeRemaining, setTimeRemaining] = useState(INITIAL_TIME);
   const [timerActive, setTimerActive] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
   const [isResending, setIsResending] = useState(false);
   const [canResend, setCanResend] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
 
-  // Refs para manejar el enfoque directo en los inputs
   const inputRefs = useRef<(HTMLInputElement | null)[]>(Array(6).fill(null));
 
-  // Reiniciar estados al abrir el modal
   useEffect(() => {
     if (isOpen) {
       setVerificationCode(Array(6).fill(''));
       setFocusedInput(0);
       setErrorMessage('');
       setShowSuccess(false);
+      setExpirationTime(null); // Resetear el tiempo de expiración
       setTimeRemaining(INITIAL_TIME);
 
-      // Enfocar el primer input automáticamente al abrir
       setTimeout(() => {
         if (inputRefs.current[0]) {
           inputRefs.current[0].focus();
@@ -101,33 +68,45 @@ export default function VerificationModal({
     }
   }, [focusedInput, isOpen]);
 
+  useEffect(() => {
+    setIsMounted(true);
+    return () => setIsMounted(false);
+  }, []);
+
   // Manejo del temporizador
   useEffect(() => {
     let intervalId: NodeJS.Timeout;
 
-    if (isOpen && timeRemaining > 0) {
+    if (isOpen && !expirationTime) {
+      // Establecer tiempo de expiración cuando se abre el modal
+      const expTime = Date.now() + INITIAL_TIME * 1000;
+      setExpirationTime(expTime);
       setErrorMessage('');
       setTimerActive(true);
       setCanResend(false);
+    }
 
+    if (isOpen && expirationTime) {
+      // Comprobar el tiempo restante cada 500ms
       intervalId = setInterval(() => {
-        setTimeRemaining(prev => {
-          if (prev <= 1) {
-            clearInterval(intervalId);
-            setTimerActive(false);
-            setCanResend(true);
-            setErrorMessage('¡Código expirado! Por favor solicita uno nuevo');
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
+        const now = Date.now();
+        const remaining = Math.max(0, Math.floor((expirationTime - now) / 1000));
+
+        setTimeRemaining(remaining);
+
+        if (remaining <= 0) {
+          clearInterval(intervalId);
+          setTimerActive(false);
+          setCanResend(true);
+          setErrorMessage('¡Código expirado! Por favor solicita uno nuevo');
+        }
+      }, 500);
     }
 
     return () => {
       if (intervalId) clearInterval(intervalId);
     };
-  }, [isOpen, timeRemaining]);
+  }, [isOpen, expirationTime]);
 
   // Formatear tiempo como MM:SS
   const formatTime = (seconds: number) => {
@@ -278,6 +257,10 @@ export default function VerificationModal({
       await resendVerification({ ...userData, username: userData.username });
       setSuccessMessage("Se ha reenviado el código a su correo.");
       setShowSuccess(true);
+
+      // Establecer nueva hora de expiración
+      const newExpTime = Date.now() + INITIAL_TIME * 1000;
+      setExpirationTime(newExpTime);
       setTimeRemaining(INITIAL_TIME);
       setCanResend(false);
 
@@ -292,7 +275,12 @@ export default function VerificationModal({
           ? error.message
           : "Error al reenviar el código. Verifique su correo."
       );
-      setTimeRemaining(prev => prev + TIME_PENALTY);
+
+      // Añadir penalización al tiempo de expiración actual
+      if (expirationTime) {
+        const penalizedTime = expirationTime + TIME_PENALTY * 1000;
+        setExpirationTime(penalizedTime);
+      }
     } finally {
       setIsResending(false);
     }
@@ -321,37 +309,35 @@ export default function VerificationModal({
     }
   }, [isOpen]);
 
-  if (!isOpen) return null;
+  if (!isOpen || !isMounted) return null;
 
-  return (
-    <>
-      {/* Backdrop con mayor z-index */}
+  // Extraer el contenido del modal en una variable
+  const modalContent = (
+    <div
+      className="fixed inset-0 flex flex-col items-center justify-center"
+      style={{
+        isolation: 'isolate',
+        zIndex: 999999,
+      }}
+    >
+      {/* Resto del JSX sin cambios */}
       <div
-        className="fixed inset-0 bg-black/50 backdrop-blur-sm"
-        style={{
-          zIndex: 100000, // Valor extremadamente alto
-          pointerEvents: 'auto',
-          touchAction: 'none'
-        }}
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        onClick={e => e.stopPropagation()}
+        style={{ zIndex: 0 }}
       />
 
-      {/* Contenedor modal con z-index aún mayor */}
       <div
-        className="fixed inset-0 flex items-center justify-center p-4"
-        style={{
-          zIndex: 100001, // Mayor que el backdrop
-          pointerEvents: 'auto',
-          touchAction: 'none'
-        }}
+        className="relative z-10 w-full max-w-md p-4"
+        style={{ maxHeight: '90vh' }}
       >
         <AnimatePresence>
           <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            className="bg-white dark:bg-gray-800 rounded-xl w-full max-w-md overflow-hidden relative shadow-2xl"
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 10 }}
+            className="bg-white dark:bg-gray-800 rounded-xl w-full overflow-hidden relative shadow-2xl"
           >
-            {/* Animación de éxito */}
             {showSuccess && (
               <motion.div
                 initial={{ opacity: 0 }}
@@ -391,12 +377,11 @@ export default function VerificationModal({
                 </p>
               </div>
 
-              {/* Campo de código OTP */}
               <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-4">
                   Ingresa el código de 6 dígitos
                 </label>
-                <div className="flex justify-center gap-2">
+                <div className="flex justify-center gap-2 mb-4">
                   {verificationCode.map((digit, index) => (
                     <input
                       key={index}
@@ -413,7 +398,7 @@ export default function VerificationModal({
                       onKeyDown={e => handleKeyDown(index, e)}
                       onFocus={() => setFocusedInput(index)}
                       onPaste={handlePaste}
-                      className={`w-14 h-14 text-center text-xl font-bold rounded-lg outline-none transition-all duration-200
+                      className={`w-10 h-10 xxs:w-12 xxs:h-12 md:w-14 md:h-14 text-center text-xl font-bold rounded-lg outline-none transition-all duration-200
                         ${!!errorMessage
                           ? "border-2 border-red-500 bg-red-50 dark:bg-red-900/20"
                           : "border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800"}
@@ -488,6 +473,8 @@ export default function VerificationModal({
           </motion.div>
         </AnimatePresence>
       </div>
-    </>
+    </div>
   );
+
+  return <Portal>{modalContent}</Portal>;
 }

@@ -16,6 +16,7 @@ import { FormField } from "@components/forms/form-field";
 import InputField from "@components/forms/input";
 import { formatCurrency } from "@components/format-currency";
 import Link from "next/link";
+import CaptchaModal from "@/components/modals/captcha-modal";
 
 const AddressForm = lazy(() => import("@components/AddressForm").then(mod => ({ default: mod.AddressForm })));
 
@@ -131,6 +132,9 @@ export default function BuyPage() {
   const { rateExchange } = useCurrencyStore();
   const [missingProducts, setMissingProducts] = useState<string[]>([]);
   const [isCartReady, setIsCartReady] = useState(false);
+  const [isCaptchaModalOpen, setIsCaptchaModalOpen] = useState(false);
+  const [captchaVerified, setCaptchaVerified] = useState(false);
+  const [orderFormData, setOrderFormData] = useState<FormValues | null>(null);
 
   // Referencia persistente para evitar recreaciones en cada renderizado
   const formSubmitRef = useRef(false);
@@ -187,86 +191,133 @@ export default function BuyPage() {
     mode: 'onBlur'
   });
 
+  // Simplificar el onSubmit para que solo maneje la parte inicial
   const onSubmit = useCallback(async (data: FormValues) => {
+    // Si ya se está enviando, no hacer nada
     if (formSubmitRef.current) return;
-    formSubmitRef.current = true;
 
-    setIsSubmitting(true);
-    try {
-      const orderProducts = cart?.map((item) => ({
-        product_id: item.id,
-        quantity: item.cantidad
-      }));
+    const isValid = await methods.trigger();
 
-      const orderData = {
-        products: orderProducts,
-        municipality: data.municipality,
-        address: `${data.district}, ${data.street} ${data.houseNumber}`,
-        receiver_name: `${data.firstName} ${data.lastName}`,
-        ci: data.idCard,
-        phone: data.phone,
-        ...(data.aux_phone ? { aux_phone: data.aux_phone } : {})
-      };
-
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}userpublic/create-order`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${session?.access_token}`,
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify(orderData)
-        }
-      );
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Error en el pedido");
-      }
-
-      const orderResult = await response.json();
-
-      localStorage.setItem(
-        "orderDetails",
-        JSON.stringify({
-          id: orderResult.id,
-          receiver_name: orderResult.receiver_name,
-          phone: orderResult.phone,
-          province: orderResult.province,
-          address: orderResult.address,
-          CI: orderResult.CI,
-          subtotal: orderResult.subtotal,
-          created_at: orderResult.created_at,
-          status: orderResult.status,
-        })
-      );
-
-      if (clearCart) {
-        clearCart();
-      }
-
-      toast.success("Pedido realizado con éxito!", {
-        duration: 4000,
-        position: "bottom-right",
-        icon: "🎉"
-      });
-
-      // Redirección optimizada con Router
-      window.location.href = "/order-confirmation";
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Error desconocido";
-      toast.error(`Error: ${errorMessage}`, {
-        duration: 5000,
-        position: "top-right",
-        icon: "❌"
-      });
-      formSubmitRef.current = false;
-    } finally {
-      setIsSubmitting(false);
+    if (isValid) {
+      // Guardar los datos del formulario
+      setOrderFormData(data);
+      // Mostrar el modal de CAPTCHA
+      setIsCaptchaModalOpen(true);
     }
-  }, [cart, session, clearCart]);
+  }, [methods]);
+
+  // Modificar la función handleCaptchaVerify
+  const handleCaptchaVerify = useCallback(async (token: string) => {
+    try {
+      const verificationResponse = await fetch('/api/verify-captcha', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ token }),
+      });
+
+      const verificationResult = await verificationResponse.json();
+
+      if (!verificationResult.success) {
+        toast.error("Verificación CAPTCHA fallida. Inténtalo de nuevo.");
+        setIsCaptchaModalOpen(false);
+        return;
+      }
+
+      // Cerrar el modal primero
+      setIsCaptchaModalOpen(false);
+
+      // Si tenemos los datos del formulario guardados, proceder directamente a crear la orden
+      if (orderFormData) {
+        formSubmitRef.current = true;
+        setIsSubmitting(true);
+
+        try {
+          const orderProducts = cart?.map((item) => ({
+            product_id: item.id,
+            quantity: item.cantidad
+          }));
+
+          const orderData = {
+            products: orderProducts,
+            municipality: orderFormData.municipality,
+            address: `${orderFormData.district}, ${orderFormData.street} ${orderFormData.houseNumber}`,
+            receiver_name: `${orderFormData.firstName} ${orderFormData.lastName}`,
+            ci: orderFormData.idCard,
+            phone: orderFormData.phone,
+            ...(orderFormData.aux_phone ? { aux_phone: orderFormData.aux_phone } : {})
+          };
+
+          const response = await fetch(
+            `${process.env.NEXT_PUBLIC_API_URL}userpublic/create-order`,
+            {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${session?.access_token}`,
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify(orderData)
+            }
+          );
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || "Error en el pedido");
+          }
+
+          const orderResult = await response.json();
+
+          localStorage.setItem(
+            "orderDetails",
+            JSON.stringify({
+              id: orderResult.id,
+              receiver_name: orderResult.receiver_name,
+              phone: orderResult.phone,
+              province: orderResult.province,
+              address: orderResult.address,
+              CI: orderResult.CI,
+              subtotal: orderResult.subtotal,
+              created_at: orderResult.created_at,
+              status: orderResult.status,
+            })
+          );
+
+          if (clearCart) {
+            clearCart();
+          }
+
+          toast.success("Pedido realizado con éxito!", {
+            duration: 4000,
+            position: "bottom-right",
+            icon: "🎉"
+          });
+
+          // Redirección optimizada con Router
+          window.location.href = "/order-confirmation";
+
+        } catch (error) {
+          const errorMessage =
+            error instanceof Error ? error.message : "Error desconocido";
+          toast.error(`Error: ${errorMessage}`, {
+            duration: 5000,
+            position: "top-right",
+            icon: "❌"
+          });
+        } finally {
+          setIsSubmitting(false);
+          formSubmitRef.current = false;
+          // Resetear estados
+          setOrderFormData(null);
+          setCaptchaVerified(false);
+        }
+      }
+    } catch (error) {
+      console.error("Error en verificación CAPTCHA:", error);
+      toast.error("Error al verificar el CAPTCHA. Inténtalo nuevamente.");
+      setIsCaptchaModalOpen(false);
+    }
+  }, [cart, session, clearCart, orderFormData]);
 
   // Estados derivados memoizados
   const isButtonDisabled = useMemo(() =>
@@ -509,6 +560,11 @@ export default function BuyPage() {
           </div>
         </div>
       </div>
+      <CaptchaModal
+        isOpen={isCaptchaModalOpen}
+        onClose={() => setIsCaptchaModalOpen(false)}
+        onVerify={handleCaptchaVerify}
+      />
     </section>
   );
 }

@@ -280,24 +280,24 @@ export default function ProductList() {
       title="Listado de Productos"
       headerButtons={
         <Space>
-          <CreateButton title="Crear" />
-          <div ref={searchRef} className="relative" style={{ width: '300px' }}>
-            <Search
-              placeholder="Buscar productos..."
-              value={searchTerm}
-              onChange={handleSearchChange}
-              onSearch={handleSearch}
-              loading={isSearching}
-              style={{ width: '100%' }}
+          <CreateButton title="Crear" variant="solid" color="blue"/>
+        <div ref={searchRef} className="relative" style={{ width: '300px' }}>
+          <Search
+            placeholder="Buscar productos..."
+            value={searchTerm}
+            onChange={handleSearchChange}
+            onSearch={handleSearch}
+            loading={isSearching}
+            style={{ width: '100%' }}
+          />
+          {showSuggestions && searchResults.length > 0 && (
+            <CustomSearchSuggestions
+            suggestions={searchResults}
+            onSelect={handleSelectSuggestion}
             />
-            {showSuggestions && searchResults.length > 0 && (
-              <CustomSearchSuggestions
-                suggestions={searchResults}
-                onSelect={handleSelectSuggestion}
-              />
-            )}
-          </div>
-        </Space>
+          )}
+        </div>
+          </Space>
       }
     >
       <Row gutter={16} style={{ marginBottom: 16 }}>

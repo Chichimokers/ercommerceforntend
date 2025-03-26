@@ -250,7 +250,7 @@ export const authOptions: NextAuthOptions = {
       }
     },
     async session({ session, token }) {
-      //console.log("Actualizando sesión", { user: token.user?.email });
+      console.log("Actualizando sesión", { user: token.user?.email });
       session.idToken = token.idToken as string;
       session.user = {
         id: token.user?.id ?? "",
