@@ -7,7 +7,7 @@ import { MapPin } from "lucide-react";
 import Link from "next/link";
 
 export default function HeroButtons() {
-  const { hasLocation } = useLocationStore();
+  const { hasLocation, location } = useLocationStore();
 
   return (
     <>
@@ -28,7 +28,7 @@ export default function HeroButtons() {
           startContent={<ShoppingCart className="text-lg" />}
           size="lg"
         >
-          Explorar Productos
+          Explorar Productos ({location.provinceName})
         </Button>
       )
       }

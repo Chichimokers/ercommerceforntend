@@ -1,5 +1,6 @@
 import { BoxesIcon, ShieldCheckIcon, Handshake, LucideGitCompareArrows } from "lucide-react";
 import dynamic from "next/dynamic";
+import Image from "next/image";
 
 const PromisesCard = dynamic(() => import("../cards/promises-card"), {
   loading: () => (
@@ -20,10 +21,16 @@ const PromisesCard = dynamic(() => import("../cards/promises-card"), {
 export const PromisesPanel = () => {
   return (
     <section className="relative">
-      {/* Fondo con degradado */}
-      <div className="bg-blue-50 dark:bg-gray-900 py-12 px-4 sm:px-6 md:px-8 sm:py-12 md:py-20 transition-colors duration-300">
 
-        {/* Título de sección (opcional) */}
+      <Image
+        src="/Pictures/otroma2.svg"
+        alt="Promises illustration"
+        fill
+        className="object-cover opacity-50"
+      />
+
+      <div className="py-12 px-4 sm:px-6 md:px-8 sm:py-12 md:py-20 transition-colors duration-300">
+
         <div className="max-w-2xl mx-auto text-center mb-10">
           <h2 className="text-2xl md:text-3xl font-extrabold text-gray-800 dark:text-gray-100">
             ¿Por qué elegirnos?
@@ -35,7 +42,7 @@ export const PromisesPanel = () => {
 
         {/* Contenedor de tarjetas con wave divider abajo */}
         <div className="relative">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
             <PromisesCard
               description="Explora productos y proveedores para tu negocio entre millones de ofertas en todo el mundo."
               icon={<BoxesIcon />}

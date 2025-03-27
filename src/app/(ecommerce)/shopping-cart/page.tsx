@@ -1,7 +1,6 @@
 "use client";
 
-import React, { useContext, useMemo, useState, useEffect, useCallback, memo } from "react";
-import { CartContext } from "@/contexts/cart-context";
+import React, { useMemo, useState, useEffect, useCallback, memo } from "react";
 import { Spinner, Button, Divider } from "@heroui/react";
 import { useProductContext } from "@/contexts/product-context";
 import CartCard from "@/components/cards/cart-cards";
@@ -10,19 +9,21 @@ import OrderSummary from "@components/cards/summary";
 import EmptyCart from "@components/empty/empty-cart";
 import { useLocationStore } from "@store/location/location-store";
 import useSWR from "swr";
-import { ArrowLeft, ShoppingBag } from "lucide-react";
-import Link from "next/link";
 import { useDeviceDetection } from "@/hooks/useDeviceDetection";
 import { useCartStore } from "@store/cart/cart-store";
+import { ProductBase } from "../../../types/types";
+import { ShoppingBag } from "lucide-react";
 
-const MINIMUM_ORDER_AMOUNT = 85; // Mínimo requerido en dólares
+const MINIMUM_ORDER_AMOUNT = process.env.NEXT_PUBLIC_MINIMUM_ORDER_AMOUNT
+  ? parseFloat(process.env.NEXT_PUBLIC_MINIMUM_ORDER_AMOUNT)
+  : 0;
 
 interface ShippingPriceRequest {
   total_weight: number;
   municipality: string;
 }
 
-const CartItem = memo(({ product, isMobile }: { product: any, isMobile: boolean }) => {
+const CartItem = memo(({ product, isMobile }: { product: ProductBase, isMobile: boolean }) => {
   return (
     <div key={product.id} className="cart-item">
       {isMobile ? (
@@ -64,7 +65,6 @@ export default function ShoppingCartPage() {
   const { cart, clearCart } = useCartStore();
   const { cartProducts, mutateCartProducts } = useProductContext();
   const [isMounted, setIsMounted] = useState(false);
-  const [isInitialRender, setIsInitialRender] = useState(true);
   const { location } = useLocationStore();
 
   const deviceData = useDeviceDetection();
@@ -150,14 +150,6 @@ export default function ShoppingCartPage() {
 
   useEffect(() => {
     setIsMounted(true);
-
-    const initialRenderTimer = setTimeout(() => {
-      setIsInitialRender(false);
-    }, 500);
-
-    return () => {
-      clearTimeout(initialRenderTimer);
-    };
   }, []);
 
   const cartItems = useMemo(() => {
@@ -180,7 +172,7 @@ export default function ShoppingCartPage() {
 
   return (
     <section
-      className="py-8 px-2 sm:py-12 sm:px-4 overflow-hidden max-w-full"
+      className="py-8 px-4 sm:py-12 overflow-hidden max-w-full"
       style={{
         willChange: deviceData.isLowPerformance ? 'scroll-position' : 'auto',
         backfaceVisibility: 'hidden'
@@ -190,13 +182,8 @@ export default function ShoppingCartPage() {
         <header className="mb-6 flex flex-col sm:flex-row sm:justify-between sm:items-center">
           <h1 className="text-3xl md:text-4xl font-extrabold text-gray-800 dark:text-white inline-flex items-center">
             <ShoppingBag className="mr-2 h-8 w-8 text-blue-500" />
-            <span className="border-b-4 border-blue-300 pb-1">Carrito de Compras</span>
+            <span>Carrito de Compras</span>
           </h1>
-
-          <Link href="/products" className="mt-4 sm:mt-0 inline-flex items-center text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors">
-            <ArrowLeft className="w-4 h-4 mr-1" />
-            Continuar comprando
-          </Link>
         </header>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 w-full overflow-hidden">

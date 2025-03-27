@@ -413,7 +413,7 @@ const OrdersPage = () => {
       >
         <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-2 flex items-center justify-center">
           <CalendarDays className="mr-3 h-8 w-8 text-blue-500" />
-          <span className="border-b-4 border-blue-300 pb-1">Historial de Pedidos</span>
+          <span>Historial de Pedidos</span>
         </h1>
         <p className="text-gray-500 dark:text-gray-400 md:text-lg">
           Revisa y gestiona todos tus pedidos en un solo lugar

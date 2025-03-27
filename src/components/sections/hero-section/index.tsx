@@ -1,12 +1,9 @@
 import dynamic from "next/dynamic";
 import Image from "next/image";
-import Link from "next/link";
-import { Info, ShoppingCart } from "lucide-react";
+import { ShoppingCart } from "lucide-react";
 import FeatureItem from "./feature-item";
 
-const HeroButtons = dynamic(() => import("./client/hero-buttons"), {
-  loading: () => <ButtonsFallback />
-});
+const HeroButtons = dynamic(() => import("./client/hero-buttons"));
 
 const LocationHandler = dynamic(() => import("./client/location-handler"));
 
@@ -81,21 +78,5 @@ export default function HeroSection() {
         </section>
       </LocationHandler>
     </div>
-  );
-}
-
-function ButtonsFallback() {
-  return (
-    <>
-      <div className="w-full sm:w-auto bg-blue-600 text-white px-6 sm:px-8 py-2.5 sm:py-3 rounded-full font-medium shadow-lg flex items-center justify-center gap-2 text-sm sm:text-base">
-        <ShoppingCart className="text-lg" />
-        <span>Explorar Productos</span>
-      </div>
-
-      <Link href="/about" className="w-full sm:w-auto bg-white/10 backdrop-blur-sm text-white border border-white/30 px-6 py-2.5 sm:py-3 rounded-full font-medium flex items-center justify-center gap-2 text-sm sm:text-base">
-        <Info className="text-lg" />
-        <span>Conocer más</span>
-      </Link>
-    </>
   );
 }

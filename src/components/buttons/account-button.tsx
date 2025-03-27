@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import {
   Dropdown,
   DropdownTrigger,
@@ -25,8 +25,9 @@ const AccountButton = React.memo(({ className }: { className?: string }) => {
   const { data: session } = useSession();
   const pathname = usePathname();
   const isOrdersPage = pathname === "/orders";
+  const isAdminPage = pathname.startsWith("/admin");
   const userRole = Number(session?.user.role);
-  
+
 
   return (
     <>
@@ -70,32 +71,42 @@ const AccountButton = React.memo(({ className }: { className?: string }) => {
             </DropdownItem>
             : null
           }
-          
-      
-  
+
+
+
 
           <DropdownItem key="help_and_feedback">
             Ayuda y retroalimentación
           </DropdownItem>
 
-          {(session && userRole === 2) ? (
+          {(session && userRole === 2 && !isAdminPage) ? (
             <DropdownItem
               key="admin"
               href="/admin"
               color="secondary"
             >
-             Panel de administracion
+              Panel de administracion
             </DropdownItem>
-          ):null}
-              {(session && userRole === 3) ? (
+          ) : null}
+          {(session && userRole === 3 && !isAdminPage) ? (
             <DropdownItem
               key="qrScan"
               href="/admin/utils/qr-scan"
               color="secondary"
             >
-             Scanner Qr
+              Scanner Qr
             </DropdownItem>
-          ):null}
+          ) : null}
+
+          {isAdminPage ? (
+            <DropdownItem
+              key="backToHome"
+              href="/"
+              color="secondary"
+            >
+              Volver a la tienda
+            </DropdownItem>
+          ) : null}
 
           {session && (
             <DropdownItem
