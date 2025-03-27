@@ -4,9 +4,8 @@ import React, { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { VisaIcon, MastercardIcon, PaypalIcon } from "@components/icons/icons";
 import { CreditCard, X } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { Button } from "@heroui/react";
-import { OverlayNext } from "@components/overlay";
 
 interface PaymentMethodModalProps {
   isOpen: boolean;
@@ -212,7 +211,7 @@ const PaymentMethodModal = ({
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         transition={{ duration: 0.2 }}
-        className="fixed inset-0 bg-black/60 backdrop-filter backdrop-blur-sm"
+        className="fixed inset-0 bg-black/60 backdrop-filter"
         onClick={() => !isSubmitting && onOpenChange(false)}
         aria-hidden="true"
       />

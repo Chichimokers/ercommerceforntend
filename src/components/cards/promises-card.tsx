@@ -19,12 +19,10 @@ export default function PromisesCard({
       dark:bg-gray-800/75
       border-gray-200 
       dark:border-gray-700 
-      rounded-xl 
+      rounded-3xl 
       p-6 
       shadow-sm 
       hover:shadow-md 
-      transition-all 
-      hover:-translate-y-1
     ">
       <div className="flex items-center gap-3 mb-3">
         <div className="
@@ -35,9 +33,6 @@ export default function PromisesCard({
           bg-blue-200/75
           dark:bg-gray-900/75
           rounded-full 
-          transition-transform 
-          duration-300 
-          group-hover:scale-110
         ">
           {icon}
         </div>

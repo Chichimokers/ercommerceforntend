@@ -2,7 +2,7 @@
 
 import { Header } from "@/components/header/header";
 import dynamic from "next/dynamic";
-import React, { ReactNode, useState, useEffect, useRef } from "react";
+import React, { ReactNode, useState, useEffect, useRef, Suspense } from "react";
 import { Navbar } from "@/components/navbar/nav";
 import LocationModal from "@components/modals/location-modal";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
@@ -107,7 +107,9 @@ export default function EcommerceLayout({ children }: { children: ReactNode }) {
 
   return (
     <>
-      <Header className="fixed top-0 left-0 right-0 h-16" setModalOpen={setModalOpen} />
+      <Suspense fallback={<div className="h-16 bg-blue-100 dark:bg-gray-800 animate-pulse"></div>}>
+        <Header className="fixed top-0 left-0 right-0 h-16" setModalOpen={setModalOpen} />
+      </Suspense>
 
       <div
         className={`fixed top-16 left-0 right-0 z-30 transition-transform duration-300 ${showInfoBar ? "translate-y-0" : "-translate-y-full"
@@ -122,19 +124,27 @@ export default function EcommerceLayout({ children }: { children: ReactNode }) {
         className="flex-grow container mx-auto max-w-full min-h-[70vh] pt-[114px]"
       >
         {children}
-        {modalOpen && <OverlayNext onClick={forceLocationSelection ? undefined : () => setModalOpen(false)} />}
-        <LocationModal
-          open={modalOpen}
-          onClose={handleCloseModal}
-          forceSelection={forceLocationSelection}
-        />
-      </main>
+        <Suspense fallback={<div></div>}>
+          {modalOpen && <OverlayNext onClick={forceLocationSelection ? undefined : () => setModalOpen(false)} />}
 
-      <Footer />
+          <LocationModal
+            open={modalOpen}
+            onClose={handleCloseModal}
+            forceSelection={forceLocationSelection}
+          />
+        </Suspense>
 
-      <div className="sticky bottom-0 left-0 w-full xm:hidden mt-16 z-40">
-        <Navbar className="fixed bottom-0 left-0 right-0" />
-      </div>
+      </main >
+
+      <Suspense fallback={<div className="h-80 bg-blue-50 dark:bg-gray-800 animate-pulse"></div>}>
+        <Footer />
+      </Suspense >
+
+      <Suspense fallback={<div className="h-16 bg-blue-100 dark:bg-gray-800 animate-pulse"></div>}>
+        <div className="sticky bottom-0 left-0 w-full xm:hidden mt-16 z-40">
+          <Navbar className="fixed bottom-0 left-0 right-0" />
+        </div>
+      </Suspense>
     </>
   );
 }

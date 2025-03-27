@@ -4,22 +4,19 @@ import CategoryCard from "@/components/cards/category-cards";
 
 export interface CategoryGridProps {
   categories: { id: string; name: string }[];
-  isMobile?: boolean;
   onLocationNeeded: () => void;
 }
 
 export default function CategoryGrid({
   categories,
-  isMobile = false,
   onLocationNeeded,
 }: CategoryGridProps) {
   return (
     <div className="flex flex-nowrap gap-3 sm:gap-4 overflow-x-clip p-2">
       <div className="flex-shrink-0">
         <CategoryCard
-          className="w-32 h-32 sm:w-40 sm:h-40 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl"
-          icon={<BoxesIcon size={32} />}
-          size="md"
+          className="w-32 h-32 sm:w-40 sm:h-40 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-3xl shadow-sm"
+          icon={<BoxesIcon size={40} />}
           text="Todos"
           url="/products/"
           onLocationNeeded={onLocationNeeded}
@@ -36,9 +33,8 @@ export default function CategoryGrid({
             className="flex-shrink-0"
           >
             <CategoryCard
-              className="w-32 h-32 sm:w-40 sm:h-40 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl"
-              icon={<Icon size={32} />}
-              size={isMobile ? "sm" : "md"}
+              className="w-32 h-32 sm:w-40 sm:h-40 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-3xl shadow-sm"
+              icon={<Icon size={40} />}
               text={category.name}
               url={url}
               onLocationNeeded={onLocationNeeded}

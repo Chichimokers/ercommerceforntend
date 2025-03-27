@@ -76,7 +76,7 @@ const CaptchaModal: React.FC<CaptchaModalProps> = ({ isOpen, onClose, onVerify }
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+    <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-black/50">
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -140,7 +140,7 @@ const CaptchaModal: React.FC<CaptchaModalProps> = ({ isOpen, onClose, onVerify }
         </div>
 
         {isVerifying && (
-          <div className="absolute inset-0 bg-white/80 dark:bg-gray-800/80 flex items-center justify-center backdrop-blur-sm">
+          <div className="absolute inset-0 bg-white/80 dark:bg-gray-800/80 flex items-center justify-center">
             <div className="flex flex-col items-center gap-3">
               <Loader size={40} className="animate-spin text-blue-600 dark:text-blue-400" />
               <p className="text-gray-700 dark:text-gray-300 font-medium">Verificando...</p>

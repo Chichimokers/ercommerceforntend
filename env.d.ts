@@ -11,5 +11,6 @@ namespace NodeJS {
     ANALYZE: string;
     NEXT_PUBLIC_RECAPTCHA_SITE_KEY: string;
     RECAPTCHA_SECRET_KEY: string;
+    NEXT_PUBLIC_MINIMUN_ORDER_AMOUNT: number;
   }
 }

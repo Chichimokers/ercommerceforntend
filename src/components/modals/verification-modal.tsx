@@ -322,7 +322,7 @@ export default function VerificationModal({
     >
       {/* Resto del JSX sin cambios */}
       <div
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/50"
         onClick={e => e.stopPropagation()}
         style={{ zIndex: 0 }}
       />

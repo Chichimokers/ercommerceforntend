@@ -8,7 +8,7 @@ import { ShoppingCart, ArrowRight } from "lucide-react";
 const EmptyCart = () => {
   return (
     <div
-      className="flex flex-col items-center justify-center py-16 px-4 bg-white dark:bg-gray-900 rounded-xl shadow-md text-center"
+      className="flex flex-col items-center justify-center py-16 px-4 bg-white dark:bg-gray-900 rounded-xl text-center"
     >
       <div className="mb-6 relative">
         <div

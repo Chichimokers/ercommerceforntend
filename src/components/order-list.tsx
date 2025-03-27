@@ -4,7 +4,6 @@ import OrderComponent from "./order/order";
 import { Order } from "@/types/types";
 import { ShoppingBag, FilterIcon, Package2Icon, Calendar, ArrowDownAZ, ArrowDownWideNarrow } from "lucide-react";
 
-// Mapa de traducción de estados (inglés a español)
 const STATUS_TRANSLATIONS: Record<string, string> = {
   pending: "Pendiente",
   paid: "Pagada",
@@ -222,7 +221,6 @@ const OrderList: React.FC<OrderListProps> = ({
         </div>
       </div>
 
-      {/* Vista móvil con acordeón */}
       <div className="md:hidden">
         <Accordion
           variant="splitted"
@@ -231,7 +229,7 @@ const OrderList: React.FC<OrderListProps> = ({
           onSelectionChange={(keys) => setSelectedKeys(keys as Set<string>)}
           className="gap-4 flex flex-col"
           itemClasses={{
-            base: "border p-0 border-gray-200 bg-white dark:bg-gray-800 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow",
+            base: "border !p-0 border-gray-200 bg-white dark:bg-gray-800 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow",
             trigger: "px-4 py-3",
             content: "px-0 pt-0 pb-0"
           }}
