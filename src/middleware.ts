@@ -31,7 +31,6 @@ export async function middleware(request: NextRequest) {
         cartItems = zustandData?.state?.cart || [];
       }
     } else {
-      // Parsear directamente la cookie legacy
       cartItems = JSON.parse(cartCookie);
     }
 
@@ -50,7 +49,7 @@ export async function middleware(request: NextRequest) {
     });
 
     role = token?.user?.role;
-    isAdmin = String(role) === "2";
+    isAdmin = String(role) === "2" || String(role) === "admin" || String(role) === "3" || String(role) === "delivery";
 
     console.log(`🔑 Rol del usuario: ${role} (¿Es admin?: ${isAdmin})`);
   } catch (error) {
@@ -120,6 +119,14 @@ export async function middleware(request: NextRequest) {
   }
 
   if (pathname.startsWith("/admin")) {
+    // Añadir más logs para depuración
+    console.log("⚙️ Verificando acceso a admin:", {
+      isAuthenticated,
+      role: typeof role === 'object' ? JSON.stringify(role) : role,
+      roleType: typeof role,
+      isAdmin
+    });
+
     if (!isAuthenticated) {
       return NextResponse.redirect(
         new URL(`/login?to=${encodeURIComponent(pathname)}`, request.url),
@@ -128,17 +135,14 @@ export async function middleware(request: NextRequest) {
     }
 
     if (!isAdmin) {
-      const accessDeniedUrl = new URL("/access-denied", request.url).toString();
-
-      return new Response(null, {
-        status: 302,
-        headers: {
-          "Location": accessDeniedUrl,
-          "Cache-Control": "no-store, no-cache, must-revalidate",
-          "X-Redirect-Reason": "not-admin"
-        }
-      });
+      console.log("⛔ Acceso a admin denegado para rol:", role);
+      return NextResponse.redirect(
+        new URL("/access-denied", request.url),
+        302
+      );
     }
+
+    console.log("✅ Acceso a admin concedido para rol:", role);
   }
 
   if (pathname.startsWith("/checkout")) {

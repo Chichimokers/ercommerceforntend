@@ -142,7 +142,6 @@ export default function InteractiveContainer() {
       >
         <CategoryGrid
           categories={categories}
-          isMobile={isMobile}
           onLocationNeeded={handleLocationNeeded}
         />
       </div>
