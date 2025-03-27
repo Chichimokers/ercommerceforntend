@@ -17,7 +17,6 @@ export async function middleware(request: NextRequest) {
 
   let role = null;
   let isAdmin = false;
-  let isDelivery = false;
 
   let cartItems = [];
   let hasCart = false;
@@ -141,6 +140,7 @@ export async function middleware(request: NextRequest) {
         new URL("/access-denied", request.url),
         302
       );
+    }
 
     console.log("✅ Acceso a admin concedido para rol:", role);
   }
