@@ -6,6 +6,7 @@ import { CircleAlert, Info } from "lucide-react";
 
 type RelatedProductSectionProps = {
   id: string;
+  className?: string;
 };
 
 type MessageProps = {
@@ -23,6 +24,7 @@ const Message = ({ children, className = "", icon }: MessageProps) => (
 
 export default function RelatedProductSection({
   id,
+  className,
 }: RelatedProductSectionProps) {
   const { relatedProducts, loading, error } = useRelatedProducts(id);
 
@@ -76,7 +78,7 @@ export default function RelatedProductSection({
     }
 
     return (
-      <div className="w-full">
+      <div className={`${className} w-full`}>
         <ProductsSlider products={renderProducts} />
       </div>
     );
@@ -84,10 +86,10 @@ export default function RelatedProductSection({
 
   return (
     <section>
-      <h2 className="text-2xl font-semibold mb-4 text-gray-800 dark:text-gray-100">
+      <h2 className="text-2xl font-semibold mb-4 text-gray-800 dark:text-gray-100 mx-4">
         Productos relacionados
       </h2>
-      <Card className="border-y border-default-200 shadow-md hover:shadow-lg transition-shadow duration-300 rounded-xl h-max w-full overflow-hidden min-h-[300px] flex flex-col py-4 bg-gray-50 dark:bg-gray-900/70" role="article">
+      <Card className="h-max w-full overflow-hidden min-h-[300px] flex flex-col py-4 bg-gray-50 dark:bg-gray-900/70">
         <CardBody>{renderContent()}</CardBody>
       </Card>
     </section>

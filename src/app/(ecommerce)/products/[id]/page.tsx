@@ -322,7 +322,6 @@ export default function ProductDetailPage() {
 
   // Calcular valores derivados
   const breadcrumbItems = useMemo(() => [
-    { label: 'Inicio', href: '/' },
     { label: 'Productos', href: '/products' },
     { label: product?.name || 'Detalles del producto' }
   ], [product?.name]);
@@ -415,7 +414,7 @@ export default function ProductDetailPage() {
         type="product"
       />
 
-      <div className="container mx-auto px-4 py-6 sm:py-8">
+      <div className="mx-auto px-4 py-6 sm:py-8">
         <Breadcrumbs items={breadcrumbItems} className="mb-6" />
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -546,13 +545,11 @@ export default function ProductDetailPage() {
           </Tabs>
         </div>
 
-        <div className="mt-16">
+        <div className="mt-16 -mx-4">
           <ErrorBoundary fallback={<div className="text-center py-8">No se pudieron cargar productos relacionados</div>}>
-            <div className={isLowPerformance ? "" : "animate-fadeInUp"}>
-              <RelatedProductSection
-                id={product.id}
-              />
-            </div>
+            <RelatedProductSection
+              id={product.id}
+            />
           </ErrorBoundary>
         </div>
       </div>

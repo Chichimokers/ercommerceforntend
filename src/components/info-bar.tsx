@@ -1,9 +1,12 @@
 "use client";
 
 import React from "react";
-import { Phone, Mail } from "lucide-react";
+import { Phone, Mail, MapPin } from "lucide-react";
 import CurrencySelector from "@components/selects/currency-selector";
 import Link from "next/link";
+import { SearchInput } from "./search/search-input";
+import { useIsMobile } from "@hooks/useMobile";
+import { useLocationStore } from "@store/location/location-store";
 
 const InfoItem = ({ icon, href, children, className = "" }: {
   icon: React.ReactNode;
@@ -29,14 +32,27 @@ const InfoItem = ({ icon, href, children, className = "" }: {
 };
 
 const InfoBar = ({ className = "" }: { className?: string }) => {
+  const isMobile = useIsMobile();
+  const { location } = useLocationStore();
   return (
     <div
       className={`bg-white/95 dark:bg-gray-900/95 border-b border-gray-200/50 dark:border-gray-700/50 
                   text-gray-700 dark:text-gray-300 py-2 px-4 shadow-sm ${className}`}
     >
-      <div className="container mx-auto flex justify-between items-center text-sm">
-        <div className="flex items-center gap-4 overflow-x-auto scrollbar-hide">
-          <InfoItem icon={<Phone size={14} />} href={`tel:${process.env.NEXT_PUBLIC_PHONE || "+535 0939062"}`}>
+      {isMobile &&
+        <div className="w-full flex flex-col items-center justify-center mb-2">
+          <SearchInput />
+        </div>
+      }
+      <div className="mx-auto flex justify-between items-center text-sm">
+        <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
+          {isMobile && (
+            <InfoItem icon={<MapPin size={14} />}>
+              {location?.provinceName || "Selecciona tu ubicación"}
+            </InfoItem>
+          )}
+
+          <InfoItem icon={<Phone size={14} />} className="hidden sm:flex" href={`tel:${process.env.NEXT_PUBLIC_PHONE || "+535 0939062"}`}>
             {process.env.NEXT_PUBLIC_PHONE}
           </InfoItem>
 

@@ -93,7 +93,7 @@ export default function EcommerceLayout({ children }: { children: ReactNode }) {
       </div>
 
       <main
-        className="flex-grow container mx-auto max-w-full min-h-[70vh] pt-[114px]"
+        className="flex-grow container mx-auto max-w-full min-h-[70vh] pt-[163px] md:pt-[114px]"
       >
         {children}
         <Suspense fallback={<div></div>}>

@@ -60,7 +60,7 @@ export default function CurrencySelector({ selectlabel }: CurrencySelectorProps)
       label: (
         <Tooltip
           content={
-            <div className="flex items-center space-x-2 mb-1">
+            <div className="flex items-center mb-1">
               <span className="font-bold dark:text-default-500 text-gray-800">
                 Símbolo:
               </span>

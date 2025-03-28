@@ -2,11 +2,9 @@
 
 import { ProductBase } from "@/types/types";
 import useCartActions from "@/components/actions";
-import { useMemo } from "react";
 import { CartButtons } from "./cart-buttons";
 import QuantityAdjuster from "@components/buttons/quantity-selector";
 import { useDeviceDetection } from "@/hooks/useDeviceDetection";
-import { useCurrencyStore } from "@store/currency/currency-store";
 
 interface ProductInteractionProps {
   product: ProductBase;
@@ -16,7 +14,6 @@ interface ProductInteractionProps {
 export default function ProductInteraction({
   product,
 }: ProductInteractionProps) {
-  const { rateExchange } = useCurrencyStore();
   const { isMobile } = useDeviceDetection();
 
   const {
@@ -29,17 +26,6 @@ export default function ProductInteraction({
     isInCart,
     quantity,
   } = useCartActions(product);
-
-  const displayPrice = useMemo(() => {
-    return product.price * (rateExchange?.exchangeRate || 1);
-  }, [product.price, rateExchange?.exchangeRate]);
-
-  const discountedPrice = useMemo(() => {
-    if (product.discount && quantity >= product.discount.min) {
-      return displayPrice - (product.discount.reduction * (rateExchange?.exchangeRate || 1));
-    }
-    return null;
-  }, [displayPrice, product.discount, quantity, rateExchange?.exchangeRate]);
 
   const handleInteractionClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -61,7 +47,7 @@ export default function ProductInteraction({
           getLocalStorageData={getLocalStorageData}
           productId={product.id}
           maxLimit={product.quantity || 0}
-          className={`bg-white dark:bg-gray-700 ${isMobile ? '' : 'shadow-sm hover:shadow-md transition-shadow'}`}
+          className={`bg-white dark:bg-gray-700`}
         />
       </div>
 
