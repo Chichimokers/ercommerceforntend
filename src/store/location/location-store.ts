@@ -40,6 +40,8 @@ const safeLocalStorage = {
 interface Location {
   province: string;
   municipality: string;
+  provinceName?: string;
+  municipalityName?: string;
   [key: string]: any;
 }
 
@@ -69,6 +71,12 @@ export const useLocationStore = create<LocationStore>()(
 
       // Acciones
       setLocation: (newLocation: Location) => {
+        // Validaciones adicionales para evitar datos incompletos
+        if (!newLocation) {
+          console.warn("Intentando establecer ubicación con datos nulos");
+          return;
+        }
+
         const isComplete = Boolean(
           newLocation.province &&
           newLocation.municipality &&
@@ -76,12 +84,35 @@ export const useLocationStore = create<LocationStore>()(
           newLocation.municipality.trim() !== ""
         );
 
-        //console.log("Estableciendo ubicación:", newLocation, "isComplete:", isComplete);
+        console.log("Estableciendo ubicación:", {
+          province: newLocation.province,
+          municipality: newLocation.municipality,
+          isComplete
+        });
 
+        // Si no está completo y es una actualización (no un reseteo)
+        if (!isComplete && (newLocation.province || newLocation.municipality)) {
+          console.warn("Intentando establecer ubicación incompleta");
+        }
+
+        // Actualizar el estado y forzar escritura en localStorage y cookie
         set({
           location: newLocation,
           hasLocation: isComplete
         });
+
+        // Verificación extra
+        if (isBrowser) {
+          setTimeout(() => {
+            try {
+              const stored = localStorage.getItem("user-location-storage");
+              if (stored) {
+                const parsedStored = JSON.parse(stored);
+                console.log("Verificación post-escritura:", parsedStored.state.hasLocation);
+              }
+            } catch { }
+          }, 50);
+        }
       },
 
       resetLocation: () => {
@@ -172,8 +203,9 @@ export function useRequireLocation(): {
 export function useSetLocation() {
   const { setLocation } = useLocationStore();
 
-  const updateLocation = (province: string, municipality: string) => {
-    setLocation({ province, municipality });
+  const updateLocation = (province: string, municipality: string, provinceName?: string, municipalityName?: string) => {
+    const newLocation = { province, municipality, provinceName, municipalityName };
+    setLocation(newLocation);
   };
 
   return { updateLocation };

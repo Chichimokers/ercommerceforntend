@@ -35,7 +35,6 @@ export default function VerificationModal({
   const [focusedInput, setFocusedInput] = useState(0);
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [timerActive, setTimerActive] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
   const [isResending, setIsResending] = useState(false);
@@ -82,7 +81,6 @@ export default function VerificationModal({
       const expTime = Date.now() + INITIAL_TIME * 1000;
       setExpirationTime(expTime);
       setErrorMessage('');
-      setTimerActive(true);
       setCanResend(false);
     }
 
@@ -96,7 +94,6 @@ export default function VerificationModal({
 
         if (remaining <= 0) {
           clearInterval(intervalId);
-          setTimerActive(false);
           setCanResend(true);
           setErrorMessage('¡Código expirado! Por favor solicita uno nuevo');
         }

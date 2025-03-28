@@ -2,7 +2,7 @@
 
 import { Header } from "@/components/header/header";
 import dynamic from "next/dynamic";
-import React, { ReactNode, useState, useEffect, useRef, Suspense } from "react";
+import React, { ReactNode, useState, useEffect, Suspense } from "react";
 import { Navbar } from "@/components/navbar/nav";
 import LocationModal from "@components/modals/location-modal";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
@@ -17,41 +17,13 @@ export default function EcommerceLayout({ children }: { children: ReactNode }) {
   const [forceLocationSelection, setForceLocationSelection] = useState(false);
   const [showInfoBar, setShowInfoBar] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
-  const [locationChecked, setLocationChecked] = useState(false);
-  const initialHydrationRef = useRef(false);
 
   const { hasLocation } = useLocationStore();
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
 
-  useEffect(() => {
-    if (!initialHydrationRef.current) {
-      initialHydrationRef.current = true;
-
-      const timer = setTimeout(() => {
-        const state = useLocationStore.getState();
-        console.log("Estado rehidratado:", state.location, "hasLocation:", state.hasLocation);
-
-        const isComplete = Boolean(
-          state.location?.province &&
-          state.location?.municipality &&
-          state.location.province.trim() !== "" &&
-          state.location.municipality.trim() !== ""
-        );
-
-        if (state.hasLocation !== isComplete) {
-          console.warn("Corrigiendo inconsistencia en estado de ubicación");
-          state.setLocation(state.location);
-        }
-
-        setLocationChecked(true);
-      }, 100);
-
-      return () => clearTimeout(timer);
-    }
-  }, []);
-
+  // Comprobar parámetro de URL para forzar selección
   useEffect(() => {
     const locationRequired = searchParams.get('locationRequired') === 'true';
 
@@ -64,21 +36,21 @@ export default function EcommerceLayout({ children }: { children: ReactNode }) {
     }
   }, [searchParams, pathname, router]);
 
+  // Abrir modal si no hay ubicación
   useEffect(() => {
-    if (locationChecked && !hasLocation) {
-      console.log("Abriendo modal de ubicación porque no hay ubicación guardada");
+    if (!hasLocation) {
       setModalOpen(true);
     }
-  }, [hasLocation, locationChecked]);
+  }, [hasLocation]);
 
+  // Manejador del scroll para el InfoBar
   useEffect(() => {
     const controlInfoBar = () => {
       const currentScrollY = window.scrollY;
 
       if (currentScrollY < lastScrollY || currentScrollY < 5) {
         setShowInfoBar(true);
-      }
-      else if (currentScrollY > lastScrollY && currentScrollY > 5) {
+      } else if (currentScrollY > lastScrollY && currentScrollY > 5) {
         setShowInfoBar(false);
       }
 

@@ -215,10 +215,9 @@ const OrdersPage = () => {
   const [sortOrder, setSortOrder] = useState<string>("newest");
   const [searchText, setSearchText] = useState<string>("");
 
-  // Optimizado fetcher con mejor manejo de errores y timeout
   const fetcher = async (url: string) => {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 8000); // Timeout aumentado a 8 segundos
+    const timeout = setTimeout(() => controller.abort(), 8000);
 
     try {
       const response = await fetch(url, {

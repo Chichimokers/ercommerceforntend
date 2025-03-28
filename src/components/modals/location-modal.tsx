@@ -25,23 +25,35 @@ interface LocationModalProps {
 export default function LocationModal({
   open,
   onClose,
-  initialProvince = '',
-  initialMunicipality = '',
   forceSelection = false
 }: LocationModalProps) {
-  const { location, setLocation } = useLocationStore();
+  const locationStore = useLocationStore();
+  const initialData = locationStore.location;
+
   const { cart } = useCartStore() || {};
-  const [province, setProvince] = useState<string>(location?.province || initialProvince);
-  const [municipality, setMunicipality] = useState<string>(location?.municipality || initialMunicipality);
+  const [province, setProvince] = useState(initialData?.province || '');
+  const [municipality, setMunicipality] = useState(initialData?.municipality || '');
   const [changeLocation, setChangeLocation] = useState<boolean>(false);
   const [fetchError, setFetchError] = useState<string | null>(null);
 
   useEffect(() => {
     if (open) {
-      setProvince(location?.province || "");
-      setMunicipality(location?.municipality || "");
+      const freshStore = useLocationStore.getState();
+
+      console.log("Modal abierto - Estado actual:", {
+        storeProvince: freshStore.location?.province,
+        storeMunicipality: freshStore.location?.municipality
+      });
+
+      if (freshStore.location?.province) {
+        setProvince(freshStore.location.province);
+      }
+
+      if (freshStore.location?.municipality) {
+        setMunicipality(freshStore.location.municipality);
+      }
     }
-  }, [open, location]);
+  }, [open, initialData]);
 
   useEffect(() => {
     const handleScrollLock = () => {
@@ -152,7 +164,6 @@ export default function LocationModal({
 
   const handleConfirm = () => {
     if (province && municipality) {
-      // Forzar actualización de estado y cookie
       const newLocation = {
         province,
         municipality,
@@ -160,16 +171,13 @@ export default function LocationModal({
         municipalityName: municipalityLabel
       };
 
-      // Establecer en el store
-      setLocation(newLocation);
+      locationStore.setLocation(newLocation);
 
-      // Forzar actualización de la cookie manualmente
       const storageValue = JSON.stringify({
         state: { location: newLocation, hasLocation: true }
       });
       document.cookie = `user-location-storage=${encodeURIComponent(storageValue)}; path=/; max-age=31536000; SameSite=Lax`;
 
-      // Cerrar modal y notificar
       onClose();
       addToast({
         title: "Ubicación actualizada",
@@ -177,7 +185,6 @@ export default function LocationModal({
         color: "success"
       });
 
-      // Opcional: recargar la página si estábamos en modo forzado
       if (forceSelection) {
         window.location.href = '/products';
       }
@@ -209,18 +216,11 @@ export default function LocationModal({
                 <Image alt={"Mapa de Cuba"} src="/cuba.png" width={300} height={100} />
               </div>
 
-              {/* Cambiar el mensaje según si es forzado o no */}
               <h2 className="text-medium font-light text-gray-800 dark:text-gray-200 mb-4">
                 {forceSelection
                   ? "Para ver los productos disponibles, es necesario seleccionar tu ubicación."
                   : "Serán mostrados los productos que puedan ser entregados en la provincia que seleccione."}
               </h2>
-
-              {/*fetchError && (
-                <Alert variant="solid" color="danger" className="mb-4">
-                  {fetchError}
-                </Alert>
-              )*/}
 
               <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Provincia</label>
               <Select
@@ -228,7 +228,7 @@ export default function LocationModal({
                 className="w-full"
                 value={province}
                 onChange={(e) => {
-                  if (location.province) {
+                  if (locationStore.location?.province) {
                     setChangeLocation(true);
                   }
                   handleProvinceChange(e);
@@ -247,7 +247,7 @@ export default function LocationModal({
                 className="w-full"
                 value={municipality}
                 onChange={(e) => {
-                  if (location.municipality) {
+                  if (locationStore.location?.municipality) {
                     setChangeLocation(true);
                   }
                   handleMunicipalityChange(e);
@@ -279,7 +279,6 @@ export default function LocationModal({
               }
 
               <div className="mt-6 flex justify-end gap-2">
-                {/* Mostrar el botón de cancelar solo si no es forzado */}
                 {!forceSelection && (
                   <CustomButton onClick={onClose} className="bg-transparent hover:bg-default-100 !text-default-600">
                     Cancelar
@@ -290,7 +289,6 @@ export default function LocationModal({
                 </CustomButton>
               </div>
 
-              {/* Mostrar el botón X de cierre solo si no es forzado */}
               {!forceSelection && (
                 <button onClick={onClose} className="absolute top-3 right-3 text-default-500 hover:bg-default-200 w-8 h-8 rounded-full">
                   ✖
