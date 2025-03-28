@@ -13,6 +13,7 @@ import LocationInitializer from "@store/location/location-initializer";
 import ProductManager from "@store/products/product-manager";
 import CartDebugger from "@store/cart/cart-debugger";
 import { useLocationStore } from "@store/location/location-store";
+import { HydrationProvider } from "@components/hydration-provider";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   useEffect(() => {
@@ -27,21 +28,23 @@ export function Providers({ children }: { children: React.ReactNode }) {
       defaultTheme="system"
     >
       <SessionProvider>
-        <AccessTokenSynchronizer>
-          <CurrencyInitializer />
-          <LocationInitializer />
-          <ProductManager />
-          <CartDebugger />
-          <ProductProvider>
-            <CartProvider>
-              <CartSyncBackup />
-              <HeroUIProvider>
-                <ToastProvider />
-                {children}
-              </HeroUIProvider>
-            </CartProvider>
-          </ProductProvider>
-        </AccessTokenSynchronizer >
+        <HydrationProvider>
+          <AccessTokenSynchronizer>
+            <CurrencyInitializer />
+            <LocationInitializer />
+            <ProductManager />
+            <CartDebugger />
+            <ProductProvider>
+              <CartProvider>
+                <CartSyncBackup />
+                <HeroUIProvider>
+                  <ToastProvider />
+                  {children}
+                </HeroUIProvider>
+              </CartProvider>
+            </ProductProvider>
+          </AccessTokenSynchronizer >
+        </HydrationProvider>
       </SessionProvider>
     </ThemeProvider >
   )
