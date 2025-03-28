@@ -37,34 +37,34 @@ export default function ProductsSlider({
             : false
         }
         slidesPerView={1}
-        spaceBetween={16}
+        spaceBetween={8}
         pagination={{
           clickable: true,
         }}
         breakpoints={{
           320: {
-            slidesPerView: 1,
-            spaceBetween: 24,
+            slidesPerView: 2,
+            spaceBetween: 8,
           },
           540: {
-            slidesPerView: 2,
-            spaceBetween: 16,
+            slidesPerView: 3,
+            spaceBetween: 8,
           },
           768: {
-            slidesPerView: 3,
-            spaceBetween: 16,
+            slidesPerView: 4,
+            spaceBetween: 8,
           },
           1024: {
-            slidesPerView: 4,
-            spaceBetween: 16,
+            slidesPerView: 5,
+            spaceBetween: 8,
           },
           1280: {
-            slidesPerView: 5,
-            spaceBetween: 16,
+            slidesPerView: 6,
+            spaceBetween: 8,
           },
           1536: {
-            slidesPerView: 6,
-            spaceBetween: 16,
+            slidesPerView: 7,
+            spaceBetween: 8,
           },
         }}
         modules={[Navigation, Pagination]}
@@ -72,10 +72,9 @@ export default function ProductsSlider({
       >
         {products.map((product) => (
           <SwiperSlide key={product.id} className="flex items-center justify-center justify-items-center mb-12">
-            <div className="w-full max-w-[280px]">
+            <div className="w-full">
               <ProductCard
                 product={product}
-                className="shadow-sm hover:shadow-md transition-shadow border border-default-300"
               />
             </div>
           </SwiperSlide>

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Button, Input } from "@heroui/react";
+import { Input } from "@heroui/react";
 import {
   Navbar as HerouiNavbar,
   NavbarBrand,
@@ -15,7 +15,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { LoginButton } from "../buttons/login-button";
 import dynamic from "next/dynamic";
-import { Dispatch, SetStateAction, useCallback, useEffect, useRef, useState } from "react";
+import { Dispatch, SetStateAction, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { useDebouncedCallback } from "use-debounce";
 import { SearchSuggestions } from "@/components/search-suggestions";
 import { ProductBase } from "../../types/types";
@@ -24,6 +24,7 @@ import { XIcon } from "lucide-react";
 import { CustomButton } from "@components/buttons/custom-button";
 import { OverlayNext } from "@components/overlay";
 import { LocationButton } from "@components/buttons/location-button";
+import { SearchInput } from "@components/search/search-input";
 
 const AccountButton = dynamic(
   () => import("@/components/buttons/account-button"), {
@@ -120,7 +121,9 @@ const MobileSearch = () => {
 
   return (
     <>
-      {isOpen && <OverlayNext onClick={() => setIsOpen(false)} />}
+      <Suspense fallback={<div />}>
+        {isOpen && <OverlayNext onClick={() => setIsOpen(false)} />}
+      </Suspense>
 
       <div className="relative z-50" ref={searchRef}>
         {!isOpen ? (
@@ -185,134 +188,6 @@ const MobileSearch = () => {
         )}
       </div>
     </>
-  );
-};
-
-const SearchInput = () => {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [suggestions, setSuggestions] = useState<ProductBase[]>([]);
-  const [isFocused, setIsFocused] = useState(false);
-  const router = useRouter();
-  const searchRef = useRef<HTMLDivElement>(null);
-
-  const fetchSuggestions = useDebouncedCallback(
-    async (value: string) => {
-      if (value.length < 3) {
-        setSuggestions([]);
-        return;
-      }
-
-      try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}public/search`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name: value }),
-        });
-
-        if (!response.ok) throw new Error(`Error: ${response.status}`);
-        const data = await response.json();
-        setSuggestions(data);
-      } catch (error) {
-        console.error("Error de búsqueda:", error);
-        setSuggestions([]);
-      }
-    },
-    300
-  );
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
-        setIsFocused(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  const handleSearch = useCallback(() => {
-    if (searchTerm.trim()) {
-      router.push(`/search?q=${encodeURIComponent(searchTerm.trim())}`);
-      setSuggestions([]);
-      setIsFocused(false);
-    }
-  }, [router, searchTerm]);
-
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleSearch();
-    }
-  };
-
-  const handleSelectSuggestion = (term: string) => {
-    setSearchTerm(term);
-    router.push(`/search?q=${encodeURIComponent(term.trim())}`);
-    setIsFocused(false);
-  };
-
-  return (
-    <div className="relative w-full max-w-xl" ref={searchRef}>
-      <motion.div
-        initial={false}
-        animate={{
-          scale: isFocused ? 1.02 : 1,
-          boxShadow: isFocused ? "0 8px 16px rgba(0,0,0,0.1)" : "0 2px 4px rgba(0,0,0,0.05)"
-        }}
-        transition={{ type: "spring", stiffness: 400, damping: 25 }}
-        className="rounded-full border-2 border-blue-100 dark:border-gray-700 overflow-hidden"
-      >
-        <Input
-          aria-label="Buscar productos"
-          variant="faded"
-          value={searchTerm}
-          onChange={(e) => {
-            setSearchTerm(e.target.value);
-            fetchSuggestions(e.target.value);
-          }}
-          onKeyDown={handleKeyPress}
-          onFocus={() => setIsFocused(true)}
-          classNames={{
-            inputWrapper: "bg-white dark:bg-gray-800 rounded-full px-6",
-            input: "text-md placeholder:text-gray-500",
-          }}
-          labelPlacement="outside"
-          placeholder="Buscar productos..."
-          startContent={
-            <SearchIcon className="text-base text-blue-600 dark:text-blue-400 pointer-events-none flex-shrink-0" />
-          }
-          endContent={
-            searchTerm && (
-              <Button
-                isIconOnly
-                variant="light"
-                aria-label="Limpiar búsqueda"
-                className="rounded-full p-0"
-                onClick={() => setSearchTerm("")}
-              >
-                <XIcon className="w-4 h-4 text-gray-500" />
-              </Button>
-            )
-          }
-          type="search"
-        />
-      </motion.div>
-
-      {isFocused && suggestions.length > 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 10 }}
-          transition={{ type: "spring", stiffness: 400, damping: 25 }}
-          className="absolute top-full left-0 w-full mt-2 z-50"
-        >
-          <SearchSuggestions
-            suggestions={suggestions}
-            onSelect={handleSelectSuggestion}
-            searchTerm={searchTerm} // Añade esta línea
-          />
-        </motion.div>
-      )}
-    </div>
   );
 };
 
@@ -396,7 +271,6 @@ export const Header = ({ className, setModalOpen }: { className?: string, setMod
 
       <NavbarContent className="xm:hidden basis" justify="end">
         <NavbarItem className="flex gap-2.5 items-end">
-          <MobileSearch />
           {!isCheckoutPage && (
             <LocationButton setModalOpen={setModalOpen} />
           )}

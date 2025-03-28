@@ -164,10 +164,6 @@ ProductCardSkeleton.displayName = 'ProductCardSkeleton';
 // Componente principal que NO usa useSearchParams directamente
 export default function ProductPage() {
   const deviceData = useDeviceDetection();
-  const shouldOptimizeSeverely = deviceData.isDataSaver ||
-    deviceData.effectiveType === 'slow-2g' ||
-    deviceData.effectiveType === '2g' ||
-    deviceData.isLowPerformance;
 
   return (
     <div className="flex flex-col md:flex-row w-full min-h-screen">
@@ -177,7 +173,7 @@ export default function ProductPage() {
         <FilterDrawer />
       )}
 
-      {deviceData.isMobile && !shouldOptimizeSeverely && (
+      {deviceData.isMobile && (
         <FilterDrawer />
       )}
 
@@ -191,16 +187,15 @@ export default function ProductPage() {
           </div>
         </section>
       }>
-        <ProductPageContent deviceData={deviceData} shouldOptimizeSeverely={shouldOptimizeSeverely} />
+        <ProductPageContent deviceData={deviceData} />
       </Suspense>
     </div>
   );
 }
 
 // Componente secundario que SÍ usa useSearchParams
-function ProductPageContent({ deviceData, shouldOptimizeSeverely }: {
+function ProductPageContent({ deviceData }: {
   deviceData: ReturnType<typeof useDeviceDetection>,
-  shouldOptimizeSeverely: boolean
 }) {
   const { products, totalPages, error, isLoading } = useProductContext();
   const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") || "";
@@ -209,7 +204,6 @@ function ProductPageContent({ deviceData, shouldOptimizeSeverely }: {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  // Estado para controlar la cantidad de elementos a mostrar inicialmente
   const [visibleItems, setVisibleItems] = useState(30);
   const currentPage = Number(searchParams.get("page")) || 1;
   const mainSectionRef = useRef<HTMLElement>(null);
@@ -251,8 +245,7 @@ function ProductPageContent({ deviceData, shouldOptimizeSeverely }: {
   }, [searchParams, categories]);
 
   const scrollToTop = useCallback(() => {
-    // Evitar animaciones en dispositivos de gama baja para ahorrar recursos
-    const behavior = deviceData.isLowPerformance ? 'auto' : 'smooth';
+    const behavior = 'smooth';
 
     requestAnimationFrame(() => {
       if (mainSectionRef.current) {
@@ -261,23 +254,19 @@ function ProductPageContent({ deviceData, shouldOptimizeSeverely }: {
 
       window.scrollTo({ top: 0, behavior });
     });
-  }, [deviceData.isLowPerformance]);
+  }, []);
 
-  // Función para cargar más elementos cuando se hace scroll
   const loadMoreItems = useCallback(throttle(() => {
-    // Solo cargamos más si no estamos en proceso de carga
     if (!isLoading && products.length > visibleItems) {
       const newVisibleItems = Math.min(visibleItems + (deviceData.isMobile ? 4 : 8), products.length);
       setVisibleItems(newVisibleItems);
     }
   }, 200), [visibleItems, products.length, isLoading, deviceData.isMobile]);
 
-  // Manejar evento de scroll para cargar más elementos
   useEffect(() => {
     const handleScroll = throttle(() => {
       if (mainSectionRef.current) {
         const { scrollTop, scrollHeight, clientHeight } = mainSectionRef.current;
-        // Si estamos cerca del final, cargamos más
         if (scrollHeight - scrollTop - clientHeight < 600) {
           loadMoreItems();
         }
@@ -305,7 +294,7 @@ function ProductPageContent({ deviceData, shouldOptimizeSeverely }: {
 
         const params = new URLSearchParams(searchParams.toString());
         params.delete("empty");
-        router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+        router.replace(`${pathname}?${params.toString()}`, { scroll: true });
       }
     }
   }, [searchParams, pathname, router]);
