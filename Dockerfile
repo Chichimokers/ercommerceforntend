@@ -1,12 +1,12 @@
-FROM node:18-alpine AS base
+FROM refinedev/node:18 AS base
 
 FROM base AS deps
 WORKDIR /app
 
-RUN apk add --no-cache libc6-compat
+RUN apk add --no-cache libc6-compat pnpm
 
 COPY package.json pnpm-lock.yaml* .npmrc* ./
-RUN npm install -g pnpm && pnpm install --frozen-lockfile
+RUN pnpm install --frozen-lockfile
 
 FROM base AS builder
 WORKDIR /app
