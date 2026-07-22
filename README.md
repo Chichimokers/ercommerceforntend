@@ -1,23 +1,20 @@
 # ercommerceforntend
 
-## Tecnologias
-- CSS
-- Docker
-- Dockerfile
-- JavaScript
-- Node.js
-- TypeScript
+## Lenguajes
+- {'size': 292, 'node': {'name': 'Dockerfile'}}
+- {'size': 6384, 'node': {'name': 'CSS'}}
+- {'size': 7163, 'node': {'name': 'JavaScript'}}
+- {'size': 896764, 'node': {'name': 'TypeScript'}}
 
 ## Instalacion
 
 ```bash
-npm install
-npm run dev
+git clone https://github.com/Chichimokers/ercommerceforntend.git
+cd ercommerceforntend
+pip install -r requirements.txt  # o npm install
+python run.py  # o npm run dev
 ```
 
-## Descripcion
-
-Proyecto ercommerceforntend.
-
 ---
-(c) 2026 Chichimokers -- https://github.com/Chichimokers/ercommerceforntend
+
+(c) 2026 Chichimokers - Proyecto Privado
